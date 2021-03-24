@@ -49,7 +49,11 @@ namespace ModPack
             _removeCoopScaling = CreateSetting(nameof(_removeCoopScaling), false);
             _removeDodgeInvulnerability = CreateSetting(nameof(_removeDodgeInvulnerability), false);
 
-            AddEventOnConfigClosed(() => Global.CheatsEnabled = _enableCheats);
+            AddEventOnConfigClosed(() =>
+            {
+                Global.CheatsEnabled = _enableCheats;
+                SplitScreenManager.Instance.CurrentSplitType = _verticalSplitscreen ? SplitScreenManager.SplitType.Vertical : SplitScreenManager.SplitType.Horizontal;
+            });
 
             // WIP
             _allowDodgeAnimationCancelling = CreateSetting(nameof(_allowDodgeAnimationCancelling), false);
@@ -199,6 +203,20 @@ namespace ModPack
         => characterUI.transform.Find("Canvas/GameplayPanels/HUD/QuickSlot/Controller/LT-RT");
         static private Transform GetMenuPanelsHolder(CharacterUI characterUI)
         => characterUI.transform.Find("Canvas/GameplayPanels/Menus/CharacterMenus/MainPanel/Content/MiddlePanel/QuickSlotPanel/PanelSwitcher/Controller/LT-RT");
+
+        // Vertical splitscreen
+
+        [HarmonyPatch(typeof(CharacterUI), "RefreshSize"), HarmonyPostfix]
+        static void CharacterUI_RefreshSize_Post(ref CharacterUI __instance, ref Vector2 _anchorPosModifier)
+        {
+            #region quit
+            if (!_verticalSplitscreen)
+                return;
+            #endregion
+
+            if (SplitScreenManager.Instance.LocalPlayerCount == 2)
+                _anchorPosModifier = -_anchorPosModifier;
+        }
 
         // Double controller quickslots
         [HarmonyPatch(typeof(ControlsInput), "Sheathe"), HarmonyPostfix]
