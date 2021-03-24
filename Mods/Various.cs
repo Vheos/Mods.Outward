@@ -34,6 +34,7 @@ namespace ModPack
         static private ModSetting<bool> _skipStartupVideos;
         static private ModSetting<ArmorSlots> _armorSlotsToHide;
         static private ModSetting<bool> _extraControllerQuickslots;
+        static private ModSetting<bool> _verticalSplitscreen;
         static private ModSetting<bool> _removeCoopScaling;
         static private ModSetting<bool> _removeDodgeInvulnerability;
         static private ModSetting<bool> _allowDodgeAnimationCancelling;
@@ -44,6 +45,7 @@ namespace ModPack
             _skipStartupVideos = CreateSetting(nameof(_skipStartupVideos), false);
             _armorSlotsToHide = CreateSetting(nameof(_armorSlotsToHide), ArmorSlots.None);
             _extraControllerQuickslots = CreateSetting(nameof(_extraControllerQuickslots), false);
+            _verticalSplitscreen = CreateSetting(nameof(_verticalSplitscreen), false);
             _removeCoopScaling = CreateSetting(nameof(_removeCoopScaling), false);
             _removeDodgeInvulnerability = CreateSetting(nameof(_removeDodgeInvulnerability), false);
 
@@ -64,6 +66,8 @@ namespace ModPack
             _extraControllerQuickslots.Format("16 controller quickslots");
             _extraControllerQuickslots.Description = "Allows you to use the d-pad with LT/RT for 8 extra quickslots\n" +
                                                      "(assumes default d-pad keybind, sorry!)";
+            _verticalSplitscreen.Format("Vertical splitscreen");
+            _verticalSplitscreen.Description = "for displays that are more wide than tall";
             _removeCoopScaling.Format("Remove multiplayer scaling");
             _removeCoopScaling.Description = "Enemies in multiplayer will have the same stats as in singleplayer";
             _removeDodgeInvulnerability.Format("Remove dodge invulnerability");
@@ -82,8 +86,8 @@ namespace ModPack
         override protected string Description
         => "• Mods (small and big) that didn't get their own section yet:\n" +
            "enable cheats, skip startup videos, hide armor slots\n" +
-           "16 controller keybinds, remove multiplayer scaling,\n" +
-           "remove dodge invulnerability";
+           "16 controller keybinds, vertical splitscreen,\n" +
+           "remove multiplayer scaling, remove dodge invulnerability";
 
         // Utility
         static private bool ShouldArmorSlotBeHidden(EquipmentSlot.EquipmentSlotIDs slot)
