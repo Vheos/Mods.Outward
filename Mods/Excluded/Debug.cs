@@ -8,7 +8,7 @@ using UnityEngine.UI;
 
 namespace ModPack
 {
-    public class Debug : AMod, IUpdatable, IExcludeFromBuild
+    public class Debug : AMod, IUpdatable
     {
         // Setting
         override protected void Initialize()
@@ -22,9 +22,15 @@ namespace ModPack
         {
             if (Input.GetKey(KeyCode.LeftAlt) && Input.GetKeyDown(KeyCode.Keypad0))
             {
-                foreach (var ingestibleByName in Prefabs.IngestiblesByGOName)
+                foreach (var localPlayer in GameInput.LocalPlayers)
                 {
-                    Tools.Log($"{ingestibleByName.Key}\t{ingestibleByName.Value.DisplayName}");
+                    Tools.Log($"{localPlayer.Split != null}\t" +
+                              $"{localPlayer.Character != null}\t" +
+                              $"{localPlayer.Camera != null}\t" +
+                              $"{localPlayer.UI != null}\t" +
+                              $"{localPlayer.System != null}\t" +
+                              $"{localPlayer.ID}\t" +
+                              $"{localPlayer.UID}");
                 }
                 /*
                 typeof(Sleepable).Dump(null, Data.Names);
