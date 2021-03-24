@@ -14,6 +14,18 @@ namespace ModPack
         static public float HOLD_THRESHOLD = 0.4f;   // Character.BASIC_INTERACT_THRESHOLD
 
         #endregion
+        #region struct
+        public struct PlayerData
+        {
+            public SplitPlayer Split;
+            public Character Character;
+            public CharacterCamera Camera;
+            public CharacterUI UI;
+            public PlayerSystem System;
+            public int ID;
+            public string UID;
+        }
+        #endregion
 
         // Publics        
         static public bool HasBeenPressed(int playerID, ControlsInput.GameplayActions action)
@@ -41,7 +53,7 @@ namespace ModPack
                     return _keyCodesByName[text];
             return KeyCode.None;
         }
-        static public List<PlayerSystem> LocalPlayers
+        static public List<PlayerData> LocalPlayers
         { get; private set; }
 
         // Shortcuts
@@ -68,11 +80,33 @@ namespace ModPack
 
         // Privates
         static private Dictionary<string, KeyCode> _keyCodesByName;
-        static private void RecacheLocalPlayers(string[] localPlayersUIDs)
+        static private void RecacheLocalPlayers()
         {
             LocalPlayers.Clear();
-            foreach (var localPlayerUID in localPlayersUIDs)
-                LocalPlayers.Add(Global.Lobby.GetPlayerSystem(localPlayerUID));
+            foreach (var splitPlayer in SplitScreenManager.Instance.LocalPlayers)
+            {
+                Character character = splitPlayer.AssignedCharacter;
+                PlayerSystem playerSystem = character.OwnerPlayerSys;
+                PlayerData newPlayerData = new PlayerData()
+                {
+                    Split = splitPlayer,
+                    Character = character,
+                    Camera = character.CharacterCamera,
+                    UI = character.CharacterUI,
+                    System = playerSystem,
+                    ID = playerSystem.PlayerID,
+                    UID = playerSystem.UID,
+                };
+
+                LocalPlayers.Add(newPlayerData);
+                    Tools.Log($"{newPlayerData.Split != null}\t" +
+                              $"{newPlayerData.Character != null}\t" +
+                              $"{newPlayerData.Camera != null}\t" +
+                              $"{newPlayerData.UI != null}\t" +
+                              $"{newPlayerData.System != null}\t" +
+                              $"{newPlayerData.ID}\t" +
+                              $"{newPlayerData.UID}");
+            }
         }
 
         // Initializers
@@ -86,18 +120,18 @@ namespace ModPack
                     _keyCodesByName.Add(keyName, keyCode);
             }
 
-            LocalPlayers = new List<PlayerSystem>();
+            LocalPlayers = new List<PlayerData>();
 
             Harmony.CreateAndPatchAll(typeof(GameInput));
         }
 
         // Hooks
         [HarmonyPatch(typeof(LobbySystem), "AssignUID"), HarmonyPostfix]
-        static void LobbySystem_AssignUID_Post(ref LobbySystem __instance)
-        => RecacheLocalPlayers(__instance.m_cachedLocalPlayerUIDsArray);
+        static void LobbySystem_AssignUID_Post()
+        => RecacheLocalPlayers();
 
         [HarmonyPatch(typeof(LobbySystem), "ReleaseUID"), HarmonyPostfix]
-        static void LobbySystem_ReleaseUID_Post(ref LobbySystem __instance)
-        => RecacheLocalPlayers(__instance.m_cachedLocalPlayerUIDsArray);
+        static void LobbySystem_ReleaseUID_Post()
+        => RecacheLocalPlayers();
     }
 }
