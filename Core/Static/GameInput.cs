@@ -88,10 +88,8 @@ namespace ModPack
             {
                 counter++;
                 Character character = splitPlayer.AssignedCharacter;
-                Tools.Log($"Character #{counter}: {character != null}");
                 PlayerSystem playerSystem = character.OwnerPlayerSys;
-                Tools.Log($"PlayerSystem #{counter}: {playerSystem != null}");
-                PlayerData newPlayerData = new PlayerData()
+                LocalPlayers.Add(new PlayerData()
                 {
                     Split = splitPlayer,
                     Character = character,
@@ -100,16 +98,7 @@ namespace ModPack
                     System = playerSystem,
                     ID = playerSystem.PlayerID,
                     UID = playerSystem.UID,
-                };
-
-                LocalPlayers.Add(newPlayerData);
-                Tools.Log($"{newPlayerData.Split != null}\t" +
-                          $"{newPlayerData.Character != null}\t" +
-                          $"{newPlayerData.Camera != null}\t" +
-                          $"{newPlayerData.UI != null}\t" +
-                          $"{newPlayerData.System != null}\t" +
-                          $"{newPlayerData.ID}\t" +
-                          $"{newPlayerData.UID}");
+                });
             }
         }
 
