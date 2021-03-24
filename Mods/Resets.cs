@@ -13,7 +13,7 @@ using System.Collections.Generic;
  */
 namespace ModPack
 {
-        public class Resets : ModBase
+        public class Resets : AMod
     {
         #region constants
         private const float AREAS_RESET_HOURS = 168f;   // Area.m_resetTime

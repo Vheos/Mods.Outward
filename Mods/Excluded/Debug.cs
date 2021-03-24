@@ -8,7 +8,7 @@ using UnityEngine.UI;
 
 namespace ModPack
 {
-    public class Debug : ModBase, IUpdatable, IExcludeFromBuild
+    public class Debug : AMod, IUpdatable, IExcludeFromBuild
     {
         // Setting
         override protected void Initialize()

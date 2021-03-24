@@ -6,7 +6,7 @@ using BepInEx.Configuration;
 
 namespace ModPack
 {
-    public class KeyboardWalk : ModBase, IUpdatable
+    public class KeyboardWalk : AMod, IUpdatable
     {
         // Setting
         static private ModSetting<int> _walkSpeed;

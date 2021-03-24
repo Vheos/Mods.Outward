@@ -9,7 +9,7 @@ using System;
 
 namespace ModPack
 {
-    public class Interactions : ModBase, IWaitForPrefabs
+    public class Interactions : AMod, IWaitForPrefabs
     {
         #region const
         public const float ANIMATED_TAKE_DELAY = 0.3f;

@@ -11,7 +11,7 @@ using System.Globalization;
 
 namespace ModPack
 {
-    static public class Various_Extensions
+    static public class Extensions_Various
     {
         // Game
         static public bool IsPlayer(this Character character)

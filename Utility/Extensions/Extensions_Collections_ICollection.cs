@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace ModPack
 {
-    static public class Collection_Extensions_ICollection
+    static public class Extensions_Collections_ICollection
     {
         /// <summary> Adds given elements to this collection. </summary>
         static public void Add<T>(this ICollection<T> t, ICollection<T> elements)

@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace ModPack
 {
-    static public class Collection_Extensions_IList
+    static public class Extensions_Collections_IList
     {
         /// <summary> Returns the first element from this list. </summary>
         static public T First<T>(this IList<T> t)

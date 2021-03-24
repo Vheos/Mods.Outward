@@ -6,7 +6,7 @@ using System.Collections.Generic;
 
 namespace ModPack
 {
-    public abstract class ModSettingBase
+    public abstract class AModSetting
     {
         // Publics 
         public void Format(string displayName)
@@ -22,7 +22,7 @@ namespace ModPack
 
             Ordering = _positionOffset + _nextPosition++;
         }
-        public void Format(string displayName, ModSettingBase controller, Func<bool> check = null)
+        public void Format(string displayName, AModSetting controller, Func<bool> check = null)
         {
             Format(displayName);
             AddVisibilityControl(controller, check);
@@ -138,8 +138,8 @@ namespace ModPack
         static private int _indentLevel;
         // Visibility control
         private Func<bool> _visibilityCheck;
-        private List<ModSettingBase> _visibilityControllers;
-        private void AddVisibilityControl(ModSettingBase controller, Func<bool> check = null)
+        private List<AModSetting> _visibilityControllers;
+        private void AddVisibilityControl(AModSetting controller, Func<bool> check = null)
         {
             AddParentVisibilityControllers(controller);
             if (check != null)
@@ -172,7 +172,7 @@ namespace ModPack
 
             AddVisibilityControl(controller, check);
         }
-        private void AddParentVisibilityControllers(ModSettingBase controller)
+        private void AddParentVisibilityControllers(AModSetting controller)
         {
             _visibilityControllers.Add(controller);
             foreach (var newParentController in controller._visibilityControllers)
@@ -180,10 +180,10 @@ namespace ModPack
         }
 
         // Constructors
-        protected ModSettingBase()
+        protected AModSetting()
         {
             _events = new List<Action>();
-            _visibilityControllers = new List<ModSettingBase>();
+            _visibilityControllers = new List<AModSetting>();
             _visibilityCheck = () => true;
         }
     }

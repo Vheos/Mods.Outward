@@ -6,7 +6,7 @@ using System.Collections.Generic;
 
 namespace ModPack
 {
-    public class ModSetting<T> : ModSettingBase
+    public class ModSetting<T> : AModSetting
     {
         // Publics
         public T Value

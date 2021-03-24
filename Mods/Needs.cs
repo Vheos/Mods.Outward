@@ -12,7 +12,7 @@ using System;
  */
 namespace ModPack
 {
-    public class Needs : ModBase, IWaitForPrefabs
+    public class Needs : AMod, IWaitForPrefabs
     {
         #region const
         private const string ICONS_FOLDER = @"Needs\";

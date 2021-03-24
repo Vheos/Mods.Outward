@@ -89,42 +89,42 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Core\Interfaces.cs" />
+    <Compile Include="Core\Abstract\Interfaces.cs" />
     <Compile Include="Core\Static\Prefabs.cs" />
     <Compile Include="Core\Static\GameInput.cs" />
-    <Compile Include="Mods\Ready\KeyboardWalk.cs" />
+    <Compile Include="Mods\KeyboardWalk.cs" />
     <Compile Include="Mods\Excluded\Debug.cs" />
-    <Compile Include="Mods\Ready\Descriptions.cs" />
-    <Compile Include="Mods\Ready\Speed.cs" />
-    <Compile Include="Mods\Ready\Camera.cs" />
+    <Compile Include="Mods\Descriptions.cs" />
+    <Compile Include="Mods\Speed.cs" />
+    <Compile Include="Mods\Camera.cs" />
     <Compile Include="Mods\Excluded\PistolTweaks.cs" />
-    <Compile Include="Mods\Ready\Resets.cs" />
-    <Compile Include="Mods\Ready\Damage.cs" />
-    <Compile Include="Mods\Ready\Revive.cs" />
-    <Compile Include="Mods\Ready\Needs.cs" />
-    <Compile Include="Mods\Ready\Interactions.cs" />
-    <Compile Include="Mods\Ready\Various.cs" />
-    <Compile Include="Utility\Collections\Collection_Extensions_ICollection.cs" />
-    <Compile Include="Utility\Collections\Collection_Extensions_IList.cs" />
-    <Compile Include="Utility\Math\Math_Extensions_Common.cs" />
-    <Compile Include="Utility\Math\Math_Extensions_Unique.cs" />
-    <Compile Include="Core\ModBase.cs" />
+    <Compile Include="Mods\Resets.cs" />
+    <Compile Include="Mods\Damage.cs" />
+    <Compile Include="Mods\Revive.cs" />
+    <Compile Include="Mods\Needs.cs" />
+    <Compile Include="Mods\Interactions.cs" />
+    <Compile Include="Mods\Various.cs" />
+    <Compile Include="Utility\Extensions\Extensions_Collections_ICollection.cs" />
+    <Compile Include="Utility\Extensions\Extensions_Collections_IList.cs" />
+    <Compile Include="Utility\Extensions\Extensions_Math_Common.cs" />
+    <Compile Include="Utility\Extensions\Extensions_Math_Unique.cs" />
+    <Compile Include="Core\Abstract\AMod.cs" />
     <Compile Include="Core\ConfigurationManagerAttributes.cs" />
-    <Compile Include="Utility\Object\Object_Extensions_Component.cs" />
-    <Compile Include="Utility\Object\Object_Extensions_GameObject.cs" />
-    <Compile Include="Utility\Reflection_Extensions.cs" />
+    <Compile Include="Utility\Extensions\Extensions_UnityObjects_Component.cs" />
+    <Compile Include="Utility\Extensions\Extensions_UnityObjects_GameObject.cs" />
+    <Compile Include="Utility\Extensions\Extensions_Reflection.cs" />
     <Compile Include="Core\Static\Tools.cs" />
-    <Compile Include="Utility\Various_Extensions.cs" />
+    <Compile Include="Utility\Extensions\Extensions_Various.cs" />
     <Compile Include="Utility\Utility.cs" />
     <Compile Include="Core\Main.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Core\ModSetting.cs" />
-    <Compile Include="Core\ModSettingBase.cs" />
+    <Compile Include="Core\Abstract\AModSetting.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Utility\Snippets\log.snippet" />
     <None Include="Utility\Snippets\postfix.snippet" />
-    <None Include="Utility\Snippets\tempvalues.snippet" />
+    <None Include="Utility\Snippets\tempstate.snippet" />
     <None Include="Utility\Snippets\prefix.snippet" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

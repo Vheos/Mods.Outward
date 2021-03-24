@@ -88,7 +88,6 @@ namespace ModPack
             }
         }
 
-
         static public IEnumerator CoroutineWaitForSeconds(float delay, Action action)
         {
             yield return new WaitForSeconds(delay);

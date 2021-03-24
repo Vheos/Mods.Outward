@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace ModPack
 {
-    static public class Math_Extensions_Common
+    static public class Extensions_Math_Common
     {
         //------------------------------------------------------------------------------------------------------------------------------- int
 

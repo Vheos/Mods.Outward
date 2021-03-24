@@ -50,7 +50,7 @@ namespace ModPack
     }
     #endregion
 
-    static public class Reflection_Extensions
+    static public class Extensions_Reflection
     {
         // Instance field
         static public TReturn GetField<TReturn>(this object instance, string fieldName)

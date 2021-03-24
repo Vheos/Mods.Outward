@@ -12,7 +12,7 @@ using System.Collections.Generic;
  */
 namespace ModPack
 {
-    public class Various : ModBase
+    public class Various : AMod
     {
         #region const
         private const string BOTH_TRIGGERS_PANEL_NAME = "LT+RT";

@@ -6,7 +6,7 @@ using BepInEx.Configuration;
 
 namespace ModPack
 {
-        public class Revive : ModBase
+        public class Revive : AMod
     {
         #region const       
         private const float ITEM_INTERACT_RADIUS = 0.1f;   // InteractionTriggerBase.m_detectionColliderRadius

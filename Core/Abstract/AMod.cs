@@ -7,7 +7,7 @@ using System.Collections.Generic;
 
 namespace ModPack
 {
-    abstract public class ModBase
+    public abstract class AMod
     {
         #region const
         private const int MAX_SETTINGS_PER_MOD = 1000;
@@ -43,7 +43,7 @@ namespace ModPack
 
         // Privates
         private readonly Harmony _patcher;
-        private readonly List<ModSettingBase> _settings;
+        private readonly List<AModSetting> _settings;
         private readonly List<Action> _onConfigClosedEvents;
         private string SectionName
         => GetType().Name;
@@ -147,10 +147,10 @@ namespace ModPack
         => _mainToggle.SetSilently(_mainToggle & ~Toggles.Hide);
 
         // Constructors
-        protected ModBase()
+        protected AMod()
         {
             _patcher = new Harmony(GetType().Name);
-            _settings = new List<ModSettingBase>();
+            _settings = new List<AModSetting>();
             _onConfigClosedEvents = new List<Action>();
 
             ResetSettingPosition();
@@ -177,11 +177,11 @@ namespace ModPack
         protected bool IsHidden
         => _mainToggle.Value.HasFlag(Toggles.Hide);
         protected void ResetSettingPosition()
-        => ModSettingBase.ResetSettingPosition(ModOrderingOffset);
+        => AModSetting.ResetSettingPosition(ModOrderingOffset);
         protected int Indent
         {
-            get => ModSettingBase.Indent;
-            set => ModSettingBase.Indent = value;
+            get => AModSetting.Indent;
+            set => AModSetting.Indent = value;
         }
         protected void AddEventOnConfigClosed(Action action)
         {

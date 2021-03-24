@@ -1,7 +1,6 @@
 ﻿using BepInEx;
 using HarmonyLib;
 using System.Collections.Generic;
-using System.Reflection;
 using UnityEngine;
 using System;
 using BepInEx.Configuration;
@@ -24,7 +23,7 @@ namespace ModPack
         private List<IUpdatable> _updatableMods;
         private void CategorizeModsByInstantiationTime(params Type[] whitelist)
         {
-            foreach (var modType in Utility.GetDerivedTypes<ModBase>())
+            foreach (var modType in Utility.GetDerivedTypes<AMod>())
                 if (modType.IsNotAssignableTo<IExcludeFromBuild>())
                     if (whitelist.Length == 0 || modType.IsContainedIn(whitelist))
                     {
@@ -44,7 +43,7 @@ namespace ModPack
         }
         private void InstantiateMod(Type modType)
         {
-            ModBase newMod = (ModBase)Activator.CreateInstance(modType);
+            AMod newMod = (AMod)Activator.CreateInstance(modType);
             if (modType.IsAssignableTo<IUpdatable>())
                 _updatableMods.Add(newMod as IUpdatable);
         }

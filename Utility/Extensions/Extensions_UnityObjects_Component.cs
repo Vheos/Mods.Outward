@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace ModPack
 {
-    static public class Object_Extensions_Component
+    static public class Extensions_UnityObjects_Component
     {
         //------------------------------------------------------------------------------------------------------------------------------- Hierarchy
 

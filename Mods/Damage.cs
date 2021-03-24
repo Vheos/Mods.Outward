@@ -9,7 +9,7 @@ using BepInEx.Configuration;
  */
 namespace ModPack
 {
-    public class Damage : ModBase
+    public class Damage : AMod
     {
         // Config
         static private ModSetting<bool> _playersToggle, _npcsToggle, _friendlyFireToggle;

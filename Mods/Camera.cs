@@ -7,7 +7,7 @@ using System;
 
 namespace ModPack
 {
-    public class Camera : ModBase, IWaitForPrefabs, IUpdatable
+    public class Camera : AMod, IWaitForPrefabs, IUpdatable
     {
         #region const
         static private readonly Vector3 DEFAULT_OFFSET = new Vector3(0f, 1f, -3f);

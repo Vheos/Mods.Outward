@@ -13,7 +13,7 @@ using System;
  */
 namespace ModPack
 {
-    public class Descriptions : ModBase, IWaitForPrefabs
+    public class Descriptions : AMod, IWaitForPrefabs
     {
         #region const
         static private readonly Vector2 BAR_MAX_SIZE = new Vector2(2.75f, 2.50f);

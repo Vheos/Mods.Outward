@@ -6,7 +6,7 @@ using BepInEx.Configuration;
 
 namespace ModPack
 {
-        public class Speed : ModBase, IUpdatable
+        public class Speed : AMod, IUpdatable
     {
         #region const
         private const float FIXED_TIME_DELTA = 0.022f;   // Global.Update(), PauseMenu.Pause(), PauseMenu.TogglePause()
