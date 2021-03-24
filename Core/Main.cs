@@ -66,7 +66,7 @@ namespace ModPack
             _awakeMods = new List<Type>();
             _prefabMods = new List<Type>();
             _updatableMods = new List<IUpdatable>();
-            Tools.Initialize(Logger, Config, GetComponent<ConfigurationManager.ConfigurationManager>(), Info.Metadata);
+            Tools.Initialize(this, Logger);
             GameInput.Initialize();
             CategorizeModsByInstantiationTime();
             InstantiateMods(_awakeMods);

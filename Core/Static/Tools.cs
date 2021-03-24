@@ -4,8 +4,9 @@ using BepInEx.Configuration;
 using System;
 using UnityEngine;
 using HarmonyLib;
-
-
+using UnityEngine.UI;
+using UnityEngine.EventSystems;
+using System.Collections.Generic;
 
 namespace ModPack
 {
@@ -46,15 +47,17 @@ namespace ModPack
             set => _configManager.DisplayingWindow = value;
         }
         static private BepInPlugin _plugin;
+        static private GraphicRaycaster _graphicRaycaster;
         static private ModSetting<bool> _alwaysExpanded;
 
         // Initializers
-        static public void Initialize(ManualLogSource logger, ConfigFile configFile, ConfigurationManager.ConfigurationManager configManager, BepInPlugin plugin)
+        static public void Initialize(BaseUnityPlugin pluginComponent, ManualLogSource logger)
         {
             _logger = logger;
-            _configFile = configFile;
-            _configManager = configManager;
-            _plugin = plugin;
+            _configFile = pluginComponent.Config;
+            _configManager = pluginComponent.GetComponent<ConfigurationManager.ConfigurationManager>();
+            _plugin = pluginComponent.Info.Metadata;
+            _graphicRaycaster = pluginComponent.gameObject.AddComponent<GraphicRaycaster>();
 
             CreateAlwaysExpandedToggle();
             Harmony.CreateAndPatchAll(typeof(Tools));
@@ -66,6 +69,14 @@ namespace ModPack
             _alwaysExpanded.Description = "\"Vheos Mod Pack\" plugin will always be expanded, even if you choose to collapse all plugins." +
                                           "This prevents the plugin from collapsing when changing settings while default collapsing in enabled";
             _alwaysExpanded.IsAdvanced = true;
+        }
+        static private List<RaycastResult> RaycastUI(Vector2 mousePosition)
+        {
+            PointerEventData eventData = new PointerEventData(null);
+            eventData.position = mousePosition;
+            List<RaycastResult> hits = new List<RaycastResult>();
+            _graphicRaycaster.Raycast(eventData, hits);
+            return hits;
         }
 
         // Hooks
