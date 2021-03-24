@@ -83,10 +83,14 @@ namespace ModPack
         static private void RecacheLocalPlayers()
         {
             LocalPlayers.Clear();
+            int counter = 0;
             foreach (var splitPlayer in SplitScreenManager.Instance.LocalPlayers)
             {
+                counter++;
                 Character character = splitPlayer.AssignedCharacter;
+                Tools.Log($"Character #{counter}: {character != null}");
                 PlayerSystem playerSystem = character.OwnerPlayerSys;
+                Tools.Log($"PlayerSystem #{counter}: {playerSystem != null}");
                 PlayerData newPlayerData = new PlayerData()
                 {
                     Split = splitPlayer,
@@ -99,13 +103,13 @@ namespace ModPack
                 };
 
                 LocalPlayers.Add(newPlayerData);
-                    Tools.Log($"{newPlayerData.Split != null}\t" +
-                              $"{newPlayerData.Character != null}\t" +
-                              $"{newPlayerData.Camera != null}\t" +
-                              $"{newPlayerData.UI != null}\t" +
-                              $"{newPlayerData.System != null}\t" +
-                              $"{newPlayerData.ID}\t" +
-                              $"{newPlayerData.UID}");
+                Tools.Log($"{newPlayerData.Split != null}\t" +
+                          $"{newPlayerData.Character != null}\t" +
+                          $"{newPlayerData.Camera != null}\t" +
+                          $"{newPlayerData.UI != null}\t" +
+                          $"{newPlayerData.System != null}\t" +
+                          $"{newPlayerData.ID}\t" +
+                          $"{newPlayerData.UID}");
             }
         }
 
@@ -126,12 +130,12 @@ namespace ModPack
         }
 
         // Hooks
-        [HarmonyPatch(typeof(LobbySystem), "AssignUID"), HarmonyPostfix]
-        static void LobbySystem_AssignUID_Post()
+        [HarmonyPatch(typeof(SplitPlayer), "SetCharacter"), HarmonyPostfix]
+        static void SplitPlayer_SetCharacter_Post()
         => RecacheLocalPlayers();
 
-        [HarmonyPatch(typeof(LobbySystem), "ReleaseUID"), HarmonyPostfix]
-        static void LobbySystem_ReleaseUID_Post()
+        [HarmonyPatch(typeof(RPCManager), "SendPlayerHasLeft"), HarmonyPostfix]
+        static void RPCManager_SendPlayerHasLeft_Post()
         => RecacheLocalPlayers();
     }
 }

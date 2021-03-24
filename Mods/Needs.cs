@@ -163,7 +163,7 @@ namespace ModPack
                 UpdateSleepBuffsDuration();
                 foreach (var localPlayer in GameInput.LocalPlayers)
                 {
-                    PlayerCharacterStats stats = localPlayer.ControlledCharacter.PlayerStats;
+                    PlayerCharacterStats stats = localPlayer.Character.PlayerStats;
                     UpdateThresholds(stats);
                     UpdateDepletionRates(stats);
                 }
