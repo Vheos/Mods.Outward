@@ -52,7 +52,8 @@ namespace ModPack
             AddEventOnConfigClosed(() =>
             {
                 Global.CheatsEnabled = _enableCheats;
-                SplitScreenManager.Instance.CurrentSplitType = _verticalSplitscreen ? SplitScreenManager.SplitType.Vertical : SplitScreenManager.SplitType.Horizontal;
+                if (SplitScreenManager.Instance != null)
+                    SplitScreenManager.Instance.CurrentSplitType = _verticalSplitscreen ? SplitScreenManager.SplitType.Vertical : SplitScreenManager.SplitType.Horizontal;
             });
 
             // WIP
@@ -204,18 +205,19 @@ namespace ModPack
         static private Transform GetMenuPanelsHolder(CharacterUI characterUI)
         => characterUI.transform.Find("Canvas/GameplayPanels/Menus/CharacterMenus/MainPanel/Content/MiddlePanel/QuickSlotPanel/PanelSwitcher/Controller/LT-RT");
 
-        // Vertical splitscreen
 
-        [HarmonyPatch(typeof(CharacterUI), "RefreshSize"), HarmonyPostfix]
-        static void CharacterUI_RefreshSize_Post(ref CharacterUI __instance, ref Vector2 _anchorPosModifier)
+        // Vertical splitscreen
+        [HarmonyPatch(typeof(CharacterUI), "DelayedRefreshSize"), HarmonyPostfix]
+        static void CharacterUI_RefreshSize_Post(ref CharacterUI __instance)
         {
             #region quit
-            if (!_verticalSplitscreen)
+            if (!_verticalSplitscreen || SplitScreenManager.Instance.LocalPlayerCount < 2)
                 return;
             #endregion
 
+            SplitScreenManager.Instance.CurrentSplitType = SplitScreenManager.SplitType.Vertical;
             if (SplitScreenManager.Instance.LocalPlayerCount == 2)
-                _anchorPosModifier = -_anchorPosModifier;
+                __instance.m_rectTransform.localPosition *= -1;
         }
 
         // Double controller quickslots
