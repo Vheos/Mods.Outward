@@ -7,4 +7,5 @@ public interface IWaitForPrefabs
 public interface IUpdatable
 {
     void OnUpdate();
+    bool IsEnabled { get; }
 }

@@ -53,7 +53,10 @@ namespace ModPack
                 InstantiateMod(modType);
         }
         private void UpdateMod(IUpdatable updatableMod)
-        => updatableMod.OnUpdate();
+        {
+            if (updatableMod.IsEnabled)
+                updatableMod.OnUpdate();
+        }
         private void UpdateMods(ICollection<IUpdatable> updatableMods)
         {
             foreach (var updatableMod in updatableMods)
