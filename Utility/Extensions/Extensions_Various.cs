@@ -6,8 +6,8 @@ using BepInEx.Configuration;
 using System.Text.RegularExpressions;
 using System.Text;
 using System.Globalization;
-
-
+using UnityEngine.EventSystems;
+using UnityEngine.UI;
 
 namespace ModPack
 {
@@ -269,13 +269,20 @@ namespace ModPack
         }
         static public bool ContainsSubstring(this string text, string find)
         => !text.IsEmpty() && text.IndexOf(find) >= 0;
-        static public void AddComponentsFromHierarchy<T>(this List<T> components, Transform root) where T : Component
+        static public List<T> GetAllComponentsInHierarchy<T>(this Transform root) where T : Component
         {
-            foreach (Transform child in root)
-            {
-                components.Add(child.GetComponents<T>());
-                AddComponentsFromHierarchy(components, child);
-            }
+            List<T> components = new List<T>();
+            components.Add(root.GetComponents<T>());
+            Utility.AppendChildrenRecurisvely(root, components);
+            return components;
+        }
+        static public List<RaycastResult> GetMouseHits(this GraphicRaycaster t)
+        {
+            PointerEventData eventData = new PointerEventData(null);
+            eventData.position = Input.mousePosition;
+            List<RaycastResult> hits = new List<RaycastResult>();
+            t.Raycast(eventData, hits);
+            return hits;
         }
         static public string GOName(this Component t)
         => t.gameObject.name;
