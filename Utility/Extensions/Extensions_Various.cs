@@ -259,7 +259,7 @@ namespace ModPack
         }
         static public string SubstringBefore(this string text, string find, bool caseSensitive = true)
         {
-            if (!text.IsEmpty())
+            if (text.IsNotEmpty())
             {
                 int length = text.IndexOf(find, caseSensitive ? StringComparison.Ordinal : StringComparison.OrdinalIgnoreCase);
                 if (length >= 1)
@@ -268,7 +268,7 @@ namespace ModPack
             return string.Empty;
         }
         static public bool ContainsSubstring(this string text, string find)
-        => !text.IsEmpty() && text.IndexOf(find) >= 0;
+        => text.IsNotEmpty() && text.IndexOf(find) >= 0;
         static public List<T> GetAllComponentsInHierarchy<T>(this Transform root) where T : Component
         {
             List<T> components = new List<T>();
@@ -290,13 +290,21 @@ namespace ModPack
         // GOName
         static public string GOName(this Component t)
         => t.gameObject.name;
-        static public string SetGOName(this Component t, string name)
+        static public string GOSetName(this Component t, string name)
         => t.gameObject.name = name;
         static public bool GONameIs(this Component t, string name)
         => t.gameObject.name == name;
+        static public bool GOActive(this Component t)
+        => t.gameObject.activeSelf;
+        static public void GOSetActive(this Component t, bool state)
+        => t.gameObject.SetActive(state);
+        static public void GOToggle(this Component t)
+        => t.GOSetActive(!t.GOActive());
 
         static public bool IsEmpty(this string text)
-            => string.IsNullOrEmpty(text);
+        => string.IsNullOrEmpty(text);
+        static public bool IsNotEmpty(this string text)
+        => !text.IsEmpty();
         static public float ToFloat(this string text)
         {
             if (float.TryParse(text, NumberStyles.Float, CultureInfo.InvariantCulture, out float value))
