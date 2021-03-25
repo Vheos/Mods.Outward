@@ -120,8 +120,8 @@ namespace ModPack
         }
 
         // Hooks
-        [HarmonyPatch(typeof(SplitPlayer), "SetCharacter"), HarmonyPostfix]
-        static void SplitPlayer_SetCharacter_Post()
+        [HarmonyPatch(typeof(LocalCharacterControl), "RetrieveComponents"), HarmonyPostfix]
+        static void LocalCharacterControl_RetrieveComponents_Post()
         => RecacheLocalPlayers();
 
         [HarmonyPatch(typeof(RPCManager), "SendPlayerHasLeft"), HarmonyPostfix]
