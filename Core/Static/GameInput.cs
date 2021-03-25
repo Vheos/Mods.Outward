@@ -55,6 +55,7 @@ namespace ModPack
         }
         static public List<PlayerData> LocalPlayers
         { get; private set; }
+        static public bool ForceCursorNavigation;
 
         // Shortcuts
         static public Vector2 CameraMovementInput(int playerID)
@@ -126,5 +127,17 @@ namespace ModPack
         [HarmonyPatch(typeof(RPCManager), "SendPlayerHasLeft"), HarmonyPostfix]
         static void RPCManager_SendPlayerHasLeft_Post()
         => RecacheLocalPlayers();
+
+        [HarmonyPatch(typeof(CharacterUI), "IsMenuFocused", MethodType.Getter), HarmonyPrefix]
+        static bool CharacterUI_IsMenuFocused_Getter_Pre(ref bool __result)
+        {
+            #region quit
+            if (!ForceCursorNavigation)
+                return true;
+            #endregion
+
+            __result = true;
+            return false;
+        }
     }
 }
