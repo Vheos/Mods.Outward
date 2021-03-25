@@ -319,6 +319,10 @@ namespace ModPack
                 return value;
             return float.NaN;
         }
+        static public int ToPlayerID(this UIElement uiElement)
+        => uiElement.LocalCharacter.OwnerPlayerSys.PlayerID;
+        static public int ToPlayerID(this CharacterUI ui)
+        => ui.TargetCharacter.OwnerPlayerSys.PlayerID;
 
         static public void SetX(ref this Vector2 t, float a)
         => t.x = a;
