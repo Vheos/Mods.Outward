@@ -170,7 +170,7 @@ namespace ModPack
         abstract protected void SetFormatting();
 
         // Utility     
-        protected bool IsEnabled
+        public bool IsEnabled
         => _mainToggle.Value.HasFlag(Toggles.Apply);
         protected bool IsCollapsed
         => _mainToggle.Value.HasFlag(Toggles.Collapse);

@@ -79,15 +79,14 @@ namespace ModPack
         }
         static public BindingFlags AllBindingFlags
         => BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static;
-        static public void AddComponentsFromHierarchy<T>(List<T> components, Transform hierarchyRoot) where T : Component
+        static public void AppendChildrenRecurisvely<T>(Transform root, List<T> components) where T : Component
         {
-            foreach (Transform child in hierarchyRoot)
+            foreach (Transform child in root)
             {
                 components.Add(child.GetComponents<T>());
-                AddComponentsFromHierarchy<T>(components, child);
+                AppendChildrenRecurisvely(child, components);
             }
         }
-
         static public IEnumerator CoroutineWaitForSeconds(float delay, Action action)
         {
             yield return new WaitForSeconds(delay);

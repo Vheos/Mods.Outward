@@ -4,8 +4,9 @@ using BepInEx.Configuration;
 using System;
 using UnityEngine;
 using HarmonyLib;
-
-
+using UnityEngine.UI;
+using UnityEngine.EventSystems;
+using System.Collections.Generic;
 
 namespace ModPack
 {
@@ -49,12 +50,12 @@ namespace ModPack
         static private ModSetting<bool> _alwaysExpanded;
 
         // Initializers
-        static public void Initialize(ManualLogSource logger, ConfigFile configFile, ConfigurationManager.ConfigurationManager configManager, BepInPlugin plugin)
+        static public void Initialize(BaseUnityPlugin pluginComponent, ManualLogSource logger)
         {
             _logger = logger;
-            _configFile = configFile;
-            _configManager = configManager;
-            _plugin = plugin;
+            _configFile = pluginComponent.Config;
+            _configManager = pluginComponent.GetComponent<ConfigurationManager.ConfigurationManager>();
+            _plugin = pluginComponent.Info.Metadata;
 
             CreateAlwaysExpandedToggle();
             Harmony.CreateAndPatchAll(typeof(Tools));

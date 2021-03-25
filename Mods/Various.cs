@@ -34,6 +34,7 @@ namespace ModPack
         static private ModSetting<bool> _skipStartupVideos;
         static private ModSetting<ArmorSlots> _armorSlotsToHide;
         static private ModSetting<bool> _extraControllerQuickslots;
+        static private ModSetting<bool> _verticalSplitscreen;
         static private ModSetting<bool> _removeCoopScaling;
         static private ModSetting<bool> _removeDodgeInvulnerability;
         static private ModSetting<bool> _allowDodgeAnimationCancelling;
@@ -44,10 +45,16 @@ namespace ModPack
             _skipStartupVideos = CreateSetting(nameof(_skipStartupVideos), false);
             _armorSlotsToHide = CreateSetting(nameof(_armorSlotsToHide), ArmorSlots.None);
             _extraControllerQuickslots = CreateSetting(nameof(_extraControllerQuickslots), false);
+            _verticalSplitscreen = CreateSetting(nameof(_verticalSplitscreen), false);
             _removeCoopScaling = CreateSetting(nameof(_removeCoopScaling), false);
             _removeDodgeInvulnerability = CreateSetting(nameof(_removeDodgeInvulnerability), false);
 
-            AddEventOnConfigClosed(() => Global.CheatsEnabled = _enableCheats);
+            AddEventOnConfigClosed(() =>
+            {
+                Global.CheatsEnabled = _enableCheats;
+                if (SplitScreenManager.Instance != null)
+                    SplitScreenManager.Instance.CurrentSplitType = _verticalSplitscreen ? SplitScreenManager.SplitType.Vertical : SplitScreenManager.SplitType.Horizontal;
+            });
 
             // WIP
             _allowDodgeAnimationCancelling = CreateSetting(nameof(_allowDodgeAnimationCancelling), false);
@@ -63,7 +70,9 @@ namespace ModPack
             _armorSlotsToHide.Description = "Used to hide ugly helmets (purely visual)";
             _extraControllerQuickslots.Format("16 controller quickslots");
             _extraControllerQuickslots.Description = "Allows you to use the d-pad with LT/RT for 8 extra quickslots\n" +
-                                                     "(assumes default d-pad keybind, sorry!)";
+                                                     "(assumes default d-pad keybind)";
+            _verticalSplitscreen.Format("Vertical splitscreen");
+            _verticalSplitscreen.Description = "for displays that are more wide than tall";
             _removeCoopScaling.Format("Remove multiplayer scaling");
             _removeCoopScaling.Description = "Enemies in multiplayer will have the same stats as in singleplayer";
             _removeDodgeInvulnerability.Format("Remove dodge invulnerability");
@@ -80,10 +89,7 @@ namespace ModPack
             _allowPushKickRemoval.IsAdvanced = true;
         }
         override protected string Description
-        => "• Mods (small and big) that didn't get their own section yet:\n" +
-           "enable cheats, skip startup videos, hide armor slots\n" +
-           "16 controller keybinds, remove multiplayer scaling,\n" +
-           "remove dodge invulnerability";
+        => "• Mods (small and big) that didn't get their own section yet";
 
         // Utility
         static private bool ShouldArmorSlotBeHidden(EquipmentSlot.EquipmentSlotIDs slot)
@@ -195,6 +201,22 @@ namespace ModPack
         => characterUI.transform.Find("Canvas/GameplayPanels/HUD/QuickSlot/Controller/LT-RT");
         static private Transform GetMenuPanelsHolder(CharacterUI characterUI)
         => characterUI.transform.Find("Canvas/GameplayPanels/Menus/CharacterMenus/MainPanel/Content/MiddlePanel/QuickSlotPanel/PanelSwitcher/Controller/LT-RT");
+
+
+        // Vertical splitscreen
+        [HarmonyPatch(typeof(CharacterUI), "DelayedRefreshSize"), HarmonyPostfix]
+        static void CharacterUI_RefreshSize_Post(ref CharacterUI __instance)
+        {
+            int localPlayersCount = GameInput.LocalPlayers.Count;
+            #region quit
+            if (!_verticalSplitscreen || localPlayersCount < 2)
+                return;
+            #endregion
+
+            SplitScreenManager.Instance.CurrentSplitType = SplitScreenManager.SplitType.Vertical;
+            if (localPlayersCount == 2)
+                __instance.m_rectTransform.localPosition *= -1;
+        }
 
         // Double controller quickslots
         [HarmonyPatch(typeof(ControlsInput), "Sheathe"), HarmonyPostfix]

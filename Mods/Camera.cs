@@ -115,7 +115,7 @@ namespace ModPack
                 AddEventOnConfigClosed(() =>
                 {
                     foreach (var localPlayer in GameInput.LocalPlayers)
-                        UpdateCameraSettings(localPlayer.PlayerID);
+                        UpdateCameraSettings(localPlayer.ID);
                 });
 
                 tmp.Sensitivity = 1f;
@@ -175,11 +175,11 @@ namespace ModPack
         {
             foreach (var localPlayer in GameInput.LocalPlayers)
             {
-                if (localPlayer.ControlledCharacter.CharacterUI.IsMenuFocused)
+                if (localPlayer.UI.IsMenuFocused)
                     continue;
 
                 // Cache
-                int id = localPlayer.PlayerID;
+                int id = localPlayer.ID;
                 CameraSettings settings = _settingsByPlayerID[id];
 
                 settings.IgnoreAxes = false;
