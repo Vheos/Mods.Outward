@@ -335,53 +335,50 @@ namespace ModPack
         }
 
         [HarmonyPatch(typeof(ItemDetailsDisplay), "ShowDetails"), HarmonyPrefix]
-        static bool ItemDetailsDisplay_ShowDetails_Pre(ref ItemDetailsDisplay __instance, ref Item ___m_lastItem, ref List<ItemDetailRowDisplay> ___m_detailRows)
+        static bool ItemDetailsDisplay_ShowDetails_Pre(ref ItemDetailsDisplay __instance)
         {
+            Item item = __instance.m_lastItem;
             #region quit
-            if (_details.Value == Details.None
-            || ___m_lastItem == null
-            || !___m_lastItem.IsIngestible())
+            if (_details.Value == Details.None || item == null || !item.IsIngestible())
                 return true;
             #endregion
 
+            List<ItemDetailRowDisplay> detailRows = __instance.m_detailRows;
             int rowIndex = 0;
-            foreach (var row in _rowsCache.GetRows(___m_lastItem))
+            foreach (var row in _rowsCache.GetRows(item))
                 if (_details.Value.HasFlag(row.Detail))
                     __instance.GetRow(rowIndex++).SetInfo(row.Label, row.Content);
 
-            for (int i = rowIndex; i < ___m_detailRows.Count; i++)
-                ___m_detailRows[i].Hide();
+            for (int i = rowIndex; i < detailRows.Count; i++)
+                detailRows[i].Hide();
 
             return false;
         }
 
         [HarmonyPatch(typeof(ItemDetailsDisplay), "RefreshDetails"), HarmonyPostfix]
-        static void ItemDetailsDisplay_RefreshDetails_Post(ref Item ___m_lastItem, ref GameObject ___m_durabilityHolder)
+        static void ItemDetailsDisplay_RefreshDetails_Post(ref ItemDetailsDisplay __instance)
         {
+            Item item = __instance.m_lastItem;
+            GameObject durabilityHolder = __instance.m_durabilityHolder;
             #region quit
-            if (!_barsToggle)
-                return;
-            #endregion
-            #region quit2
-            if (___m_lastItem == null || ___m_durabilityHolder == null)
+            if (!_barsToggle || item == null || durabilityHolder == null)
                 return;
             #endregion
 
             // Cache
-            RectTransform rectTransform = ___m_durabilityHolder.GetComponent<RectTransform>();
-            ModSetting<int> barSize = ___m_lastItem.IsPerishable ? _freshnessBarSize : _durabilityBarSize;
+            RectTransform rectTransform = durabilityHolder.GetComponent<RectTransform>();
+            ModSetting<int> barSize = item.IsPerishable && item.IsNot<Equipment>() ? _freshnessBarSize : _durabilityBarSize;
 
             // Calculate automated values
             float rawSize = float.NaN;
-            if (_freshnessTiedToLifespan && ___m_lastItem.IsPerishable)
+            if (_freshnessTiedToLifespan && barSize == _freshnessBarSize)
             {
-                float decayRate = ___m_lastItem.PerishScript.m_baseDepletionRate;
+                float decayRate = item.PerishScript.m_baseDepletionRate;
                 float decayTime = 100f / (decayRate * 24f);
                 rawSize = (decayTime / FRESHNESS_LIFESPAN_MAX).Sqrt();
-
             }
-            else if (_durabilityTiedToMax && ___m_lastItem.MaxDurability > 0)
-                rawSize = (___m_lastItem.MaxDurability / DURABILITY_MAX_MAX).Sqrt();
+            else if (_durabilityTiedToMax && barSize == _durabilityBarSize)
+                rawSize = (item.MaxDurability / DURABILITY_MAX_MAX).Sqrt();
 
             if (!rawSize.IsNaN())
                 barSize.Value = rawSize.MapFrom01(SIZE_MIN, 100f).Round();
