@@ -48,7 +48,7 @@ namespace ModPack
         => !ControlsInput.IsLastActionGamepad(playerID);
         static public KeyCode ToKeyCode(string text)
         {
-            if (!text.IsEmpty())
+            if (text.IsNotEmpty())
                 if (_keyCodesByName.ContainsKey(text))
                     return _keyCodesByName[text];
             return KeyCode.None;

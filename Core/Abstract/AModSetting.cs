@@ -12,7 +12,7 @@ namespace ModPack
         public void Format(string displayName)
         {
             Attributes.DispName = "";
-            if (!displayName.IsEmpty())
+            if (displayName.IsNotEmpty())
             {
                 Attributes.DispName += IndentText;
                 if (_indentLevel > 0)
