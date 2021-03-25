@@ -11,7 +11,7 @@ using BepInEx.Configuration;
  */
 namespace ModPack
 {
-        public class PistolTweaks : AMod, IWaitForPrefabs, IExcludeFromBuild
+        public class PistolTweaks : AMod, IDelayedInit, IExcludeFromBuild
     {
         #region const
         private const int MAX_LOADED_BULLETS = 1;   // WeaponLoadout.MaxProjectileLoaded 
