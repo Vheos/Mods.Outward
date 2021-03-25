@@ -23,49 +23,48 @@ namespace ModPack
             (Need.Drink, new Vector2(50f, 75f), 1000f / 27.77f, "Thirsty", "drinking", "max stamina"),
             (Need.Sleep, new Vector2(25f, 50f), 1000f / 13.89f, "Tired", "sleeping", "health and stamina"),
         };
-        static private readonly Dictionary<string, (Character.SpellCastType Vanilla, Character.SpellCastType Custom)> ANIMATION_PAIRS_BY_INGESTIBLE_NAME
-        = new Dictionary<string, (Character.SpellCastType, Character.SpellCastType)>
+        static private readonly Dictionary<int, (Character.SpellCastType Vanilla, Character.SpellCastType Custom)> ANIMATION_PAIRS_BY_INGESTIBLE_ID
+        = new Dictionary<int, (Character.SpellCastType, Character.SpellCastType)>
         {
-            ["4000480_TorcrabEgg"] = (Character.SpellCastType.DrinkWater, Character.SpellCastType.Eat),
-            ["4000500_BoreoBlubber"] = (Character.SpellCastType.DrinkWater, Character.SpellCastType.Eat),
-            ["4100190_PungentPaste"] = (Character.SpellCastType.DrinkWater, Character.SpellCastType.Eat),
-            ["4100030_GaberryJam"] = (Character.SpellCastType.DrinkWater, Character.SpellCastType.Eat),
-            ["4100710_CrawlberryJam"] = (Character.SpellCastType.DrinkWater, Character.SpellCastType.Eat),
-            ["4100800_GoldenJam"] = (Character.SpellCastType.DrinkWater, Character.SpellCastType.Eat),
-            ["4000470_RawTorcrabMeat"] = (Character.SpellCastType.DrinkWater, Character.SpellCastType.Eat),
-            ["4100280_MinersOmelet"] = (Character.SpellCastType.DrinkWater, Character.SpellCastType.Eat),
-            ["4100270_TurmmipPotage"] = (Character.SpellCastType.DrinkWater, Character.SpellCastType.Eat),
-            ["4100220_MeatPorridge"] = (Character.SpellCastType.DrinkWater, Character.SpellCastType.Eat),
-            ["4100420_MarshMelonJelly"] = (Character.SpellCastType.DrinkWater, Character.SpellCastType.Eat),
-            ["4000150_BleedingMushroom"] = (Character.SpellCastType.Potion, Character.SpellCastType.Eat),
-            ["4100000_FoodWastes"] = (Character.SpellCastType.DrinkWater, Character.SpellCastType.Eat),
-            ["4100680_BoiledBoozuMilk"] = (Character.SpellCastType.Potion, Character.SpellCastType.DrinkWater),
+            ["Torcrab Egg".ID()] = (Character.SpellCastType.DrinkWater, Character.SpellCastType.Eat),
+            ["Boreo Blubber".ID()] = (Character.SpellCastType.DrinkWater, Character.SpellCastType.Eat),
+            ["Pungent Paste".ID()] = (Character.SpellCastType.DrinkWater, Character.SpellCastType.Eat),
+            ["Gaberry Jam".ID()] = (Character.SpellCastType.DrinkWater, Character.SpellCastType.Eat),
+            ["Crawlberry Jam".ID()] = (Character.SpellCastType.DrinkWater, Character.SpellCastType.Eat),
+            ["Golden Jam".ID()] = (Character.SpellCastType.DrinkWater, Character.SpellCastType.Eat),
+            ["Raw Torcrab Meat".ID()] = (Character.SpellCastType.DrinkWater, Character.SpellCastType.Eat),
+            ["Miner’s Omelet".ID()] = (Character.SpellCastType.DrinkWater, Character.SpellCastType.Eat),
+            ["Turmmip Potage".ID()] = (Character.SpellCastType.DrinkWater, Character.SpellCastType.Eat),
+            ["Meat Stew".ID()] = (Character.SpellCastType.DrinkWater, Character.SpellCastType.Eat),
+            ["Marshmelon Jelly".ID()] = (Character.SpellCastType.DrinkWater, Character.SpellCastType.Eat),
+            ["Blood Mushroom".ID()] = (Character.SpellCastType.Potion, Character.SpellCastType.Eat),
+            ["Food Waste".ID()] = (Character.SpellCastType.DrinkWater, Character.SpellCastType.Eat),
+            ["Warm Boozu’s Milk".ID()] = (Character.SpellCastType.Potion, Character.SpellCastType.DrinkWater),
         };
-        static private string[] CURE_DRINK_NAMES = new[]
+        static private int[] CURE_DRINK_IDS = new[]
         {
-            "4300370_Panacea",
-            "4300110_UniversalAntidote",
-            "4300190_HexesCleaner",
-            "4300280_InvigoratingPotion",
+            "Panacea".ID(),
+            "Antidote".ID(),
+            "Hex Cleaner".ID(),
+            "Invigorating Potion".ID(),
         };
-        static private string[] OTHER_DRINK_NAMES = new[]
+        static private int[] OTHER_DRINK_IDS = new[]
         {
-            "4200090_AbleTea",
-            "4200050_BitterSpicyTea",
-            "4200110_GreasyTea",
-            "4200100_IcedTea",
-            "4200080_MineralTea",
-            "4200070_NeedleTea",
-            "4200060_SoothingTea",
-            "4000380_BoozuMilk",
-            "4100680_BoiledBoozuMilk",
-            "4100590_GaberryWine",
-            "4300040_GoodluckPotion",
+            "Able Tea".ID(),
+            "Bitter Spicy Tea".ID(),
+            "Greasy Tea".ID(),
+            "Iced Tea".ID(),
+            "Mineral Tea".ID(),
+            "Needle Tea".ID(),
+            "Soothing Tea".ID(),
+            "Boozu’s Milk".ID(),
+            "Gaberry Wine".ID(),
+            "Gep's Drink".ID(),
         };
-        static private string[] MILK_NAMES = new[]
+        static private int[] MILK_IDS = new[]
         {
-            "4000380_BoozuMilk",
-            "4100680_BoiledBoozuMilk",
+            "Boozu’s Milk".ID(),
+            "Warm Boozu’s Milk".ID(),
         };
         #endregion
         #region enum
@@ -364,20 +363,20 @@ namespace ModPack
         }
         static private void UpdateIngestibleAnimations(bool fix)
         {
-            foreach (var animationPairByIngestibleName in ANIMATION_PAIRS_BY_INGESTIBLE_NAME)
+            foreach (var animationPairByIngestibleID in ANIMATION_PAIRS_BY_INGESTIBLE_ID)
             {
-                string name = animationPairByIngestibleName.Key;
-                var (vanillaAnim, customAnim) = animationPairByIngestibleName.Value;
+                int id = animationPairByIngestibleID.Key;
+                var (vanillaAnim, customAnim) = animationPairByIngestibleID.Value;
                 Character.SpellCastType animation = fix ? customAnim : vanillaAnim;
-                Prefabs.IngestiblesByGOName[name].m_activateEffectAnimType = animation;
+                Prefabs.IngestiblesByID[id].m_activateEffectAnimType = animation;
             }
         }
         static private void UpdateDrinkValues()
         {
-            foreach (var ingestibleByName in Prefabs.IngestiblesByGOName)
+            foreach (var ingestibleByID in Prefabs.IngestiblesByID)
             {
-                Item ingestible = ingestibleByName.Value;
-                if (!ingestible.IsDrinkable() || ingestible.GONameIs("4000430_Ambraine"))
+                Item ingestible = ingestibleByID.Value;
+                if (!ingestible.IsDrinkable() || ingestible.ItemID == "Ambraine".ID())
                     continue;
 
                 AffectDrink affectDrink = ingestible.GetEffect<AffectDrink>();
@@ -385,9 +384,9 @@ namespace ModPack
                     affectDrink = ingestible.AddEffect<AffectDrink>();
 
                 float drinkValue = _drinkValuesPotions;
-                if (ingestible.GOName().IsContainedIn(CURE_DRINK_NAMES))
+                if (ingestible.ItemID.IsContainedIn(CURE_DRINK_IDS))
                     drinkValue = _drinkValuesCures;
-                else if (ingestible.GOName().IsContainedIn(OTHER_DRINK_NAMES))
+                else if (ingestible.ItemID.IsContainedIn(OTHER_DRINK_IDS))
                     drinkValue = _drinkValuesOther;
 
                 affectDrink.SetAffectDrinkQuantity(drinkValue * 10f);
@@ -395,8 +394,8 @@ namespace ModPack
         }
         static private void RemoveMilkFoodValues()
         {
-            foreach (var milkName in MILK_NAMES)
-                Prefabs.IngestiblesByGOName[milkName].GetEffect<AffectFood>().Destroy();
+            foreach (var milkID in MILK_IDS)
+                Prefabs.IngestiblesByID[milkID].GetEffect<AffectFood>().Destroy();
         }
         static private void UpdateSleepBuffsDuration()
         {
@@ -423,7 +422,7 @@ namespace ModPack
         => item.IsIngestible()
         && (item.IsEatable() && !IsLimited(character, Need.Food)
             || item.IsDrinkable() && !IsLimited(character, Need.Drink))
-        || item.GONameIs("4000430_Ambraine");
+        || item.ItemID == "Ambraine".ID();
         static private bool IsLimited(Character character, Need need)
         => _settingsByNeed[need].LimitingEnabled && HasLimitingStatusEffect(character, need);
         static private bool HasLimitingStatusEffect(Character character, Need need)

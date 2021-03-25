@@ -23,7 +23,7 @@ namespace ModPack
         static public bool HasStatusEffect(this Character character, StatusEffect statusEffect)
         => character.StatusEffectMngr.HasStatusEffect(statusEffect.IdentifierName);
         static public bool IsIngestible(this Item item)
-        => Prefabs.IngestiblesByGOName.ContainsKey(item.GOName());
+        => Prefabs.IngestiblesByID.ContainsKey(item.ItemID);
         static public bool IsEatable(this Item item)
         => item.IsUsable && item.ActivateEffectAnimType == Character.SpellCastType.Eat;
         static public bool IsDrinkable(this Item item)
@@ -284,14 +284,16 @@ namespace ModPack
             t.Raycast(eventData, hits);
             return hits;
         }
+        static public int ID(this string name)
+        => Prefabs.ItemIDsByName[name];
+
+        // GOName
         static public string GOName(this Component t)
         => t.gameObject.name;
         static public string SetGOName(this Component t, string name)
         => t.gameObject.name = name;
         static public bool GONameIs(this Component t, string name)
         => t.gameObject.name == name;
-        static public bool GONameIsNot(this Component t, string name)
-        => !t.GONameIs(name);
 
         static public bool IsEmpty(this string text)
             => string.IsNullOrEmpty(text);

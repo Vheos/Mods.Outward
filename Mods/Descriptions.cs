@@ -213,11 +213,11 @@ namespace ModPack
         static private RowsCache _rowsCache;
         static private void SetBackgrounds(bool state)
         {
-            Item lifePotion = Prefabs.IngestiblesByGOName["4300010_HealthPotion"];
+            Item lifePotion = Prefabs.GetIngestibleByName("Life Potion");
             Sprite potionBackground = lifePotion.m_overrideSigil;
-            foreach (var ingestibleByName in Prefabs.IngestiblesByGOName)
-                if (ingestibleByName.Value != lifePotion)
-                    ingestibleByName.Value.m_overrideSigil = state ? potionBackground : null;
+            foreach (var ingestibleByID in Prefabs.IngestiblesByID)
+                if (ingestibleByID.Value != lifePotion)
+                    ingestibleByID.Value.m_overrideSigil = state ? potionBackground : null;
         }
         static private Row FormatRow(Effect effect)
         {
