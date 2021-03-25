@@ -28,11 +28,11 @@ namespace ModPack
         #endregion
 
         // Publics        
-        static public bool HasBeenPressed(int playerID, ControlsInput.GameplayActions action)
+        static public bool Pressed(int playerID, ControlsInput.GameplayActions action)
         => ControlsInput.m_playerInputManager[playerID].GetButtonDown(action.ToName());
-        static public bool HasBeenReleased(int playerID, ControlsInput.GameplayActions action)
+        static public bool Released(int playerID, ControlsInput.GameplayActions action)
         => ControlsInput.m_playerInputManager[playerID].GetButtonUp(action.ToName());
-        static public bool IsHeldDown(int playerID, ControlsInput.GameplayActions action)
+        static public bool Held(int playerID, ControlsInput.GameplayActions action)
         => ControlsInput.m_playerInputManager[playerID].GetButton(action.ToName());
         static public float AxisValue(int playerID, ControlsInput.GameplayActions action)
         => ControlsInput.m_playerInputManager[playerID].GetAxis(action.ToName());
@@ -65,9 +65,9 @@ namespace ModPack
         => new Vector2(AxisValue(playerID, ControlsInput.GameplayActions.MoveHorizontal),
                        AxisValue(playerID, ControlsInput.GameplayActions.MoveVertical));
         static public bool IsSprinting(int playerID)
-        => IsHeldDown(playerID, ControlsInput.GameplayActions.Sprint);
+        => Held(playerID, ControlsInput.GameplayActions.Sprint);
         static public bool IsBlocking(int playerID)
-        => IsHeldDown(playerID, ControlsInput.GameplayActions.Block);
+        => Held(playerID, ControlsInput.GameplayActions.Block);
         static public int KeyboardUserID
         {
             get

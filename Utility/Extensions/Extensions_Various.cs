@@ -301,6 +301,14 @@ namespace ModPack
         static public void GOToggle(this Component t)
         => t.GOSetActive(!t.GOActive());
 
+        static public bool Pressed(this KeyCode t)
+        => Input.GetKeyDown(t);
+        static public bool Released(this KeyCode t)
+        => Input.GetKeyUp(t);
+        static public bool Held(this KeyCode t)
+        => Input.GetKey(t);
+
+
         static public bool IsEmpty(this string text)
         => string.IsNullOrEmpty(text);
         static public bool IsNotEmpty(this string text)

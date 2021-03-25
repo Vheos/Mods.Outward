@@ -44,7 +44,7 @@ namespace ModPack
            "(can be held or toggled)";
         public void OnUpdate()
         {
-            if (Input.GetKeyDown(_key.Value.ToKeyCode()))
+            if (_key.Value.ToKeyCode().Pressed())
             {
                 _modifier = ModifiedSpeed;
                 if (_doubleTapToToggle && TimeSinceLastKeyPress < _doubleTapWaitTime / 1000f)
@@ -52,7 +52,7 @@ namespace ModPack
                 else
                     _lastKeyPressTime = Time.unscaledTime;
             }
-            else if (Input.GetKeyUp(_key.Value.ToKeyCode()))
+            else if (_key.Value.ToKeyCode().Released())
                 _modifier = NormalSpeed;
         }
 
