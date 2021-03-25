@@ -102,7 +102,7 @@ namespace ModPack
         => t.HasChild() && t.GetComponentInChildren<T>() != null;
 
         /// <summary> Returns component T attached to this object. If there's none, adds one. </summary>
-        static public bool GetOrAddComponent<T>(this GameObject t) where T : Component
+        static public T GetOrAddComponent<T>(this GameObject t) where T : Component
         {
             T component = t.GetComponent<T>();
             if (component != null)
