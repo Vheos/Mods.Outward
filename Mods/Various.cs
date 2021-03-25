@@ -34,8 +34,6 @@ namespace ModPack
         static private ModSetting<bool> _skipStartupVideos;
         static private ModSetting<ArmorSlots> _armorSlotsToHide;
         static private ModSetting<bool> _extraControllerQuickslots;
-        static private ModSetting<bool> _disableQuickslotButtonIcons;
-        static private ModSetting<bool> _verticalSplitscreen;
         static private ModSetting<bool> _removeCoopScaling;
         static private ModSetting<bool> _removeDodgeInvulnerability;
         static private ModSetting<bool> _allowDodgeAnimationCancelling;
@@ -46,16 +44,13 @@ namespace ModPack
             _skipStartupVideos = CreateSetting(nameof(_skipStartupVideos), false);
             _armorSlotsToHide = CreateSetting(nameof(_armorSlotsToHide), ArmorSlots.None);
             _extraControllerQuickslots = CreateSetting(nameof(_extraControllerQuickslots), false);
-            _disableQuickslotButtonIcons = CreateSetting(nameof(_disableQuickslotButtonIcons), false);
-            _verticalSplitscreen = CreateSetting(nameof(_verticalSplitscreen), false);
+
             _removeCoopScaling = CreateSetting(nameof(_removeCoopScaling), false);
             _removeDodgeInvulnerability = CreateSetting(nameof(_removeDodgeInvulnerability), false);
 
             AddEventOnConfigClosed(() =>
             {
                 Global.CheatsEnabled = _enableCheats;
-                if (SplitScreenManager.Instance != null)
-                    SplitScreenManager.Instance.CurrentSplitType = _verticalSplitscreen ? SplitScreenManager.SplitType.Vertical : SplitScreenManager.SplitType.Horizontal;
             });
 
             // WIP
@@ -73,10 +68,6 @@ namespace ModPack
             _extraControllerQuickslots.Format("16 controller quickslots");
             _extraControllerQuickslots.Description = "Allows you to use the d-pad with LT/RT for 8 extra quickslots\n" +
                                                      "(assumes default d-pad keybinds, sorry!)";
-            _disableQuickslotButtonIcons.Format("Disable quickslot button icons");
-            _disableQuickslotButtonIcons.Description = "You know them by heart anyway!";
-            _verticalSplitscreen.Format("Vertical splitscreen");
-            _verticalSplitscreen.Description = "For monitors that are more wide than tall";
             _removeCoopScaling.Format("Remove multiplayer scaling");
             _removeCoopScaling.Description = "Enemies in multiplayer will have the same stats as in singleplayer";
             _removeDodgeInvulnerability.Format("Remove dodge invulnerability");
@@ -95,11 +86,10 @@ namespace ModPack
         override protected string Description
         => "• Mods (small and big) that didn't get their own section yet :)\n";
 
-        // Utility
-        static private bool ShouldArmorSlotBeHidden(EquipmentSlot.EquipmentSlotIDs slot)
-        => slot == EquipmentSlot.EquipmentSlotIDs.Helmet && _armorSlotsToHide.Value.HasFlag(ArmorSlots.Head)
-        || slot == EquipmentSlot.EquipmentSlotIDs.Chest && _armorSlotsToHide.Value.HasFlag(ArmorSlots.Chest)
-        || slot == EquipmentSlot.EquipmentSlotIDs.Foot && _armorSlotsToHide.Value.HasFlag(ArmorSlots.Feet);
+
+
+
+        // 16 controller quickslots
         static private void TryOverrideVanillaQuickslotInput(ref bool input, int playerID)
         {
             #region quit
@@ -124,13 +114,13 @@ namespace ModPack
                 return;
 
             int quickslotID = -1;
-            if (GameInput.HasBeenPressed(playerID, ControlsInput.GameplayActions.Sheathe))
+            if (GameInput.Pressed(playerID, ControlsInput.GameplayActions.Sheathe))
                 quickslotID = 8;
             else if (GameInput.HasBeenPressed(playerID, ControlsInput.MenuActions.ToggleMapMenu))
                 quickslotID = 9;
-            else if (GameInput.HasBeenPressed(playerID, ControlsInput.GameplayActions.ToggleLights))
+            else if (GameInput.Pressed(playerID, ControlsInput.GameplayActions.ToggleLights))
                 quickslotID = 10;
-            else if (GameInput.HasBeenPressed(playerID, ControlsInput.GameplayActions.HandleBag))
+            else if (GameInput.Pressed(playerID, ControlsInput.GameplayActions.HandleBag))
                 quickslotID = 11;
 
             if (quickslotID < 0)
@@ -150,15 +140,15 @@ namespace ModPack
             QuickSlot[] quickslots = quickslotsHolder.GetComponentsInChildren<QuickSlot>();
             for (int i = 0; i < quickslots.Length; i++)
             {
-                quickslots[i].SetGOName((i + 1).ToString());
+                quickslots[i].GOSetName((i + 1).ToString());
                 quickslots[i].ItemQuickSlot = false;
             }
         }
-        static private void SetupQuickslotPanels(CharacterUI characterUI)
+        static private void SetupQuickslotPanels(CharacterUI ui)
         {
             // Cache
-            Transform menuPanelsHolder = GetMenuPanelsHolder(characterUI);
-            Transform gamePanelsHolder = GetGamePanelsHolder(characterUI);
+            Transform menuPanelsHolder = GetMenuPanelsHolder(ui);
+            Transform gamePanelsHolder = GetGamePanelsHolder(ui);
             Component[] menuSlotsLT = menuPanelsHolder.Find("LT/QuickSlots").GetComponentsInChildren<EditorQuickSlotDisplayPlacer>();
             Component[] menuSlotsRT = menuPanelsHolder.Find("RT/QuickSlots").GetComponentsInChildren<EditorQuickSlotDisplayPlacer>();
             Component[] gameSlotsLT = gamePanelsHolder.Find("LT/QuickSlots").GetComponentsInChildren<EditorQuickSlotDisplayPlacer>();
@@ -201,27 +191,11 @@ namespace ModPack
                 newEditorPlacer.IsTemplate = false;
             }
         }
-        static private Transform GetGamePanelsHolder(CharacterUI characterUI)
-        => characterUI.transform.Find("Canvas/GameplayPanels/HUD/QuickSlot/Controller/LT-RT");
-        static private Transform GetMenuPanelsHolder(CharacterUI characterUI)
-        => characterUI.transform.Find("Canvas/GameplayPanels/Menus/CharacterMenus/MainPanel/Content/MiddlePanel/QuickSlotPanel/PanelSwitcher/Controller/LT-RT");
+        static private Transform GetGamePanelsHolder(CharacterUI ui)
+        => ui.transform.Find("Canvas/GameplayPanels/HUD/QuickSlot/Controller/LT-RT");
+        static private Transform GetMenuPanelsHolder(CharacterUI ui)
+        => ui.transform.Find("Canvas/GameplayPanels/Menus/CharacterMenus/MainPanel/Content/MiddlePanel/QuickSlotPanel/PanelSwitcher/Controller/LT-RT");
 
-        // Vertical splitscreen
-        [HarmonyPatch(typeof(CharacterUI), "DelayedRefreshSize"), HarmonyPostfix]
-        static void CharacterUI_RefreshSize_Post(ref CharacterUI __instance)
-        {
-            int localPlayersCount = GameInput.LocalPlayers.Count;
-            #region quit
-            if (!_verticalSplitscreen || localPlayersCount < 2)
-                return;
-            #endregion
-
-            SplitScreenManager.Instance.CurrentSplitType = SplitScreenManager.SplitType.Vertical;
-            if (localPlayersCount == 2)
-                __instance.m_rectTransform.localPosition *= -1;
-        }
-
-        // Double controller quickslots
         [HarmonyPatch(typeof(ControlsInput), "Sheathe"), HarmonyPostfix]
         static void ControlsInput_Sheathe_Post(ref bool __result, ref int _playerID)
         => TryOverrideVanillaQuickslotInput(ref __result, _playerID);
@@ -267,17 +241,6 @@ namespace ModPack
             return true;
         }
 
-        [HarmonyPatch(typeof(QuickSlotDisplay), "Update"), HarmonyPostfix]
-        static void QuickSlotDisplay_Update_Post(ref QuickSlotDisplay __instance)
-        {
-            #region quit
-            if (!_disableQuickslotButtonIcons)
-                return;
-            #endregion
-
-            __instance.m_inputIcon.enabled = false;
-        }
-
         // Skip startup video
         [HarmonyPatch(typeof(StartupVideo), "Awake"), HarmonyPrefix]
         static bool StartupVideo_Awake_Pre()
@@ -287,6 +250,11 @@ namespace ModPack
         }
 
         // Hide armor slots
+        static private bool ShouldArmorSlotBeHidden(EquipmentSlot.EquipmentSlotIDs slot)
+        => slot == EquipmentSlot.EquipmentSlotIDs.Helmet && _armorSlotsToHide.Value.HasFlag(ArmorSlots.Head)
+        || slot == EquipmentSlot.EquipmentSlotIDs.Chest && _armorSlotsToHide.Value.HasFlag(ArmorSlots.Chest)
+        || slot == EquipmentSlot.EquipmentSlotIDs.Foot && _armorSlotsToHide.Value.HasFlag(ArmorSlots.Feet);
+
         [HarmonyPatch(typeof(CharacterVisuals), "EquipVisuals"), HarmonyPrefix]
         static bool CharacterVisuals_EquipVisuals_Pre(ref bool[] __state, ref EquipmentSlot.EquipmentSlotIDs _slotID, ref ArmorVisuals _visuals)
         {
