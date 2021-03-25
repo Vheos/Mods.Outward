@@ -34,6 +34,11 @@ namespace ModPack
         static private ModSetting<bool> _skipStartupVideos;
         static private ModSetting<ArmorSlots> _armorSlotsToHide;
         static private ModSetting<bool> _extraControllerQuickslots;
+<<<<<<< Updated upstream
+=======
+        static private ModSetting<bool> _disableQuickslotButtonIcons;
+        static private ModSetting<bool> _verticalSplitscreen;
+>>>>>>> Stashed changes
         static private ModSetting<bool> _removeCoopScaling;
         static private ModSetting<bool> _removeDodgeInvulnerability;
         static private ModSetting<bool> _allowDodgeAnimationCancelling;
@@ -44,6 +49,11 @@ namespace ModPack
             _skipStartupVideos = CreateSetting(nameof(_skipStartupVideos), false);
             _armorSlotsToHide = CreateSetting(nameof(_armorSlotsToHide), ArmorSlots.None);
             _extraControllerQuickslots = CreateSetting(nameof(_extraControllerQuickslots), false);
+<<<<<<< Updated upstream
+=======
+            _disableQuickslotButtonIcons = CreateSetting(nameof(_disableQuickslotButtonIcons), false);
+            _verticalSplitscreen = CreateSetting(nameof(_verticalSplitscreen), false);
+>>>>>>> Stashed changes
             _removeCoopScaling = CreateSetting(nameof(_removeCoopScaling), false);
             _removeDodgeInvulnerability = CreateSetting(nameof(_removeDodgeInvulnerability), false);
 
@@ -63,7 +73,15 @@ namespace ModPack
             _armorSlotsToHide.Description = "Used to hide ugly helmets (purely visual)";
             _extraControllerQuickslots.Format("16 controller quickslots");
             _extraControllerQuickslots.Description = "Allows you to use the d-pad with LT/RT for 8 extra quickslots\n" +
+<<<<<<< Updated upstream
                                                      "(assumes default d-pad keybind, sorry!)";
+=======
+                                                     "(assumes default d-pad keybinds, sorry!)";
+            _disableQuickslotButtonIcons.Format("Disable quickslot button icons");
+            _disableQuickslotButtonIcons.Description = "You know them by heart anyway!";
+            _verticalSplitscreen.Format("Vertical splitscreen");
+            _verticalSplitscreen.Description = "For monitors that are more wide than tall";
+>>>>>>> Stashed changes
             _removeCoopScaling.Format("Remove multiplayer scaling");
             _removeCoopScaling.Description = "Enemies in multiplayer will have the same stats as in singleplayer";
             _removeDodgeInvulnerability.Format("Remove dodge invulnerability");
@@ -80,10 +98,14 @@ namespace ModPack
             _allowPushKickRemoval.IsAdvanced = true;
         }
         override protected string Description
+<<<<<<< Updated upstream
         => "• Mods (small and big) that didn't get their own section yet:\n" +
            "enable cheats, skip startup videos, hide armor slots\n" +
            "16 controller keybinds, remove multiplayer scaling,\n" +
            "remove dodge invulnerability";
+=======
+        => "• Mods (small and big) that didn't get their own section yet :)\n";
+>>>>>>> Stashed changes
 
         // Utility
         static private bool ShouldArmorSlotBeHidden(EquipmentSlot.EquipmentSlotIDs slot)
@@ -195,7 +217,27 @@ namespace ModPack
         => characterUI.transform.Find("Canvas/GameplayPanels/HUD/QuickSlot/Controller/LT-RT");
         static private Transform GetMenuPanelsHolder(CharacterUI characterUI)
         => characterUI.transform.Find("Canvas/GameplayPanels/Menus/CharacterMenus/MainPanel/Content/MiddlePanel/QuickSlotPanel/PanelSwitcher/Controller/LT-RT");
+       
 
+<<<<<<< Updated upstream
+=======
+
+        // Vertical splitscreen
+        [HarmonyPatch(typeof(CharacterUI), "DelayedRefreshSize"), HarmonyPostfix]
+        static void CharacterUI_RefreshSize_Post(ref CharacterUI __instance)
+        {
+            int localPlayersCount = GameInput.LocalPlayers.Count;
+            #region quit
+            if (!_verticalSplitscreen || localPlayersCount < 2)
+                return;
+            #endregion
+
+            SplitScreenManager.Instance.CurrentSplitType = SplitScreenManager.SplitType.Vertical;
+            if (localPlayersCount == 2)
+                __instance.m_rectTransform.localPosition *= -1;
+        }
+
+>>>>>>> Stashed changes
         // Double controller quickslots
         [HarmonyPatch(typeof(ControlsInput), "Sheathe"), HarmonyPostfix]
         static void ControlsInput_Sheathe_Post(ref bool __result, ref int _playerID)
@@ -246,7 +288,7 @@ namespace ModPack
         static void QuickSlotDisplay_Update_Post(ref QuickSlotDisplay __instance)
         {
             #region quit
-            if (!_extraControllerQuickslots || !__instance.m_gamepadMode)
+            if (!_disableQuickslotButtonIcons)
                 return;
             #endregion
 
@@ -342,7 +384,7 @@ namespace ModPack
 
         // Push kick removal
         [HarmonyPatch(typeof(CharacterSave), "IsValid", MethodType.Getter), HarmonyPrefix]
-        static bool CharacterSave_IsValid_Pre(ref bool __result)
+        static bool CharacterSave_IsValid_Getter_Pre(ref bool __result)
         {
             #region quit
             if (!_allowPushKickRemoval.Value)
