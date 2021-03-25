@@ -183,6 +183,15 @@ namespace ModPack
             get => AModSetting.Indent;
             set => AModSetting.Indent = value;
         }
+        protected void AddEventOnConfigOpened(Action action)
+        {
+            _onConfigClosedEvents.Add(action);
+            Tools.AddEventOnConfigOpened(() =>
+            {
+                if (IsEnabled)
+                    action();
+            });
+        }
         protected void AddEventOnConfigClosed(Action action)
         {
             _onConfigClosedEvents.Add(action);

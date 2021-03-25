@@ -27,6 +27,14 @@ namespace ModPack
                 _isConfigWindowDirty = false;
             }
         }
+        static public void AddEventOnConfigOpened(Action action)
+        {
+            _configManager.DisplayingWindowChanged += (sender, eventArgs) =>
+            {
+                if (eventArgs.NewValue)
+                    action();
+            };
+        }
         static public void AddEventOnConfigClosed(Action action)
         {
             _configManager.DisplayingWindowChanged += (sender, eventArgs) =>
@@ -35,17 +43,17 @@ namespace ModPack
                     action();
             };
         }
+        static public bool IsConfigOpen
+        {
+            get => _configManager.DisplayingWindow;
+            set => _configManager.DisplayingWindow = value;
+        }
 
         // Privates
         static private ManualLogSource _logger;
         static private ConfigFile _configFile;
         static private ConfigurationManager.ConfigurationManager _configManager;
         static private bool _isConfigWindowDirty;
-        static private bool IsConfigOpen
-        {
-            get => _configManager.DisplayingWindow;
-            set => _configManager.DisplayingWindow = value;
-        }
         static private BepInPlugin _plugin;
         static private ModSetting<bool> _alwaysExpanded;
 
