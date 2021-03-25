@@ -101,6 +101,14 @@ namespace ModPack
         static public bool ChildHasComponent<T>(this GameObject t) where T : Component
         => t.HasChild() && t.GetComponentInChildren<T>() != null;
 
+        /// <summary> Returns component T attached to this object. If there's none, adds one. </summary>
+        static public bool GetOrAddComponent<T>(this GameObject t) where T : Component
+        {
+            T component = t.GetComponent<T>();
+            if (component != null)
+                return component;
+            return t.AddComponent<T>();
+        }
 
 
         //------------------------------------------------------------------------------------------------------------------------------- Various
