@@ -7,7 +7,7 @@ using System;
 
 namespace ModPack
 {
-    public class Camera : AMod, IWaitForPrefabs, IUpdatable
+    public class Camera : AMod, IDelayedInit, IUpdatable
     {
         #region const
         static private readonly Vector3 DEFAULT_OFFSET = new Vector3(0f, 1f, -3f);
@@ -19,26 +19,26 @@ namespace ModPack
         #region enum
         #endregion
         #region class
-        private class CameraSettings
+        private class PerPlayerData
         {
             // Settings
-            public ModSetting<bool> Toggle;
-            public ModSetting<float> ZoomControlAmount;
-            public ModSetting<float> ZoomControlSpeed;
-            public ModSetting<bool> OffsetToggle, VariousToggle;
-            public ModSetting<Vector3> OffsetMin, OffsetAvg, OffsetMax;
-            public ModSetting<Vector3> VariousMin, VariousAvg, VariousMax;
+            public ModSetting<bool> _toggle;
+            public ModSetting<float> _zoomControlAmount;
+            public ModSetting<float> _zoomControlSpeed;
+            public ModSetting<bool> _offsetToggle, _variousToggle;
+            public ModSetting<Vector3> _offsetMin, _offsetAvg, _offsetMax;
+            public ModSetting<Vector3> _variousMin, _variousAvg, _variousMax;
 
             // Utility
             public void StartAimCoroutine(MonoBehaviour owner, bool isEnteringAimMode)
             {
                 // Choose zoom in or out
                 float targetZoom = 0f;
-                Func<bool> test = () => ZoomControlAmount.Value < targetZoom + AIM_COROUTINE_MARGIN;
+                Func<bool> test = () => _zoomControlAmount.Value < targetZoom + AIM_COROUTINE_MARGIN;
                 if (isEnteringAimMode)
                 {
                     targetZoom = 1f;
-                    test = () => ZoomControlAmount.Value > targetZoom - AIM_COROUTINE_MARGIN;
+                    test = () => _zoomControlAmount.Value > targetZoom - AIM_COROUTINE_MARGIN;
                 }
 
                 // Update over time
@@ -47,30 +47,30 @@ namespace ModPack
                 _aimCoroutine = owner.ExecuteUntil
                 (
                     test,
-                    () => ZoomControlAmount.Value = ZoomControlAmount.Value.Lerp(targetZoom, AIM_COROUTINE_UPDATE_SPEED),
-                    () => ZoomControlAmount.Value = targetZoom
+                    () => _zoomControlAmount.Value = _zoomControlAmount.Value.Lerp(targetZoom, AIM_COROUTINE_UPDATE_SPEED),
+                    () => _zoomControlAmount.Value = targetZoom
                 );
             }
             public Vector3 CurrentOffset
             {
                 get
                 {
-                    if (ZoomControlAmount < 0f)
-                        return Vector3.LerpUnclamped(OffsetMin, OffsetAvg, ZoomControlAmount + 1f);
-                    if (ZoomControlAmount > 0f)
-                        return Vector3.LerpUnclamped(OffsetAvg, OffsetMax, ZoomControlAmount);
-                    return OffsetAvg;
+                    if (_zoomControlAmount < 0f)
+                        return Vector3.LerpUnclamped(_offsetMin, _offsetAvg, _zoomControlAmount + 1f);
+                    if (_zoomControlAmount > 0f)
+                        return Vector3.LerpUnclamped(_offsetAvg, _offsetMax, _zoomControlAmount);
+                    return _offsetAvg;
                 }
             }
             public Vector3 CurrentVarious
             {
                 get
                 {
-                    if (ZoomControlAmount < 0f)
-                        return Vector3.LerpUnclamped(VariousMin, VariousAvg, ZoomControlAmount + 1f);
-                    if (ZoomControlAmount > 0f)
-                        return Vector3.LerpUnclamped(VariousAvg, VariousMax, ZoomControlAmount);
-                    return VariousAvg;
+                    if (_zoomControlAmount < 0f)
+                        return Vector3.LerpUnclamped(_variousMin, _variousAvg, _zoomControlAmount + 1f);
+                    if (_zoomControlAmount > 0f)
+                        return Vector3.LerpUnclamped(_variousAvg, _variousMax, _zoomControlAmount);
+                    return _variousAvg;
                 }
             }
             public float Sensitivity
@@ -84,33 +84,33 @@ namespace ModPack
         }
         #endregion
 
-        static private CameraSettings[] _settingsByPlayerID;
+        static private PerPlayerData[] _perPlayerData;
         override protected void Initialize()
         {
-            _settingsByPlayerID = new CameraSettings[2];
+            _perPlayerData = new PerPlayerData[2];
             for (int i = 0; i < 2; i++)
             {
-                CameraSettings tmp = new CameraSettings();
-                _settingsByPlayerID[i] = tmp;
+                PerPlayerData tmp = new PerPlayerData();
+                _perPlayerData[i] = tmp;
 
-                string playerPrefix = $"Player{i + 1} ";
-                tmp.Toggle = CreateSetting(playerPrefix + nameof(tmp.Toggle), false);
-                tmp.ZoomControlAmount = CreateSetting(playerPrefix + nameof(tmp.ZoomControlAmount), 0f, FloatRange(-1f, 1f));
-                tmp.ZoomControlSpeed = CreateSetting(playerPrefix + nameof(tmp.ZoomControlSpeed), 0.5f, FloatRange(0f, 1f));
+                string playerPostfix = (i + 1).ToString();
+                tmp._toggle = CreateSetting(nameof(tmp._toggle) + playerPostfix, false);
+                tmp._zoomControlAmount = CreateSetting(nameof(tmp._zoomControlAmount) + playerPostfix, 0f, FloatRange(-1f, 1f));
+                tmp._zoomControlSpeed = CreateSetting(nameof(tmp._zoomControlSpeed) + playerPostfix, 0.5f, FloatRange(0f, 1f));
 
-                tmp.OffsetToggle = CreateSetting(playerPrefix + nameof(tmp.OffsetToggle), false);
-                tmp.OffsetMin = CreateSetting(playerPrefix + nameof(tmp.OffsetMin), DEFAULT_OFFSET.Add(0, 1f, -3f));
-                tmp.OffsetAvg = CreateSetting(playerPrefix + nameof(tmp.OffsetAvg), DEFAULT_OFFSET);
-                tmp.OffsetMax = CreateSetting(playerPrefix + nameof(tmp.OffsetMax), DEFAULT_OFFSET.Add(0.75f, -0.25f, 1f));
+                tmp._offsetToggle = CreateSetting(nameof(tmp._offsetToggle) + playerPostfix, false);
+                tmp._offsetMin = CreateSetting(nameof(tmp._offsetMin) + playerPostfix, DEFAULT_OFFSET.Add(0, 1f, -3f));
+                tmp._offsetAvg = CreateSetting(nameof(tmp._offsetAvg) + playerPostfix, DEFAULT_OFFSET);
+                tmp._offsetMax = CreateSetting(nameof(tmp._offsetMax) + playerPostfix, DEFAULT_OFFSET.Add(0.75f, -0.25f, 1f));
 
                 Vector3 otherDefault = new Vector3(DEFAULT_FOV, DEFAULT_FOLLOW_SPEED, 1f);
-                tmp.VariousToggle = CreateSetting(playerPrefix + nameof(tmp.VariousToggle), false);
-                tmp.VariousMin = CreateSetting(playerPrefix + nameof(tmp.VariousMin), otherDefault.Mul(1.2f, 2 / 3f, 1f));
-                tmp.VariousAvg = CreateSetting(playerPrefix + nameof(tmp.VariousAvg), otherDefault);
-                tmp.VariousMax = CreateSetting(playerPrefix + nameof(tmp.VariousMax), otherDefault.Mul(0.8f, 2.0f, 0.75f));
+                tmp._variousToggle = CreateSetting(nameof(tmp._variousToggle) + playerPostfix, false);
+                tmp._variousMin = CreateSetting(nameof(tmp._variousMin) + playerPostfix, otherDefault.Mul(1.2f, 2 / 3f, 1f));
+                tmp._variousAvg = CreateSetting(nameof(tmp._variousAvg) + playerPostfix, otherDefault);
+                tmp._variousMax = CreateSetting(nameof(tmp._variousMax) + playerPostfix, otherDefault.Mul(0.8f, 2.0f, 0.75f));
 
                 int id = i;
-                tmp.ZoomControlAmount.AddEvent(() => UpdateCameraSettings(id));
+                tmp._zoomControlAmount.AddEvent(() => UpdateCameraSettings(id));
 
                 AddEventOnConfigClosed(() =>
                 {
@@ -125,41 +125,41 @@ namespace ModPack
         {
             for (int i = 0; i < 2; i++)
             {
-                CameraSettings tmp = _settingsByPlayerID[i];
+                PerPlayerData tmp = _perPlayerData[i];
 
                 // Settings
-                tmp.Toggle.Format($"Player {i + 1}");
-                tmp.Toggle.Description = $"Change settings for local player {i + 1}";
+                tmp._toggle.Format($"Player {i + 1}");
+                tmp._toggle.Description = $"Change settings for local player {i + 1}";
                 Indent++;
                 {
-                    tmp.ZoomControlAmount.Format("Zoom amount", tmp.Toggle);
-                    tmp.ZoomControlAmount.Description = "-1  -  max zoom out\n" +
+                    tmp._zoomControlAmount.Format("Zoom amount", tmp._toggle);
+                    tmp._zoomControlAmount.Description = "-1  -  max zoom out\n" +
                                                         "0  -  default zoom\n" +
                                                         "+1  -  max zoom in";
-                    tmp.ZoomControlSpeed.Format("Zoom control speed", tmp.Toggle);
-                    tmp.ZoomControlSpeed.Description = "How quickly you want to zoom using mouse/gamepad\n" +
+                    tmp._zoomControlSpeed.Format("Zoom control speed", tmp._toggle);
+                    tmp._zoomControlSpeed.Description = "How quickly you want to zoom using mouse/gamepad\n" +
                         "Mouse: use mouse scroll wheel\n" +
                         "Gamepad: use right stick while holding Sprint and Block buttons";
-                    tmp.OffsetToggle.Format("Offset", tmp.Toggle);
-                    tmp.OffsetToggle.Description = "Change camera position (XYZ) presets";
+                    tmp._offsetToggle.Format("Offset", tmp._toggle);
+                    tmp._offsetToggle.Description = "Change camera position (XYZ) presets";
                     Indent++;
                     {
-                        tmp.OffsetMin.Format("at zoom =  -1", tmp.OffsetToggle);
-                        tmp.OffsetAvg.Format("at zoom =  0", tmp.OffsetToggle);
-                        tmp.OffsetMax.Format("at zoom = +1", tmp.OffsetToggle);
+                        tmp._offsetMin.Format("at zoom =  -1", tmp._offsetToggle);
+                        tmp._offsetAvg.Format("at zoom =  0", tmp._offsetToggle);
+                        tmp._offsetMax.Format("at zoom = +1", tmp._offsetToggle);
                         Indent--;
                     }
 
-                    tmp.VariousToggle.Format("FOV, FollowSpeed, Sensitivity", tmp.Toggle);
-                    tmp.VariousToggle.Description = "Change other settings presets:\n" +
+                    tmp._variousToggle.Format("FOV, FollowSpeed, Sensitivity", tmp._toggle);
+                    tmp._variousToggle.Description = "Change other settings presets:\n" +
                         "X  -  field of view (vertical)\n" +
                         "Y  -  how quickly camera follows your character\n" +
                         "Z  -  how quickly camera rotates";
                     Indent++;
                     {
-                        tmp.VariousMin.Format("at zoom =  -1", tmp.VariousToggle);
-                        tmp.VariousAvg.Format("at zoom =  0", tmp.VariousToggle);
-                        tmp.VariousMax.Format("at zoom = +1", tmp.VariousToggle);
+                        tmp._variousMin.Format("at zoom =  -1", tmp._variousToggle);
+                        tmp._variousAvg.Format("at zoom =  0", tmp._variousToggle);
+                        tmp._variousMax.Format("at zoom = +1", tmp._variousToggle);
                         Indent--;
                     }
                     Indent--;
@@ -180,10 +180,10 @@ namespace ModPack
 
                 // Cache
                 int id = localPlayer.ID;
-                CameraSettings settings = _settingsByPlayerID[id];
+                PerPlayerData settings = _perPlayerData[id];
 
                 settings.IgnoreAxes = false;
-                if (settings.ZoomControlSpeed > 0)
+                if (settings._zoomControlSpeed > 0)
                 {
                     float zoomDelta = 0f;
                     if (GameInput.IsUsingKeyboard(id))
@@ -197,7 +197,7 @@ namespace ModPack
                     }
 
                     if (zoomDelta != 0)
-                        settings.ZoomControlAmount.Value += zoomDelta * settings.ZoomControlSpeed * 10f * Time.unscaledDeltaTime;
+                        settings._zoomControlAmount.Value += zoomDelta * settings._zoomControlSpeed * 10f * Time.unscaledDeltaTime;
                 }
             }
         }
@@ -207,19 +207,19 @@ namespace ModPack
         {
             PlayerSystem player = Global.Lobby.GetLocalPlayer(playerID);
             #region quit
-            if (player == null || !_settingsByPlayerID[playerID].Toggle)
+            if (player == null || !_perPlayerData[playerID]._toggle)
                 return;
             #endregion
 
             // Cache
-            Vector3 currentVarious = _settingsByPlayerID[playerID].CurrentVarious;
+            Vector3 currentVarious = _perPlayerData[playerID].CurrentVarious;
             CharacterCamera characterCamera = player.ControlledCharacter.CharacterCamera;
 
             // Overrides
-            characterCamera.Offset = _settingsByPlayerID[playerID].CurrentOffset;
+            characterCamera.Offset = _perPlayerData[playerID].CurrentOffset;
             characterCamera.CameraScript.fieldOfView = currentVarious.x;
             characterCamera.DefaultFollowSpeed.SetX(currentVarious.y);
-            _settingsByPlayerID[playerID].Sensitivity = currentVarious.z;
+            _perPlayerData[playerID].Sensitivity = currentVarious.z;
         }
 
         // Hooks
@@ -229,7 +229,7 @@ namespace ModPack
             for (int i = 0; i < Global.Lobby.LocalPlayerCount; i++)
             {
                 #region quit
-                if (!_settingsByPlayerID[i].Toggle)
+                if (!_perPlayerData[i]._toggle)
                     continue;
                 #endregion
                 UpdateCameraSettings(i);
@@ -241,13 +241,13 @@ namespace ModPack
         {
             PlayerSystem player = __instance.OwnerPlayerSys;
             #region quit
-            if (player == null || !_settingsByPlayerID[player.PlayerID].Toggle)
+            if (player == null || !_perPlayerData[player.PlayerID]._toggle)
                 return;
             #endregion
 
             __instance.CharacterCamera.ZoomOffsetSplitScreenH = __instance.CharacterCamera.Offset;
             __instance.CharacterCamera.ZoomSensModifier = 1f;
-            _settingsByPlayerID[player.PlayerID].StartAimCoroutine(__instance, _zoomed);
+            _perPlayerData[player.PlayerID].StartAimCoroutine(__instance, _zoomed);
         }
 
         [HarmonyPatch(typeof(CharacterCamera), "UpdateZoom"), HarmonyPrefix]
@@ -255,7 +255,7 @@ namespace ModPack
         {
             PlayerSystem player = __instance.TargetCharacter.OwnerPlayerSys;
             #region quit
-            if (player == null || !_settingsByPlayerID[player.PlayerID].Toggle)
+            if (player == null || !_perPlayerData[player.PlayerID]._toggle)
                 return true;
             #endregion
 
@@ -266,20 +266,20 @@ namespace ModPack
         static void ControlsInput_RotateCameraVertical_Post(int _playerID, ref float __result)
         {
             #region quit
-            if (!_settingsByPlayerID[_playerID].Toggle)
+            if (!_perPlayerData[_playerID]._toggle)
                 return;
             #endregion
-            __result *= _settingsByPlayerID[_playerID].Sensitivity;
+            __result *= _perPlayerData[_playerID].Sensitivity;
         }
 
         [HarmonyPatch(typeof(ControlsInput), "RotateCameraHorizontal"), HarmonyPostfix]
         static void ControlsInput_RotateCameraHorizontal_Post(int _playerID, ref float __result)
         {
             #region quit
-            if (!_settingsByPlayerID[_playerID].Toggle)
+            if (!_perPlayerData[_playerID]._toggle)
                 return;
             #endregion
-            __result *= _settingsByPlayerID[_playerID].Sensitivity;
+            __result *= _perPlayerData[_playerID].Sensitivity;
         }
     }
 }
