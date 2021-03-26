@@ -44,7 +44,6 @@ namespace ModPack
             _skipStartupVideos = CreateSetting(nameof(_skipStartupVideos), false);
             _armorSlotsToHide = CreateSetting(nameof(_armorSlotsToHide), ArmorSlots.None);
             _extraControllerQuickslots = CreateSetting(nameof(_extraControllerQuickslots), false);
-
             _removeCoopScaling = CreateSetting(nameof(_removeCoopScaling), false);
             _removeDodgeInvulnerability = CreateSetting(nameof(_removeDodgeInvulnerability), false);
 

@@ -160,9 +160,9 @@ namespace ModPack
                 UpdateStatusEffectPrefabs();
                 UpdateDrinkValues();
                 UpdateSleepBuffsDuration();
-                foreach (var localPlayer in GameInput.LocalPlayers)
+                foreach (var player in Players.Local)
                 {
-                    PlayerCharacterStats stats = localPlayer.Character.PlayerStats;
+                    PlayerCharacterStats stats = player.Character.PlayerStats;
                     UpdateThresholds(stats);
                     UpdateDepletionRates(stats);
                 }

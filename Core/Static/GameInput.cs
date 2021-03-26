@@ -12,19 +12,6 @@ namespace ModPack
         #region const
         static public float HOLD_DURATION = 1.25f;   // InteractionBase.HOLD_ACTIVATION_TIME
         static public float HOLD_THRESHOLD = 0.4f;   // Character.BASIC_INTERACT_THRESHOLD
-
-        #endregion
-        #region struct
-        public struct PlayerData
-        {
-            public SplitPlayer Split;
-            public Character Character;
-            public CharacterCamera Camera;
-            public CharacterUI UI;
-            public PlayerSystem System;
-            public int ID;
-            public string UID;
-        }
         #endregion
 
         // Publics        
@@ -44,8 +31,8 @@ namespace ModPack
         => ControlsInput.m_playerInputManager[playerID].GetButton(action.ToName());
         static public float AxisValue(int playerID, ControlsInput.MenuActions action)
         => ControlsInput.m_playerInputManager[playerID].GetAxis(action.ToName());
-        static public bool IsUsingKeyboard(int playerID)
-        => !ControlsInput.IsLastActionGamepad(playerID);
+        static public bool IsUsingGamepad(int playerID)
+        => ControlsInput.IsLastActionGamepad(playerID);
         static public KeyCode ToKeyCode(string text)
         {
             if (text.IsNotEmpty())
@@ -53,8 +40,6 @@ namespace ModPack
                     return _keyCodesByName[text];
             return KeyCode.None;
         }
-        static public List<PlayerData> LocalPlayers
-        { get; private set; }
         static public bool ForceCursorNavigation;
 
         // Shortcuts
@@ -68,40 +53,9 @@ namespace ModPack
         => Held(playerID, ControlsInput.GameplayActions.Sprint);
         static public bool IsBlocking(int playerID)
         => Held(playerID, ControlsInput.GameplayActions.Block);
-        static public int KeyboardUserID
-        {
-            get
-            {
-                for (int i = 0; i < Global.Lobby.LocalPlayerCount; i++)
-                    if (IsUsingKeyboard(i))
-                        return i;
-                return -1;
-            }
-        }
 
         // Privates
         static private Dictionary<string, KeyCode> _keyCodesByName;
-        static private void RecacheLocalPlayers()
-        {
-            LocalPlayers.Clear();
-            int counter = 0;
-            foreach (var splitPlayer in SplitScreenManager.Instance.LocalPlayers)
-            {
-                counter++;
-                Character character = splitPlayer.AssignedCharacter;
-                PlayerSystem playerSystem = character.OwnerPlayerSys;
-                LocalPlayers.Add(new PlayerData()
-                {
-                    Split = splitPlayer,
-                    Character = character,
-                    Camera = character.CharacterCamera,
-                    UI = character.CharacterUI,
-                    System = playerSystem,
-                    ID = playerSystem.PlayerID,
-                    UID = playerSystem.UID,
-                });
-            }
-        }
 
         // Initializers
         static public void Initialize()
@@ -114,20 +68,10 @@ namespace ModPack
                     _keyCodesByName.Add(keyName, keyCode);
             }
 
-            LocalPlayers = new List<PlayerData>();
-
             Harmony.CreateAndPatchAll(typeof(GameInput));
         }
 
         // Hooks
-        [HarmonyPatch(typeof(LocalCharacterControl), "RetrieveComponents"), HarmonyPostfix]
-        static void LocalCharacterControl_RetrieveComponents_Post()
-        => RecacheLocalPlayers();
-
-        [HarmonyPatch(typeof(RPCManager), "SendPlayerHasLeft"), HarmonyPostfix]
-        static void RPCManager_SendPlayerHasLeft_Post()
-        => RecacheLocalPlayers();
-
         [HarmonyPatch(typeof(CharacterUI), "IsMenuFocused", MethodType.Getter), HarmonyPrefix]
         static bool CharacterUI_IsMenuFocused_Getter_Pre(ref bool __result)
         {

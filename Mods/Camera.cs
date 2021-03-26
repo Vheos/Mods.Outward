@@ -114,8 +114,8 @@ namespace ModPack
 
                 AddEventOnConfigClosed(() =>
                 {
-                    foreach (var localPlayer in GameInput.LocalPlayers)
-                        UpdateCameraSettings(localPlayer.ID);
+                    foreach (var player in Players.Local)
+                        UpdateCameraSettings(player.ID);
                 });
 
                 tmp.Sensitivity = 1f;
@@ -173,28 +173,28 @@ namespace ModPack
            "• Define presets and smoothly interpolate between them";
         public void OnUpdate()
         {
-            foreach (var localPlayer in GameInput.LocalPlayers)
+            foreach (var player in Players.Local)
             {
-                if (localPlayer.UI.IsMenuFocused)
+                if (player.UI.IsMenuFocused)
                     continue;
 
                 // Cache
-                int id = localPlayer.ID;
+                int id = player.ID;
                 PerPlayerData settings = _perPlayerData[id];
 
                 settings.IgnoreAxes = false;
                 if (settings._zoomControlSpeed > 0)
                 {
                     float zoomDelta = 0f;
-                    if (GameInput.IsUsingKeyboard(id))
-                        zoomDelta = Input.mouseScrollDelta.y * 2f;
-                    else if (GameInput.IsSprinting(id) && GameInput.IsBlocking(id))
+                    if (player.IsUsingGamepad)
                     {
                         Vector2 cameraInput = GameInput.CameraMovementInput(id);
                         if (cameraInput.y.Abs() > cameraInput.x.Abs())
                             zoomDelta = cameraInput.y;
                         settings.IgnoreAxes = true;
                     }
+                    else if (GameInput.IsSprinting(id) && GameInput.IsBlocking(id))
+                        zoomDelta = Input.mouseScrollDelta.y * 2f;
 
                     if (zoomDelta != 0)
                         settings._zoomControlAmount.Value += zoomDelta * settings._zoomControlSpeed * 10f * Time.unscaledDeltaTime;

@@ -71,8 +71,11 @@ namespace ModPack
             _awakeMods = new List<Type>();
             _delayedMods = new List<Type>();
             _updatableMods = new List<IUpdatable>();
+
             Tools.Initialize(this, Logger);
             GameInput.Initialize();
+            Players.Initialize();
+
             CategorizeModsByInstantiationTime();
             InstantiateMods(_awakeMods);
         }

@@ -73,7 +73,7 @@ namespace ModPack
         [HarmonyPatch(typeof(ControlsInput), "MoveHorizontal"), HarmonyPostfix]
         static void ControlsInput_MoveHorizontal_Post(ref float __result, ref int _playerID)
         {
-            if (GameInput.IsUsingKeyboard(_playerID))
+            if (!GameInput.IsUsingGamepad(_playerID))
             {
                 __result *= _modifier;
                 _isHorizontalInput = __result != 0;
@@ -85,7 +85,7 @@ namespace ModPack
         [HarmonyPatch(typeof(ControlsInput), "MoveVertical"), HarmonyPostfix]
         static void ControlsInput_MoveVertical_Post(ref float __result, ref int _playerID)
         {
-            if (GameInput.IsUsingKeyboard(_playerID))
+            if (!GameInput.IsUsingGamepad(_playerID))
             {
                 __result *= _modifier;
                 _isVerticalInput = __result != 0;
