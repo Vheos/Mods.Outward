@@ -186,14 +186,14 @@ namespace ModPack
                 if (settings._zoomControlSpeed > 0)
                 {
                     float zoomDelta = 0f;
-                    if (player.IsUsingGamepad)
+                    if (player.IsUsingGamepad && player.Held(ControlsInput.GameplayActions.Sprint) && player.Held(ControlsInput.GameplayActions.Block))
                     {
-                        Vector2 cameraInput = GameInput.CameraMovementInput(id);
+                        Vector2 cameraInput = player.CameraMovementInput;
                         if (cameraInput.y.Abs() > cameraInput.x.Abs())
                             zoomDelta = cameraInput.y;
                         settings.IgnoreAxes = true;
                     }
-                    else if (GameInput.IsSprinting(id) && GameInput.IsBlocking(id))
+                    else
                         zoomDelta = Input.mouseScrollDelta.y * 2f;
 
                     if (zoomDelta != 0)

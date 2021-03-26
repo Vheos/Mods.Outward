@@ -23,11 +23,11 @@ namespace ModPack
         => ControlsInput.m_playerInputManager[playerID].GetButton(action.ToName());
         static public float AxisValue(int playerID, ControlsInput.GameplayActions action)
         => ControlsInput.m_playerInputManager[playerID].GetAxis(action.ToName());
-        static public bool HasBeenPressed(int playerID, ControlsInput.MenuActions action)
+        static public bool Pressed(int playerID, ControlsInput.MenuActions action)
         => ControlsInput.m_playerInputManager[playerID].GetButtonDown(action.ToName());
-        static public bool HasBeenReleased(int playerID, ControlsInput.MenuActions action)
+        static public bool Released(int playerID, ControlsInput.MenuActions action)
         => ControlsInput.m_playerInputManager[playerID].GetButtonUp(action.ToName());
-        static public bool IsHeldDown(int playerID, ControlsInput.MenuActions action)
+        static public bool Held(int playerID, ControlsInput.MenuActions action)
         => ControlsInput.m_playerInputManager[playerID].GetButton(action.ToName());
         static public float AxisValue(int playerID, ControlsInput.MenuActions action)
         => ControlsInput.m_playerInputManager[playerID].GetAxis(action.ToName());
@@ -41,18 +41,6 @@ namespace ModPack
             return KeyCode.None;
         }
         static public bool ForceCursorNavigation;
-
-        // Shortcuts
-        static public Vector2 CameraMovementInput(int playerID)
-        => new Vector2(AxisValue(playerID, ControlsInput.GameplayActions.RotateCameraHorizontal),
-                       AxisValue(playerID, ControlsInput.GameplayActions.RotateCameraVertical));
-        static public Vector2 PlayerMovementInput(int playerID)
-        => new Vector2(AxisValue(playerID, ControlsInput.GameplayActions.MoveHorizontal),
-                       AxisValue(playerID, ControlsInput.GameplayActions.MoveVertical));
-        static public bool IsSprinting(int playerID)
-        => Held(playerID, ControlsInput.GameplayActions.Sprint);
-        static public bool IsBlocking(int playerID)
-        => Held(playerID, ControlsInput.GameplayActions.Block);
 
         // Privates
         static private Dictionary<string, KeyCode> _keyCodesByName;

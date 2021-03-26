@@ -115,7 +115,7 @@ namespace ModPack
             int quickslotID = -1;
             if (GameInput.Pressed(playerID, ControlsInput.GameplayActions.Sheathe))
                 quickslotID = 8;
-            else if (GameInput.HasBeenPressed(playerID, ControlsInput.MenuActions.ToggleMapMenu))
+            else if (GameInput.Pressed(playerID, ControlsInput.MenuActions.ToggleMapMenu))
                 quickslotID = 9;
             else if (GameInput.Pressed(playerID, ControlsInput.GameplayActions.ToggleLights))
                 quickslotID = 10;

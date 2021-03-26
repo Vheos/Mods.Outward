@@ -21,9 +21,33 @@ namespace ModPack
             public int ID;
             public string UID;
 
-            // Properties
+            // Input
             public bool IsUsingGamepad
             => GameInput.IsUsingGamepad(ID);
+            public bool Pressed(ControlsInput.GameplayActions action)
+            => GameInput.Pressed(ID, action);
+            public bool Released(ControlsInput.GameplayActions action)
+            => GameInput.Released(ID, action);
+            public bool Held(ControlsInput.GameplayActions action)
+            => GameInput.Held(ID, action);
+            public float AxisValue(ControlsInput.GameplayActions action)
+            => GameInput.AxisValue(ID, action);
+            public bool Pressed(ControlsInput.MenuActions action)
+            => GameInput.Pressed(ID, action);
+            public bool Released(ControlsInput.MenuActions action)
+            => GameInput.Released(ID, action);
+            public bool Held(ControlsInput.MenuActions action)
+            => GameInput.Held(ID, action);
+            public float AxisValue(ControlsInput.MenuActions action)
+            => GameInput.AxisValue(ID, action);
+
+            // Shortcuts
+            public Vector2 CameraMovementInput
+            => new Vector2(GameInput.AxisValue(ID, ControlsInput.GameplayActions.RotateCameraHorizontal),
+                           GameInput.AxisValue(ID, ControlsInput.GameplayActions.RotateCameraVertical));
+            public Vector2 PlayerMovementInput
+            => new Vector2(GameInput.AxisValue(ID, ControlsInput.GameplayActions.MoveHorizontal),
+                           GameInput.AxisValue(ID, ControlsInput.GameplayActions.MoveVertical));
         }
         #endregion
 
@@ -32,6 +56,13 @@ namespace ModPack
         { get; private set; }
         static public Data GetLocal(int playerID)
         => Local.DefaultOnInvalid(playerID);
+        static public bool TryGetLocal(int playerID, out Data player)
+        {
+            player = GetLocal(playerID);
+            return player != null;
+        }
+        static public bool LocalExists(int playerID)
+        => playerID < Local.Count;
 
         // Privates
         static private void Recache()
