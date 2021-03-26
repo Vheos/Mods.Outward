@@ -269,6 +269,17 @@ namespace ModPack
         }
         static public bool ContainsSubstring(this string text, string find)
         => text.IsNotEmpty() && text.IndexOf(find) >= 0;
+        static public T GetFirstComponentsInHierarchy<T>(this Transform root) where T : Component
+        {
+            T component = root.GetComponent<T>();
+            if (component != null)
+                return component;
+
+            foreach (Transform child in root)
+                return child.GetFirstComponentsInHierarchy<T>();
+
+            return null;
+        }
         static public List<T> GetAllComponentsInHierarchy<T>(this Transform root) where T : Component
         {
             List<T> components = new List<T>();
@@ -319,10 +330,10 @@ namespace ModPack
                 return value;
             return float.NaN;
         }
-        static public int ToPlayerID(this UIElement uiElement)
-        => uiElement.LocalCharacter.OwnerPlayerSys.PlayerID;
-        static public int ToPlayerID(this CharacterUI ui)
-        => ui.TargetCharacter.OwnerPlayerSys.PlayerID;
+        static public Players.Data ToPlayerData(this UIElement uiElement)
+        => Players.GetLocal(uiElement.LocalCharacter.OwnerPlayerSys.PlayerID);
+        static public Players.Data ToPlayerData(this CharacterUI ui)
+        => Players.GetLocal(ui.TargetCharacter.OwnerPlayerSys.PlayerID);
 
         static public void SetX(ref this Vector2 t, float a)
         => t.x = a;
