@@ -10,6 +10,11 @@ namespace ModPack
 {
     public class GUI : AMod, IDelayedInit, IUpdatable
     {
+        #region const
+        static public readonly Vector2 DEFAULT_SHOP_OFFSET_MIN = new Vector2(-1344f, -540f);
+        static public readonly Vector2 DEFAULT_SHOP_OFFSET_MAX = new Vector2(-20f, -20f);
+        public const float SHOP_MENU_RESIZE_DELAY = 0.2f;
+        #endregion
         #region enum
         private enum SeperatePanelsMode
         {
@@ -19,11 +24,12 @@ namespace ModPack
         }
         #endregion
         #region class
-        private class PerPlayerData
+        private class PerPlayerSettings
         {
             // Settings
             public ModSetting<bool> _toggle;
             public ModSetting<bool> _disableQuickslotButtonIcons;
+            public ModSetting<int> _shopMenuWidth;
             public ModSetting<bool> _swapPendingBuySellPanels;
             public ModSetting<SeperatePanelsMode> _separateBuySellPanels;
             public ModSetting<string> _buySellToggle, _switchToBuy, _switchToSell;
@@ -31,21 +37,22 @@ namespace ModPack
         #endregion
 
         // Setting
-        static private PerPlayerData[] _perPlayerData;
+        static private PerPlayerSettings[] _perPlayerSettings;
         static private ModSetting<bool> _verticalSplitscreen;
         override protected void Initialize()
         {
-            _perPlayerData = new PerPlayerData[2];
+            _perPlayerSettings = new PerPlayerSettings[2];
             for (int i = 0; i < 2; i++)
             {
-                PerPlayerData tmp = new PerPlayerData();
-                _perPlayerData[i] = tmp;
+                PerPlayerSettings tmp = new PerPlayerSettings();
+                _perPlayerSettings[i] = tmp;
 
                 string playerPostfix = (i + 1).ToString();
                 tmp._toggle = CreateSetting(nameof(tmp._toggle) + playerPostfix, false);
                 tmp._disableQuickslotButtonIcons = CreateSetting(nameof(tmp._disableQuickslotButtonIcons) + playerPostfix, false);
-                tmp._separateBuySellPanels = CreateSetting(nameof(tmp._separateBuySellPanels) + playerPostfix, SeperatePanelsMode.Disabled);
+                tmp._shopMenuWidth = CreateSetting(nameof(tmp._shopMenuWidth) + playerPostfix, 0, IntRange(0, 100));
                 tmp._swapPendingBuySellPanels = CreateSetting(nameof(tmp._swapPendingBuySellPanels) + playerPostfix, false);
+                tmp._separateBuySellPanels = CreateSetting(nameof(tmp._separateBuySellPanels) + playerPostfix, SeperatePanelsMode.Disabled);
                 tmp._buySellToggle = CreateSetting(nameof(tmp._buySellToggle) + playerPostfix, "");
                 tmp._switchToBuy = CreateSetting(nameof(tmp._switchToBuy) + playerPostfix, "");
                 tmp._switchToSell = CreateSetting(nameof(tmp._switchToSell) + playerPostfix, "");
@@ -54,26 +61,34 @@ namespace ModPack
                 int id = i;
                 tmp._separateBuySellPanels.AddEvent(() =>
                 {
-                    if (tmp._separateBuySellPanels == SeperatePanelsMode.Disabled)
-                        TryDisableSeparateMode(id);
-                    else
-                    {
-                        tmp._swapPendingBuySellPanels.Value = true;
-                        TrySwitchToPanel(id, true);
-                    }
+                    if (Players.TryGetLocal(id, out Players.Data player))
+                        UpdateSeparateBuySellPanels(player);
                 });
-                tmp._swapPendingBuySellPanels.AddEvent(() => TrySwapBuyingSellingItemsPanels(id));
-                tmp._disableQuickslotButtonIcons.AddEvent(() => TryUpdateQuickslotButtonIcons(id));
+
+                tmp._swapPendingBuySellPanels.AddEvent(() =>
+                {
+                    if (Players.TryGetLocal(id, out Players.Data player))
+                        UpdatePendingBuySellPanels(player);
+                });
+                tmp._disableQuickslotButtonIcons.AddEvent(() =>
+                {
+                    if (Players.TryGetLocal(id, out Players.Data player))
+                        UpdateQuickslotButtonIcons(player);
+                });
             }
 
             _verticalSplitscreen = CreateSetting(nameof(_verticalSplitscreen), false);
-            AddEventOnConfigClosed(() => TryUpdateSplitscreenMode());
+            AddEventOnConfigClosed(() => UpdateSplitscreenMode());
+            AddEventOnConfigClosed(() => UpdateShopMenusWidths());
         }
         override protected void SetFormatting()
         {
+            _verticalSplitscreen.Format("Vertical splitscreen");
+            _verticalSplitscreen.Description = "For monitors that are more wide than tall";
+
             for (int i = 0; i < 2; i++)
             {
-                PerPlayerData tmp = _perPlayerData[i];
+                PerPlayerSettings tmp = _perPlayerSettings[i];
 
                 tmp._toggle.Format($"Player {i + 1}");
                 tmp._toggle.Description = $"Change settings for local player {i + 1}";
@@ -81,7 +96,8 @@ namespace ModPack
                 {
                     tmp._disableQuickslotButtonIcons.Format("Disable quickslot button icons", tmp._toggle);
                     tmp._disableQuickslotButtonIcons.Description = "You know them by heart anyway!";
-
+                    tmp._shopMenuWidth.Format("Shop menu width");
+                    tmp._shopMenuWidth.Description = "% of screen size, 0 for default width";
                     tmp._separateBuySellPanels.Format("Separate buy/sell panels", tmp._toggle);
                     tmp._separateBuySellPanels.Description = "Disabled - shops display player's and merchant's inventory in one panel" +
                                                     "Toggle - toggle between player's and merchant's inventory with one button" +
@@ -99,87 +115,92 @@ namespace ModPack
                     Indent--;
                 }
             }
-            _verticalSplitscreen.Format("Vertical splitscreen");
-            _verticalSplitscreen.Description = "For monitors that are more wide than tall";
+
         }
         public void OnUpdate()
         {
             foreach (var player in Players.Local)
                 if (player.UI.m_displayedMenuIndex == CharacterUI.MenuScreens.Shop)
-                    switch (_perPlayerData[player.ID]._separateBuySellPanels.Value)
+                {
+                    PerPlayerSettings settings = _perPlayerSettings[player.ID];
+                    switch (settings._separateBuySellPanels.Value)
                     {
                         case SeperatePanelsMode.Toggle:
-                            if (_perPlayerData[player.ID]._buySellToggle.Value.ToKeyCode().Pressed())
-                                TryToggleBuySellPanel(player.ID);
+                            if (player.IsUsingGamepad && (player.Pressed(ControlsInput.MenuActions.GoToPreviousMenu) || player.Pressed(ControlsInput.MenuActions.GoToNextMenu))
+                            || !player.IsUsingGamepad && settings._buySellToggle.Value.ToKeyCode().Pressed())
+                                ToggleBuySellPanel(player);
                             break;
                         case SeperatePanelsMode.TwoButtons:
-                            if (_perPlayerData[player.ID]._switchToBuy.Value.ToKeyCode().Pressed())
-                                TrySwitchToPanel(player.ID, true);
-                            else if (_perPlayerData[player.ID]._switchToSell.Value.ToKeyCode().Pressed())
-                                TrySwitchToPanel(player.ID, false);
+                            if (player.IsUsingGamepad && player.Pressed(ControlsInput.MenuActions.GoToNextMenu)
+                            || !player.IsUsingGamepad && settings._switchToBuy.Value.ToKeyCode().Pressed())
+                                SwitchToPanel(player, true);
+                            else if (player.IsUsingGamepad && player.Pressed(ControlsInput.MenuActions.GoToPreviousMenu)
+                            || !player.IsUsingGamepad && settings._switchToSell.Value.ToKeyCode().Pressed())
+                                SwitchToPanel(player, false);
                             break;
                     }
+                }
         }
 
-        // Disable quickslot button icons
-        static private void TryUpdateQuickslotButtonIcons(int playerID)
+        // Utility
+        static private void UpdateSplitscreenMode()
         {
-            #region quit
-            Players.Data player = Players.GetLocal(playerID);
-            if (player == null)
-                return;
-            #endregion
-
+            if (SplitScreenManager.Instance != null)
+                SplitScreenManager.Instance.CurrentSplitType = _verticalSplitscreen && Players.Local.Count >= 2
+                                                             ? SplitScreenManager.SplitType.Vertical
+                                                             : SplitScreenManager.SplitType.Horizontal;
+        }
+        static private void UpdateShopMenusWidths()
+        {
+            foreach (var player in Players.Local)
+            {
+                // Choose
+                PerPlayerSettings playerData = _perPlayerSettings[player.ID];
+                Vector2 offsetMin = DEFAULT_SHOP_OFFSET_MIN;
+                Vector2 offsetMax = DEFAULT_SHOP_OFFSET_MAX;
+                if (playerData._shopMenuWidth > 0)
+                {
+                    float maxWidth = player.UI.m_rectTransform.rect.width.Neg();
+                    float multiplier = playerData._shopMenuWidth / 100f;
+                    offsetMin.SetX(maxWidth * multiplier);
+                    offsetMax = Vector2.zero;
+                }
+                // Set
+                RectTransform shopMenuRectTransform = GetShopMenuPanel(player.UI).GetComponent<RectTransform>();
+                shopMenuRectTransform.offsetMin = offsetMin;
+                shopMenuRectTransform.offsetMax = offsetMax;
+            }
+        }
+        static private void UpdateQuickslotButtonIcons(Players.Data player)
+        {
             foreach (var quickslotDisplay in GetKeyboardQuickslotsGamePanel(player.UI).GetAllComponentsInHierarchy<QuickSlotDisplay>())
-                quickslotDisplay.m_lblKeyboardInput.enabled = !_perPlayerData[player.ID]._disableQuickslotButtonIcons;
+                quickslotDisplay.m_lblKeyboardInput.enabled = !_perPlayerSettings[player.ID]._disableQuickslotButtonIcons;
         }
-        static private Transform GetKeyboardQuickslotsGamePanel(CharacterUI ui)
-        => ui.transform.Find("Canvas/GameplayPanels/HUD/QuickSlot/Keyboard");
-        // Separate buy/sell panels
-        static private void TrySwitchToPanel(int playerID, bool buyPanel)
+        static private void UpdateSeparateBuySellPanels(Players.Data player)
         {
-            #region quit
-            Players.Data player = Players.GetLocal(playerID);
-            if (player == null)
-                return;
-            #endregion
-
+            if (_perPlayerSettings[player.ID]._separateBuySellPanels == SeperatePanelsMode.Disabled)
+                DisableSeparateMode(player);
+            else
+                SwitchToPanel(player, true);
+        }
+        static private void SwitchToPanel(Players.Data player, bool buyPanel)
+        {
             GetPlayerInventoryPanel(player.UI).GOSetActive(!buyPanel);
             GetMerchantInventoryPanel(player.UI).GOSetActive(buyPanel);
+            GetShopMenuPanel(player.UI).GetComponent<ShopMenu>().GetFirstSelectable().Select();
         }
-        static private void TryToggleBuySellPanel(int playerID)
+        static private void ToggleBuySellPanel(Players.Data player)
         {
-            #region quit
-            Players.Data player = Players.GetLocal(playerID);
-            if (player == null)
-                return;
-            #endregion
-
-            Transform playerInventory = GetPlayerInventoryPanel(player.UI);
-            Transform merchantInventory = GetMerchantInventoryPanel(player.UI);
-            playerInventory.GOToggle();
-            merchantInventory.GOSetActive(!playerInventory.GOActive());
+            bool isBuyPanel = GetMerchantInventoryPanel(player.UI).GOActive();
+            SwitchToPanel(player, !isBuyPanel);
         }
-        static private void TryDisableSeparateMode(int playerID)
+        static private void DisableSeparateMode(Players.Data player)
         {
-            #region quit
-            Players.Data player = Players.GetLocal(playerID);
-            if (player == null)
-                return;
-            #endregion
-
             GetPlayerInventoryPanel(player.UI).GOSetActive(true);
             GetMerchantInventoryPanel(player.UI).GOSetActive(true);
         }
-        // Swap pending buy/sell panels
-        static private void TrySwapBuyingSellingItemsPanels(int playerID)
+        static private void UpdatePendingBuySellPanels(Players.Data player)
         {
-            #region quit
-            Players.Data player = Players.GetLocal(playerID);
-            if (player == null)
-                return;
-            #endregion
-
             // Cache
             Transform playerInventory = GetPlayerInventoryPanel(player.UI);
             Transform merchantInventory = GetMerchantInventoryPanel(player.UI);
@@ -197,7 +218,7 @@ namespace ModPack
                     return;
             }
 
-            if (_perPlayerData[playerID]._swapPendingBuySellPanels == isModified)
+            if (_perPlayerSettings[player.ID]._swapPendingBuySellPanels == isModified)
                 return;
 
             // Execute
@@ -205,6 +226,11 @@ namespace ModPack
             pendingBuy.SetAsFirstSibling();
             pendingSell.SetAsFirstSibling();
         }
+        // Find
+        static private Transform GetKeyboardQuickslotsGamePanel(CharacterUI ui)
+        => ui.transform.Find("Canvas/GameplayPanels/HUD/QuickSlot/Keyboard");
+        static private Transform GetShopMenuPanel(CharacterUI ui)
+        => ui.transform.Find("Canvas/GameplayPanels/Menus/ModalMenus/ShopMenu");
         static private Transform GetPlayerInventoryPanel(CharacterUI ui)
         => ui.transform.Find("Canvas/GameplayPanels/Menus/ModalMenus/ShopMenu/MiddlePanel/PlayerInventory");
         static private Transform GetMerchantInventoryPanel(CharacterUI ui)
@@ -213,56 +239,38 @@ namespace ModPack
         => inventory.Find("SectionContent/Scroll View/Viewport/Content/PlayerPendingBuyItems");
         static private Transform GetPendingSellPanel(Transform inventory)
         => inventory.Find("SectionContent/Scroll View/Viewport/Content/PlayerPendingSellItems");
-        // Vertical splitscreen
-        static private void TryUpdateSplitscreenMode()
-        {
-            #region quit
-            if (SplitScreenManager.Instance == null)
-                return;
-            #endregion
-
-            SplitScreenManager.Instance.CurrentSplitType = _verticalSplitscreen && Players.Local.Count >= 2
-                                                         ? SplitScreenManager.SplitType.Vertical
-                                                         : SplitScreenManager.SplitType.Horizontal;
-            foreach (var player in Players.Local)
-                player.UI.DelayedRefreshSize();
-        }
 
         // Hooks
         [HarmonyPatch(typeof(LocalCharacterControl), "RetrieveComponents"), HarmonyPostfix]
         static void LocalCharacterControl_RetrieveComponents_Post(LocalCharacterControl __instance)
         {
-            int playerID = __instance.Character.OwnerPlayerSys.PlayerID;
-            TryUpdateQuickslotButtonIcons(playerID);
-            TrySwapBuyingSellingItemsPanels(playerID);
-            TryUpdateSplitscreenMode();
+            UpdateSplitscreenMode();
+            __instance.ExecuteOnceAfterDelay(SHOP_MENU_RESIZE_DELAY, UpdateShopMenusWidths);
+
+            Players.Data player = Players.GetLocal(__instance.Character.OwnerPlayerSys.PlayerID);
+            UpdateQuickslotButtonIcons(player);
+            UpdatePendingBuySellPanels(player);
         }
 
-        // Vertical splitscreen
         [HarmonyPatch(typeof(RPCManager), "SendPlayerHasLeft"), HarmonyPostfix]
-        static void RPCManager_SendPlayerHasLeft_Post()
-        => TryUpdateSplitscreenMode();
+        static void RPCManager_SendPlayerHasLeft_Post(RPCManager __instance)
+        {
+            UpdateSplitscreenMode();
+            __instance.ExecuteOnceAfterDelay(SHOP_MENU_RESIZE_DELAY, UpdateShopMenusWidths);
+        }
 
         // Exclusive buy/sell panels
         [HarmonyPatch(typeof(ShopMenu), "Show"), HarmonyPostfix]
         static void ShopMenu_Show_Post(ref ShopMenu __instance)
-        {
-            int playerID = __instance.ToPlayerID();
-            #region quit
-            if (_perPlayerData[playerID]._separateBuySellPanels == SeperatePanelsMode.Disabled)
-                return;
-            #endregion
-
-            TrySwitchToPanel(playerID, true);
-        }
+        => UpdateSeparateBuySellPanels(__instance.ToPlayerData());
 
         // Disable quickslot button icons
         [HarmonyPatch(typeof(QuickSlotDisplay), "Update"), HarmonyPostfix]
         static void QuickSlotDisplay_Update_Post(ref QuickSlotDisplay __instance)
         {
-            int playerID = __instance.ToPlayerID();
+            Players.Data player = __instance.ToPlayerData();
             #region quit
-            if (!_perPlayerData[playerID]._disableQuickslotButtonIcons)
+            if (!_perPlayerSettings[player.ID]._disableQuickslotButtonIcons)
                 return;
             #endregion
 
@@ -283,20 +291,3 @@ namespace ModPack
         }
     }
 }
-
-/*
-        [HarmonyPatch(typeof(MenuPanel), "Show", new Type[] { }), HarmonyPostfix]
-        static void MenuPanel_Show_Post(ref MenuPanel __instance)
-        {
-            #region quit
-            if (__instance.CharacterUI == null)
-                return;
-            #endregion
-
-            string panelName = __instance.GOName();
-            MenuPanelHolder parentHolderName = __instance.m_parentPanelHolder;
-            float panelWidth = __instance.RectTransform.rect.width;
-            float screenWidth = __instance.CharacterUI.m_rectTransform.rect.width;
-            Tools.Log($"[MenuPanel.Show] {panelName} / {parentHolderName}  -  {panelWidth} / {screenWidth}");
-        }
-*/
