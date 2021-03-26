@@ -93,7 +93,7 @@ namespace ModPack
             temp.BecomeSiblingOf(t);
             t.BecomeSiblingOf(a);
             a.BecomeSiblingOf(temp);
-            temp.Destroy();
+            temp.DestroyObject();
         }
         static public IEnumerator CoroutineWaitForSeconds(float delay, Action action)
         {
