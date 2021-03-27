@@ -28,7 +28,7 @@ namespace ModPack
         {
             // Settings
             public ModSetting<bool> _toggle;
-            public ModSetting<bool> _disableQuickslotButtonIcons;
+            public ModSetting<bool> _hintQuickslotHints;
             public ModSetting<int> _shopMenuWidth;
             public ModSetting<bool> _swapPendingBuySellPanels;
             public ModSetting<SeperatePanelsMode> _separateBuySellPanels;
@@ -49,7 +49,7 @@ namespace ModPack
 
                 string playerPostfix = (i + 1).ToString();
                 tmp._toggle = CreateSetting(nameof(tmp._toggle) + playerPostfix, false);
-                tmp._disableQuickslotButtonIcons = CreateSetting(nameof(tmp._disableQuickslotButtonIcons) + playerPostfix, false);
+                tmp._hintQuickslotHints = CreateSetting(nameof(tmp._hintQuickslotHints) + playerPostfix, false);
                 tmp._shopMenuWidth = CreateSetting(nameof(tmp._shopMenuWidth) + playerPostfix, 0, IntRange(0, 100));
                 tmp._swapPendingBuySellPanels = CreateSetting(nameof(tmp._swapPendingBuySellPanels) + playerPostfix, false);
                 tmp._separateBuySellPanels = CreateSetting(nameof(tmp._separateBuySellPanels) + playerPostfix, SeperatePanelsMode.Disabled);
@@ -70,7 +70,7 @@ namespace ModPack
                     if (Players.TryGetLocal(id, out Players.Data player))
                         UpdatePendingBuySellPanels(player);
                 });
-                tmp._disableQuickslotButtonIcons.AddEvent(() =>
+                tmp._hintQuickslotHints.AddEvent(() =>
                 {
                     if (Players.TryGetLocal(id, out Players.Data player))
                         UpdateQuickslotButtonIcons(player);
@@ -94,29 +94,35 @@ namespace ModPack
                 tmp._toggle.Description = $"Change settings for local player {i + 1}";
                 Indent++;
                 {
-                    tmp._disableQuickslotButtonIcons.Format("Disable quickslot button icons", tmp._toggle);
-                    tmp._disableQuickslotButtonIcons.Description = "You know them by heart anyway!";
                     tmp._shopMenuWidth.Format("Shop menu width");
-                    tmp._shopMenuWidth.Description = "% of screen size, 0 for default width";
+                    tmp._shopMenuWidth.Description = "% of screen size, 0% = default" +
+                                                     "(recommended when using vertical splitscreen)";
                     tmp._separateBuySellPanels.Format("Separate buy/sell panels", tmp._toggle);
                     tmp._separateBuySellPanels.Description = "Disabled - shops display player's and merchant's inventory in one panel" +
-                                                    "Toggle - toggle between player's and merchant's inventory with one button" +
-                                                    "TwoButtons - press one button for player's inventory and another for merchant's";
+                                                             "Toggle - toggle between player's / merchant's inventories with one button" +
+                                                             "TwoButtons - press one button for player's inventory and another for merchant's";
                     tmp._swapPendingBuySellPanels.Format("Swap pending buy/sell panels", tmp._separateBuySellPanels, SeperatePanelsMode.Disabled);
-                    tmp._swapPendingBuySellPanels.Description = "Items you're buying from merchant will be shown above his stock" +
+                    tmp._swapPendingBuySellPanels.Description = "Items you're buying will be shown above the merchant's stock" +
                                                                 "Items you're selling will be shown above your pouch";
                     Indent++;
                     {
-                        tmp._buySellToggle.Format("Toggle buy/sell mode", tmp._separateBuySellPanels, SeperatePanelsMode.Toggle);
-                        tmp._switchToBuy.Format("Switch to buy mode", tmp._separateBuySellPanels, SeperatePanelsMode.TwoButtons);
-                        tmp._switchToSell.Format("Switch to sell mode", tmp._separateBuySellPanels, SeperatePanelsMode.TwoButtons);
+                        tmp._buySellToggle.Format("Toggle buy/sell panels", tmp._separateBuySellPanels, SeperatePanelsMode.Toggle);
+                        tmp._switchToBuy.Format("Switch to buy panel", tmp._separateBuySellPanels, SeperatePanelsMode.TwoButtons);
+                        tmp._switchToSell.Format("Switch to sell panel", tmp._separateBuySellPanels, SeperatePanelsMode.TwoButtons);
                         Indent--;
                     }
                     Indent--;
+                    tmp._hintQuickslotHints.Format("Hide quickslot hints", tmp._toggle);
+                    tmp._hintQuickslotHints.Description = "Keyboard - hides the key names above quickslots" +
+                                                          "Gamepad - hides the button icons below quickslots";
                 }
             }
 
         }
+        override protected string Description
+        => "• Vertical splitscreen" +
+           "• Shop menu tweaks" +
+           "• Hide quickslot hints";
         public void OnUpdate()
         {
             foreach (var player in Players.Local)
@@ -174,7 +180,7 @@ namespace ModPack
         static private void UpdateQuickslotButtonIcons(Players.Data player)
         {
             foreach (var quickslotDisplay in GetKeyboardQuickslotsGamePanel(player.UI).GetAllComponentsInHierarchy<QuickSlotDisplay>())
-                quickslotDisplay.m_lblKeyboardInput.enabled = !_perPlayerSettings[player.ID]._disableQuickslotButtonIcons;
+                quickslotDisplay.m_lblKeyboardInput.enabled = !_perPlayerSettings[player.ID]._hintQuickslotHints;
         }
         static private void UpdateSeparateBuySellPanels(Players.Data player)
         {
@@ -270,7 +276,7 @@ namespace ModPack
         {
             Players.Data player = __instance.ToPlayerData();
             #region quit
-            if (!_perPlayerSettings[player.ID]._disableQuickslotButtonIcons)
+            if (!_perPlayerSettings[player.ID]._hintQuickslotHints)
                 return;
             #endregion
 

@@ -193,24 +193,24 @@ namespace ModPack
         }
         override protected void SetFormatting()
         {
-            _holdInteractionsDuration.Format("Hold interactions duration");
+            _holdInteractionsDuration.Format("\"Hold\" interactions duration");
             _holdInteractionsDuration.Description = "How long you want to hold the button for \"Hold\" interaction to trigger";
+            _singleHoldsToPresses.Format("Instant \"Hold\" interactions");
+            _singleHoldsToPresses.Description = "Changes many objects' \"Hold\" interaction to \"Press\"\n" +
+                                                "(examples: gathering, fishing, mining, opening chests)";
+            _groundInteractions.Format("Use items from ground");
+            _groundInteractions.Description = "Items to use straight from the ground with a \"Hold\" interaction";
+            _takeAnimations.Format("Item take animations");
+            _takeAnimations.Description = "Animates (and greatly slows down) the process of taking items";
             _swapWaterInteractions.Format("Swap water gather/drink");
             _swapWaterInteractions.Description = "Vanilla: press to gather, hold to drink\n" +
                                                  "Custom: press to drink, hold to gather";
-            _singleHoldsToPresses.Format("Instant hold-only interactions");
-            _singleHoldsToPresses.Description = "Changes many objects' \"Hold\" interaction to \"Press\"\n" +
-                                                "(examples: gathering, fishing, mining, opening chests";
-            _takeAnimations.Format("Item take animations");
-            _takeAnimations.Description = "Animates (and greatly slows down) the process of taking items";
-
-            _groundInteractions.Format("Use items from ground");
-            _groundInteractions.Description = "Items to use straight from the ground with a \"Hold\" interaction";
         }
         override protected string Description
-        => "• Instant interactions\n" +
-           "• \"Take item\" animations\n" +
-           "• Use items lying on the ground";
+        => "• Instant \"Hold\" interactions" +
+           "• Use items straight from the ground" +
+           "• \"Take item\" animations\n";
+        
 
         // Utility
         static private void SwapBasicAndHoldInteractions(InteractionActivator activator, ref IInteraction vanillaBasic, ref IInteraction vanillaHold)
