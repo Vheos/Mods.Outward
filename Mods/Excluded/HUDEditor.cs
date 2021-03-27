@@ -61,9 +61,9 @@ namespace ModPack
 
                     GameInput.ForceCursorNavigation = _isInEditMode;
                     if (_isInEditMode)
-                        foreach (var localPlayer in GameInput.LocalPlayers)
+                        foreach (var player in Players.Local)
                         {
-                            Transform hudHolder = localPlayer.UI.transform.Find("Canvas/GameplayPanels/HUD");
+                            Transform hudHolder = player.UI.transform.Find("Canvas/GameplayPanels/HUD");
                             string[] forceRaycastTargetPanels = new[]
                             {
                             "StatusEffect - Panel",
@@ -101,18 +101,18 @@ namespace ModPack
         // Utility  
         private void InitializeHUDCanvasGroups()
         {
-            foreach (var localPlayer in GameInput.LocalPlayers)
+            foreach (var player in Players.Local)
             {
-                foreach (var canvasGroup in GetHUDHolder(localPlayer.UI).GetAllComponentsInHierarchy<CanvasGroup>())
+                foreach (var canvasGroup in GetHUDHolder(player.UI).GetAllComponentsInHierarchy<CanvasGroup>())
                     canvasGroup.blocksRaycasts = true;
             }
         }
         private void StartEditMode()
         {
             _isInEditMode = true;
-            foreach (var localPlayer in GameInput.LocalPlayers)
+            foreach (var player in Players.Local)
             {
-                Transform hudHolder = localPlayer.UI.transform.Find("Canvas/GameplayPanels/HUD");
+                Transform hudHolder = player.UI.transform.Find("Canvas/GameplayPanels/HUD");
                 string[] forceRaycastTargetPanels = new[]
                 {
                     "StatusEffect - Panel",
@@ -135,10 +135,10 @@ namespace ModPack
         }
         private void HandleHits()
         {
-            foreach (var localPlayer in GameInput.LocalPlayers)
+            foreach (var player in Players.Local)
             {
-                Tools.Log($"{localPlayer.Character.Name}:");
-                foreach (var hit in GetHUDHolder(localPlayer.UI).GetOrAddComponent<GraphicRaycaster>().GetMouseHits())
+                Tools.Log($"{player.Character.Name}:");
+                foreach (var hit in GetHUDHolder(player.UI).GetOrAddComponent<GraphicRaycaster>().GetMouseHits())
                 {
                     Transform transform = hit.gameObject.transform;
                     Vector3 offset = Input.mousePosition.OffsetTo(transform.position);
@@ -148,8 +148,8 @@ namespace ModPack
                 Tools.Log($"\n");
             }
         }
-        private Transform GetHUDHolder(CharacterUI characterUI)
-        => characterUI.transform.Find("Canvas/GameplayPanels/HUD");
+        private Transform GetHUDHolder(CharacterUI ui)
+        => ui.transform.Find("Canvas/GameplayPanels/HUD");
         private bool _isInEditMode;
         private Dictionary<Transform, Vector3> _attachedTransformsByOffset;
 
