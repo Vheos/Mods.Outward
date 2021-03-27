@@ -90,9 +90,11 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Core\Abstract\Interfaces.cs" />
+    <Compile Include="Core\Static\Players.cs" />
     <Compile Include="Core\Static\Prefabs.cs" />
     <Compile Include="Core\Static\GameInput.cs" />
     <Compile Include="Mods\Excluded\HUDEditor.cs" />
+    <Compile Include="Mods\GUI.cs" />
     <Compile Include="Mods\KeyboardWalk.cs" />
     <Compile Include="Mods\Excluded\Debug.cs" />
     <Compile Include="Mods\Descriptions.cs" />

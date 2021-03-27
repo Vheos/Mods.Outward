@@ -44,7 +44,7 @@ namespace ModPack
            "(can be held or toggled)";
         public void OnUpdate()
         {
-            if (Input.GetKeyDown(_key.Value.ToKeyCode()))
+            if (_key.Value.ToKeyCode().Pressed())
             {
                 _modifier = ModifiedSpeed;
                 if (_doubleTapToToggle && TimeSinceLastKeyPress < _doubleTapWaitTime / 1000f)
@@ -52,7 +52,7 @@ namespace ModPack
                 else
                     _lastKeyPressTime = Time.unscaledTime;
             }
-            else if (Input.GetKeyUp(_key.Value.ToKeyCode()))
+            else if (_key.Value.ToKeyCode().Released())
                 _modifier = NormalSpeed;
         }
 
@@ -73,7 +73,7 @@ namespace ModPack
         [HarmonyPatch(typeof(ControlsInput), "MoveHorizontal"), HarmonyPostfix]
         static void ControlsInput_MoveHorizontal_Post(ref float __result, ref int _playerID)
         {
-            if (GameInput.IsUsingKeyboard(_playerID))
+            if (!GameInput.IsUsingGamepad(_playerID))
             {
                 __result *= _modifier;
                 _isHorizontalInput = __result != 0;
@@ -85,7 +85,7 @@ namespace ModPack
         [HarmonyPatch(typeof(ControlsInput), "MoveVertical"), HarmonyPostfix]
         static void ControlsInput_MoveVertical_Post(ref float __result, ref int _playerID)
         {
-            if (GameInput.IsUsingKeyboard(_playerID))
+            if (!GameInput.IsUsingGamepad(_playerID))
             {
                 __result *= _modifier;
                 _isVerticalInput = __result != 0;

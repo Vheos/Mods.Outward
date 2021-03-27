@@ -86,7 +86,7 @@ namespace ModPack
         public void OnUpdate()
         {
             if (IsEnabled)
-                if (Input.GetKeyDown(_speedHackKey.Value.ToKeyCode()))
+                if (_speedHackKey.Value.ToKeyCode().Pressed())
                     ToggleSpeedHack();
         }
 

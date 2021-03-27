@@ -11,10 +11,24 @@ namespace ModPack
     {
         #region const
         private const int MAX_SETTINGS_PER_MOD = 1000;
+        #endregion
+        #region enum
+        [Flags]
+        protected enum Toggles
+        {
+            None = 0,
+            Apply = 1 << 1,
+            Collapse = 1 << 2,
+            Hide = 1 << 3,
+        }
+        #endregion
+
+        // Order
         static private readonly Type[] MODS_ORDERING = new[]
         {
             typeof(Various),
 
+            typeof(GUI),
             typeof(Descriptions),
             typeof(Camera),
             typeof(KeyboardWalk),
@@ -29,17 +43,6 @@ namespace ModPack
             typeof(Debug),
             typeof(PistolTweaks),
         };
-        #endregion
-        #region enum
-        [Flags]
-        protected enum Toggles
-        {
-            None = 0,
-            Apply = 1 << 1,
-            Collapse = 1 << 2,
-            Hide = 1 << 3,
-        }
-        #endregion
 
         // Privates
         private readonly Harmony _patcher;

@@ -1,7 +1,7 @@
 ﻿public interface IExcludeFromBuild
 { }
 
-public interface IWaitForPrefabs
+public interface IDelayedInit
 { }
 
 public interface IUpdatable

@@ -23,7 +23,7 @@ namespace ModPack
         static public bool HasStatusEffect(this Character character, StatusEffect statusEffect)
         => character.StatusEffectMngr.HasStatusEffect(statusEffect.IdentifierName);
         static public bool IsIngestible(this Item item)
-        => Prefabs.IngestiblesByGOName.ContainsKey(item.GOName());
+        => Prefabs.IngestiblesByID.ContainsKey(item.ItemID);
         static public bool IsEatable(this Item item)
         => item.IsUsable && item.ActivateEffectAnimType == Character.SpellCastType.Eat;
         static public bool IsDrinkable(this Item item)
@@ -259,7 +259,7 @@ namespace ModPack
         }
         static public string SubstringBefore(this string text, string find, bool caseSensitive = true)
         {
-            if (!text.IsEmpty())
+            if (text.IsNotEmpty())
             {
                 int length = text.IndexOf(find, caseSensitive ? StringComparison.Ordinal : StringComparison.OrdinalIgnoreCase);
                 if (length >= 1)
@@ -268,7 +268,18 @@ namespace ModPack
             return string.Empty;
         }
         static public bool ContainsSubstring(this string text, string find)
-        => !text.IsEmpty() && text.IndexOf(find) >= 0;
+        => text.IsNotEmpty() && text.IndexOf(find) >= 0;
+        static public T GetFirstComponentsInHierarchy<T>(this Transform root) where T : Component
+        {
+            T component = root.GetComponent<T>();
+            if (component != null)
+                return component;
+
+            foreach (Transform child in root)
+                return child.GetFirstComponentsInHierarchy<T>();
+
+            return null;
+        }
         static public List<T> GetAllComponentsInHierarchy<T>(this Transform root) where T : Component
         {
             List<T> components = new List<T>();
@@ -284,23 +295,45 @@ namespace ModPack
             t.Raycast(eventData, hits);
             return hits;
         }
+        static public int ID(this string name)
+        => Prefabs.ItemIDsByName[name];
+
+        // GOName
         static public string GOName(this Component t)
         => t.gameObject.name;
-        static public string SetGOName(this Component t, string name)
+        static public string GOSetName(this Component t, string name)
         => t.gameObject.name = name;
         static public bool GONameIs(this Component t, string name)
         => t.gameObject.name == name;
-        static public bool GONameIsNot(this Component t, string name)
-        => !t.GONameIs(name);
+        static public bool GOActive(this Component t)
+        => t.gameObject.activeSelf;
+        static public void GOSetActive(this Component t, bool state)
+        => t.gameObject.SetActive(state);
+        static public void GOToggle(this Component t)
+        => t.GOSetActive(!t.GOActive());
+
+        static public bool Pressed(this KeyCode t)
+        => Input.GetKeyDown(t);
+        static public bool Released(this KeyCode t)
+        => Input.GetKeyUp(t);
+        static public bool Held(this KeyCode t)
+        => Input.GetKey(t);
+
 
         static public bool IsEmpty(this string text)
-            => string.IsNullOrEmpty(text);
+        => string.IsNullOrEmpty(text);
+        static public bool IsNotEmpty(this string text)
+        => !text.IsEmpty();
         static public float ToFloat(this string text)
         {
             if (float.TryParse(text, NumberStyles.Float, CultureInfo.InvariantCulture, out float value))
                 return value;
             return float.NaN;
         }
+        static public Players.Data ToPlayerData(this UIElement uiElement)
+        => Players.GetLocal(uiElement.LocalCharacter.OwnerPlayerSys.PlayerID);
+        static public Players.Data ToPlayerData(this CharacterUI ui)
+        => Players.GetLocal(ui.TargetCharacter.OwnerPlayerSys.PlayerID);
 
         static public void SetX(ref this Vector2 t, float a)
         => t.x = a;

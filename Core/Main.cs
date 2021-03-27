@@ -15,11 +15,11 @@ namespace ModPack
         // Settings
         public const string GUID = "com.Vheos.ModPack";
         public const string NAME = "Vheos Mod Pack";
-        public const string VERSION = "1.1.1";
+        public const string VERSION = "1.2.1";
 
         // Utility
         private List<Type> _awakeMods;
-        private List<Type> _prefabMods;
+        private List<Type> _delayedMods;
         private List<IUpdatable> _updatableMods;
         private void CategorizeModsByInstantiationTime(params Type[] whitelist)
         {
@@ -27,18 +27,20 @@ namespace ModPack
                 if (modType.IsNotAssignableTo<IExcludeFromBuild>())
                     if (whitelist.Length == 0 || modType.IsContainedIn(whitelist))
                     {
-                        if (modType.IsAssignableTo<IWaitForPrefabs>())
-                            _prefabMods.Add(modType);
+                        if (modType.IsAssignableTo<IDelayedInit>())
+                            _delayedMods.Add(modType);
                         else
                             _awakeMods.Add(modType);
                     }
         }
-        private void TryInitializePrefabs()
+        private void TryDelayedInitialize()
         {
-            if (!Prefabs.IsInitialized && ResourcesPrefabManager.Instance.Loaded)
+            if (!Prefabs.IsInitialized
+            && ResourcesPrefabManager.Instance.Loaded
+            && SplitScreenManager.Instance != null)
             {
                 Prefabs.Initialize();
-                InstantiateMods(_prefabMods);
+                InstantiateMods(_delayedMods);
             }
         }
         private void InstantiateMod(Type modType)
@@ -67,16 +69,19 @@ namespace ModPack
         private void Awake()
         {
             _awakeMods = new List<Type>();
-            _prefabMods = new List<Type>();
+            _delayedMods = new List<Type>();
             _updatableMods = new List<IUpdatable>();
+
             Tools.Initialize(this, Logger);
             GameInput.Initialize();
+            Players.Initialize();
+
             CategorizeModsByInstantiationTime();
             InstantiateMods(_awakeMods);
         }
         private void Update()
         {
-            TryInitializePrefabs();
+            TryDelayedInitialize();
             UpdateMods(_updatableMods);
             Tools.TryRedrawConfigWindow();
         }

@@ -87,6 +87,14 @@ namespace ModPack
                 AppendChildrenRecurisvely(child, components);
             }
         }
+        static public void SwapHierarchyPositions<T>(T t, T a) where T : Component
+        {
+            Transform temp = new GameObject().transform;
+            temp.BecomeSiblingOf(t);
+            t.BecomeSiblingOf(a);
+            a.BecomeSiblingOf(temp);
+            temp.DestroyObject();
+        }
         static public IEnumerator CoroutineWaitForSeconds(float delay, Action action)
         {
             yield return new WaitForSeconds(delay);
