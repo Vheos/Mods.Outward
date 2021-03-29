@@ -41,6 +41,7 @@ namespace ModPack
             ["Gaberry Wine"] = 4100590,
             ["Gep's Drink"] = 4300040,
 
+            ["Waterskin"] = 4200040,
             ["Ambraine"] = 4000430,
             ["Bandages"] = 4400010,
             ["Life Potion"] = 4300010,

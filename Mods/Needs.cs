@@ -48,7 +48,7 @@ namespace ModPack
             "Hex Cleaner".ID(),
             "Invigorating Potion".ID(),
         };
-        static private int[] OTHER_DRINK_IDS = new[]
+        static private int[] TEA_DRINK_IDS = new[]
         {
             "Able Tea".ID(),
             "Bitter Spicy Tea".ID(),
@@ -58,6 +58,14 @@ namespace ModPack
             "Needle Tea".ID(),
             "Soothing Tea".ID(),
             "Boozu’s Milk".ID(),
+            "Warm Boozu’s Milk".ID(),
+            "Gaberry Wine".ID(),
+            "Gep's Drink".ID(),
+        };
+        static private int[] OTHER_DRINK_IDS = new[]
+        {
+            "Boozu’s Milk".ID(),
+            "Warm Boozu’s Milk".ID(),
             "Gaberry Wine".ID(),
             "Gep's Drink".ID(),
         };
@@ -122,7 +130,7 @@ namespace ModPack
         static private ModSetting<bool> _sleepNegativeEffectIsPercent;
         static private ModSetting<int> _sleepBuffsDuration;
         static private ModSetting<bool> _drinkValuesToggle;
-        static private ModSetting<int> _drinkValuesPotions, _drinkValuesCures, _drinkValuesOther;
+        static private ModSetting<int> _drinkValuesPotions, _drinkValuesCures, _drinkValuesTeas, _drinkValuesOther;
         override protected void Initialize()
         {
             _settingsByNeed = new Dictionary<Need, NeedSettings>();
@@ -141,6 +149,7 @@ namespace ModPack
             _drinkValuesToggle = CreateSetting(nameof(_drinkValuesToggle), false);
             _drinkValuesPotions = CreateSetting(nameof(_drinkValuesPotions), 5, IntRange(0, 100));
             _drinkValuesCures = CreateSetting(nameof(_drinkValuesCures), 5, IntRange(0, 100));
+            _drinkValuesTeas = CreateSetting(nameof(_drinkValuesTeas), 5, IntRange(0, 100));
             _drinkValuesOther = CreateSetting(nameof(_drinkValuesOther), 5, IntRange(0, 100));
             _sleepNegativeEffect = CreateSetting(nameof(_sleepNegativeEffect), -0.25f, FloatRange(-1, +1));
             _sleepNegativeEffectIsPercent = CreateSetting(nameof(_sleepNegativeEffectIsPercent), false);
@@ -207,7 +216,7 @@ namespace ModPack
 
                     if (data.Need == Need.Drink)
                     {
-                        _drinkValuesToggle.Format("Drinks values", tmp.Toggle);
+                        _drinkValuesToggle.Format("Items' drink values", tmp.Toggle);
                         _drinkValuesToggle.Description = "Set how much drink is restored by each drink type";
                         Indent++;
                         {
@@ -215,8 +224,9 @@ namespace ModPack
                             _drinkValuesPotions.Description = "potions, great potions, elixirs";
                             _drinkValuesCures.Format("Cures", _drinkValuesToggle);
                             _drinkValuesCures.Description = "antidote, hex cleaner, invigorating potion, panacea";
+                            _drinkValuesTeas.Format("Teas", _drinkValuesToggle);
                             _drinkValuesOther.Format("Other", _drinkValuesToggle);
-                            _drinkValuesOther.Description = "teas, milks, gaberry wine, Gep's drink";
+                            _drinkValuesOther.Description = "milks, gaberry wine, Gep's drink";
                             Indent--;
                         }
                     }
@@ -376,7 +386,9 @@ namespace ModPack
             foreach (var ingestibleByID in Prefabs.IngestiblesByID)
             {
                 Item ingestible = ingestibleByID.Value;
-                if (!ingestible.IsDrinkable() || ingestible.ItemID == "Ambraine".ID())
+                if (!ingestible.IsDrinkable()
+                || ingestible.ItemID == "Ambraine".ID()
+                || ingestible.ItemID == "Waterskin".ID())
                     continue;
 
                 AffectDrink affectDrink = ingestible.GetEffect<AffectDrink>();
@@ -386,6 +398,8 @@ namespace ModPack
                 float drinkValue = _drinkValuesPotions;
                 if (ingestible.ItemID.IsContainedIn(CURE_DRINK_IDS))
                     drinkValue = _drinkValuesCures;
+                else if (ingestible.ItemID.IsContainedIn(TEA_DRINK_IDS))
+                    drinkValue = _drinkValuesTeas;
                 else if (ingestible.ItemID.IsContainedIn(OTHER_DRINK_IDS))
                     drinkValue = _drinkValuesOther;
 
