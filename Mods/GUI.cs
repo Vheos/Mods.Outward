@@ -253,7 +253,7 @@ namespace ModPack
             UpdateSplitscreenMode();
             __instance.ExecuteOnceAfterDelay(SHOP_MENU_RESIZE_DELAY, UpdateShopMenusWidths);
 
-            Players.Data player = Players.GetLocal(__instance.Character.OwnerPlayerSys.PlayerID);
+            Players.Data player = Players.GetLocal(__instance);
             UpdateQuickslotButtonIcons(player);
             UpdatePendingBuySellPanels(player);
         }
@@ -268,13 +268,13 @@ namespace ModPack
         // Exclusive buy/sell panels
         [HarmonyPatch(typeof(ShopMenu), "Show"), HarmonyPostfix]
         static void ShopMenu_Show_Post(ref ShopMenu __instance)
-        => UpdateSeparateBuySellPanels(__instance.ToPlayerData());
+        => UpdateSeparateBuySellPanels(Players.GetLocal(__instance));
 
         // Disable quickslot button icons
         [HarmonyPatch(typeof(QuickSlotDisplay), "Update"), HarmonyPostfix]
         static void QuickSlotDisplay_Update_Post(ref QuickSlotDisplay __instance)
         {
-            Players.Data player = __instance.ToPlayerData();
+            Players.Data player = Players.GetLocal(__instance);
             #region quit
             if (!_perPlayerSettings[player.ID]._hintQuickslotHints)
                 return;

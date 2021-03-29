@@ -56,13 +56,23 @@ namespace ModPack
         { get; private set; }
         static public Data GetLocal(int playerID)
         => Local.DefaultOnInvalid(playerID);
+        static public Data GetLocal(LocalCharacterControl localCharacterControl)
+        => GetLocal(GetPlayerID(localCharacterControl));
+        static public Data GetLocal(UIElement uiElement)
+        => GetLocal(GetPlayerID(uiElement));
+        static public Data GetLocal(CharacterUI characterUI)
+        => GetLocal(GetPlayerID(characterUI));
         static public bool TryGetLocal(int playerID, out Data player)
         {
             player = GetLocal(playerID);
             return player != null;
         }
-        static public bool LocalExists(int playerID)
-        => playerID < Local.Count;
+        static public bool TryGetLocal(LocalCharacterControl localCharacterControl, out Data player)
+        => TryGetLocal(GetPlayerID(localCharacterControl), out player);
+        static public bool TryGetLocal(UIElement uiElement, out Data player)
+         => TryGetLocal(GetPlayerID(uiElement), out player);
+        static public bool TryGetLocal(CharacterUI ui, out Data player)
+         => TryGetLocal(GetPlayerID(ui), out player);
 
         // Privates
         static private void Recache()
@@ -84,6 +94,12 @@ namespace ModPack
                 });
             }
         }
+        static private int GetPlayerID(LocalCharacterControl localCharacterControl)
+        => localCharacterControl.Character.OwnerPlayerSys.PlayerID;
+        static private int GetPlayerID(UIElement uiElement)
+        => uiElement.LocalCharacter.OwnerPlayerSys.PlayerID;
+        static private int GetPlayerID(CharacterUI characterUI)
+        => characterUI.TargetCharacter.OwnerPlayerSys.PlayerID;
 
         // Initializers
         static public void Initialize()
@@ -102,3 +118,4 @@ namespace ModPack
         => Recache();
     }
 }
+
