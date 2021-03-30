@@ -10,8 +10,15 @@ namespace ModPack
 {
     public class HUDEditor : AMod, IUpdatable, IExcludeFromBuild
     {
+        #region const
+        static public readonly string[] FORCE_RAYCASTABLE_PANEL_NAMES = new[]
+        {
+            "StatusEffect - Panel",
+            "MainCharacterBars/Mana",
+        };
+        #endregion
         #region class
-        private class EditorData
+        private class PerPlayersSettings
         {
             // Settings
             static private ModSetting<Vector3> _quickslotsPosition;
@@ -24,23 +31,26 @@ namespace ModPack
 
         // Setting
         static private ModSetting<bool> _startEditMode;
-        static private Dictionary<int, EditorData> _editorData;
+        static private PerPlayersSettings[] _perPlayerSettings;
         override protected void Initialize()
         {
+            _perPlayerSettings = new PerPlayersSettings[2];
+            _attachedTransformsByOffset = new Dictionary<Transform, Vector3>();
+
             _startEditMode = CreateSetting(nameof(_startEditMode), false);
             _startEditMode.AddEvent(() =>
             {
-                if (_startEditMode)
-                {
-                    _startEditMode.SetSilently(false);
-                    Tools.IsConfigOpen = false;
-                    StartEditMode();
-                };
+                _startEditMode.SetSilently(false);
+                Tools.IsConfigOpen = false;
+                StartEditMode();
             });
 
-            AddEventOnConfigOpened(TryStopEditMode);
 
-            _attachedTransformsByOffset = new Dictionary<Transform, Vector3>();
+            AddEventOnConfigOpened(() =>
+            {
+                if (_isInEditMode)
+                    StopEditMode();
+            });
         }
         override protected void SetFormatting()
         {
@@ -48,92 +58,44 @@ namespace ModPack
         }
         public void OnUpdate()
         {
-            if (Input.GetKey(KeyCode.LeftAlt))
-            {
-                if (Input.GetKeyDown(KeyCode.Keypad0))
-                {
-
-                }
-
-                if (Input.GetKeyDown(KeyCode.Keypad1))
-                {
-                    _isInEditMode = !_isInEditMode;
-
-                    GameInput.ForceCursorNavigation = _isInEditMode;
-                    if (_isInEditMode)
-                        foreach (var player in Players.Local)
-                        {
-                            Transform hudHolder = player.UI.transform.Find("Canvas/GameplayPanels/HUD");
-                            string[] forceRaycastTargetPanels = new[]
-                            {
-                            "StatusEffect - Panel",
-                            "MainCharacterBars/Mana",
-                            };
-
-                            foreach (var panelName in forceRaycastTargetPanels)
-                                foreach (var image in hudHolder.Find(panelName).GetAllComponentsInHierarchy<Image>())
-                                    image.raycastTarget = true;
-                        }
-                    else
-                        _attachedTransformsByOffset.Clear();
-                }
-            }
-
             if (_isInEditMode)
             {
-                if (Input.GetKeyDown(KeyCode.Mouse0))
-                {
-
-                }
-
                 if (Input.GetKeyUp(KeyCode.Mouse0))
                     _attachedTransformsByOffset.Clear();
 
-                foreach (var attachedTransformByOffset in _attachedTransformsByOffset)
+                foreach (var offsetsByDraggedTransform in _attachedTransformsByOffset)
                 {
-                    Transform transform = attachedTransformByOffset.Key;
-                    Vector3 offset = attachedTransformByOffset.Value;
+                    Transform transform = offsetsByDraggedTransform.Key;
+                    Vector3 offset = offsetsByDraggedTransform.Value;
                     transform.position = Input.mousePosition + offset;
                 }
             }
         }
 
         // Utility  
-        private void InitializeHUDCanvasGroups()
+        static private void InitializeHUDCanvasGroups(Players.Data player)
         {
-            foreach (var player in Players.Local)
-            {
-                foreach (var canvasGroup in GetHUDHolder(player.UI).GetAllComponentsInHierarchy<CanvasGroup>())
-                    canvasGroup.blocksRaycasts = true;
-            }
+            foreach (var canvasGroup in GetHUDHolder(player.UI).GetAllComponentsInHierarchy<CanvasGroup>())
+                canvasGroup.blocksRaycasts = true;
         }
-        private void StartEditMode()
+        static private void StartEditMode()
         {
             _isInEditMode = true;
+            GameInput.ForceCursorNavigation = true;
+
             foreach (var player in Players.Local)
-            {
-                Transform hudHolder = player.UI.transform.Find("Canvas/GameplayPanels/HUD");
-                string[] forceRaycastTargetPanels = new[]
-                {
-                    "StatusEffect - Panel",
-                    "MainCharacterBars/Mana",
-                };
-
-                foreach (var panelName in forceRaycastTargetPanels)
-                    foreach (var image in hudHolder.Find(panelName).GetAllComponentsInHierarchy<Image>())
+                foreach (var panelName in FORCE_RAYCASTABLE_PANEL_NAMES)
+                    foreach (var image in GetHUDHolder(player.UI).Find(panelName).GetAllComponentsInHierarchy<Image>())
                         image.raycastTarget = true;
-            }
         }
-        private void TryStopEditMode()
+        static private void StopEditMode()
         {
-            if (!_isInEditMode)
-                return;
-
             _isInEditMode = false;
+            GameInput.ForceCursorNavigation = false;
 
-
+            _attachedTransformsByOffset.Clear();
         }
-        private void HandleHits()
+        static private void HandleHits()
         {
             foreach (var player in Players.Local)
             {
@@ -148,10 +110,18 @@ namespace ModPack
                 Tools.Log($"\n");
             }
         }
-        private Transform GetHUDHolder(CharacterUI ui)
+        static private Transform GetHUDHolder(CharacterUI ui)
         => ui.transform.Find("Canvas/GameplayPanels/HUD");
-        private bool _isInEditMode;
-        private Dictionary<Transform, Vector3> _attachedTransformsByOffset;
+        static private bool _isInEditMode;
+        static private Dictionary<Transform, Vector3> _attachedTransformsByOffset;
+
+        // Hooks
+        [HarmonyPatch(typeof(LocalCharacterControl), "RetrieveComponents"), HarmonyPostfix]
+        static void LocalCharacterControl_RetrieveComponents_Post(LocalCharacterControl __instance)
+        {
+            Players.Data player = Players.GetLocal(__instance);
+            InitializeHUDCanvasGroups(player);
+        }
 
     }
 }
