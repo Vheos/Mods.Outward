@@ -8,7 +8,7 @@ using UnityEngine.EventSystems;
 
 namespace ModPack
 {
-    public class HUDEditor : AMod, IUpdatable, IExcludeFromBuild
+    public class HUDEditor : AMod, IUpdatable
     {
         #region const
         static public readonly string[] FORCE_RAYCASTABLE_PANEL_NAMES = new[]
@@ -40,11 +40,15 @@ namespace ModPack
             _startEditMode = CreateSetting(nameof(_startEditMode), false);
             _startEditMode.AddEvent(() =>
             {
-                _startEditMode.SetSilently(false);
-                Tools.IsConfigOpen = false;
-                StartEditMode();
+                if (_startEditMode)
+                {
+                    _startEditMode.SetSilently(false);
+                    Tools.IsConfigOpen = false;
+                    foreach (var player in Players.Local)
+                        InitializeHUDCanvasGroups(player);
+                    StartEditMode();
+                }
             });
-
 
             AddEventOnConfigOpened(() =>
             {
@@ -60,7 +64,10 @@ namespace ModPack
         {
             if (_isInEditMode)
             {
-                if (Input.GetKeyUp(KeyCode.Mouse0))
+                if (KeyCode.Mouse0.Pressed())
+                    HandleHits();
+
+                if (KeyCode.Mouse0.Released())
                     _attachedTransformsByOffset.Clear();
 
                 foreach (var offsetsByDraggedTransform in _attachedTransformsByOffset)
