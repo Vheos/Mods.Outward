@@ -47,7 +47,6 @@ namespace ModPack
         // Privates
         private readonly Harmony _patcher;
         private readonly List<AModSetting> _settings;
-        private readonly List<Action> _onEnabledEvents;
         private readonly List<Action> _onConfigClosedEvents;
         private string SectionName
         => GetType().Name;
@@ -111,8 +110,6 @@ namespace ModPack
         private void OnEnable()
         {
             _patcher.PatchAll(GetType());
-            foreach (var onEnabled in _onEnabledEvents)
-                onEnabled.Invoke();
             foreach (var setting in _settings)
                 setting.CallAllEvents();
             foreach (var onConfigClosed in _onConfigClosedEvents)
@@ -155,9 +152,10 @@ namespace ModPack
         // Constructors
         protected AMod()
         {
+            Tools.IsStopwatchActive = true;
+
             _patcher = new Harmony(GetType().Name);
             _settings = new List<AModSetting>();
-            _onEnabledEvents = new List<Action>();
             _onConfigClosedEvents = new List<Action>();
 
             ResetSettingPosition();
@@ -166,6 +164,7 @@ namespace ModPack
             Indent++;
             SetFormatting();
             Indent--;
+            int initializeTime = Tools.ElapsedMilliseconds;
 
             OnCollapse();
             if (IsEnabled)
@@ -174,6 +173,10 @@ namespace ModPack
                 OnCollapse();
             if (IsHidden)
                 OnHide();
+            int callEventsTime = Tools.ElapsedMilliseconds;
+
+            Tools.Log($"{_mainToggle.NameOverride} initialized ({initializeTime}+{callEventsTime}ms)", BepInEx.Logging.LogLevel.Debug);
+            Tools.IsStopwatchActive = false;
         }
         abstract protected void Initialize();
         abstract protected void SetFormatting();
@@ -192,8 +195,6 @@ namespace ModPack
             get => AModSetting.Indent;
             set => AModSetting.Indent = value;
         }
-        protected void AddEventOnEnabled(Action action)
-        => _onEnabledEvents.Add(action);
         protected void AddEventOnConfigOpened(Action action)
         {
             _onConfigClosedEvents.Add(action);

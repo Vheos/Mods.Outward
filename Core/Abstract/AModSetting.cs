@@ -14,7 +14,7 @@ namespace ModPack
             Attributes.DispName = "";
             if (displayName.IsNotEmpty())
             {
-                Attributes.DispName += IndentText;
+                Attributes.DispName = Attributes.DispName.PadLeft(5 * _indentLevel, ' ');
                 if (_indentLevel > 0)
                     Attributes.DispName += "• ";
                 Attributes.DispName += displayName;
@@ -63,7 +63,6 @@ namespace ModPack
 
             IsVisible = _visibilityCheck();
         }
-
 
         // Attributes
         public string Name
@@ -125,8 +124,6 @@ namespace ModPack
             get => _indentLevel;
             set => _indentLevel = value.ClampMin(0);
         }
-        static private string IndentText
-        => new string(' ', 6 * _indentLevel);
 
         // Privates       
         protected ConfigEntryBase _configEntryBase;

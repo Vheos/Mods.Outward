@@ -7,14 +7,17 @@ using HarmonyLib;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
 using System.Collections.Generic;
+using System.Diagnostics;
+
+
 
 namespace ModPack
 {
     static public class Tools
     {
         // Publics
-        static public void Log(object text)
-        => _logger.LogMessage(text);
+        static public void Log(object text, LogLevel logLevel = LogLevel.Message)
+        => _logger.Log(logLevel, text);
         static public ConfigFile ConfigFile
         => _configFile;
         static public void SetDirtyConfigWindow()
@@ -48,8 +51,33 @@ namespace ModPack
             get => _configManager.DisplayingWindow;
             set => _configManager.DisplayingWindow = value;
         }
+        static public bool IsStopwatchActive
+        {
+            get => _stopwatch.IsRunning;
+            set
+            {
+                if (value == _stopwatch.IsRunning)
+                    return;
+
+                if (value)
+                    _stopwatch.Restart();
+                else
+                    _stopwatch.Stop();
+            }
+        }
+        static public int ElapsedMilliseconds
+        {
+            get
+            {
+                int elapsed = (int)_stopwatch.ElapsedMilliseconds;
+                if (_stopwatch.IsRunning)
+                    _stopwatch.Restart();
+                return elapsed;
+            }
+        }
 
         // Privates
+        static private Stopwatch _stopwatch;
         static private ManualLogSource _logger;
         static private ConfigFile _configFile;
         static private ConfigurationManager.ConfigurationManager _configManager;
@@ -60,6 +88,7 @@ namespace ModPack
         // Initializers
         static public void Initialize(BaseUnityPlugin pluginComponent, ManualLogSource logger)
         {
+            _stopwatch = new Stopwatch();
             _logger = logger;
             _configFile = pluginComponent.Config;
             _configManager = pluginComponent.GetComponent<ConfigurationManager.ConfigurationManager>();

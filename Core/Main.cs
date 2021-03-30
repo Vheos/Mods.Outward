@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using System;
 using BepInEx.Configuration;
+using System.Diagnostics;
 
 
 
@@ -15,7 +16,7 @@ namespace ModPack
         // Settings
         public const string GUID = "com.Vheos.ModPack";
         public const string NAME = "Vheos Mod Pack";
-        public const string VERSION = "1.2.1";
+        public const string VERSION = "1.2.2";
 
         // Utility
         private List<Type> _awakeMods;
@@ -43,26 +44,26 @@ namespace ModPack
                 InstantiateMods(_delayedMods);
             }
         }
+        private void InstantiateMods(ICollection<Type> modTypes)
+        {
+            foreach (var modType in modTypes)
+                InstantiateMod(modType);
+        }
         private void InstantiateMod(Type modType)
         {
             AMod newMod = (AMod)Activator.CreateInstance(modType);
             if (modType.IsAssignableTo<IUpdatable>())
                 _updatableMods.Add(newMod as IUpdatable);
         }
-        private void InstantiateMods(ICollection<Type> modTypes)
+        private void UpdateMods(ICollection<IUpdatable> updatableMods)
         {
-            foreach (var modType in modTypes)
-                InstantiateMod(modType);
+            foreach (var updatableMod in updatableMods)
+                UpdateMod(updatableMod);
         }
         private void UpdateMod(IUpdatable updatableMod)
         {
             if (updatableMod.IsEnabled)
                 updatableMod.OnUpdate();
-        }
-        private void UpdateMods(ICollection<IUpdatable> updatableMods)
-        {
-            foreach (var updatableMod in updatableMods)
-                UpdateMod(updatableMod);
         }
 
         // Mono
