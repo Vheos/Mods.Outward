@@ -111,13 +111,12 @@ namespace ModPack
                         tmp._switchToSell.Format("Switch to sell panel", tmp._separateBuySellPanels, SeperatePanelsMode.TwoButtons);
                         Indent--;
                     }
-                    Indent--;
                     tmp._hintQuickslotHints.Format("Hide quickslot hints", tmp._toggle);
                     tmp._hintQuickslotHints.Description = "Keyboard - hides the key names above quickslots" +
                                                           "Gamepad - hides the button icons below quickslots";
+                    Indent--;
                 }
             }
-
         }
         override protected string Description
         => "• Vertical splitscreen" +
