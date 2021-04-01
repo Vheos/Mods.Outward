@@ -13,7 +13,7 @@ namespace ModPack
         #region const
         static public readonly Vector2 DEFAULT_SHOP_OFFSET_MIN = new Vector2(-1344f, -540f);
         static public readonly Vector2 DEFAULT_SHOP_OFFSET_MAX = new Vector2(-20f, -20f);
-        public const float SHOP_MENU_RESIZE_DELAY = 0.2f;
+        public const float SHOP_MENU_RESIZE_DELAY = 0.1f;
         #endregion
         #region enum
         private enum SeperatePanelsMode
@@ -46,8 +46,8 @@ namespace ModPack
             {
                 PerPlayerSettings tmp = new PerPlayerSettings();
                 _perPlayerSettings[i] = tmp;
-
                 string playerPostfix = (i + 1).ToString();
+
                 tmp._toggle = CreateSetting(nameof(tmp._toggle) + playerPostfix, false);
                 tmp._hintQuickslotHints = CreateSetting(nameof(tmp._hintQuickslotHints) + playerPostfix, false);
                 tmp._shopMenuWidth = CreateSetting(nameof(tmp._shopMenuWidth) + playerPostfix, 0, IntRange(0, 100));

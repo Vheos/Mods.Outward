@@ -19,7 +19,7 @@ namespace ModPack
         #region enum
         #endregion
         #region class
-        private class PerPlayerData
+        private class PerPlayerSettings
         {
             // Settings
             public ModSetting<bool> _toggle;
@@ -84,16 +84,16 @@ namespace ModPack
         }
         #endregion
 
-        static private PerPlayerData[] _perPlayerData;
+        static private PerPlayerSettings[] _perPlayerSettings;
         override protected void Initialize()
         {
-            _perPlayerData = new PerPlayerData[2];
+            _perPlayerSettings = new PerPlayerSettings[2];
             for (int i = 0; i < 2; i++)
             {
-                PerPlayerData tmp = new PerPlayerData();
-                _perPlayerData[i] = tmp;
-
+                PerPlayerSettings tmp = new PerPlayerSettings();
+                _perPlayerSettings[i] = tmp;
                 string playerPostfix = (i + 1).ToString();
+
                 tmp._toggle = CreateSetting(nameof(tmp._toggle) + playerPostfix, false);
                 tmp._zoomControlAmount = CreateSetting(nameof(tmp._zoomControlAmount) + playerPostfix, 0f, FloatRange(-1f, 1f));
                 tmp._zoomControlSpeed = CreateSetting(nameof(tmp._zoomControlSpeed) + playerPostfix, 0.5f, FloatRange(0f, 1f));
@@ -125,7 +125,7 @@ namespace ModPack
         {
             for (int i = 0; i < 2; i++)
             {
-                PerPlayerData tmp = _perPlayerData[i];
+                PerPlayerSettings tmp = _perPlayerSettings[i];
 
                 // Settings
                 tmp._toggle.Format($"Player {i + 1}");
@@ -180,7 +180,7 @@ namespace ModPack
 
                 // Cache
                 int id = player.ID;
-                PerPlayerData settings = _perPlayerData[id];
+                PerPlayerSettings settings = _perPlayerSettings[id];
 
                 settings.IgnoreAxes = false;
                 if (settings._zoomControlSpeed > 0)
@@ -207,19 +207,19 @@ namespace ModPack
         {
             PlayerSystem player = Global.Lobby.GetLocalPlayer(playerID);
             #region quit
-            if (player == null || !_perPlayerData[playerID]._toggle)
+            if (player == null || !_perPlayerSettings[playerID]._toggle)
                 return;
             #endregion
 
             // Cache
-            Vector3 currentVarious = _perPlayerData[playerID].CurrentVarious;
+            Vector3 currentVarious = _perPlayerSettings[playerID].CurrentVarious;
             CharacterCamera characterCamera = player.ControlledCharacter.CharacterCamera;
 
             // Overrides
-            characterCamera.Offset = _perPlayerData[playerID].CurrentOffset;
+            characterCamera.Offset = _perPlayerSettings[playerID].CurrentOffset;
             characterCamera.CameraScript.fieldOfView = currentVarious.x;
             characterCamera.DefaultFollowSpeed.SetX(currentVarious.y);
-            _perPlayerData[playerID].Sensitivity = currentVarious.z;
+            _perPlayerSettings[playerID].Sensitivity = currentVarious.z;
         }
 
         // Hooks
@@ -229,7 +229,7 @@ namespace ModPack
             for (int i = 0; i < Global.Lobby.LocalPlayerCount; i++)
             {
                 #region quit
-                if (!_perPlayerData[i]._toggle)
+                if (!_perPlayerSettings[i]._toggle)
                     continue;
                 #endregion
                 UpdateCameraSettings(i);
@@ -241,13 +241,13 @@ namespace ModPack
         {
             PlayerSystem player = __instance.OwnerPlayerSys;
             #region quit
-            if (player == null || !_perPlayerData[player.PlayerID]._toggle)
+            if (player == null || !_perPlayerSettings[player.PlayerID]._toggle)
                 return;
             #endregion
 
             __instance.CharacterCamera.ZoomOffsetSplitScreenH = __instance.CharacterCamera.Offset;
             __instance.CharacterCamera.ZoomSensModifier = 1f;
-            _perPlayerData[player.PlayerID].StartAimCoroutine(__instance, _zoomed);
+            _perPlayerSettings[player.PlayerID].StartAimCoroutine(__instance, _zoomed);
         }
 
         [HarmonyPatch(typeof(CharacterCamera), "UpdateZoom"), HarmonyPrefix]
@@ -255,7 +255,7 @@ namespace ModPack
         {
             PlayerSystem player = __instance.TargetCharacter.OwnerPlayerSys;
             #region quit
-            if (player == null || !_perPlayerData[player.PlayerID]._toggle)
+            if (player == null || !_perPlayerSettings[player.PlayerID]._toggle)
                 return true;
             #endregion
 
@@ -266,20 +266,20 @@ namespace ModPack
         static void ControlsInput_RotateCameraVertical_Post(int _playerID, ref float __result)
         {
             #region quit
-            if (!_perPlayerData[_playerID]._toggle)
+            if (!_perPlayerSettings[_playerID]._toggle)
                 return;
             #endregion
-            __result *= _perPlayerData[_playerID].Sensitivity;
+            __result *= _perPlayerSettings[_playerID].Sensitivity;
         }
 
         [HarmonyPatch(typeof(ControlsInput), "RotateCameraHorizontal"), HarmonyPostfix]
         static void ControlsInput_RotateCameraHorizontal_Post(int _playerID, ref float __result)
         {
             #region quit
-            if (!_perPlayerData[_playerID]._toggle)
+            if (!_perPlayerSettings[_playerID]._toggle)
                 return;
             #endregion
-            __result *= _perPlayerData[_playerID].Sensitivity;
+            __result *= _perPlayerSettings[_playerID].Sensitivity;
         }
     }
 }
