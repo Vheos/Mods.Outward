@@ -29,6 +29,7 @@ namespace ModPack
             typeof(Various),
 
             typeof(GUI),
+            typeof(HUDEditor),
             typeof(Descriptions),
             typeof(Camera),
             typeof(KeyboardWalk),
