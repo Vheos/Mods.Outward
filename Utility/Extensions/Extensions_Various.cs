@@ -287,6 +287,14 @@ namespace ModPack
             Utility.AppendChildrenRecurisvely(root, components);
             return components;
         }
+        static public List<Component> GetAllComponentsInHierarchy<T1, T2>(this Transform root) where T1 : Component where T2 : Component
+        {
+            List<Component> components = new List<Component>();
+            components.Add(root.GetComponents<T1>());
+            components.Add(root.GetComponents<T2>());
+            Utility.AppendChildrenRecurisvely(root, components);
+            return components;
+        }
         static public List<RaycastResult> GetMouseHits(this GraphicRaycaster t)
         {
             PointerEventData eventData = new PointerEventData(null);
@@ -297,7 +305,35 @@ namespace ModPack
         }
         static public int ID(this string name)
         => Prefabs.ItemIDsByName[name];
-
+        static public bool IsDescendantOf(this GameObject t, GameObject a)
+        {
+            for (Transform i = t.transform.parent; i != null; i = i.parent)
+                if (i == a.transform)
+                    return true;
+            return false;
+        }
+        static public Transform FindAncestor(this GameObject t, Transform[] a)
+        {
+            for (Transform i = t.transform.parent; i != null; i = i.parent)
+                if (i.IsContainedIn(a))
+                    return i;
+            return null;
+        }
+        static public Transform FindAncestorWithComponent(this GameObject t, Type a)
+        {
+            for (Transform i = t.transform.parent; i != null; i = i.parent)
+                if (i.GetComponent(a) != null)
+                    return i;
+            return null;
+        }
+        static public Transform FindAncestorWithComponent(this GameObject t, Type[] a)
+        {
+            for (Transform i = t.transform.parent; i != null; i = i.parent)
+                foreach (var type in a)
+                    if (i.GetComponent(type) != null)
+                        return i;
+            return null;
+        }
         // GOName
         static public string GOName(this Component t)
         => t.gameObject.name;

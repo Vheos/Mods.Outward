@@ -87,6 +87,15 @@ namespace ModPack
                 AppendChildrenRecurisvely(child, components);
             }
         }
+        static public void AppendChildrenRecurisvely<T1, T2>(Transform root, List<Component> components) where T1 : Component where T2 : Component
+        {
+            foreach (Transform child in root)
+            {
+                components.Add(child.GetComponents<T1>());
+                components.Add(child.GetComponents<T2>());
+                AppendChildrenRecurisvely(child, components);
+            }
+        }
         static public void SwapHierarchyPositions<T>(T t, T a) where T : Component
         {
             Transform temp = new GameObject().transform;
