@@ -6,7 +6,7 @@ using BepInEx.Configuration;
 
 namespace ModPack
 {
-        public class Revive : AMod
+    public class Revive : AMod
     {
         #region const       
         private const float ITEM_INTERACT_RADIUS = 0.1f;   // InteractionTriggerBase.m_detectionColliderRadius
@@ -122,7 +122,8 @@ namespace ModPack
                 interaction.HoldActivationTime = _interactionDuration.Value;
                 triggerBase.DetectionPriority = _interactionPrioritize.Value ? int.MinValue : DEFAULT_DETECTION_PRIORITY;
                 triggerBase.DetectionColliderRadius = distance;
-                triggerBase.InteractionCollider.As<SphereCollider>().radius = distance;
+                if (triggerBase.InteractionCollider != null)
+                    triggerBase.InteractionCollider.As<SphereCollider>().radius = distance;
             }
         }
 
