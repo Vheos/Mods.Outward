@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
 using System;
+using System.Linq;
 
 namespace ModPack
 {
@@ -13,7 +14,18 @@ namespace ModPack
         #region const
         static public readonly Vector2 DEFAULT_SHOP_OFFSET_MIN = new Vector2(-1344f, -540f);
         static public readonly Vector2 DEFAULT_SHOP_OFFSET_MAX = new Vector2(-20f, -20f);
-        public const float SHOP_MENU_RESIZE_DELAY = 0.1f;
+        public const float UI_RESIZE_DELAY = 0.1f;
+        static private readonly Dictionary<HUDGroup, (Type HUDComponentType, string PanelPath, Vector2 DefaultPosition)> DATA_BY_HUD_GROUP = new Dictionary<HUDGroup, (Type, string, Vector2)>
+        {
+            [HUDGroup.KeyboardQuickslots] = (typeof(KeyboardQuickSlotPanel), "QuickSlot/Keyboard", new Vector2(5, -40)),
+            [HUDGroup.GamepadQuickslots] = (typeof(QuickSlotPanelSwitcher), "QuickSlot/Controller", new Vector2(0, 0)),
+            [HUDGroup.Vitals] = (typeof(CharacterBarListener), "MainCharacterBars", new Vector2(-947, -506)),
+            [HUDGroup.StatusEffects] = (typeof(StatusEffectPanel), "StatusEffect - Panel", new Vector2(-760.81f, -532)),
+            [HUDGroup.Temperature] = (typeof(TemperatureExposureDisplay), "TemperatureSensor", new Vector2(-804.602f, -490.5f)),
+            [HUDGroup.Arrows] = (typeof(QuiverDisplay), "QuiverDisplay", new Vector2(-936.3f, -340)),
+            [HUDGroup.Compass] = (typeof(UICompass), "Compass", new Vector2(0, 500)),
+            [HUDGroup.Stability] = (typeof(StabilityDisplay_Simple), "Stability", new Vector2(0, -519)),
+        };
         #endregion
         #region enum
         private enum SeperatePanelsMode
@@ -21,6 +33,29 @@ namespace ModPack
             Disabled = 0,
             Toggle = 1,
             TwoButtons = 2,
+        }
+        private enum HUDGroup
+        {
+            KeyboardQuickslots,
+            GamepadQuickslots,
+            Vitals,
+            StatusEffects,
+            Temperature,
+            Arrows,
+            Compass,
+            Stability,
+            Notifications,
+        }
+        private enum SettingsOperation
+        {
+            Save,
+            Load,
+            Reset,
+        }
+        private enum Tool
+        {
+            Move,
+            Scale,
         }
         #endregion
         #region class
@@ -33,6 +68,28 @@ namespace ModPack
             public ModSetting<bool> _swapPendingBuySellPanels;
             public ModSetting<SeperatePanelsMode> _separateBuySellPanels;
             public ModSetting<string> _buySellToggle, _switchToBuy, _switchToSell;
+            public ModSetting<bool> _overrideHUD;
+            public ModSetting<bool> _startHUDEditor;
+            public ModSetting<bool> _resetHUD;
+            public ModSetting<bool> _hudOverridesToggle;
+            public Dictionary<HUDGroup, ModSetting<Vector3>> _hudOverridesByHUDGroup;
+
+            // Utility
+            public Vector2 GetPosition(HUDGroup hudGroup)
+            => _hudOverridesByHUDGroup[hudGroup].Value;
+            public float GetScale(HUDGroup hudGroup)
+            => _hudOverridesByHUDGroup[hudGroup].Value.z;
+            public void Set(HUDGroup hudGroup, Vector2 position, float scale)
+            => _hudOverridesByHUDGroup[hudGroup].Value = position.Append(scale);
+            public void Reset(HUDGroup hudGroup)
+            => _hudOverridesByHUDGroup[hudGroup].Value = Vector3.zero;
+            public bool IsNotZero(HUDGroup hudGroup)
+            => _hudOverridesByHUDGroup[hudGroup] != Vector3.zero;
+
+            // Constructor
+            public PerPlayerSettings()
+            => _hudOverridesByHUDGroup = new Dictionary<HUDGroup, ModSetting<Vector3>>();
+
         }
         #endregion
 
@@ -57,6 +114,13 @@ namespace ModPack
                 tmp._switchToBuy = CreateSetting(nameof(tmp._switchToBuy) + playerPostfix, "");
                 tmp._switchToSell = CreateSetting(nameof(tmp._switchToSell) + playerPostfix, "");
 
+                tmp._overrideHUD = CreateSetting(nameof(tmp._overrideHUD) + playerPostfix, false);
+                tmp._startHUDEditor = CreateSetting(nameof(tmp._startHUDEditor) + playerPostfix, false);
+                tmp._resetHUD = CreateSetting(nameof(tmp._resetHUD) + playerPostfix, false);
+                tmp._hudOverridesToggle = CreateSetting(nameof(tmp._hudOverridesToggle) + playerPostfix, false);
+                foreach (var hudGroup in DATA_BY_HUD_GROUP.Keys.ToArray())
+                    tmp._hudOverridesByHUDGroup.Add(hudGroup, CreateSetting($"_hudOverride{hudGroup}{playerPostfix}", Vector3.zero));
+
                 // Events
                 int id = i;
                 tmp._separateBuySellPanels.AddEvent(() =>
@@ -75,11 +139,38 @@ namespace ModPack
                     if (Players.TryGetLocal(id, out Players.Data player))
                         UpdateQuickslotButtonIcons(player);
                 });
+                tmp._startHUDEditor.AddEvent(() =>
+                {
+                    if (tmp._startHUDEditor && Players.TryGetLocal(id, out Players.Data player))
+                        SetHUDEditMode(player, true);
+                });
+                tmp._resetHUD.AddEvent(() =>
+                {
+                    if (tmp._resetHUD && Players.TryGetLocal(id, out Players.Data player))
+                    {
+                        player.UI.m_rectTransform.sizeDelta = Vector2.zero;
+                        player.UI.m_rectTransform.anchoredPosition = Vector2.zero;
+                        SaveLoadHUDOverrides(player, SettingsOperation.Reset);
+                        player.UI.DelayedRefreshSize();
+                    }
+                    tmp._resetHUD.SetSilently(false);
+                });
+                AddEventOnConfigOpened(() =>
+                {
+                    if (tmp._startHUDEditor && Players.TryGetLocal(id, out Players.Data player))
+                        SetHUDEditMode(player, false);
+                });
             }
 
             _verticalSplitscreen = CreateSetting(nameof(_verticalSplitscreen), false);
             AddEventOnConfigClosed(() => UpdateSplitscreenMode());
             AddEventOnConfigClosed(() => UpdateShopMenusWidths());
+
+            _allHUDComponentTypes = new Type[DATA_BY_HUD_GROUP.Count];
+            var hudData = DATA_BY_HUD_GROUP.Values.ToArray();
+            for (int i = 0; i < hudData.Length; i++)
+                _allHUDComponentTypes[i] = hudData[i].HUDComponentType;
+
         }
         override protected void SetFormatting()
         {
@@ -94,7 +185,7 @@ namespace ModPack
                 tmp._toggle.Description = $"Change settings for local player {i + 1}";
                 Indent++;
                 {
-                    tmp._shopMenuWidth.Format("Shop menu width");
+                    tmp._shopMenuWidth.Format("Shop menu width", tmp._toggle);
                     tmp._shopMenuWidth.Description = "% of screen size, 0% = default" +
                                                      "(recommended when using vertical splitscreen)";
                     tmp._separateBuySellPanels.Format("Separate buy/sell panels", tmp._toggle);
@@ -114,6 +205,26 @@ namespace ModPack
                     tmp._hintQuickslotHints.Format("Hide quickslot hints", tmp._toggle);
                     tmp._hintQuickslotHints.Description = "Keyboard - hides the key names above quickslots" +
                                                           "Gamepad - hides the button icons below quickslots";
+
+                    tmp._overrideHUD.Format("Override HUD", tmp._toggle);
+                    Indent++;
+                    {
+                        tmp._startHUDEditor.Format("Edit", tmp._overrideHUD);
+                        tmp._resetHUD.Format("Reset", tmp._overrideHUD);
+                        tmp._hudOverridesToggle.Format("Saved overrides", tmp._overrideHUD);
+                        tmp._hudOverridesToggle.IsAdvanced = true;
+                        Indent++;
+                        {
+                            foreach (var hudGroup in DATA_BY_HUD_GROUP.Keys.ToArray())
+                            {
+                                ModSetting<Vector3> hudOverride = tmp._hudOverridesByHUDGroup[hudGroup];
+                                hudOverride.Format(hudGroup.ToString(), tmp._hudOverridesToggle);
+                                hudOverride.IsAdvanced = true;
+                            }
+                            Indent--;
+                        }
+                        Indent--;
+                    }
                     Indent--;
                 }
             }
@@ -125,9 +236,9 @@ namespace ModPack
         public void OnUpdate()
         {
             foreach (var player in Players.Local)
+            {
+                PerPlayerSettings settings = _perPlayerSettings[player.ID];
                 if (player.UI.m_displayedMenuIndex == CharacterUI.MenuScreens.Shop)
-                {
-                    PerPlayerSettings settings = _perPlayerSettings[player.ID];
                     switch (settings._separateBuySellPanels.Value)
                     {
                         case SeperatePanelsMode.Toggle:
@@ -144,7 +255,39 @@ namespace ModPack
                                 SwitchToPanel(player, false);
                             break;
                     }
-                }
+
+                if (settings._startHUDEditor)
+                    if (KeyCode.Escape.Pressed())
+                    {
+                        SetHUDEditMode(player, false);
+                        continue;
+                    }
+                    else if (_hudEditFocus.Transform == null)
+                    {
+                        if (KeyCode.Mouse0.Pressed())
+                            HandleHUDHits(player, Tool.Move);
+                        else if (KeyCode.Mouse1.Pressed())
+                            HandleHUDHits(player, Tool.Scale);
+                    }
+                    else
+                        switch (_hudEditTool)
+                        {
+                            case Tool.Move:
+                                Vector2 mouseToElementOffset = _hudEditFocus.EditData;
+                                _hudEditFocus.Transform.position = Input.mousePosition.XY() + mouseToElementOffset;
+                                if (KeyCode.Mouse0.Released())
+                                    _hudEditFocus.Transform = null;
+                                break;
+                            case Tool.Scale:
+                                float clickY = _hudEditFocus.EditData.x;
+                                float clickScale = _hudEditFocus.EditData.y;
+                                float offset = Input.mousePosition.y - clickY;
+                                _hudEditFocus.Transform.localScale = (offset / Screen.height + clickScale).ToVector3();
+                                if (KeyCode.Mouse1.Released())
+                                    _hudEditFocus.Transform = null;
+                                break;
+                        }
+            }
         }
 
         // Utility
@@ -231,6 +374,100 @@ namespace ModPack
             pendingBuy.SetAsFirstSibling();
             pendingSell.SetAsFirstSibling();
         }
+        // HUD editor
+        static private void SetupHUDElements(Players.Data player)
+        {
+            foreach (var dataByHUDGroup in DATA_BY_HUD_GROUP)
+                foreach (var uiElement in GetHUDHolder(player.UI).Find(dataByHUDGroup.Value.PanelPath).GetAllComponentsInHierarchy<CanvasGroup, Image>())
+                    switch (uiElement)
+                    {
+                        case CanvasGroup t: t.blocksRaycasts = true; break;
+                        case Image t: t.raycastTarget = true; break;
+                    }
+        }
+        static private void SetHUDEditMode(Players.Data player, bool state)
+        {
+            PauseMenu.Pause(state);
+            GameInput.ForceCursorNavigation = state;
+            SetHUDTemplates(player, state);
+
+            if (state)
+            {
+                Tools.IsConfigOpen = false;
+                SetupHUDElements(player);
+                _hudEditFocus.Transform = null;
+            }
+            else
+            {
+                SaveLoadHUDOverrides(player, SettingsOperation.Save);
+                _perPlayerSettings[player.ID]._startHUDEditor.SetSilently(false);
+            }
+        }
+        static private void SetHUDTemplates(Players.Data player, bool state)
+        {
+            Transform hudHolder = GetHUDHolder(player.UI);
+            Transform temperature = hudHolder.Find("TemperatureSensor/Display");
+            Transform statusEffect = hudHolder.Find("StatusEffect - Panel/Icon");
+            Transform quickslotsHolder = hudHolder.Find("QuickSlot");
+            Transform pauseHolder = GetPauseHolder(player.UI);
+
+            temperature.GOSetActive(state);
+            statusEffect.GetComponent<StatusEffectIcon>().enabled = !state;
+            statusEffect.GOSetActive(state);
+            quickslotsHolder.GetComponent<QuickSlotControllerSwitcher>().enabled = !state;
+            if (state)
+                foreach (Transform child in quickslotsHolder.transform)
+                    child.GOSetActive(true);
+            pauseHolder.GetComponent<Image>().enabled = !state;
+
+        }
+        static private void SaveLoadHUDOverrides(Players.Data player, SettingsOperation operation)
+        {
+            PerPlayerSettings settings = _perPlayerSettings[player.ID];
+            foreach (var dataByHUDGroup in DATA_BY_HUD_GROUP)
+            {
+                HUDGroup group = dataByHUDGroup.Key;
+                Transform panel = GetHUDHolder(player.UI).Find(dataByHUDGroup.Value.PanelPath);
+                switch (operation)
+                {
+                    case SettingsOperation.Save:
+                        settings.Set(group, panel.localPosition, panel.localScale.x);
+                        break;
+                    case SettingsOperation.Load:
+                        if (settings.IsNotZero(group))
+                        {
+                            panel.localPosition = settings.GetPosition(group);
+                            panel.localScale = settings.GetScale(group).ToVector3();
+                        }
+                        break;
+                    case SettingsOperation.Reset:
+                        panel.localPosition = dataByHUDGroup.Value.DefaultPosition;
+                        panel.localScale = Vector2.one;
+                        settings.Reset(group);
+                        break;
+                }
+            }
+        }
+        static private void HandleHUDHits(Players.Data player, Tool tool)
+        {
+            foreach (var hit in GetHUDHolder(player.UI).GetOrAddComponent<GraphicRaycaster>().GetMouseHits())
+            {
+                Transform hudGroupHolder = hit.gameObject.FindAncestorWithComponent(_allHUDComponentTypes);
+                if (hudGroupHolder == null)
+                    continue;
+
+                _hudEditFocus.Transform = hudGroupHolder;
+                _hudEditTool = tool;
+                if (tool == Tool.Move)
+                    _hudEditFocus.EditData = Input.mousePosition.OffsetTo(hudGroupHolder.position).XY();
+                else if (tool == Tool.Scale)
+                    _hudEditFocus.EditData = new Vector2(Input.mousePosition.y, hudGroupHolder.localScale.x);
+                break;
+            }
+        }
+        static private Tool _hudEditTool;
+        static private (Transform Transform, Vector2 EditData) _hudEditFocus;
+        static private Type[] _allHUDComponentTypes;
         // Find
         static private Transform GetKeyboardQuickslotsGamePanel(CharacterUI ui)
         => ui.transform.Find("Canvas/GameplayPanels/HUD/QuickSlot/Keyboard");
@@ -244,24 +481,30 @@ namespace ModPack
         => inventory.Find("SectionContent/Scroll View/Viewport/Content/PlayerPendingBuyItems");
         static private Transform GetPendingSellPanel(Transform inventory)
         => inventory.Find("SectionContent/Scroll View/Viewport/Content/PlayerPendingSellItems");
+        static private Transform GetHUDHolder(CharacterUI ui)
+        => ui.transform.Find("Canvas/GameplayPanels/HUD");
+        static private Transform GetPauseHolder(CharacterUI ui)
+        => ui.transform.Find("Canvas/Paused");
 
         // Hooks
         [HarmonyPatch(typeof(LocalCharacterControl), "RetrieveComponents"), HarmonyPostfix]
         static void LocalCharacterControl_RetrieveComponents_Post(LocalCharacterControl __instance)
         {
             UpdateSplitscreenMode();
-            __instance.ExecuteOnceAfterDelay(SHOP_MENU_RESIZE_DELAY, UpdateShopMenusWidths);
+            __instance.ExecuteOnceAfterDelay(UI_RESIZE_DELAY, UpdateShopMenusWidths);
 
             Players.Data player = Players.GetLocal(__instance);
             UpdateQuickslotButtonIcons(player);
             UpdatePendingBuySellPanels(player);
+            if (_perPlayerSettings[player.ID]._overrideHUD)
+                __instance.ExecuteOnceAfterDelay(UI_RESIZE_DELAY, () => SaveLoadHUDOverrides(player, SettingsOperation.Load));
         }
 
         [HarmonyPatch(typeof(RPCManager), "SendPlayerHasLeft"), HarmonyPostfix]
         static void RPCManager_SendPlayerHasLeft_Post(RPCManager __instance)
         {
             UpdateSplitscreenMode();
-            __instance.ExecuteOnceAfterDelay(SHOP_MENU_RESIZE_DELAY, UpdateShopMenusWidths);
+            __instance.ExecuteOnceAfterDelay(UI_RESIZE_DELAY, UpdateShopMenusWidths);
         }
 
         // Exclusive buy/sell panels
