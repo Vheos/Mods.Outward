@@ -21,6 +21,7 @@ namespace ModPack
             }
 
             Ordering = _positionOffset + _nextPosition++;
+            _visibilityCheck = () => true;
         }
         public void Format(string displayName, AModSetting controller, Func<bool> check = null)
         {
@@ -181,7 +182,7 @@ namespace ModPack
         {
             _events = new List<Action>();
             _visibilityControllers = new List<AModSetting>();
-            _visibilityCheck = () => true;
+            _visibilityCheck = () => false;
         }
     }
 }

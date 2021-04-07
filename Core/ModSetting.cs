@@ -28,7 +28,6 @@ namespace ModPack
         {
             ConfigDescription description = new ConfigDescription("", acceptableValues, new ConfigurationManagerAttributes());
             _configEntryBase = _configEntry = Tools.ConfigFile.Bind(section, name, defaultValue, description);
-            IsVisible = true;
         }
 
         // Operators
