@@ -64,19 +64,21 @@ namespace ModPack
         {
             // Settings
             public ModSetting<bool> _toggle;
+            public ModSetting<bool> _copySettings;
+            public ModSetting<bool> _rearrangeHUD;
+            public ModSetting<bool> _startHUDEditor;
+            public ModSetting<int> _hudTransparency;
+            public ModSetting<bool> _fadingStatusEffectIcons;
+            public ModSetting<int> _statusIconMaxSize, _statusIconMinSize, _statusIconMinAlpha;
             public ModSetting<bool> _hideQuickslotHints;
             public ModSetting<bool> _alternativeManaBarPlacement;
-            public ModSetting<int> _hudTransparency;
             public ModSetting<int> _shopMenuWidth;
             public ModSetting<bool> _swapPendingBuySellPanels;
             public ModSetting<SeperatePanelsMode> _separateBuySellPanels;
             public ModSetting<string> _buySellToggle, _switchToBuy, _switchToSell;
-            public ModSetting<bool> _rearrangeHUD;
-            public ModSetting<bool> _startHUDEditor;
-            public ModSetting<bool> _hudOverridesToggle;
-            public Dictionary<HUDGroup, ModSetting<Vector3>> _hudOverridesByHUDGroup;
 
             // Utility
+            public Dictionary<HUDGroup, ModSetting<Vector3>> _hudOverridesByHUDGroup;
             public Vector2 GetPosition(HUDGroup hudGroup)
             => _hudOverridesByHUDGroup[hudGroup].Value;
             public float GetScale(HUDGroup hudGroup)
@@ -90,11 +92,32 @@ namespace ModPack
             }
             public bool IsNotZero(HUDGroup hudGroup)
             => _hudOverridesByHUDGroup[hudGroup] != Vector3.zero;
+            public Vector2 StatusIconScale(float progress)
+            => _statusIconMinSize.Value.Lerp(_statusIconMaxSize, progress).Div(100f).ToVector2();
+            public float StatusIconAlpha(float progress)
+            => _statusIconMinAlpha.Value.Div(100).Lerp(1f, progress);
+            public void CopySettings(PerPlayerSettings otherPlayerSettings)
+            {
+                _rearrangeHUD.Value = otherPlayerSettings._rearrangeHUD;
+                _hudTransparency.Value = otherPlayerSettings._hudTransparency;
+                _fadingStatusEffectIcons.Value = otherPlayerSettings._fadingStatusEffectIcons;
+                _statusIconMaxSize.Value = otherPlayerSettings._statusIconMaxSize;
+                _statusIconMinSize.Value = otherPlayerSettings._statusIconMinSize;
+                _statusIconMinAlpha.Value = otherPlayerSettings._statusIconMinAlpha;
+                _hideQuickslotHints.Value = otherPlayerSettings._hideQuickslotHints;
+                _alternativeManaBarPlacement.Value = otherPlayerSettings._alternativeManaBarPlacement;
+                _shopMenuWidth.Value = otherPlayerSettings._shopMenuWidth;
+                _swapPendingBuySellPanels.Value = otherPlayerSettings._swapPendingBuySellPanels;
+                _separateBuySellPanels.Value = otherPlayerSettings._separateBuySellPanels;
+                _buySellToggle.Value = otherPlayerSettings._buySellToggle;
+                _switchToBuy.Value = otherPlayerSettings._switchToBuy;
+                _switchToSell.Value = otherPlayerSettings._switchToSell;
+                _hudOverridesByHUDGroup = new Dictionary<HUDGroup, ModSetting<Vector3>>(otherPlayerSettings._hudOverridesByHUDGroup);
+            }
 
             // Constructor
             public PerPlayerSettings()
             => _hudOverridesByHUDGroup = new Dictionary<HUDGroup, ModSetting<Vector3>>();
-
         }
         #endregion
 
@@ -103,6 +126,15 @@ namespace ModPack
         static private ModSetting<bool> _verticalSplitscreen;
         override protected void Initialize()
         {
+            _verticalSplitscreen = CreateSetting(nameof(_verticalSplitscreen), false);
+            AddEventOnConfigClosed(() => UpdateSplitscreenMode());
+            AddEventOnConfigClosed(() => UpdateShopMenusWidths());
+
+            _allHUDComponentTypes = new Type[DATA_BY_HUD_GROUP.Count];
+            var hudData = DATA_BY_HUD_GROUP.Values.ToArray();
+            for (int i = 0; i < hudData.Length; i++)
+                _allHUDComponentTypes[i] = hudData[i].HUDComponentType;
+
             _perPlayerSettings = new PerPlayerSettings[2];
             for (int i = 0; i < 2; i++)
             {
@@ -111,8 +143,18 @@ namespace ModPack
                 string playerPostfix = (i + 1).ToString();
 
                 tmp._toggle = CreateSetting(nameof(tmp._toggle) + playerPostfix, false);
+                tmp._copySettings = CreateSetting(nameof(tmp._copySettings) + playerPostfix, false);
+                tmp._rearrangeHUD = CreateSetting(nameof(tmp._rearrangeHUD) + playerPostfix, false);
+                tmp._startHUDEditor = CreateSetting(nameof(tmp._startHUDEditor) + playerPostfix, false);
+                tmp._hudTransparency = CreateSetting(nameof(tmp._hudTransparency) + playerPostfix, 0, IntRange(0, 100));
+                tmp._fadingStatusEffectIcons = CreateSetting(nameof(tmp._fadingStatusEffectIcons) + playerPostfix, false);
+                tmp._statusIconMaxSize = CreateSetting(nameof(tmp._statusIconMaxSize) + playerPostfix, 120, IntRange(100, 125));
+                tmp._statusIconMinSize = CreateSetting(nameof(tmp._statusIconMinSize) + playerPostfix, 60, IntRange(0, 100));
+                tmp._statusIconMinAlpha = CreateSetting(nameof(tmp._statusIconMinAlpha) + playerPostfix, 50, IntRange(0, 100));
                 tmp._hideQuickslotHints = CreateSetting(nameof(tmp._hideQuickslotHints) + playerPostfix, false);
                 tmp._alternativeManaBarPlacement = CreateSetting(nameof(tmp._alternativeManaBarPlacement) + playerPostfix, false);
+                foreach (var hudGroup in DATA_BY_HUD_GROUP.Keys.ToArray())
+                    tmp._hudOverridesByHUDGroup.Add(hudGroup, CreateSetting($"_hudOverride{hudGroup}{playerPostfix}", Vector3.zero));
                 tmp._shopMenuWidth = CreateSetting(nameof(tmp._shopMenuWidth) + playerPostfix, 0, IntRange(0, 100));
                 tmp._swapPendingBuySellPanels = CreateSetting(nameof(tmp._swapPendingBuySellPanels) + playerPostfix, false);
                 tmp._separateBuySellPanels = CreateSetting(nameof(tmp._separateBuySellPanels) + playerPostfix, SeperatePanelsMode.Disabled);
@@ -120,25 +162,35 @@ namespace ModPack
                 tmp._switchToBuy = CreateSetting(nameof(tmp._switchToBuy) + playerPostfix, "");
                 tmp._switchToSell = CreateSetting(nameof(tmp._switchToSell) + playerPostfix, "");
 
-                tmp._hudTransparency = CreateSetting(nameof(tmp._hudTransparency) + playerPostfix, 0, IntRange(0, 100));
-                tmp._rearrangeHUD = CreateSetting(nameof(tmp._rearrangeHUD) + playerPostfix, false);
-                tmp._startHUDEditor = CreateSetting(nameof(tmp._startHUDEditor) + playerPostfix, false);
-                tmp._hudOverridesToggle = CreateSetting(nameof(tmp._hudOverridesToggle) + playerPostfix, false);
-                foreach (var hudGroup in DATA_BY_HUD_GROUP.Keys.ToArray())
-                    tmp._hudOverridesByHUDGroup.Add(hudGroup, CreateSetting($"_hudOverride{hudGroup}{playerPostfix}", Vector3.zero));
-
                 // Events
                 int id = i;
-                tmp._separateBuySellPanels.AddEvent(() =>
+                tmp._copySettings.AddEvent(() =>
                 {
-                    if (Players.TryGetLocal(id, out Players.Data player))
-                        UpdateSeparateBuySellPanels(player);
+                    if (tmp._copySettings)
+                        tmp.CopySettings(_perPlayerSettings[1 - id]);
+                    tmp._copySettings.SetSilently(false);
                 });
-
-                tmp._swapPendingBuySellPanels.AddEvent(() =>
+                tmp._rearrangeHUD.AddEvent(() =>
                 {
                     if (Players.TryGetLocal(id, out Players.Data player))
-                        UpdatePendingBuySellPanels(player);
+                        SaveLoadHUDOverrides(player, tmp._rearrangeHUD ? SettingsOperation.Load : SettingsOperation.Reset);
+                    if (!tmp._rearrangeHUD)
+                        _perPlayerSettings[id].ResetHUDOverrides();
+                });
+                tmp._startHUDEditor.AddEvent(() =>
+                {
+                    if (tmp._startHUDEditor && Players.TryGetLocal(id, out Players.Data player))
+                        SetHUDEditor(player, true);
+                });
+                tmp._hudTransparency.AddEvent(() =>
+                {
+                    if (Players.TryGetLocal(id, out Players.Data player))
+                        UpdateHUDTransparency(player);
+                });
+                tmp._fadingStatusEffectIcons.AddEvent(() =>
+                {
+                    if (!tmp._fadingStatusEffectIcons && Players.TryGetLocal(id, out Players.Data player))
+                        ResetStatusEffectIcons(player);
                 });
                 tmp._hideQuickslotHints.AddEvent(() =>
                 {
@@ -150,39 +202,22 @@ namespace ModPack
                     if (Players.TryGetLocal(id, out Players.Data player))
                         UpdateManaBarPlacement(player);
                 });
-                tmp._hudTransparency.AddEvent(() =>
-                {
-                    if (Players.TryGetLocal(id, out Players.Data player))
-                        UpdateHUDTransparency(player);
-                });
-                tmp._startHUDEditor.AddEvent(() =>
-                {
-                    if (tmp._startHUDEditor && Players.TryGetLocal(id, out Players.Data player))
-                        SetHUDEditor(player, true);
-                });
-                tmp._rearrangeHUD.AddEvent(() =>
-                {
-                    if (Players.TryGetLocal(id, out Players.Data player))
-                        SaveLoadHUDOverrides(player, tmp._rearrangeHUD ? SettingsOperation.Load : SettingsOperation.Reset);
-                    if (!tmp._rearrangeHUD)
-                        _perPlayerSettings[id].ResetHUDOverrides();
-                });
                 AddEventOnConfigOpened(() =>
                 {
                     if (tmp._startHUDEditor && Players.TryGetLocal(id, out Players.Data player))
                         SetHUDEditor(player, false);
                 });
+                tmp._separateBuySellPanels.AddEvent(() =>
+                {
+                    if (Players.TryGetLocal(id, out Players.Data player))
+                        UpdateSeparateBuySellPanels(player);
+                });
+                tmp._swapPendingBuySellPanels.AddEvent(() =>
+                {
+                    if (Players.TryGetLocal(id, out Players.Data player))
+                        UpdatePendingBuySellPanels(player);
+                });
             }
-
-            _verticalSplitscreen = CreateSetting(nameof(_verticalSplitscreen), false);
-            AddEventOnConfigClosed(() => UpdateSplitscreenMode());
-            AddEventOnConfigClosed(() => UpdateShopMenusWidths());
-
-            _allHUDComponentTypes = new Type[DATA_BY_HUD_GROUP.Count];
-            var hudData = DATA_BY_HUD_GROUP.Values.ToArray();
-            for (int i = 0; i < hudData.Length; i++)
-                _allHUDComponentTypes[i] = hudData[i].HUDComponentType;
-
         }
         override protected void SetFormatting()
         {
@@ -197,6 +232,8 @@ namespace ModPack
                 tmp._toggle.Description = $"Change settings for local player {i + 1}";
                 Indent++;
                 {
+                    tmp._copySettings.Format($"Copy settings from player {1 - i + 1}");
+                    tmp._copySettings.IsAdvanced = true;
                     tmp._rearrangeHUD.Format("Rearrange HUD", tmp._toggle);
                     tmp._rearrangeHUD.Description = "Change HUD elements position and scale";
                     Indent++;
@@ -209,6 +246,17 @@ namespace ModPack
                         Indent--;
                     }
                     tmp._hudTransparency.Format("HUD transparency", tmp._toggle);
+                    tmp._fadingStatusEffectIcons.Format("Fading status effect icons", tmp._toggle);
+                    Indent++;
+                    {
+                        tmp._statusIconMaxSize.Format("Max size", tmp._fadingStatusEffectIcons);
+                        tmp._statusIconMaxSize.Description = "Icon size at maximum status effect duration";
+                        tmp._statusIconMinSize.Format("Min size", tmp._fadingStatusEffectIcons);
+                        tmp._statusIconMinSize.Description = "Icon size right before the status effect expires";
+                        tmp._statusIconMinAlpha.Format("Min opacity", tmp._fadingStatusEffectIcons);
+                        tmp._statusIconMinAlpha.Description = "Icon opacity right before the status effect expires";
+                        Indent--;
+                    }
                     tmp._hideQuickslotHints.Format("Hide quickslot hints", tmp._toggle);
                     tmp._hideQuickslotHints.Description = "Keyboard - hides the key names above quickslots\n" +
                                                           "Gamepad - hides the button icons below quickslots";
@@ -389,6 +437,15 @@ namespace ModPack
         }
         static private void UpdateHUDTransparency(Players.Data player)
         => GetHUDHolder(player.UI).GetComponent<CanvasGroup>().alpha = 1f - _perPlayerSettings[player.ID]._hudTransparency / 100f;
+        static private void ResetStatusEffectIcons(Players.Data player)
+        {
+            Transform statusEffectsPanel = GetHUDHolder(player.UI).Find("StatusEffect - Panel");
+            foreach (var image in statusEffectsPanel.GetAllComponentsInHierarchy<Image>())
+            {
+                image.SetAlpha(1f);
+                image.rectTransform.localScale = Vector2.one;
+            }
+        }
         // HUD editor      
         static private void SetHUDEditor(Players.Data player, bool state)
         {
@@ -558,6 +615,24 @@ namespace ModPack
             #endregion
 
             __instance.m_rectTransform.localPosition *= -1;
+        }
+
+        // Status effect duration
+        [HarmonyPatch(typeof(StatusEffectPanel), "GetStatusIcon"), HarmonyPostfix]
+        static void StatusEffectPanel_GetStatusIcon_Post(ref StatusEffectPanel __instance, ref StatusEffectIcon __result)
+        {
+            PerPlayerSettings settings = _perPlayerSettings[Players.GetLocal(__instance.LocalCharacter).ID];
+            StatusEffect statusEffect = __instance.m_cachedStatus;
+            #region quit
+            if (!settings._fadingStatusEffectIcons || statusEffect.Permanent)
+                return;
+            #endregion
+
+            float maxDuration = Prefabs.StatusEffectsByID[statusEffect.IdentifierName].StartLifespan;
+            float remainingDuration = statusEffect.RemainingLifespan;
+            float progress = remainingDuration / maxDuration;
+            __result.m_icon.SetAlpha(settings.StatusIconAlpha(progress));
+            __result.m_icon.rectTransform.localScale = settings.StatusIconScale(progress);
         }
     }
 }
