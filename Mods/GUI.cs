@@ -64,7 +64,7 @@ namespace ModPack
         {
             // Settings
             public ModSetting<bool> _toggle;
-            public ModSetting<bool> _hintQuickslotHints;
+            public ModSetting<bool> _hideQuickslotHints;
             public ModSetting<bool> _alternativeManaBarPlacement;
             public ModSetting<int> _hudTransparency;
             public ModSetting<int> _shopMenuWidth;
@@ -111,7 +111,7 @@ namespace ModPack
                 string playerPostfix = (i + 1).ToString();
 
                 tmp._toggle = CreateSetting(nameof(tmp._toggle) + playerPostfix, false);
-                tmp._hintQuickslotHints = CreateSetting(nameof(tmp._hintQuickslotHints) + playerPostfix, false);
+                tmp._hideQuickslotHints = CreateSetting(nameof(tmp._hideQuickslotHints) + playerPostfix, false);
                 tmp._alternativeManaBarPlacement = CreateSetting(nameof(tmp._alternativeManaBarPlacement) + playerPostfix, false);
                 tmp._shopMenuWidth = CreateSetting(nameof(tmp._shopMenuWidth) + playerPostfix, 0, IntRange(0, 100));
                 tmp._swapPendingBuySellPanels = CreateSetting(nameof(tmp._swapPendingBuySellPanels) + playerPostfix, false);
@@ -140,7 +140,7 @@ namespace ModPack
                     if (Players.TryGetLocal(id, out Players.Data player))
                         UpdatePendingBuySellPanels(player);
                 });
-                tmp._hintQuickslotHints.AddEvent(() =>
+                tmp._hideQuickslotHints.AddEvent(() =>
                 {
                     if (Players.TryGetLocal(id, out Players.Data player))
                         UpdateQuickslotButtonIcons(player);
@@ -165,7 +165,7 @@ namespace ModPack
                     if (Players.TryGetLocal(id, out Players.Data player))
                         SaveLoadHUDOverrides(player, tmp._rearrangeHUD ? SettingsOperation.Load : SettingsOperation.Reset);
                     if (!tmp._rearrangeHUD)
-                        _perPlayerSettings[player.ID].ResetHUDOverrides();
+                        _perPlayerSettings[id].ResetHUDOverrides();
                 });
                 AddEventOnConfigOpened(() =>
                 {
@@ -209,8 +209,8 @@ namespace ModPack
                         Indent--;
                     }
                     tmp._hudTransparency.Format("HUD transparency", tmp._toggle);
-                    tmp._hintQuickslotHints.Format("Hide quickslot hints", tmp._toggle);
-                    tmp._hintQuickslotHints.Description = "Keyboard - hides the key names above quickslots\n" +
+                    tmp._hideQuickslotHints.Format("Hide quickslot hints", tmp._toggle);
+                    tmp._hideQuickslotHints.Description = "Keyboard - hides the key names above quickslots\n" +
                                                           "Gamepad - hides the button icons below quickslots";
                     tmp._alternativeManaBarPlacement.Format("Alternative mana bar placement", tmp._toggle);
                     tmp._alternativeManaBarPlacement.Description = "Move mana bar right below health bar to form a triangle out of the vitals";
@@ -329,7 +329,7 @@ namespace ModPack
         static private void UpdateQuickslotButtonIcons(Players.Data player)
         {
             foreach (var quickslotDisplay in GetKeyboardQuickslotsGamePanel(player.UI).GetAllComponentsInHierarchy<QuickSlotDisplay>())
-                quickslotDisplay.m_lblKeyboardInput.enabled = !_perPlayerSettings[player.ID]._hintQuickslotHints;
+                quickslotDisplay.m_lblKeyboardInput.enabled = !_perPlayerSettings[player.ID]._hideQuickslotHints;
         }
         static private void UpdateSeparateBuySellPanels(Players.Data player)
         {
@@ -540,7 +540,7 @@ namespace ModPack
         {
             Players.Data player = Players.GetLocal(__instance);
             #region quit
-            if (!_perPlayerSettings[player.ID]._hintQuickslotHints)
+            if (!_perPlayerSettings[player.ID]._hideQuickslotHints)
                 return;
             #endregion
 
