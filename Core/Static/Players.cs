@@ -60,6 +60,8 @@ namespace ModPack
         => GetLocal(GetPlayerID(localCharacterControl));
         static public Data GetLocal(UIElement uiElement)
         => GetLocal(GetPlayerID(uiElement));
+        static public Data GetLocal(Character character)
+        => GetLocal(GetPlayerID(character));
         static public Data GetLocal(CharacterUI characterUI)
         => GetLocal(GetPlayerID(characterUI));
         static public bool TryGetLocal(int playerID, out Data player)
@@ -71,8 +73,10 @@ namespace ModPack
         => TryGetLocal(GetPlayerID(localCharacterControl), out player);
         static public bool TryGetLocal(UIElement uiElement, out Data player)
          => TryGetLocal(GetPlayerID(uiElement), out player);
+        static public bool TryGetLocal(Character character, out Data player)
+        => TryGetLocal(GetPlayerID(character), out player);
         static public bool TryGetLocal(CharacterUI ui, out Data player)
-         => TryGetLocal(GetPlayerID(ui), out player);
+        => TryGetLocal(GetPlayerID(ui), out player);
 
         // Privates
         static private void Recache()
@@ -98,6 +102,8 @@ namespace ModPack
         => localCharacterControl.Character.OwnerPlayerSys.PlayerID;
         static private int GetPlayerID(UIElement uiElement)
         => uiElement.LocalCharacter.OwnerPlayerSys.PlayerID;
+        static private int GetPlayerID(Character character)
+        => character.OwnerPlayerSys.PlayerID;
         static private int GetPlayerID(CharacterUI characterUI)
         => characterUI.TargetCharacter.OwnerPlayerSys.PlayerID;
 
