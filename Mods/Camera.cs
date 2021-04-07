@@ -193,7 +193,7 @@ namespace ModPack
                             zoomDelta = cameraInput.y;
                         settings.IgnoreAxes = true;
                     }
-                    else if(!player.IsUsingGamepad)
+                    else if (!player.IsUsingGamepad)
                         zoomDelta = Input.mouseScrollDelta.y * 2f;
 
                     if (zoomDelta != 0)
