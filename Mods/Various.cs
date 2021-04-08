@@ -17,6 +17,7 @@ namespace ModPack
         #region const
         private const string BOTH_TRIGGERS_PANEL_NAME = "LT+RT";
         private const string QUICKSLOT_12_NAME = "12";
+        private const float DEFAULT_ENEMY_HEALTH_RESET_HOURS = 24f;   // Character.HoursToHealthReset
         #endregion
         #region enum
         [Flags]
@@ -36,6 +37,7 @@ namespace ModPack
         static private ModSetting<bool> _extraControllerQuickslots;
         static private ModSetting<bool> _removeCoopScaling;
         static private ModSetting<bool> _removeDodgeInvulnerability;
+        static private ModSetting<bool> _healEnemiesOnLoad;
         static private ModSetting<bool> _allowDodgeAnimationCancelling;
         static private ModSetting<bool> _allowPushKickRemoval;
         override protected void Initialize()
@@ -46,6 +48,7 @@ namespace ModPack
             _extraControllerQuickslots = CreateSetting(nameof(_extraControllerQuickslots), false);
             _removeCoopScaling = CreateSetting(nameof(_removeCoopScaling), false);
             _removeDodgeInvulnerability = CreateSetting(nameof(_removeDodgeInvulnerability), false);
+            _healEnemiesOnLoad = CreateSetting(nameof(_healEnemiesOnLoad), false);
 
             AddEventOnConfigClosed(() =>
             {
@@ -72,6 +75,8 @@ namespace ModPack
             _removeDodgeInvulnerability.Format("Remove dodge invulnerability");
             _removeDodgeInvulnerability.Description = "You can get hit during the dodge animation\n" +
                                                       "(even without a backpack)";
+            _healEnemiesOnLoad.Format("Heal enemies on load");
+            _healEnemiesOnLoad.Description = "Every loading screen fully heals all enemies";
 
             _allowDodgeAnimationCancelling.Format("Allow dodge to cancel actions");
             _allowDodgeAnimationCancelling.Description = "[WORK IN PROGRESS] Cancelling certain animations might lead to small glitches";
@@ -316,6 +321,14 @@ namespace ModPack
             if (_step > 0 && ___m_hitboxes != null)
                 foreach (var hitbox in ___m_hitboxes)
                     hitbox.gameObject.SetActive(true);
+        }
+
+        // Enemy health reset time
+        [HarmonyPatch(typeof(Character), "LoadCharSave"), HarmonyPrefix]
+        static bool Character_LoadCharSave_Pre(ref Character __instance)
+        {
+            __instance.HoursToHealthReset = _healEnemiesOnLoad ? 0 : DEFAULT_ENEMY_HEALTH_RESET_HOURS;
+            return true;
         }
 
         // Dodge animation cancelling
