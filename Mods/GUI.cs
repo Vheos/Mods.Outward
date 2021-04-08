@@ -232,7 +232,7 @@ namespace ModPack
                 tmp._toggle.Description = $"Change settings for local player {i + 1}";
                 Indent++;
                 {
-                    tmp._copySettings.Format($"Copy settings from player {1 - i + 1}");
+                    tmp._copySettings.Format($"Copy settings from player {1 - i + 1}", tmp._toggle);
                     tmp._copySettings.IsAdvanced = true;
                     tmp._rearrangeHUD.Format("Rearrange HUD", tmp._toggle);
                     tmp._rearrangeHUD.Description = "Change HUD elements position and scale";
