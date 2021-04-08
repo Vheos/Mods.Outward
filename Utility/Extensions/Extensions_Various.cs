@@ -218,6 +218,11 @@ namespace ModPack
         }
         static public T As<T>(this object t)
         => (T)t;
+        static public bool TryAs<T>(this object t, out T result) where T : class
+        {
+            result = t as T;
+            return result != null;
+        }
         static public bool Is<T>(this object t)
         => t is T;
         static public bool IsNot<T>(this object t)
@@ -246,9 +251,9 @@ namespace ModPack
         static public string FormatSeconds(this float t, bool showMinutes = true, bool showSeconds = true)
         {
             int minutes = t.Div(60).RoundDown();
-            int seconds = t.Mod(60).RoundDown();
-            return (showMinutes ? minutes.ToString("D2") + "m " : "") +
-                   (showSeconds ? seconds.ToString("D2") + "s " : "");
+            int seconds = t.Mod(60).Round();
+            return (showMinutes ? minutes.ToString() + "m " : "") +
+                   (showSeconds ? seconds.ToString() + "s " : "");
         }
         static public bool HasFlagsAttribute(this Enum enumeration)
         => enumeration.GetType().IsDefined(typeof(FlagsAttribute), false);
