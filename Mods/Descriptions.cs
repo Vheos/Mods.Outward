@@ -36,6 +36,8 @@ namespace ModPack
             Corruption = 1 << 4,
             RegenRates = 1 << 5,
             StatusEffects = 1 << 6,
+            Cooldown = 1 << 7,
+            Costs = 1 << 8,
         }
         #endregion
         #region class
@@ -100,30 +102,35 @@ namespace ModPack
             // Publics
             public List<Row> GetRows(Item item)
             {
-                if (!_rowsByIngestible.ContainsKey(item))
+                if (!_rowsByItem.ContainsKey(item))
                     CacheItemRows(item);
-                return _rowsByIngestible[item];
+                return _rowsByItem[item];
             }
 
             // Privates
-            private Dictionary<Item, List<Row>> _rowsByIngestible;
+            private Dictionary<Item, List<Row>> _rowsByItem;
             private void CacheItemRows(Item item)
             {
                 List<Row> rows = new List<Row>();
-                foreach (var effect in item.GetEffects())
-                {
-                    Row newRow = FormatRow(effect);
-                    if (newRow != null)
-                        rows.Add(newRow);
-                }
+
+                if (item.TryAs(out Skill skill))
+                    FormatSkillRows(skill, rows);
+                else
+                    foreach (var effect in item.GetEffects())
+                    {
+                        Row newRow = GetFormattedItemRow(effect);
+                        if (newRow != null)
+                            rows.Add(newRow);
+                    }
+
                 rows.Sort((a, b) => a.Order.CompareTo(b.Order));
-                _rowsByIngestible.Add(item, rows);
+                _rowsByItem.Add(item, rows);
             }
 
             // Constructors
             public RowsCache()
             {
-                _rowsByIngestible = new Dictionary<Item, List<Row>>();
+                _rowsByItem = new Dictionary<Item, List<Row>>();
             }
         }
         #endregion
@@ -132,7 +139,7 @@ namespace ModPack
         static private ModSetting<bool> _colorsToggle, _barsToggle;
         static private ModSetting<bool> _addBackgrounds;
         static private ModSetting<Details> _details;
-        static private ModSetting<Color> _healthColor, _staminaColor, _manaColor, _needsColor, _corruptionColor, _statusEffectColor;
+        static private ModSetting<Color> _healthColor, _staminaColor, _manaColor, _needsColor, _corruptionColor, _statusEffectColor, _cooldownColor;
         static private ModSetting<int> _durabilityBarSize, _freshnessBarSize, _barThickness;
         static private ModSetting<bool> _durabilityTiedToMax, _freshnessTiedToLifespan;
         override protected void Initialize()
@@ -219,7 +226,7 @@ namespace ModPack
                 if (ingestibleByID.Value != lifePotion)
                     ingestibleByID.Value.m_overrideSigil = state ? potionBackground : null;
         }
-        static private Row FormatRow(Effect effect)
+        static private Row GetFormattedItemRow(Effect effect)
         {
             switch (effect)
             {
@@ -307,6 +314,33 @@ namespace ModPack
                 default: return null;
             }
         }
+        static private void FormatSkillRows(Skill skill, List<Row> rows)
+        {
+            if (skill.Cooldown > 0)
+                rows.Add(new Row("ItemStat_Cooldown".Localized(),
+                                  skill.Cooldown.FormatSeconds(skill.Cooldown >= 60),
+                                  Details.Cooldown, 11, _cooldownColor));
+            if (skill.HealthCost > 0)
+                rows.Add(new Row("CharacterStat_Health".Localized() + " " + "BuildingMenu_Supplier_Cost".Localized(),
+                                  skill.HealthCost.ToString(),
+                                  Details.Costs, 12, _healthColor));
+            if (skill.StaminaCost > 0)
+                rows.Add(new Row("CharacterStat_Stamina".Localized() + " " + "BuildingMenu_Supplier_Cost".Localized(),
+                                  skill.StaminaCost.ToString(),
+                                  Details.Costs, 13, _staminaColor));
+            if (skill.ManaCost > 0)
+                rows.Add(new Row("CharacterStat_Mana".Localized() + " " + "BuildingMenu_Supplier_Cost".Localized(),
+                                  skill.ManaCost.ToString(),
+                                  Details.Costs, 14, _manaColor));
+            if (skill.DurabilityCost > 0 || skill.DurabilityCostPercent > 0)
+            {
+                bool isPercent = skill.DurabilityCostPercent > 0;
+                rows.Add(new Row("ItemStat_Durability".Localized() + " " + "BuildingMenu_Supplier_Cost".Localized(),
+                                  isPercent ? (skill.DurabilityCostPercent.ToString() + "%") : skill.DurabilityCost.ToString(),
+                                  Details.Costs, 15, _needsColor));
+            }
+
+        }
         static private string FormatEffectValue(Effect effect, float divisor = 1f, string postfix = "")
         {
             string content = "";
@@ -339,16 +373,16 @@ namespace ModPack
         {
             Item item = __instance.m_lastItem;
             #region quit
-            if (_details.Value == Details.None || item == null || !item.IsIngestible())
+            if (_details.Value == Details.None || item == null || !item.IsIngestible() && item.IsNot<Skill>())
                 return true;
             #endregion
 
-            List<ItemDetailRowDisplay> detailRows = __instance.m_detailRows;
             int rowIndex = 0;
             foreach (var row in _rowsCache.GetRows(item))
                 if (_details.Value.HasFlag(row.Detail))
                     __instance.GetRow(rowIndex++).SetInfo(row.Label, row.Content);
 
+            List<ItemDetailRowDisplay> detailRows = __instance.m_detailRows;
             for (int i = rowIndex; i < detailRows.Count; i++)
                 detailRows[i].Hide();
 
