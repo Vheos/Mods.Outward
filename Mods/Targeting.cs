@@ -82,7 +82,7 @@ namespace ModPack
         [HarmonyPatch(typeof(CharacterCamera), "LateUpdate"), HarmonyPostfix]
         static void CharacterCamera_LateUpdate_Post(ref CharacterCamera __instance)
         {
-            if (__instance.m_targetCharacter.TargetingSystem.Locked)
+            if (__instance.m_targetCharacter.TargetingSystem.LockedCharacter != null)
                 __instance.m_cameraVertHolder.rotation *= Quaternion.Euler(_targetingPitchOffset, 0, 0);
         }
 
@@ -143,7 +143,7 @@ namespace ModPack
         static void Character_BlockInput_Post(ref Character __instance, ref bool _active)
         {
             #region quit
-            if (!_autoTargetEvents.Value.HasFlag(AutoTargetEvents.Block) || __instance.TargetingSystem.Locked || !_active)
+            if (!_autoTargetEvents.Value.HasFlag(AutoTargetEvents.Block) || __instance.TargetingSystem.Locked || !_active || HasBow(__instance))
                 return;
             #endregion
 

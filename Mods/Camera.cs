@@ -203,7 +203,7 @@ namespace ModPack
         }
 
         // Utility            
-        static private void UpdateCameraSettings(int playerID)
+        static private void UpdateCameraSettings(int playerID)      
         {
             PlayerSystem player = Global.Lobby.GetLocalPlayer(playerID);
             #region quit
@@ -216,7 +216,10 @@ namespace ModPack
             CharacterCamera characterCamera = player.ControlledCharacter.CharacterCamera;
 
             // Overrides
-            characterCamera.Offset = _perPlayerSettings[playerID].CurrentOffset;
+            if (characterCamera.InZoomMode)
+                characterCamera.ZoomOffsetSplitScreenH = _perPlayerSettings[playerID].CurrentOffset;
+            else
+                characterCamera.Offset = _perPlayerSettings[playerID].CurrentOffset;
             characterCamera.CameraScript.fieldOfView = currentVarious.x;
             characterCamera.DefaultFollowSpeed.SetX(currentVarious.y);
             _perPlayerSettings[playerID].Sensitivity = currentVarious.z;
@@ -237,7 +240,7 @@ namespace ModPack
         }
 
         [HarmonyPatch(typeof(Character), "SetZoomMode"), HarmonyPostfix]
-        static void Character_SetZoomMode_Pre(ref Character __instance, ref bool _zoomed)
+        static void Character_SetZoomMode_Post(ref Character __instance, ref bool _zoomed)
         {
             PlayerSystem player = __instance.OwnerPlayerSys;
             #region quit
@@ -245,7 +248,6 @@ namespace ModPack
                 return;
             #endregion
 
-            __instance.CharacterCamera.ZoomOffsetSplitScreenH = __instance.CharacterCamera.Offset;
             __instance.CharacterCamera.ZoomSensModifier = 1f;
             _perPlayerSettings[player.PlayerID].StartAimCoroutine(__instance, _zoomed);
         }
