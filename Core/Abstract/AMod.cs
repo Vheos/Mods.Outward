@@ -31,6 +31,7 @@ namespace ModPack
             typeof(GUI),
             typeof(Descriptions),
             typeof(Camera),
+            typeof(Targeting),
             typeof(KeyboardWalk),
 
             typeof(Damage),
