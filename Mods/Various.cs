@@ -38,6 +38,7 @@ namespace ModPack
         static private ModSetting<bool> _removeCoopScaling;
         static private ModSetting<bool> _removeDodgeInvulnerability;
         static private ModSetting<bool> _healEnemiesOnLoad;
+        static private ModSetting<bool> _repairOnlyEquipped;
         static private ModSetting<bool> _allowDodgeAnimationCancelling;
         static private ModSetting<bool> _allowPushKickRemoval;
         override protected void Initialize()
@@ -49,6 +50,7 @@ namespace ModPack
             _removeCoopScaling = CreateSetting(nameof(_removeCoopScaling), false);
             _removeDodgeInvulnerability = CreateSetting(nameof(_removeDodgeInvulnerability), false);
             _healEnemiesOnLoad = CreateSetting(nameof(_healEnemiesOnLoad), false);
+            _repairOnlyEquipped = CreateSetting(nameof(_repairOnlyEquipped), false);
 
             AddEventOnConfigClosed(() =>
             {
@@ -77,6 +79,8 @@ namespace ModPack
                                                       "(even without a backpack)";
             _healEnemiesOnLoad.Format("Heal enemies on load");
             _healEnemiesOnLoad.Description = "Every loading screen fully heals all enemies";
+            _repairOnlyEquipped.Format("Smith repairs only equipment");
+            _repairOnlyEquipped.Description = "Blacksmith will not repair items in your pouch and bag";
 
             _allowDodgeAnimationCancelling.Format("Allow dodge to cancel actions");
             _allowDodgeAnimationCancelling.Description = "[WORK IN PROGRESS] Cancelling certain animations might lead to small glitches";
@@ -88,10 +92,125 @@ namespace ModPack
             _allowPushKickRemoval.IsAdvanced = true;
         }
         override protected string Description
-        => "• Mods (small and big) that didn't get their own section yet :)\n";
+        => "• Mods (small and big) that didn't get their own section yet :)";
 
+        // Blacksmith repair nerf
+        [HarmonyPatch(typeof(ItemContainer), "RepairContainedEquipment"), HarmonyPrefix]
+        static bool ItemContainer_RepairContainedEquipment_Pre(ref ItemContainer __instance)
+        => !_repairOnlyEquipped;
 
+        // Skip startup video
+        [HarmonyPatch(typeof(StartupVideo), "Awake"), HarmonyPrefix]
+        static bool StartupVideo_Awake_Pre()
+        {
+            StartupVideo.HasPlayedOnce = _skipStartupVideos.Value;
+            return true;
+        }
 
+        // Hide armor slots
+        static private bool ShouldArmorSlotBeHidden(EquipmentSlot.EquipmentSlotIDs slot)
+        => slot == EquipmentSlot.EquipmentSlotIDs.Helmet && _armorSlotsToHide.Value.HasFlag(ArmorSlots.Head)
+        || slot == EquipmentSlot.EquipmentSlotIDs.Chest && _armorSlotsToHide.Value.HasFlag(ArmorSlots.Chest)
+        || slot == EquipmentSlot.EquipmentSlotIDs.Foot && _armorSlotsToHide.Value.HasFlag(ArmorSlots.Feet);
+
+        [HarmonyPatch(typeof(CharacterVisuals), "EquipVisuals"), HarmonyPrefix]
+        static bool CharacterVisuals_EquipVisuals_Pre(ref bool[] __state, ref EquipmentSlot.EquipmentSlotIDs _slotID, ref ArmorVisuals _visuals)
+        {
+            #region quit
+            if (_armorSlotsToHide == ArmorSlots.None)
+                return true;
+            #endregion
+
+            // save original hide flags for postfix
+            __state = new bool[3];
+            __state[0] = _visuals.HideFace;
+            __state[1] = _visuals.HideHair;
+            __state[2] = _visuals.DisableDefaultVisuals;
+            // override hide flags
+            if (ShouldArmorSlotBeHidden(_slotID))
+            {
+                _visuals.HideFace = false;
+                _visuals.HideHair = false;
+                _visuals.DisableDefaultVisuals = false;
+            }
+            return true;
+        }
+
+        [HarmonyPatch(typeof(CharacterVisuals), "EquipVisuals"), HarmonyPostfix]
+        static void CharacterVisuals_EquipVisuals_Post(ref bool[] __state, ref EquipmentSlot.EquipmentSlotIDs _slotID, ref ArmorVisuals _visuals)
+        {
+            #region quit
+            if (_armorSlotsToHide == ArmorSlots.None)
+                return;
+            #endregion
+
+            // hide chosen pieces of armor
+            if (ShouldArmorSlotBeHidden(_slotID))
+                _visuals.Hide();
+
+            // restore original hide flags
+            _visuals.HideFace = __state[0];
+            _visuals.HideHair = __state[1];
+            _visuals.DisableDefaultVisuals = __state[2];
+        }
+
+        // Remove co-op scaling
+        [HarmonyPatch(typeof(CoopStats), "ApplyToCharacter"), HarmonyPrefix]
+        static bool CoopStats_ApplyToCharacter_Pre()
+    => !_removeCoopScaling;
+
+        [HarmonyPatch(typeof(CoopStats), "RemoveFromCharacter"), HarmonyPrefix]
+        static bool CoopStats_RemoveFromCharacter_Pre()
+        => !_removeCoopScaling;
+
+        // Remove dodge invulnerability
+        [HarmonyPatch(typeof(Character), "DodgeStep"), HarmonyPostfix]
+        static void Character_DodgeStep_Post(ref Hitbox[] ___m_hitboxes, ref int _step)
+        {
+            #region quit
+            if (!_removeDodgeInvulnerability)
+                return;
+            #endregion
+
+            if (_step > 0 && ___m_hitboxes != null)
+                foreach (var hitbox in ___m_hitboxes)
+                    hitbox.gameObject.SetActive(true);
+        }
+
+        // Enemy health reset time
+        [HarmonyPatch(typeof(Character), "LoadCharSave"), HarmonyPrefix]
+        static bool Character_LoadCharSave_Pre(ref Character __instance)
+        {
+            __instance.HoursToHealthReset = _healEnemiesOnLoad ? 0 : DEFAULT_ENEMY_HEALTH_RESET_HOURS;
+            return true;
+        }
+
+        // Dodge animation cancelling
+        [HarmonyPatch(typeof(Character), "DodgeInput", new[] { typeof(Vector3) }), HarmonyPrefix]
+        static bool Character_SpellCastAnim_Post(ref int ___m_dodgeAllowedInAction, ref Character.HurtType ___m_hurtType)
+        {
+            #region quit
+            if (!_allowDodgeAnimationCancelling)
+                return true;
+            #endregion
+
+            if (___m_hurtType == Character.HurtType.NONE)
+                ___m_dodgeAllowedInAction = 1;
+            return true;
+        }
+
+        // Push kick removal
+        [HarmonyPatch(typeof(CharacterSave), "IsValid", MethodType.Getter), HarmonyPrefix]
+        static bool CharacterSave_IsValid_Getter_Pre(ref bool __result)
+        {
+            #region quit
+            if (!_allowPushKickRemoval.Value)
+                return true;
+            #endregion
+
+            __result = true;
+            return false;
+        }
 
         // 16 controller quickslots
         static private void TryOverrideVanillaQuickslotInput(ref bool input, int playerID)
@@ -245,118 +364,6 @@ namespace ModPack
             return true;
         }
 
-        // Skip startup video
-        [HarmonyPatch(typeof(StartupVideo), "Awake"), HarmonyPrefix]
-        static bool StartupVideo_Awake_Pre()
-        {
-            StartupVideo.HasPlayedOnce = _skipStartupVideos.Value;
-            return true;
-        }
-
-        // Hide armor slots
-        static private bool ShouldArmorSlotBeHidden(EquipmentSlot.EquipmentSlotIDs slot)
-        => slot == EquipmentSlot.EquipmentSlotIDs.Helmet && _armorSlotsToHide.Value.HasFlag(ArmorSlots.Head)
-        || slot == EquipmentSlot.EquipmentSlotIDs.Chest && _armorSlotsToHide.Value.HasFlag(ArmorSlots.Chest)
-        || slot == EquipmentSlot.EquipmentSlotIDs.Foot && _armorSlotsToHide.Value.HasFlag(ArmorSlots.Feet);
-
-        [HarmonyPatch(typeof(CharacterVisuals), "EquipVisuals"), HarmonyPrefix]
-        static bool CharacterVisuals_EquipVisuals_Pre(ref bool[] __state, ref EquipmentSlot.EquipmentSlotIDs _slotID, ref ArmorVisuals _visuals)
-        {
-            #region quit
-            if (_armorSlotsToHide == ArmorSlots.None)
-                return true;
-            #endregion
-
-            // save original hide flags for postfix
-            __state = new bool[3];
-            __state[0] = _visuals.HideFace;
-            __state[1] = _visuals.HideHair;
-            __state[2] = _visuals.DisableDefaultVisuals;
-            // override hide flags
-            if (ShouldArmorSlotBeHidden(_slotID))
-            {
-                _visuals.HideFace = false;
-                _visuals.HideHair = false;
-                _visuals.DisableDefaultVisuals = false;
-            }
-            return true;
-        }
-
-        [HarmonyPatch(typeof(CharacterVisuals), "EquipVisuals"), HarmonyPostfix]
-        static void CharacterVisuals_EquipVisuals_Post(ref bool[] __state, ref EquipmentSlot.EquipmentSlotIDs _slotID, ref ArmorVisuals _visuals)
-        {
-            #region quit
-            if (_armorSlotsToHide == ArmorSlots.None)
-                return;
-            #endregion
-
-            // hide chosen pieces of armor
-            if (ShouldArmorSlotBeHidden(_slotID))
-                _visuals.Hide();
-
-            // restore original hide flags
-            _visuals.HideFace = __state[0];
-            _visuals.HideHair = __state[1];
-            _visuals.DisableDefaultVisuals = __state[2];
-        }
-
-        // Remove co-op scaling
-        [HarmonyPatch(typeof(CoopStats), "ApplyToCharacter"), HarmonyPrefix]
-        static bool CoopStats_ApplyToCharacter_Pre()
-    => !_removeCoopScaling;
-
-        [HarmonyPatch(typeof(CoopStats), "RemoveFromCharacter"), HarmonyPrefix]
-        static bool CoopStats_RemoveFromCharacter_Pre()
-        => !_removeCoopScaling;
-
-        // Remove dodge invulnerability
-        [HarmonyPatch(typeof(Character), "DodgeStep"), HarmonyPostfix]
-        static void Character_DodgeStep_Post(ref Hitbox[] ___m_hitboxes, ref int _step)
-        {
-            #region quit
-            if (!_removeDodgeInvulnerability)
-                return;
-            #endregion
-
-            if (_step > 0 && ___m_hitboxes != null)
-                foreach (var hitbox in ___m_hitboxes)
-                    hitbox.gameObject.SetActive(true);
-        }
-
-        // Enemy health reset time
-        [HarmonyPatch(typeof(Character), "LoadCharSave"), HarmonyPrefix]
-        static bool Character_LoadCharSave_Pre(ref Character __instance)
-        {
-            __instance.HoursToHealthReset = _healEnemiesOnLoad ? 0 : DEFAULT_ENEMY_HEALTH_RESET_HOURS;
-            return true;
-        }
-
-        // Dodge animation cancelling
-        [HarmonyPatch(typeof(Character), "DodgeInput", new[] { typeof(Vector3) }), HarmonyPrefix]
-        static bool Character_SpellCastAnim_Post(ref int ___m_dodgeAllowedInAction, ref Character.HurtType ___m_hurtType)
-        {
-            #region quit
-            if (!_allowDodgeAnimationCancelling)
-                return true;
-            #endregion
-
-            if (___m_hurtType == Character.HurtType.NONE)
-                ___m_dodgeAllowedInAction = 1;
-            return true;
-        }
-
-        // Push kick removal
-        [HarmonyPatch(typeof(CharacterSave), "IsValid", MethodType.Getter), HarmonyPrefix]
-        static bool CharacterSave_IsValid_Getter_Pre(ref bool __result)
-        {
-            #region quit
-            if (!_allowPushKickRemoval.Value)
-                return true;
-            #endregion
-
-            __result = true;
-            return false;
-        }
     }
 }
 
