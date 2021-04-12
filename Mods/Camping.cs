@@ -59,6 +59,8 @@ namespace ModPack
                     _campingSpots.SetSilently(_campingSpots.Value | CampingSpots.Butterflies);
             });
 
+            AddEventOnConfigClosed(SetButterfliesRadius);
+
             _areaSafeZones = new List<SphereCollider>();
         }
         override protected void SetFormatting()
@@ -66,9 +68,11 @@ namespace ModPack
             _campingSpots.Format("Camping spots");
             _campingSpots.Description = "Restrict where you can camp";
             _butterfliesSpawnChance.Format("Butterflies spawn chance");
-            _butterfliesSpawnChance.Description = "Each Butterfly zone in the area you're enter will have X% to spawn\n" +
-                                                  "Allows you to randomize safe camping spots for more unpredictability";
+            _butterfliesSpawnChance.Description = "Each butterfly zone in the area you're entering has X% to spawn\n" +
+                                                  "Allows you to randomize safe zones for more unpredictability";
             _butterfliesRadius.Format("Butterflies radius");
+            _butterfliesRadius.Description = "Vanilla radius is so big that it's possible to accidently set up a camp in a safe zone\n" +
+                                             "(mMinimum settings is still twice as big as the visuals)";
         }
         override protected string Description
         => "• Restrict camping spots to chosen places\n" +
@@ -76,7 +80,7 @@ namespace ModPack
 
         // Utility
         static private List<SphereCollider> _areaSafeZones;
-        static private bool IsCampingAllowed(Character character, Vector3 position, bool notify = true)
+        static private bool IsCampingAllowed(Character character, Vector3 position)
         {
             AreaManager.AreaEnum currentArea = (AreaManager.AreaEnum)AreaManager.Instance.CurrentArea.ID;
             bool result = false;
@@ -88,8 +92,9 @@ namespace ModPack
             else
                 result = _campingSpots.Value.HasFlag(CampingSpots.Dungeons);
 
-            if (!result && notify)
+            if (!result)
                 character.CharacterUI.ShowInfoNotification(CANT_CAMP_NOTIFICATION);
+
             return result;
         }
         static private bool IsNearButterflies(Vector3 position)
@@ -99,7 +104,11 @@ namespace ModPack
                     return true;
             return false;
         }
-
+        static private void SetButterfliesRadius()
+        {
+            foreach (var safeZone in _areaSafeZones)
+                safeZone.radius = _butterfliesRadius;
+        }
         // Hooks
         [HarmonyPatch(typeof(EnvironmentSave), "ApplyData"), HarmonyPostfix]
         static void EnvironmentSave_ApplyData_Post(ref EnvironmentSave __instance)
@@ -115,17 +124,15 @@ namespace ModPack
                     bool isActive = UnityEngine.Random.value <= _butterfliesSpawnChance / 100f;
                     fx.GOSetActive(isActive);
                     if (isActive)
-                    {
-                        SphereCollider fxCollider = fx.GetComponent<SphereCollider>();
-                        fxCollider.radius = _butterfliesRadius;
-                        _areaSafeZones.Add(fxCollider);
-                    }
+                        _areaSafeZones.Add(fx.GetComponent<SphereCollider>());
                 }
+
+            SetButterfliesRadius();
         }
 
         [HarmonyPatch(typeof(BasicDeployable), "TryDeploying", new[] { typeof(Character) }), HarmonyPrefix]
         static bool BasicDeployable_TryDeploying_Pre(ref BasicDeployable __instance, Character _usingCharacter)
-        => IsCampingAllowed(_usingCharacter, __instance.transform.position);
+        => !__instance.Item.IsSleepKit || IsCampingAllowed(_usingCharacter, __instance.transform.position);
 
         [HarmonyPatch(typeof(Sleepable), "OnReceiveSleepRequestResult"), HarmonyPrefix]
         static bool Sleepable_OnReceiveSleepRequestResult_Pre(ref Sleepable __instance, Character _character)
@@ -133,8 +140,18 @@ namespace ModPack
 
         [HarmonyPatch(typeof(OrientOnTerrain), "IsValid", MethodType.Getter), HarmonyPrefix]
         static bool OrientOnTerrain_IsValid_Pre(ref OrientOnTerrain __instance)
-        => IsCampingAllowed(__instance.m_ownerChar, __instance.transform.position, false);
+        {
+            AreaManager.AreaEnum currentArea = (AreaManager.AreaEnum)AreaManager.Instance.CurrentArea.ID;
+            #region quit
+            if (!__instance.m_detectionScript.DeployedItem.IsSleepKit
+            || currentArea.IsNotContainedIn(OPEN_REGIONS)
+            || _campingSpots.Value.HasFlag(CampingSpots.OpenRegions)
+            || !_campingSpots.Value.HasFlag(CampingSpots.Butterflies))
+                return true;
+            #endregion
 
+            return IsNearButterflies(__instance.transform.position);
+        }
     }
 }
 
