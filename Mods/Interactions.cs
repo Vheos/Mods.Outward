@@ -209,8 +209,7 @@ namespace ModPack
         override protected string Description
         => "• Instant \"Hold\" interactions" +
            "• Use items straight from the ground" +
-           "• \"Take item\" animations\n";
-        
+           "• \"Take item\" animations";
 
         // Utility
         static private void SwapBasicAndHoldInteractions(InteractionActivator activator, ref IInteraction vanillaBasic, ref IInteraction vanillaHold)
