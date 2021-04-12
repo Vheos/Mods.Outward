@@ -179,9 +179,8 @@ namespace ModPack
         static public StatusData.EffectData[] GetDatas(this StatusEffect statusEffect)
         => statusEffect.StatusData.EffectsData;
 
-
         static public string Localized(this string text)
-    => LocalizationManager.Instance.GetLoc(text);
+        => LocalizationManager.Instance.GetLoc(text);
         static public Item FirstItem(this GroupContainer stack)
         => stack.GetContainedItems()[0];
         static public KeyCode ToKeyCode(this string text)
