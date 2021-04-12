@@ -93,6 +93,7 @@
     <Compile Include="Core\Static\Players.cs" />
     <Compile Include="Core\Static\Prefabs.cs" />
     <Compile Include="Core\Static\GameInput.cs" />
+    <Compile Include="Mods\Camping.cs" />
     <Compile Include="Mods\Targeting.cs" />
     <Compile Include="Mods\GUI.cs" />
     <Compile Include="Mods\KeyboardWalk.cs" />

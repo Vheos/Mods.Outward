@@ -37,6 +37,7 @@ namespace ModPack
             typeof(Damage),
             typeof(Speed),
             typeof(Needs),
+            typeof(Camping),
             typeof(Resets),
             typeof(Interactions),
             typeof(Revive),
