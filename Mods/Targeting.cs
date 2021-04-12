@@ -24,7 +24,7 @@ namespace ModPack
             Lexicon = 1 << 4,
         }
         [Flags]
-        private enum AutoTargetEvents
+        private enum AutoTargetActions
         {
             None = 0,
             Attack = 1 << 1,
@@ -37,29 +37,37 @@ namespace ModPack
         // Setting
         static private ModSetting<int> _meleeDistance, _rangedDistance, _huntersEyeDistance;
         static private ModSetting<RangedTypes> _rangedEquipmentTypes;
-        static private ModSetting<AutoTargetEvents> _autoTargetEvents;
+        static private ModSetting<AutoTargetActions> _autoTargetActions;
         static private ModSetting<float> _targetingPitchOffset;
-        static private ModSetting<bool> _allowTargetingPlayers;
         override protected void Initialize()
         {
             _meleeDistance = CreateSetting(nameof(_meleeDistance), 20, IntRange(0, 100));
             _rangedDistance = CreateSetting(nameof(_rangedDistance), 20, IntRange(0, 100));
             _huntersEyeDistance = CreateSetting(nameof(_huntersEyeDistance), 40, IntRange(0, 100));
             _rangedEquipmentTypes = CreateSetting(nameof(_rangedEquipmentTypes), RangedTypes.Bow);
-            _autoTargetEvents = CreateSetting(nameof(_autoTargetEvents), AutoTargetEvents.None);
+            _autoTargetActions = CreateSetting(nameof(_autoTargetActions), AutoTargetActions.None);
             _targetingPitchOffset = CreateSetting(nameof(_targetingPitchOffset), 0f, FloatRange(0, 1));
-            _allowTargetingPlayers = CreateSetting(nameof(_allowTargetingPlayers), false);
         }
         override protected void SetFormatting()
         {
             _meleeDistance.Format("Melee distance");
+            _meleeDistance.Description = "Targeting distance for all melee weapons";
             _rangedDistance.Format("Ranged distance");
+            _rangedDistance.Description = "Targeting distance for all weapons specified in the \"Ranged equipment\" setting";
             _huntersEyeDistance.Format("Hunter's Eye distance");
-            _rangedEquipmentTypes.Format("Ranged equipment types");
-            _autoTargetEvents.Format("Auto-target events");
-            _targetingPitchOffset.Format("Targeting pitch offset");
-            _allowTargetingPlayers.Format("Allow targeting players");
+            _huntersEyeDistance.Description = "If you have Hunter's Eye, this is used instead of \"Ranged distance\"";
+            _rangedEquipmentTypes.Format("Ranged equipment");
+            _rangedEquipmentTypes.Description = "What equipment should use the \"Ranged distance\" setting and benefit from Hunter's Eye?";
+            _autoTargetActions.Format("Auto-target actions");
+            _autoTargetActions.Description = "If you do any of these actions while not locked-on, you will automatically target the closest enemy";
+            _targetingPitchOffset.Format("Targeting tilt");
+            _targetingPitchOffset.Description = "When you're targeting, the camera will be tilted a little to give more \"top-down\" view\n" +
+                                                "This way the enemy won't be obscured by your character, especially if you're wearing a big helmet";
         }
+        override protected string Description
+        => "• Set targeting distance by weapon type\n" +
+           "• Auto-target on specific actions\n" +
+           "• Tilt targeting camera";
 
         // Utility
         static private bool HasHuntersEye(Character character)
@@ -100,28 +108,12 @@ namespace ModPack
             return false;
         }
 
-        [HarmonyPatch(typeof(TargetingSystem), "IsTargetable", new[] { typeof(Character) }), HarmonyPrefix]
-        static bool TargetingSystem_IsTargetable_Pre(ref TargetingSystem __instance, ref bool __result, ref Character _char)
-        {
-            #region quit
-            if (!_allowTargetingPlayers)
-                return true;
-            #endregion
-
-            if (_char.Faction == Character.Factions.Player && _char != __instance.m_character)
-            {
-                __result = true;
-                return false;
-            }
-            return true;
-        }
-
         // Auto-target
         [HarmonyPatch(typeof(Character), "AttackInput"), HarmonyPostfix]
         static void Character_AttackInput_Post(ref Character __instance)
         {
             #region quit
-            if (!_autoTargetEvents.Value.HasFlag(AutoTargetEvents.Attack) || __instance.TargetingSystem.Locked)
+            if (!_autoTargetActions.Value.HasFlag(AutoTargetActions.Attack) || __instance.TargetingSystem.Locked)
                 return;
             #endregion
 
@@ -132,7 +124,7 @@ namespace ModPack
         static void Character_SetLastUsedSkill_Post(ref Character __instance, ref Skill _skill)
         {
             #region quit
-            if (!_autoTargetEvents.Value.HasFlag(AutoTargetEvents.CombatSkill) || __instance.TargetingSystem.Locked || _skill.IsNot<AttackSkill>())
+            if (!_autoTargetActions.Value.HasFlag(AutoTargetActions.CombatSkill) || __instance.TargetingSystem.Locked || _skill.IsNot<AttackSkill>())
                 return;
             #endregion
 
@@ -143,7 +135,7 @@ namespace ModPack
         static void Character_BlockInput_Post(ref Character __instance, ref bool _active)
         {
             #region quit
-            if (!_autoTargetEvents.Value.HasFlag(AutoTargetEvents.Block) || __instance.TargetingSystem.Locked || !_active || HasBow(__instance))
+            if (!_autoTargetActions.Value.HasFlag(AutoTargetActions.Block) || __instance.TargetingSystem.Locked || !_active || HasBow(__instance))
                 return;
             #endregion
 
@@ -154,7 +146,7 @@ namespace ModPack
         static void Character_DodgeInput_Post(ref Character __instance)
         {
             #region quit
-            if (!_autoTargetEvents.Value.HasFlag(AutoTargetEvents.Dodge) || __instance.TargetingSystem.Locked)
+            if (!_autoTargetActions.Value.HasFlag(AutoTargetActions.Dodge) || __instance.TargetingSystem.Locked)
                 return;
             #endregion
 

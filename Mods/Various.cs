@@ -41,6 +41,7 @@ namespace ModPack
         static private ModSetting<bool> _repairOnlyEquipped;
         static private ModSetting<bool> _allowDodgeAnimationCancelling;
         static private ModSetting<bool> _allowPushKickRemoval;
+        static private ModSetting<bool> _allowTargetingPlayers;
         override protected void Initialize()
         {
             _enableCheats = CreateSetting(nameof(_enableCheats), false);
@@ -60,6 +61,7 @@ namespace ModPack
             // WIP
             _allowDodgeAnimationCancelling = CreateSetting(nameof(_allowDodgeAnimationCancelling), false);
             _allowPushKickRemoval = CreateSetting(nameof(_allowPushKickRemoval), false);
+            _allowTargetingPlayers = CreateSetting(nameof(_allowTargetingPlayers), false);
         }
         override protected void SetFormatting()
         {
@@ -83,13 +85,15 @@ namespace ModPack
             _repairOnlyEquipped.Description = "Blacksmith will not repair items in your pouch and bag";
 
             _allowDodgeAnimationCancelling.Format("Allow dodge to cancel actions");
-            _allowDodgeAnimationCancelling.Description = "[WORK IN PROGRESS] Cancelling certain animations might lead to small glitches";
+            _allowDodgeAnimationCancelling.Description = "[WORK IN PROGRESS] Cancelling certain animations might lead to glitches";
             _allowDodgeAnimationCancelling.IsAdvanced = true;
-
             _allowPushKickRemoval.Format("Allow \"Push Kick\" removal");
             _allowPushKickRemoval.Description = "[WORK IN PROGRESS] For future skill trees mod\n" +
                                                 "Normally, player data won't be saved if they don't have the \"Push Kick\" skill";
             _allowPushKickRemoval.IsAdvanced = true;
+            _allowTargetingPlayers.Format("Allow targeting players");
+            _allowTargetingPlayers.Description = "[WORK IN PROGRESS] For future co-op skills mod";
+            _allowTargetingPlayers.IsAdvanced = true;
         }
         override protected string Description
         => "• Mods (small and big) that didn't get their own section yet :)";
@@ -210,6 +214,23 @@ namespace ModPack
 
             __result = true;
             return false;
+        }
+
+        // Target other players
+        [HarmonyPatch(typeof(TargetingSystem), "IsTargetable", new[] { typeof(Character) }), HarmonyPrefix]
+        static bool TargetingSystem_IsTargetable_Pre(ref TargetingSystem __instance, ref bool __result, ref Character _char)
+        {
+            #region quit
+            if (!_allowTargetingPlayers)
+                return true;
+            #endregion
+
+            if (_char.Faction == Character.Factions.Player && _char != __instance.m_character)
+            {
+                __result = true;
+                return false;
+            }
+            return true;
         }
 
         // 16 controller quickslots
