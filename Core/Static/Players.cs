@@ -24,22 +24,30 @@ namespace ModPack
             // Input
             public bool IsUsingGamepad
             => GameInput.IsUsingGamepad(ID);
-            public bool Pressed(ControlsInput.GameplayActions action)
-            => GameInput.Pressed(ID, action);
-            public bool Released(ControlsInput.GameplayActions action)
-            => GameInput.Released(ID, action);
-            public bool Held(ControlsInput.GameplayActions action)
-            => GameInput.Held(ID, action);
-            public float AxisValue(ControlsInput.GameplayActions action)
-            => GameInput.AxisValue(ID, action);
-            public bool Pressed(ControlsInput.MenuActions action)
-            => GameInput.Pressed(ID, action);
-            public bool Released(ControlsInput.MenuActions action)
-            => GameInput.Released(ID, action);
-            public bool Held(ControlsInput.MenuActions action)
-            => GameInput.Held(ID, action);
-            public float AxisValue(ControlsInput.MenuActions action)
-            => GameInput.AxisValue(ID, action);
+            public bool Pressed(string actionName)
+            => GameInput.Pressed(ID, actionName);
+            public bool Released(string actionName)
+            => GameInput.Released(ID, actionName);
+            public bool Held(string actionName)
+            => GameInput.Held(ID, actionName);
+            public float AxisValue(string axisName)
+            => GameInput.AxisValue(ID, axisName);
+            public bool Pressed(ControlsInput.GameplayActions gameplayAction)
+            => GameInput.Pressed(ID, gameplayAction);
+            public bool Released(ControlsInput.GameplayActions gameplayAction)
+            => GameInput.Released(ID, gameplayAction);
+            public bool Held(ControlsInput.GameplayActions gameplayAction)
+            => GameInput.Held(ID, gameplayAction);
+            public float AxisValue(ControlsInput.GameplayActions gameplayAxis)
+            => GameInput.AxisValue(ID, gameplayAxis);
+            public bool Pressed(ControlsInput.MenuActions menuAction)
+            => GameInput.Pressed(ID, menuAction);
+            public bool Released(ControlsInput.MenuActions menuAction)
+            => GameInput.Released(ID, menuAction);
+            public bool Held(ControlsInput.MenuActions menuAction)
+            => GameInput.Held(ID, menuAction);
+            public float AxisValue(ControlsInput.MenuActions menuAxis)
+            => GameInput.AxisValue(ID, menuAxis);
 
             // Shortcuts
             public Vector2 CameraMovementInput
@@ -64,6 +72,8 @@ namespace ModPack
         => GetLocal(GetPlayerID(character));
         static public Data GetLocal(CharacterUI characterUI)
         => GetLocal(GetPlayerID(characterUI));
+        static public Data GetLocal(CharacterCamera characterCamera)
+        => GetLocal(GetPlayerID(characterCamera));
         static public bool TryGetLocal(int playerID, out Data player)
         {
             player = GetLocal(playerID);
@@ -75,8 +85,10 @@ namespace ModPack
          => TryGetLocal(GetPlayerID(uiElement), out player);
         static public bool TryGetLocal(Character character, out Data player)
         => TryGetLocal(GetPlayerID(character), out player);
-        static public bool TryGetLocal(CharacterUI ui, out Data player)
-        => TryGetLocal(GetPlayerID(ui), out player);
+        static public bool TryGetLocal(CharacterUI characterUI, out Data player)
+        => TryGetLocal(GetPlayerID(characterUI), out player);
+        static public bool TryGetLocal(CharacterCamera characterCamera, out Data player)
+        => TryGetLocal(GetPlayerID(characterCamera), out player);
 
         // Privates
         static private void Recache()
@@ -106,6 +118,8 @@ namespace ModPack
         => character.OwnerPlayerSys.PlayerID;
         static private int GetPlayerID(CharacterUI characterUI)
         => characterUI.TargetCharacter.OwnerPlayerSys.PlayerID;
+        static private int GetPlayerID(CharacterCamera characterCamera)
+        => characterCamera.TargetCharacter.OwnerPlayerSys.PlayerID;
 
         // Initializers
         static public void Initialize()
