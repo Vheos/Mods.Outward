@@ -12,50 +12,61 @@ namespace ModPack
     public class Damage : AMod
     {
         // Config
-        static private ModSetting<bool> _playersToggle, _npcsToggle, _friendlyFireToggle;
-        static private ModSetting<int> _playersHealthDamage, _npcsHealthDamage, _friendlyFireHealthDamage;
-        static private ModSetting<int> _playersStabilityDamage, _npcsStabilityDamage, _friendlyFireStabilityDamage;
+        static private ModSetting<bool> _playersToggle, _enemiesToggle, _playersFriendlyFireToggle, _enemiesFriendlyFireToggle;
+        static private ModSetting<int> _playersHealthDamage, _enemiesHealthDamage, _playersFriendlyFireHealthDamage, _enemiesFriendlyFireHealthDamage;
+        static private ModSetting<int> _playersStabilityDamage, _enemiesStabilityDamage, _playersFriendlyFireStabilityDamage, _enemiesFriendlyFireStabilityDamage;
         override protected void Initialize()
         {
-            _friendlyFireToggle = CreateSetting(nameof(_friendlyFireToggle), false);
-            _friendlyFireHealthDamage = CreateSetting(nameof(_friendlyFireHealthDamage), 100, IntRange(0, 200));
-            _friendlyFireStabilityDamage = CreateSetting(nameof(_friendlyFireStabilityDamage), 100, IntRange(0, 200));
-
             _playersToggle = CreateSetting(nameof(_playersToggle), false);
             _playersHealthDamage = CreateSetting(nameof(_playersHealthDamage), 100, IntRange(0, 200));
             _playersStabilityDamage = CreateSetting(nameof(_playersStabilityDamage), 100, IntRange(0, 200));
+            _playersFriendlyFireToggle = CreateSetting(nameof(_playersFriendlyFireToggle), false);
+            _playersFriendlyFireHealthDamage = CreateSetting(nameof(_playersFriendlyFireHealthDamage), 100, IntRange(0, 200));
+            _playersFriendlyFireStabilityDamage = CreateSetting(nameof(_playersFriendlyFireStabilityDamage), 100, IntRange(0, 200));
 
-            _npcsToggle = CreateSetting(nameof(_npcsToggle), false);
-            _npcsHealthDamage = CreateSetting(nameof(_npcsHealthDamage), 100, IntRange(0, 200));
-            _npcsStabilityDamage = CreateSetting(nameof(_npcsStabilityDamage), 100, IntRange(0, 200));
+            _enemiesToggle = CreateSetting(nameof(_enemiesToggle), false);
+            _enemiesHealthDamage = CreateSetting(nameof(_enemiesHealthDamage), 100, IntRange(0, 200));
+            _enemiesStabilityDamage = CreateSetting(nameof(_enemiesStabilityDamage), 100, IntRange(0, 200));
+            _enemiesFriendlyFireToggle = CreateSetting(nameof(_enemiesFriendlyFireToggle), false);
+            _enemiesFriendlyFireHealthDamage = CreateSetting(nameof(_enemiesFriendlyFireHealthDamage), 100, IntRange(0, 200));
+            _enemiesFriendlyFireStabilityDamage = CreateSetting(nameof(_enemiesFriendlyFireStabilityDamage), 100, IntRange(0, 200));
         }
         override protected void SetFormatting()
         {
             _playersToggle.Format("Players");
-            _playersToggle.Description = "Set multipliers (%) for damage dealt by players";
+            _playersToggle.Description = "Set multipliers for damage dealt by players";
             Indent++;
             {
                 _playersHealthDamage.Format("Health", _playersToggle);
                 _playersStabilityDamage.Format("Stability", _playersToggle);
+                _playersFriendlyFireToggle.Format("Friendly fire", _playersToggle);
+                _playersFriendlyFireToggle.Description = "Set multipliers for damage dealt by players to other players\n" +
+                                                         "(multiplicative with above values)";
+                Indent++;
+                {
+                    _playersFriendlyFireHealthDamage.Format("Health", _playersFriendlyFireToggle);
+                    _playersFriendlyFireStabilityDamage.Format("Stability", _playersFriendlyFireToggle);
+                    Indent--;
+                }
                 Indent--;
             }
 
-            _npcsToggle.Format("NPCs");
-            _npcsToggle.Description = "Set multipliers (%) for damage dealt by NPCs";
+            _enemiesToggle.Format("Enemies");
+            _enemiesToggle.Description = "Set multipliers for damage dealt by enemies";
             Indent++;
             {
-                _npcsHealthDamage.Format("Health", _npcsToggle);
-                _npcsStabilityDamage.Format("Stability", _npcsToggle);
-                Indent--;
-            }
-
-            _friendlyFireToggle.Format("Friendly fire");
-            _friendlyFireToggle.Description = "Allow players to hit (but not target) each other\n" +
-                                              "Set multipliers (%) for friendly fire damage";
-            Indent++;
-            {
-                _friendlyFireHealthDamage.Format("Health", _friendlyFireToggle);
-                _friendlyFireStabilityDamage.Format("Stability", _friendlyFireToggle);
+                _enemiesHealthDamage.Format("Health", _enemiesToggle);
+                _enemiesStabilityDamage.Format("Stability", _enemiesToggle);
+                _enemiesFriendlyFireToggle.Format("Friendly fire", _enemiesToggle);
+                _enemiesFriendlyFireToggle.Description = "Set multipliers for damage dealt by enemies to other enemies\n" +
+                                                         "Decrease to prevent enemies from killing each other before you meet them\n" + 
+                                                         "(multiplicative with above values)";
+                Indent++;
+                {
+                    _enemiesFriendlyFireHealthDamage.Format("Health", _enemiesFriendlyFireToggle);
+                    _enemiesFriendlyFireStabilityDamage.Format("Stability", _enemiesFriendlyFireToggle);
+                    Indent--;
+                }
                 Indent--;
             }
         }
@@ -70,7 +81,7 @@ namespace ModPack
         static void Weapon_ElligibleFaction_Post(ref Weapon __instance, ref bool __result, Character _character)
         {
             #region quit
-            if (!_friendlyFireToggle || _character == null)
+            if (!_playersFriendlyFireToggle || _character == null)
                 return;
             #endregion
 
@@ -81,7 +92,7 @@ namespace ModPack
         static void MeleeHitDetector_ElligibleFaction_Post(ref MeleeHitDetector __instance, ref bool __result, Character _character)
         {
             #region quit
-            if (!_friendlyFireToggle || _character == null)
+            if (!_playersFriendlyFireToggle || _character == null)
                 return;
             #endregion
 
@@ -100,11 +111,16 @@ namespace ModPack
             {
                 if (_playersToggle)
                     _damage *= _playersHealthDamage / 100f;
-                if (_friendlyFireToggle && __instance.IsPlayer())
-                    _damage *= _friendlyFireHealthDamage / 100f;
+                if (_playersFriendlyFireToggle && __instance.IsPlayer())
+                    _damage *= _playersFriendlyFireHealthDamage / 100f;
             }
-            else if (_npcsToggle)
-                _damage *= _npcsHealthDamage / 100f;
+            else if (_dealerChar.IsEnemyOf(Character.Factions.Player))
+            {
+                if (_enemiesToggle)
+                    _damage *= _enemiesHealthDamage / 100f;
+                if (__instance.IsEnemyOf(Character.Factions.Player))
+                    _damage *= _enemiesFriendlyFireHealthDamage / 100f;
+            }
 
             return true;
         }
@@ -121,11 +137,16 @@ namespace ModPack
             {
                 if (_playersToggle)
                     _knockValue *= _playersStabilityDamage / 100f;
-                if (_friendlyFireToggle && __instance.IsPlayer())
-                    _knockValue *= _friendlyFireStabilityDamage / 100f;
+                if (_playersFriendlyFireToggle && __instance.IsPlayer())
+                    _knockValue *= _playersFriendlyFireStabilityDamage / 100f;
             }
-            else if (_npcsToggle)
-                _knockValue *= _npcsStabilityDamage / 100f;
+            else if (_dealerChar.IsEnemyOf(Character.Factions.Player))
+            {
+                if (_enemiesToggle)
+                    _knockValue *= _enemiesStabilityDamage / 100f;
+                if (__instance.IsEnemyOf(Character.Factions.Player))
+                    _knockValue *= _enemiesFriendlyFireStabilityDamage / 100f;
+            }
 
             return true;
         }
