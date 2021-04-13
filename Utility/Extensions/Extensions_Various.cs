@@ -16,6 +16,8 @@ namespace ModPack
         // Game
         static public bool IsPlayer(this Character character)
         => character.Faction == Character.Factions.Player;
+        static public bool IsEnemyOf(this Character character, Character.Factions faction)
+        => character.TargetingSystem.IsTargetable(faction);
         static public bool IsOwnerOf(this Character character, Item item)
         => character == item.OwnerCharacter;
         static public bool IsOwnerOf(this Character character, MeleeHitDetector hitDetector)
