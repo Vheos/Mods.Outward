@@ -17,6 +17,16 @@ namespace ModPack
         private const float AIM_COROUTINE_MARGIN = 0.01f;
         #endregion
         #region enum
+        [Flags]
+        private enum GamepadInputs
+        {
+            None = 0,
+
+            LeftQS = 1 << 1,
+            RightQS = 1 << 2,
+            Sprint = 1 << 3,
+            Block = 1 << 4,
+        }
         #endregion
         #region class
         private class PerPlayerSettings
@@ -25,6 +35,7 @@ namespace ModPack
             public ModSetting<bool> _toggle;
             public ModSetting<float> _zoomControlAmount;
             public ModSetting<float> _zoomControlSpeed;
+            public ModSetting<GamepadInputs> _gamepadInputs;
             public ModSetting<bool> _offsetToggle, _variousToggle;
             public ModSetting<Vector3> _offsetMin, _offsetAvg, _offsetMax;
             public ModSetting<Vector3> _variousMin, _variousAvg, _variousMax;
@@ -97,6 +108,7 @@ namespace ModPack
                 tmp._toggle = CreateSetting(nameof(tmp._toggle) + playerPostfix, false);
                 tmp._zoomControlAmount = CreateSetting(nameof(tmp._zoomControlAmount) + playerPostfix, 0f, FloatRange(-1f, 1f));
                 tmp._zoomControlSpeed = CreateSetting(nameof(tmp._zoomControlSpeed) + playerPostfix, 0.5f, FloatRange(0f, 1f));
+                tmp._gamepadInputs = CreateSetting(nameof(tmp._gamepadInputs) + playerPostfix, GamepadInputs.LeftQS | GamepadInputs.RightQS);
 
                 tmp._offsetToggle = CreateSetting(nameof(tmp._offsetToggle) + playerPostfix, false);
                 tmp._offsetMin = CreateSetting(nameof(tmp._offsetMin) + playerPostfix, DEFAULT_OFFSET.Add(0, 1f, -3f));
@@ -110,12 +122,16 @@ namespace ModPack
                 tmp._variousMax = CreateSetting(nameof(tmp._variousMax) + playerPostfix, otherDefault.Mul(0.8f, 2.0f, 0.75f));
 
                 int id = i;
-                tmp._zoomControlAmount.AddEvent(() => UpdateCameraSettings(id));
+                tmp._zoomControlAmount.AddEvent(() =>
+                {
+                    if (Players.TryGetLocal(id, out Players.Data player))
+                        UpdateCameraSettings(player);
+                });
 
                 AddEventOnConfigClosed(() =>
                 {
                     foreach (var player in Players.Local)
-                        UpdateCameraSettings(player.ID);
+                        UpdateCameraSettings(player);
                 });
 
                 tmp.Sensitivity = 1f;
@@ -139,7 +155,17 @@ namespace ModPack
                     tmp._zoomControlSpeed.Format("Zoom control speed", tmp._toggle);
                     tmp._zoomControlSpeed.Description = "How quickly you want to zoom using mouse/gamepad\n" +
                         "Mouse: use mouse scroll wheel\n" +
-                        "Gamepad: use right stick while holding Sprint and Block buttons";
+                        "Gamepad: use right stick while holding defined actions";
+                    Indent++;
+                    {
+                        tmp._gamepadInputs.Format("Gamepad hotkey", tmp._zoomControlSpeed, () => tmp._zoomControlSpeed > 0);
+                        tmp._gamepadInputs.Description = "Gamepad actions you need to hold to control camera. Defaults:\n" +
+                                                         "LeftQS = LT\n" +
+                                                         "RightQS = RT\n" +
+                                                         "Sprint = LB\n" +
+                                                         "Block = RB";
+                        Indent--;
+                    }
                     tmp._offsetToggle.Format("Offset", tmp._toggle);
                     tmp._offsetToggle.Description = "Change camera position (XYZ) presets";
                     Indent++;
@@ -178,15 +204,12 @@ namespace ModPack
                 if (player.UI.IsMenuFocused)
                     continue;
 
-                // Cache
-                int id = player.ID;
-                PerPlayerSettings settings = _perPlayerSettings[id];
-
+                PerPlayerSettings settings = _perPlayerSettings[player.ID];
                 settings.IgnoreAxes = false;
                 if (settings._zoomControlSpeed > 0)
                 {
                     float zoomDelta = 0f;
-                    if (player.IsUsingGamepad && player.Held(ControlsInput.GameplayActions.Sprint) && player.Held(ControlsInput.GameplayActions.Block))
+                    if (player.IsUsingGamepad && CheckGamepadHotkey(player))
                     {
                         Vector2 cameraInput = player.CameraMovementInput;
                         if (cameraInput.y.Abs() > cameraInput.x.Abs())
@@ -203,61 +226,69 @@ namespace ModPack
         }
 
         // Utility            
-        static private void UpdateCameraSettings(int playerID)      
+        static private void UpdateCameraSettings(Players.Data player)
         {
-            PlayerSystem player = Global.Lobby.GetLocalPlayer(playerID);
             #region quit
-            if (player == null || !_perPlayerSettings[playerID]._toggle)
+            if (!_perPlayerSettings[player.ID]._toggle)
                 return;
             #endregion
 
             // Cache
-            Vector3 currentVarious = _perPlayerSettings[playerID].CurrentVarious;
-            CharacterCamera characterCamera = player.ControlledCharacter.CharacterCamera;
+            Vector3 currentVarious = _perPlayerSettings[player.ID].CurrentVarious;
+            CharacterCamera characterCamera = player.Character.CharacterCamera;
 
             // Overrides
             if (characterCamera.InZoomMode)
-                characterCamera.ZoomOffsetSplitScreenH = _perPlayerSettings[playerID].CurrentOffset;
+                characterCamera.ZoomOffsetSplitScreenH = _perPlayerSettings[player.ID].CurrentOffset;
             else
-                characterCamera.Offset = _perPlayerSettings[playerID].CurrentOffset;
+                characterCamera.Offset = _perPlayerSettings[player.ID].CurrentOffset;
             characterCamera.CameraScript.fieldOfView = currentVarious.x;
             characterCamera.DefaultFollowSpeed.SetX(currentVarious.y);
-            _perPlayerSettings[playerID].Sensitivity = currentVarious.z;
+            _perPlayerSettings[player.ID].Sensitivity = currentVarious.z;
+        }
+        static private bool CheckGamepadHotkey(Players.Data player)
+        {
+            GamepadInputs inputs = _perPlayerSettings[player.ID]._gamepadInputs;
+            return inputs != GamepadInputs.None
+                && (!inputs.HasFlag(GamepadInputs.LeftQS) || player.Held("QuickSlotToggle1"))
+                && (!inputs.HasFlag(GamepadInputs.RightQS) || player.Held("QuickSlotToggle2"))
+                && (!inputs.HasFlag(GamepadInputs.Sprint) || player.Held(ControlsInput.GameplayActions.Sprint))
+                && (!inputs.HasFlag(GamepadInputs.Block) || player.Held(ControlsInput.GameplayActions.Block));
         }
 
         // Hooks
         [HarmonyPatch(typeof(SplitScreenManager), "DelayedRefreshSplitScreen"), HarmonyPostfix]
         static void SplitScreenManager_DelayedRefreshSplitScreen_Post()
         {
-            for (int i = 0; i < Global.Lobby.LocalPlayerCount; i++)
+            foreach (var player in Players.Local)
             {
                 #region quit
-                if (!_perPlayerSettings[i]._toggle)
+                if (!_perPlayerSettings[player.ID]._toggle)
                     continue;
                 #endregion
-                UpdateCameraSettings(i);
+                UpdateCameraSettings(player);
             }
         }
 
         [HarmonyPatch(typeof(Character), "SetZoomMode"), HarmonyPostfix]
         static void Character_SetZoomMode_Post(ref Character __instance, ref bool _zoomed)
         {
-            PlayerSystem player = __instance.OwnerPlayerSys;
+            Players.Data player = Players.GetLocal(__instance);
             #region quit
-            if (player == null || !_perPlayerSettings[player.PlayerID]._toggle)
+            if (!_perPlayerSettings[player.ID]._toggle)
                 return;
             #endregion
 
             __instance.CharacterCamera.ZoomSensModifier = 1f;
-            _perPlayerSettings[player.PlayerID].StartAimCoroutine(__instance, _zoomed);
+            _perPlayerSettings[player.ID].StartAimCoroutine(__instance, _zoomed);
         }
 
         [HarmonyPatch(typeof(CharacterCamera), "UpdateZoom"), HarmonyPrefix]
         static bool CharacterCamera_UpdateZoom_Pre(ref CharacterCamera __instance)
         {
-            PlayerSystem player = __instance.TargetCharacter.OwnerPlayerSys;
+            Players.Data player = Players.GetLocal(__instance);
             #region quit
-            if (player == null || !_perPlayerSettings[player.PlayerID]._toggle)
+            if (!_perPlayerSettings[player.ID]._toggle)
                 return true;
             #endregion
 
