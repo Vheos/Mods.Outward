@@ -16,7 +16,7 @@ namespace ModPack
         // Settings
         public const string GUID = "com.Vheos.ModPack";
         public const string NAME = "Vheos Mod Pack";
-        public const string VERSION = "1.4.1";
+        public const string VERSION = "1.4.2";
 
         // Utility
         private List<Type> _awakeMods;
