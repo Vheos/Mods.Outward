@@ -622,15 +622,28 @@ namespace ModPack
         static void StatusEffectPanel_GetStatusIcon_Post(ref StatusEffectPanel __instance, ref StatusEffectIcon __result)
         {
             PerPlayerSettings settings = _perPlayerSettings[Players.GetLocal(__instance.LocalCharacter).ID];
-            StatusEffect statusEffect = __instance.m_cachedStatus;
             #region quit
-            if (!settings._fadingStatusEffectIcons || statusEffect.Permanent)
+            if (!settings._fadingStatusEffectIcons)
                 return;
             #endregion
 
-            float maxDuration = Prefabs.StatusEffectsByID[statusEffect.IdentifierName].StartLifespan;
-            float remainingDuration = statusEffect.RemainingLifespan;
-            float progress = remainingDuration / maxDuration;
+            StatusEffect statusEffect = __instance.m_cachedStatus;
+            float progress;
+            if (statusEffect.TryAs(out Disease disease) && disease.IsReceding)
+            {
+                float elapsed = GameTime - disease.m_healedGameTime;
+                float duration = DiseaseLibrary.Instance.GetRecedingTime(disease.m_diseasesType);
+                progress = 1f - elapsed / duration;
+            }
+            else if (statusEffect.Permanent)
+                progress = 1f;
+            else
+            {
+                float maxDuration = Prefabs.StatusEffectsByID[statusEffect.IdentifierName].StartLifespan;
+                float remainingDuration = statusEffect.RemainingLifespan;
+                progress = remainingDuration / maxDuration;
+            }
+
             __result.m_icon.SetAlpha(settings.StatusIconAlpha(progress));
             __result.m_icon.rectTransform.localScale = settings.StatusIconScale(progress);
         }
