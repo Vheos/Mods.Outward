@@ -36,8 +36,9 @@ namespace ModPack
             Corruption = 1 << 4,
             RegenRates = 1 << 5,
             StatusEffects = 1 << 6,
-            Cooldown = 1 << 7,
-            Costs = 1 << 8,
+            StatusCures = 1 << 7,
+            Cooldown = 1 << 8,
+            Costs = 1 << 9,
         }
         #endregion
         #region class
@@ -139,7 +140,7 @@ namespace ModPack
         static private ModSetting<bool> _colorsToggle, _barsToggle;
         static private ModSetting<bool> _addBackgrounds;
         static private ModSetting<Details> _details;
-        static private ModSetting<Color> _healthColor, _staminaColor, _manaColor, _needsColor, _corruptionColor, _statusEffectColor, _cooldownColor;
+        static private ModSetting<Color> _healthColor, _staminaColor, _manaColor, _needsColor, _corruptionColor, _statusEffectColor, _statusCuresColor, _cooldownColor;
         static private ModSetting<int> _durabilityBarSize, _freshnessBarSize, _barThickness;
         static private ModSetting<bool> _durabilityTiedToMax, _freshnessTiedToLifespan;
         override protected void Initialize()
@@ -151,7 +152,8 @@ namespace ModPack
             _manaColor = CreateSetting(nameof(_manaColor), new Color(0.529f, 0.702f, 0.816f, 1f));
             _needsColor = CreateSetting(nameof(_needsColor), new Color(0.584f, 0.761f, 0.522f, 1f));
             _corruptionColor = CreateSetting(nameof(_corruptionColor), new Color(0.655f, 0.647f, 0.282f, 1f));
-            _statusEffectColor = CreateSetting(nameof(_statusEffectColor), new Color(1f, 1f, 1f, 1f));
+            _statusEffectColor = CreateSetting(nameof(_statusEffectColor), new Color(0.780f, 1f, 0.702f, 1f));
+            _statusCuresColor = CreateSetting(nameof(_statusCuresColor), new Color(1f, 0.702f, 0.706f));
 
             _barsToggle = CreateSetting(nameof(_barsToggle), false);
             _durabilityTiedToMax = CreateSetting(nameof(_durabilityTiedToMax), false);
@@ -186,6 +188,7 @@ namespace ModPack
                 _corruptionColor.Format("Corruption", _colorsToggle);
                 _corruptionColor.Description = "Corruption and corruption regen";
                 _statusEffectColor.Format("Status effect", _colorsToggle);
+                _statusCuresColor.Format("Status cure", _colorsToggle);
                 Indent--;
             }
 
@@ -234,28 +237,28 @@ namespace ModPack
                 case AffectHealth _:
                     return new Row("CharacterStat_Health".Localized(),
                                    FormatEffectValue(effect),
-                                   Details.Vitals, 31, _healthColor);
+                                   Details.Vitals, 21, _healthColor);
                 case AffectStamina _:
                     return new Row("CharacterStat_Stamina".Localized(),
                                    FormatEffectValue(effect),
-                                   Details.Vitals, 41, _staminaColor);
+                                   Details.Vitals, 31, _staminaColor);
                 case AffectMana _:
                     return new Row("CharacterStat_Mana".Localized(),
                                    FormatEffectValue(effect),
-                                   Details.Vitals, 51, _manaColor);
+                                   Details.Vitals, 41, _manaColor);
                 // Max vitals
                 case AffectBurntHealth _:
                     return new Row("General_Max".Localized() + ". " + "CharacterStat_Health".Localized(),
                                    FormatEffectValue(effect),
-                                   Details.MaxVitals, 33, _healthColor);
+                                   Details.MaxVitals, 23, _healthColor);
                 case AffectBurntStamina _:
                     return new Row("General_Max".Localized() + ". " + "CharacterStat_Stamina".Localized(),
                                    FormatEffectValue(effect),
-                                   Details.MaxVitals, 43, _staminaColor);
+                                   Details.MaxVitals, 33, _staminaColor);
                 case AffectBurntMana _:
                     return new Row("General_Max".Localized() + ". " + "CharacterStat_Mana".Localized(),
                                    FormatEffectValue(effect),
-                                   Details.MaxVitals, 53, _manaColor);
+                                   Details.MaxVitals, 43, _manaColor);
                 // Needs
                 case AffectFood _:
                     return new Row("CharacterStat_Food".Localized(),
@@ -273,13 +276,26 @@ namespace ModPack
                 case AffectCorruption _:
                     return new Row("CharacterStat_Corruption".Localized(),
                                    FormatEffectValue(effect, 10f, "%"),
-                                   Details.Corruption, 61, _corruptionColor);
+                                   Details.Corruption, 51, _corruptionColor);
+                // Cure
+                case RemoveStatusEffect removeStatusEffect:
+                    string text = "";
+                    switch (removeStatusEffect.CleanseType)
+                    {
+                        case RemoveStatusEffect.RemoveTypes.StatusSpecific: text = removeStatusEffect.StatusEffect.StatusName; break;
+                        case RemoveStatusEffect.RemoveTypes.StatusType: text = removeStatusEffect.StatusType.Tag.TagName; break;
+                        case RemoveStatusEffect.RemoveTypes.StatusFamily: text = removeStatusEffect.StatusFamily.Get().Name; break;
+                        case RemoveStatusEffect.RemoveTypes.NegativeStatuses: text = "All Negative Status Effects"; break;
+                    }
+                    return new Row("",
+                                   $"- {text}",
+                                   Details.StatusCures, 71, _statusCuresColor);
                 // Status
                 case AddStatusEffect addStatusEffect:
                     StatusEffect statusEffect = addStatusEffect.Status;
                     Row statusName = new Row("",
                                              $"+ {statusEffect.StatusName}",
-                                             Details.StatusEffects, 100, _statusEffectColor);
+                                             Details.StatusEffects, 61, _statusEffectColor);
                     if (addStatusEffect.ChancesToContract < 100)
                         statusName.Prefix = $"<color=silver>({addStatusEffect.ChancesToContract}%)</color> ";
 
@@ -296,19 +312,19 @@ namespace ModPack
                         case AffectHealth _:
                             return new Row("CharacterStat_Health".Localized() + " Regen",
                                            FormatStatusEffectValue(firstValue.ToFloat(), statusEffect.StartLifespan),
-                                           Details.Vitals | Details.RegenRates, 32, _healthColor);
+                                           Details.Vitals | Details.RegenRates, 22, _healthColor);
                         case AffectStamina _:
                             return new Row("CharacterStat_Stamina".Localized() + " Regen",
                                            FormatStatusEffectValue(firstValue.ToFloat(), statusEffect.StartLifespan),
-                                           Details.Vitals | Details.RegenRates, 42, _staminaColor);
+                                           Details.Vitals | Details.RegenRates, 32, _staminaColor);
                         case AffectMana _:
                             return new Row("CharacterStat_Mana".Localized() + " Regen",
                                            FormatStatusEffectValue(firstValue.ToFloat(), statusEffect.StartLifespan, 1f, "%"),
-                                           Details.Vitals | Details.RegenRates, 52, _manaColor);
+                                           Details.Vitals | Details.RegenRates, 42, _manaColor);
                         case AffectCorruption _:
                             return new Row("CharacterStat_Corruption".Localized() + " Regen",
                                            FormatStatusEffectValue(firstValue.ToFloat(), statusEffect.StartLifespan, 10f, "%"),
-                                           Details.Corruption | Details.RegenRates, 62, _corruptionColor);
+                                           Details.Corruption | Details.RegenRates, 52, _corruptionColor);
                         default: return statusName;
                     }
                 default: return null;
