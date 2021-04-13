@@ -74,6 +74,29 @@ namespace ModPack
             "Boozu’s Milk".ID(),
             "Warm Boozu’s Milk".ID(),
         };
+        static private string[] DOT_STATUS_EFFECTS = new[]
+        {
+            "Poisoned",
+            "Poisoned +",
+            "Food Poisoned",
+            "Food Poisoned +",
+            "Hallowed Marsh Poison Lvl1",
+            "Hallowed Marsh Poison Lvl2",
+            "SulphurPoison",
+            "Blaze",
+            "Burning",
+            "HolyBlaze",
+            "Immolate",
+            "Plague",
+            "Bleeding",
+            "Bleeding +",
+            "Blood Leech Victim",
+            "Gift of Blood",
+            "Freezing",
+            "Infection1",
+            "Infection2",
+            "Infection3",
+        };
         #endregion
         #region enum
         private enum Need
@@ -131,6 +154,8 @@ namespace ModPack
         static private ModSetting<int> _sleepBuffsDuration;
         static private ModSetting<bool> _drinkValuesToggle;
         static private ModSetting<int> _drinkValuesPotions, _drinkValuesCures, _drinkValuesTeas, _drinkValuesOther;
+        static private ModSetting<bool> _allowCuresWhileOverlimited;
+        static private ModSetting<bool> _allowOnlyDOTCures;
         override protected void Initialize()
         {
             _settingsByNeed = new Dictionary<Need, NeedSettings>();
@@ -154,6 +179,8 @@ namespace ModPack
             _sleepNegativeEffect = CreateSetting(nameof(_sleepNegativeEffect), -0.25f, FloatRange(-1, +1));
             _sleepNegativeEffectIsPercent = CreateSetting(nameof(_sleepNegativeEffectIsPercent), false);
             _sleepBuffsDuration = CreateSetting(nameof(_sleepBuffsDuration), 40, IntRange(0, 100));
+            _allowCuresWhileOverlimited = CreateSetting(nameof(_allowCuresWhileOverlimited), false);
+            _allowOnlyDOTCures = CreateSetting(nameof(_allowOnlyDOTCures), false);
 
             // Events
             AddEventOnConfigClosed(() =>
@@ -230,9 +257,18 @@ namespace ModPack
                             Indent--;
                         }
                     }
-
                     Indent--;
                 }
+            }
+
+            _allowCuresWhileOverlimited.Format("Allow cures while overlimited");
+            _allowCuresWhileOverlimited.Description = "Allows eating/drinking when over 100%, but only if it cures a negative status effect you have\n" +
+                                                      "(receding diseases cannot be cured again)";
+            Indent++;
+            {
+                _allowOnlyDOTCures.Format("Only allow DoT cures", _allowCuresWhileOverlimited);
+                _allowOnlyDOTCures.Description = "Same as above, but limited to curing status effects that damage you over time";
+                Indent--;
             }
         }
         override protected string Description
@@ -241,7 +277,6 @@ namespace ModPack
            "• Override negative status effects thresholds\n" +
            "• Override needs depletion rates\n" +
            "• Override drink values and sleep buffs duration";
-
 
         // Utility
         static private bool _isInitialized;
@@ -432,10 +467,39 @@ namespace ModPack
         static private float MaxNeedValue(Need need)
         => FulfilledThreshold(need) * 10f;
         // Checks
+        static private bool HasDOT(Character character)
+        {
+            foreach (var statusEffect in character.StatusEffectMngr.Statuses)
+                if (statusEffect.IdentifierName.IsContainedIn(DOT_STATUS_EFFECTS))
+                    return true;
+            return false;
+        }
+        static private bool HasStatusEffectCuredBy(Character character, Item item)
+        {
+            if (_allowOnlyDOTCures && !HasDOT(character))
+                return false;
+
+            if (item.ItemID == "Waterskin".ID())
+                return character.IsBurning();
+
+            foreach (var removeStatusEffect in item.GetEffects<RemoveStatusEffect>())
+                switch (removeStatusEffect.CleanseType)
+                {
+                    case RemoveStatusEffect.RemoveTypes.StatusSpecific: return character.StatusEffectMngr.HasStatusEffect(removeStatusEffect.StatusEffect.IdentifierName);
+                    case RemoveStatusEffect.RemoveTypes.StatusType: return character.StatusEffectMngr.HasStatusEffect(removeStatusEffect.StatusType);
+                    case RemoveStatusEffect.RemoveTypes.StatusFamily:
+                        Disease disease = character.GetDiseaseOfFamily(removeStatusEffect.StatusFamily);
+                        if (disease != null)
+                            return !disease.IsReceding;
+                        return character.StatusEffectMngr.HasStatusEffect(removeStatusEffect.StatusFamily);
+                    case RemoveStatusEffect.RemoveTypes.NegativeStatuses: return character.HasAnyPurgeableNegativeStatusEffect();
+                }
+            return false;
+        }
         static private bool CanIngest(Character character, Item item)
-        => item.IsIngestible()
-        && (item.IsEatable() && !IsLimited(character, Need.Food)
-            || item.IsDrinkable() && !IsLimited(character, Need.Drink))
+        => (item.IsEatable() && !IsLimited(character, Need.Food)
+           || item.IsDrinkable() && !IsLimited(character, Need.Drink)
+           || _allowCuresWhileOverlimited && HasStatusEffectCuredBy(character, item))
         || item.ItemID == "Ambraine".ID();
         static private bool IsLimited(Character character, Need need)
         => _settingsByNeed[need].LimitingEnabled && HasLimitingStatusEffect(character, need);
@@ -489,7 +553,7 @@ namespace ModPack
         static bool DrinkWaterInteraction_OnActivate_Pre(ref DrinkWaterInteraction __instance)
         {
             Character character = __instance.LastCharacter;
-            if (!character.IsPlayer() || IsLimited(character, Need.Drink))
+            if (!character.IsPlayer() || !IsLimited(character, Need.Drink) || character.IsBurning())
                 return true;
 
             DisplayPreventedNotification(character, Need.Drink);

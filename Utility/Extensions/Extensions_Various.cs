@@ -29,8 +29,23 @@ namespace ModPack
         static public bool IsEatable(this Item item)
         => item.IsUsable && item.ActivateEffectAnimType == Character.SpellCastType.Eat;
         static public bool IsDrinkable(this Item item)
-        => item.IsUsable
-        && (item.ActivateEffectAnimType == Character.SpellCastType.DrinkWater || item.ActivateEffectAnimType == Character.SpellCastType.Potion);
+        => item.IsUsable && (item.ActivateEffectAnimType == Character.SpellCastType.DrinkWater || item.ActivateEffectAnimType == Character.SpellCastType.Potion);
+        static public bool HasAnyPurgeableNegativeStatusEffect(this Character character)
+        {
+            foreach (var statusEffect in character.StatusEffectMngr.Statuses)
+                if (statusEffect.IsMalusEffect && statusEffect.Purgeable)
+                    return true;
+            return false;
+        }
+        static public bool IsBurning(this Character character)
+        => character.StatusEffectMngr.HasStatusEffect("Burning");
+        static public Disease GetDiseaseOfFamily(this Character character, StatusEffectFamily statusEffectFamily)
+        {
+            foreach (var statusEffect in character.StatusEffectMngr.Statuses)
+                if (statusEffect.TryAs(out Disease disease) && statusEffect.EffectFamily.UID == statusEffectFamily.UID)
+                    return disease;
+            return null;
+        }
 
         // Item effects
         static public T GetEffect<T>(this Item item) where T : Effect
