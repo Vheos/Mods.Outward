@@ -200,9 +200,15 @@ namespace ModPack
             // Execute
             foreach (var dropable in __instance.m_drops)
                 foreach (var dropTable in dropable.m_mainDropTables)
+                {
+                    SimpleRandomChance dropAmount = dropTable.m_dropAmount;
+                    if (dropAmount.ChanceRegenDelay > 1)
+                        dropAmount.m_chanceRegenDelay = resetTime;
+
                     foreach (var itemDropChance in dropTable.m_itemDrops)
                         if (itemDropChance.ChanceRegenDelay > 1)
                             itemDropChance.ChanceRegenDelay = resetTime;
+                }
         }
 
         // Merchants
