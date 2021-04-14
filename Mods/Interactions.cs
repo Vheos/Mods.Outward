@@ -4,8 +4,7 @@ using BepInEx.Configuration;
 using System.Reflection;
 using System.Text;
 using System;
-
-
+using System.Collections.Generic;
 
 namespace ModPack
 {
@@ -224,6 +223,9 @@ namespace ModPack
                 if (hold != null)
                     hold.SetOverridePressLocKey(hold.DefaultHoldLocKey);
                 Utility.Swap(ref vanillaBasic, ref vanillaHold);
+
+                InteractionTriggerBase triggerBase = activator.GetComponent<InteractionTriggerBase>();
+                Utility.Swap(ref triggerBase.m_basicConditions, ref triggerBase.m_holdConditions);
             }
         }
         static private void AddCustomHoldInteractions(InteractionActivator activator, ref IInteraction vanillaHold)
