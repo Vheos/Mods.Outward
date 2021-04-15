@@ -66,6 +66,13 @@ namespace ModPack
                 return foundTransform.gameObject;
             return null;
         }
+        static public T FindChild<T>(this GameObject t, string a) where T : Component
+        {
+            Transform foundTransform = t.transform.Find(a);
+            if (foundTransform != null)
+                return foundTransform.GetComponent<T>();
+            return null;
+        }
 
         /// <summary> Returns this object's parent. </summary>
         static public GameObject GetParent(this GameObject t)

@@ -61,6 +61,8 @@ namespace ModPack
         /// <summary> Returns this object's child with name a. If it doesn't exist, returns null.</summary>
         static public GameObject FindChild(this Component t, string a)
         => t.gameObject.FindChild(a);
+        static public T FindChild<T>(this Component t, string a) where T : Component
+        => t.gameObject.FindChild<T>(a);
 
         /// <summary> Returns this object's parent. </summary>
         static public GameObject GetParent(this Component t)
