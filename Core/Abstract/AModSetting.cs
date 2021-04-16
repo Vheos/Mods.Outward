@@ -20,7 +20,7 @@ namespace ModPack
                 Attributes.DispName += displayName;
             }
 
-            Ordering = _positionOffset + _nextPosition++;
+            Ordering = NextPosition++;
             _visibilityCheck = () => true;
         }
         public void Format(string displayName, AModSetting controller, Func<bool> check = null)
@@ -115,24 +115,18 @@ namespace ModPack
             get => (bool)Attributes.ShowRangeAsPercent;
             set => Attributes.ShowRangeAsPercent = value;
         }
-        static public void ResetSettingPosition(int offset)
-        {
-            _nextPosition = 0;
-            _positionOffset = offset;
-        }
         static public int Indent
         {
             get => _indentLevel;
             set => _indentLevel = value.ClampMin(0);
         }
+        static public int NextPosition;
 
         // Privates       
         protected ConfigEntryBase _configEntryBase;
         protected List<Action> _events;
         private ConfigurationManagerAttributes Attributes
         => _configEntryBase.Description.Tags[0] as ConfigurationManagerAttributes;
-        static private int _positionOffset;
-        static private int _nextPosition;
         static private int _indentLevel;
         // Visibility control
         private Func<bool> _visibilityCheck;
