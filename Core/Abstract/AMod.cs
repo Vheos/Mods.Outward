@@ -37,6 +37,7 @@ namespace ModPack
             typeof(Damage),
             typeof(Speed),
             typeof(Needs),
+            typeof(SkillLimits),
             typeof(Camping),
             typeof(Resets),
             typeof(Interactions),
@@ -50,6 +51,7 @@ namespace ModPack
         private readonly Harmony _patcher;
         private readonly List<AModSetting> _settings;
         private readonly List<Action> _onConfigClosedEvents;
+        private bool _isInitialized;
         private string SectionName
         => GetType().Name;
         private string SectionOverride
@@ -111,11 +113,24 @@ namespace ModPack
         }
         private void OnEnable()
         {
+            if (!_isInitialized)
+            {
+                _isInitialized = true;
+                ResetSettingPosition();
+
+                Initialize();
+                Indent++;
+                SetFormatting();
+                Indent--;
+            }
+
             _patcher.PatchAll(GetType());
+
             foreach (var setting in _settings)
                 setting.CallAllEvents();
             foreach (var onConfigClosed in _onConfigClosedEvents)
                 onConfigClosed.Invoke();
+
             OnExpand();
         }
         private void OnDisable()
@@ -154,31 +169,19 @@ namespace ModPack
         // Constructors
         protected AMod()
         {
-            Tools.IsStopwatchActive = true;
-
             _patcher = new Harmony(GetType().Name);
             _settings = new List<AModSetting>();
             _onConfigClosedEvents = new List<Action>();
 
-            ResetSettingPosition();
+            ResetSettingPosition(-1);
             CreateMainToggle();
-            Initialize();
-            Indent++;
-            SetFormatting();
-            Indent--;
-            int initializeTime = Tools.ElapsedMilliseconds;
 
-            OnCollapse();
             if (IsEnabled)
                 OnEnable();
             if (IsCollapsed)
                 OnCollapse();
             if (IsHidden)
                 OnHide();
-            int callEventsTime = Tools.ElapsedMilliseconds;
-
-            Tools.Log($"{_mainToggle.NameOverride} initialized ({initializeTime}+{callEventsTime}ms)", BepInEx.Logging.LogLevel.Debug);
-            Tools.IsStopwatchActive = false;
         }
         abstract protected void Initialize();
         abstract protected void SetFormatting();
@@ -190,8 +193,8 @@ namespace ModPack
         => _mainToggle.Value.HasFlag(Toggles.Collapse);
         protected bool IsHidden
         => _mainToggle.Value.HasFlag(Toggles.Hide);
-        protected void ResetSettingPosition()
-        => AModSetting.ResetSettingPosition(ModOrderingOffset);
+        protected void ResetSettingPosition(int offset = 0)
+        => AModSetting.NextPosition = ModOrderingOffset + offset;
         protected int Indent
         {
             get => AModSetting.Indent;
