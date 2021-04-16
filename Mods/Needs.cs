@@ -26,53 +26,53 @@ namespace ModPack
         static private readonly Dictionary<int, (Character.SpellCastType Vanilla, Character.SpellCastType Custom)> ANIMATION_PAIRS_BY_INGESTIBLE_ID
         = new Dictionary<int, (Character.SpellCastType, Character.SpellCastType)>
         {
-            ["Torcrab Egg".ID()] = (Character.SpellCastType.DrinkWater, Character.SpellCastType.Eat),
-            ["Boreo Blubber".ID()] = (Character.SpellCastType.DrinkWater, Character.SpellCastType.Eat),
-            ["Pungent Paste".ID()] = (Character.SpellCastType.DrinkWater, Character.SpellCastType.Eat),
-            ["Gaberry Jam".ID()] = (Character.SpellCastType.DrinkWater, Character.SpellCastType.Eat),
-            ["Crawlberry Jam".ID()] = (Character.SpellCastType.DrinkWater, Character.SpellCastType.Eat),
-            ["Golden Jam".ID()] = (Character.SpellCastType.DrinkWater, Character.SpellCastType.Eat),
-            ["Raw Torcrab Meat".ID()] = (Character.SpellCastType.DrinkWater, Character.SpellCastType.Eat),
-            ["Miner’s Omelet".ID()] = (Character.SpellCastType.DrinkWater, Character.SpellCastType.Eat),
-            ["Turmmip Potage".ID()] = (Character.SpellCastType.DrinkWater, Character.SpellCastType.Eat),
-            ["Meat Stew".ID()] = (Character.SpellCastType.DrinkWater, Character.SpellCastType.Eat),
-            ["Marshmelon Jelly".ID()] = (Character.SpellCastType.DrinkWater, Character.SpellCastType.Eat),
-            ["Blood Mushroom".ID()] = (Character.SpellCastType.Potion, Character.SpellCastType.Eat),
-            ["Food Waste".ID()] = (Character.SpellCastType.DrinkWater, Character.SpellCastType.Eat),
-            ["Warm Boozu’s Milk".ID()] = (Character.SpellCastType.Potion, Character.SpellCastType.DrinkWater),
+            ["Torcrab Egg".ItemID()] = (Character.SpellCastType.DrinkWater, Character.SpellCastType.Eat),
+            ["Boreo Blubber".ItemID()] = (Character.SpellCastType.DrinkWater, Character.SpellCastType.Eat),
+            ["Pungent Paste".ItemID()] = (Character.SpellCastType.DrinkWater, Character.SpellCastType.Eat),
+            ["Gaberry Jam".ItemID()] = (Character.SpellCastType.DrinkWater, Character.SpellCastType.Eat),
+            ["Crawlberry Jam".ItemID()] = (Character.SpellCastType.DrinkWater, Character.SpellCastType.Eat),
+            ["Golden Jam".ItemID()] = (Character.SpellCastType.DrinkWater, Character.SpellCastType.Eat),
+            ["Raw Torcrab Meat".ItemID()] = (Character.SpellCastType.DrinkWater, Character.SpellCastType.Eat),
+            ["Miner’s Omelet".ItemID()] = (Character.SpellCastType.DrinkWater, Character.SpellCastType.Eat),
+            ["Turmmip Potage".ItemID()] = (Character.SpellCastType.DrinkWater, Character.SpellCastType.Eat),
+            ["Meat Stew".ItemID()] = (Character.SpellCastType.DrinkWater, Character.SpellCastType.Eat),
+            ["Marshmelon Jelly".ItemID()] = (Character.SpellCastType.DrinkWater, Character.SpellCastType.Eat),
+            ["Blood Mushroom".ItemID()] = (Character.SpellCastType.Potion, Character.SpellCastType.Eat),
+            ["Food Waste".ItemID()] = (Character.SpellCastType.DrinkWater, Character.SpellCastType.Eat),
+            ["Warm Boozu’s Milk".ItemID()] = (Character.SpellCastType.Potion, Character.SpellCastType.DrinkWater),
         };
         static private int[] CURE_DRINK_IDS = new[]
         {
-            "Panacea".ID(),
-            "Antidote".ID(),
-            "Hex Cleaner".ID(),
-            "Invigorating Potion".ID(),
+            "Panacea".ItemID(),
+            "Antidote".ItemID(),
+            "Hex Cleaner".ItemID(),
+            "Invigorating Potion".ItemID(),
         };
         static private int[] TEA_DRINK_IDS = new[]
         {
-            "Able Tea".ID(),
-            "Bitter Spicy Tea".ID(),
-            "Greasy Tea".ID(),
-            "Iced Tea".ID(),
-            "Mineral Tea".ID(),
-            "Needle Tea".ID(),
-            "Soothing Tea".ID(),
-            "Boozu’s Milk".ID(),
-            "Warm Boozu’s Milk".ID(),
-            "Gaberry Wine".ID(),
-            "Gep's Drink".ID(),
+            "Able Tea".ItemID(),
+            "Bitter Spicy Tea".ItemID(),
+            "Greasy Tea".ItemID(),
+            "Iced Tea".ItemID(),
+            "Mineral Tea".ItemID(),
+            "Needle Tea".ItemID(),
+            "Soothing Tea".ItemID(),
+            "Boozu’s Milk".ItemID(),
+            "Warm Boozu’s Milk".ItemID(),
+            "Gaberry Wine".ItemID(),
+            "Gep's Drink".ItemID(),
         };
         static private int[] OTHER_DRINK_IDS = new[]
         {
-            "Boozu’s Milk".ID(),
-            "Warm Boozu’s Milk".ID(),
-            "Gaberry Wine".ID(),
-            "Gep's Drink".ID(),
+            "Boozu’s Milk".ItemID(),
+            "Warm Boozu’s Milk".ItemID(),
+            "Gaberry Wine".ItemID(),
+            "Gep's Drink".ItemID(),
         };
         static private int[] MILK_IDS = new[]
         {
-            "Boozu’s Milk".ID(),
-            "Warm Boozu’s Milk".ID(),
+            "Boozu’s Milk".ItemID(),
+            "Warm Boozu’s Milk".ItemID(),
         };
         static private string[] DOT_STATUS_EFFECTS = new[]
         {
@@ -422,8 +422,8 @@ namespace ModPack
             {
                 Item ingestible = ingestibleByID.Value;
                 if (!ingestible.IsDrinkable()
-                || ingestible.ItemID == "Ambraine".ID()
-                || ingestible.ItemID == "Waterskin".ID())
+                || ingestible.ItemID == "Ambraine".ItemID()
+                || ingestible.ItemID == "Waterskin".ItemID())
                     continue;
 
                 AffectDrink affectDrink = ingestible.GetEffect<AffectDrink>();
@@ -479,7 +479,7 @@ namespace ModPack
             if (_allowOnlyDOTCures && !HasDOT(character))
                 return false;
 
-            if (item.ItemID == "Waterskin".ID())
+            if (item.ItemID == "Waterskin".ItemID())
                 return character.IsBurning();
 
             foreach (var removeStatusEffect in item.GetEffects<RemoveStatusEffect>())
@@ -500,7 +500,7 @@ namespace ModPack
         => (item.IsEatable() && !IsLimited(character, Need.Food)
            || item.IsDrinkable() && !IsLimited(character, Need.Drink)
            || _allowCuresWhileOverlimited && HasStatusEffectCuredBy(character, item))
-        || item.ItemID == "Ambraine".ID();
+        || item.ItemID == "Ambraine".ItemID();
         static private bool IsLimited(Character character, Need need)
         => _settingsByNeed[need].LimitingEnabled && HasLimitingStatusEffect(character, need);
         static private bool HasLimitingStatusEffect(Character character, Need need)

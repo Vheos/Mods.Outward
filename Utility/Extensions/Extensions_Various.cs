@@ -324,8 +324,10 @@ namespace ModPack
             t.Raycast(eventData, hits);
             return hits;
         }
-        static public int ID(this string name)
+        static public int ItemID(this string name)
         => Prefabs.ItemIDsByName[name];
+        static public int SkillID(this string name)
+        => Prefabs.SkillIDsByName[name];
         static public bool IsDescendantOf(this GameObject t, GameObject a)
         {
             for (Transform i = t.transform.parent; i != null; i = i.parent)
