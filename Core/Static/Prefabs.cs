@@ -48,6 +48,29 @@ namespace ModPack
 
             ["MistakenIngestible"] = 4500020,
         };
+        static public readonly Dictionary<string, int> SkillIDsByName = new Dictionary<string, int>
+        {
+            ["Puncture"] = 8100290,
+            ["Pommel Counter"] = 8100362,
+            ["Talus Cleaver"] = 8100380,
+            ["Execution"] = 8100300,
+            ["Mace Infusion"] = 8100270,
+            ["Juggernaut"] = 8100310,
+            ["Simeon's Gambit"] = 8100340,
+            ["Moon Swipe"] = 8100320,
+            ["Prismatic Flurry"] = 8201040,
+            ["Flamethrower"] = 8100090,
+            ["Mist"] = 8200170,
+            ["Warm"] = 8200130,
+            ["Cool"] = 8200140,
+            ["Blessed"] = 8200180,
+            ["Possessed"] = 8200190,
+            ["Haunt Hex"] = 8201024,
+            ["Scorch Hex"] = 8201020,
+            ["Chill Hex"] = 8201021,
+            ["Doom Hex"] = 8201022,
+            ["Curse Hex"] = 8201023,
+        };
         #endregion
 
         // Publics
@@ -76,7 +99,7 @@ namespace ModPack
 
                 if (item.IsUsable
                 && (item.IsEatable() || item.IsDrinkable())
-                && item.ItemID != "MistakenIngestible".ID())
+                && item.ItemID != "MistakenIngestible".ItemID())
                     IngestiblesByID.Add(itemByID.Value.ItemID, item);
             }
 
