@@ -39,6 +39,7 @@ namespace ModPack
         static private ModSetting<bool> _removeDodgeInvulnerability;
         static private ModSetting<bool> _healEnemiesOnLoad;
         static private ModSetting<bool> _repairOnlyEquipped;
+        static private ModSetting<int> _sellModifier, _buyModifier;
         static private ModSetting<bool> _allowDodgeAnimationCancelling;
         static private ModSetting<bool> _allowPushKickRemoval;
         static private ModSetting<bool> _allowTargetingPlayers;
@@ -52,6 +53,8 @@ namespace ModPack
             _removeDodgeInvulnerability = CreateSetting(nameof(_removeDodgeInvulnerability), false);
             _healEnemiesOnLoad = CreateSetting(nameof(_healEnemiesOnLoad), false);
             _repairOnlyEquipped = CreateSetting(nameof(_repairOnlyEquipped), false);
+            _sellModifier = CreateSetting(nameof(_sellModifier), 100, IntRange(0, 200));
+            _buyModifier = CreateSetting(nameof(_buyModifier), 100, IntRange(0, 200));
 
             AddEventOnConfigClosed(() =>
             {
@@ -83,6 +86,8 @@ namespace ModPack
             _healEnemiesOnLoad.Description = "Every loading screen fully heals all enemies";
             _repairOnlyEquipped.Format("Smith repairs only equipment");
             _repairOnlyEquipped.Description = "Blacksmith will not repair items in your pouch and bag";
+            _sellModifier.Format("Sell modifier");
+            _buyModifier.Format("Buy modifier");
 
             _allowDodgeAnimationCancelling.Format("Allow dodge to cancel actions");
             _allowDodgeAnimationCancelling.Description = "[WORK IN PROGRESS] Cancelling certain animations might lead to glitches";
@@ -97,6 +102,15 @@ namespace ModPack
         }
         override protected string Description
         => "• Mods (small and big) that didn't get their own section yet :)";
+
+        // Price modifier
+        [HarmonyPatch(typeof(Item), "GetSellValue"), HarmonyPostfix]
+        static void Item_GetSellValue_Post(ref Item __instance, ref int __result)
+        => __result = (__result * _sellModifier / 100f).Round();
+
+        [HarmonyPatch(typeof(Item), "GetBuyValue"), HarmonyPostfix]
+        static void Item_GetBuyValue_Post(ref Item __instance, ref int __result)
+        => __result = (__result * _buyModifier / 100f).Round();
 
         // Blacksmith repair nerf
         [HarmonyPatch(typeof(ItemContainer), "RepairContainedEquipment"), HarmonyPrefix]
