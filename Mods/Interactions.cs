@@ -225,7 +225,8 @@ namespace ModPack
                 Utility.Swap(ref vanillaBasic, ref vanillaHold);
 
                 InteractionTriggerBase triggerBase = activator.GetComponent<InteractionTriggerBase>();
-                Utility.Swap(ref triggerBase.m_basicConditions, ref triggerBase.m_holdConditions);
+                if (triggerBase != null)
+                    Utility.Swap(ref triggerBase.m_basicConditions, ref triggerBase.m_holdConditions);
             }
         }
         static private void AddCustomHoldInteractions(InteractionActivator activator, ref IInteraction vanillaHold)
