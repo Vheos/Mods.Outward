@@ -75,6 +75,8 @@ namespace ModPack
         static private ModSetting<LimitedSkillTypes> _limitedSkillTypes;
         static private ModSetting<bool> _freePostBreakthroughBasicSkills;
         static private ModSetting<bool> _allowExclusiveSkills;
+        static private ModSetting<bool> _costs;
+        static private ModSetting<int> _costBasic, _costBreakthrough, _costAdvanced;
         static private ModSetting<bool> _formattingToggle;
         static private ModSetting<Color> _iconColor, _borderColor, _indicatorColor;
         static private ModSetting<int> _indicatorSize;
@@ -87,6 +89,10 @@ namespace ModPack
             _limitedSkillTypes = CreateSetting(nameof(_limitedSkillTypes), LimitedSkillTypes.All);
             _freePostBreakthroughBasicSkills = CreateSetting(nameof(_freePostBreakthroughBasicSkills), false);
             _allowExclusiveSkills = CreateSetting(nameof(_allowExclusiveSkills), false);
+            _costs = CreateSetting(nameof(_costs), false);
+            _costBasic = CreateSetting(nameof(_costBasic), 50, IntRange(0, 500));
+            _costBreakthrough = CreateSetting(nameof(_costBreakthrough), 0, IntRange(0, 500));
+            _costAdvanced = CreateSetting(nameof(_costAdvanced), 100, IntRange(0, 500));
 
             _formattingToggle = CreateSetting(nameof(_formattingToggle), false);
             _iconColor = CreateSetting(nameof(_iconColor), new Color(1f, 1f, 1f, 1 / 3f));
@@ -118,7 +124,14 @@ namespace ModPack
             }
             _allowExclusiveSkills.Format("Allow exclusive skills");
             _allowExclusiveSkills.Description = "Allows you to learn both skills that are normally mutually exclusive";
-
+            _costs.Format("Costs");
+            Indent++;
+            {
+                _costBasic.Format("Basic", _costs);
+                _costBreakthrough.Format("Breakthrough", _costs);
+                _costAdvanced.Format("Advanced", _costs);
+                Indent--;
+            }
             _formattingToggle.Format("Limited skills formatting");
             _formattingToggle.IsAdvanced = true;
             Indent++;
@@ -223,7 +236,6 @@ namespace ModPack
                         break;
                 }
         }
-        static private Sprite FoodIcon = Utility.CreateSpriteFromFile(Utility.PluginFolderPath + @"\Needs\Food.png");
 
         // Hooks
         [HarmonyPatch(typeof(ItemDisplayOptionPanel), "GetActiveActions"), HarmonyPostfix]
@@ -305,6 +317,8 @@ namespace ModPack
         {
             // Cache
             SkillSlot slot = _display.FocusedSkillSlot;
+
+            /*
             SkillSchool tree = __instance.m_trainerTree;
             Image currencyIcon = __instance.m_imgRemainingCurrency;
             Text currencyLeft = __instance.m_remainingSilver;
@@ -315,22 +329,17 @@ namespace ModPack
             tree.AlternateCurrencyIcon = null;
             currencyIcon.overrideSprite = null;
             currencyLeft.text = inventory.ContainedSilver.ToString(); 
+            */
 
             // Overrides
             if (IsBasic(slot.Skill))
-            {
-                tree.AlternateCurrecy = "Meat Stew".ItemID();
-                tree.AlternateCurrencyIcon = FoodIcon;
-                currencyIcon.overrideSprite = FoodIcon;
-                currencyLeft.text = inventory.ItemCount(tree.AlternateCurrecy).ToString();
-                slot.m_requiredMoney = 3;
-            }
+                slot.m_requiredMoney = _costBasic;
 
             if (IsBreakthrough(slot.Skill))
-                slot.m_requiredMoney = 0;
+                slot.m_requiredMoney = _costBreakthrough;
 
             if (IsAdvanced(slot.Skill))
-                slot.m_requiredMoney = 11;
+                slot.m_requiredMoney = _costAdvanced;
 
             return true;
         }
@@ -365,8 +374,6 @@ namespace ModPack
         [HarmonyPatch(typeof(SkillSlot), "IsBlocked"), HarmonyPrefix]
         static bool SkillSlot_IsBlocked_Pre(ref SkillSlot __instance)
         => !_allowExclusiveSkills;
-
-
     }
 }
 
