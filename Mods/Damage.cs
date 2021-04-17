@@ -59,7 +59,7 @@ namespace ModPack
                 _enemiesStabilityDamage.Format("Stability", _enemiesToggle);
                 _enemiesFriendlyFireToggle.Format("Friendly fire", _enemiesToggle);
                 _enemiesFriendlyFireToggle.Description = "Set multipliers for damage dealt by enemies to other enemies\n" +
-                                                         "Decrease to prevent enemies from killing each other before you meet them\n" + 
+                                                         "Decrease to prevent enemies from killing each other before you meet them\n" +
                                                          "(multiplicative with above values)";
                 Indent++;
                 {
@@ -98,6 +98,11 @@ namespace ModPack
 
             __result |= _character.IsPlayer() && !_character.IsOwnerOf(__instance);
         }
+
+        [HarmonyPatch(typeof(Character), "OnReceiveHitCombatEngaged"), HarmonyPrefix]
+        static bool Character_OnReceiveHitCombatEngaged_Pre(ref Character __instance, ref Character _dealerChar)
+        => !_playersFriendlyFireToggle || _dealerChar == null || !_dealerChar.IsPlayer();
+
 
         [HarmonyPatch(typeof(Character), "VitalityHit"), HarmonyPrefix]
         static bool Character_VitalityHit_Pre(ref Character __instance, Character _dealerChar, ref float _damage)
