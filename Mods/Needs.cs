@@ -133,17 +133,17 @@ namespace ModPack
         private class NeedSettings
         {
             // Settings
-            public ModSetting<bool> Toggle;
-            public ModSetting<Vector2> Thresholds;
-            public ModSetting<Vector2> DepletionRate;
-            public ModSetting<int> FulfilledLimit;
-            public ModSetting<float> FulfilledEffectValue;
+            public ModSetting<bool> _toggle;
+            public ModSetting<Vector2> _thresholds;
+            public ModSetting<Vector2> _depletionRate;
+            public ModSetting<int> _fulfilledLimit;
+            public ModSetting<int> _fulfilledEffectValue;
 
             // Utility
             public bool LimitingEnabled
-            => FulfilledLimit > 100;
+            => _fulfilledLimit > 100;
             public float DepletionPerHour
-            => DepletionRate.Value.x / DepletionRate.Value.y * 10f;
+            => _depletionRate.Value.x / _depletionRate.Value.y * 10f;
         }
         #endregion
 
@@ -165,11 +165,11 @@ namespace ModPack
                 _settingsByNeed[data.Need] = tmp;
 
                 string needPrefix = $"{data.Need} ";
-                tmp.Toggle = CreateSetting(needPrefix + nameof(tmp.Toggle), false);
-                tmp.Thresholds = CreateSetting(needPrefix + nameof(tmp.Thresholds), data.Thresholds);
-                tmp.DepletionRate = CreateSetting(needPrefix + nameof(tmp.DepletionRate), new Vector2(100f, data.DepletionRate));
-                tmp.FulfilledLimit = CreateSetting(needPrefix + nameof(tmp.FulfilledLimit), 120, IntRange(100, 200));
-                tmp.FulfilledEffectValue = CreateSetting(needPrefix + nameof(tmp.FulfilledEffectValue), +0.25f, FloatRange(-1, +1));
+                tmp._toggle = CreateSetting(needPrefix + nameof(tmp._toggle), false);
+                tmp._thresholds = CreateSetting(needPrefix + nameof(tmp._thresholds), data.Thresholds);
+                tmp._depletionRate = CreateSetting(needPrefix + nameof(tmp._depletionRate), new Vector2(100f, data.DepletionRate));
+                tmp._fulfilledLimit = CreateSetting(needPrefix + nameof(tmp._fulfilledLimit), 120, IntRange(100, 200));
+                tmp._fulfilledEffectValue = CreateSetting(needPrefix + nameof(tmp._fulfilledEffectValue), 1, IntRange(0, 100));
             }
             _drinkValuesToggle = CreateSetting(nameof(_drinkValuesToggle), false);
             _drinkValuesPotions = CreateSetting(nameof(_drinkValuesPotions), 5, IntRange(0, 100));
@@ -210,40 +210,40 @@ namespace ModPack
             {
                 NeedSettings tmp = _settingsByNeed[data.Need];
 
-                tmp.Toggle.Format(data.Need.ToString());
-                tmp.Toggle.Description = $"Change {data.Need}-related settings";
+                tmp._toggle.Format(data.Need.ToString());
+                tmp._toggle.Description = $"Change {data.Need}-related settings";
                 Indent++;
                 {
-                    tmp.Thresholds.Format("Thresholds", tmp.Toggle);
-                    tmp.Thresholds.Description = $"When your {data.Need} falls below Y%, you become {data.NegativeName}\n" +
+                    tmp._thresholds.Format("Thresholds", tmp._toggle);
+                    tmp._thresholds.Description = $"When your {data.Need} falls below Y%, you become {data.NegativeName}\n" +
                                                  $"When your {data.Need} falls below X%, you become Very {data.NegativeName}";
-                    tmp.DepletionRate.Format("Depletion rate", tmp.Toggle);
-                    tmp.DepletionRate.Description = $"You lose X% of {data.Need} per Y hours";
-                    tmp.FulfilledLimit.Format("Overlimit", tmp.Toggle);
-                    tmp.FulfilledLimit.Description = $"Allows your {data.Need} to go over 100%\n" +
+                    tmp._depletionRate.Format("Depletion rate", tmp._toggle);
+                    tmp._depletionRate.Description = $"You lose X% of {data.Need} per Y hours";
+                    tmp._fulfilledLimit.Format("Overlimit", tmp._toggle);
+                    tmp._fulfilledLimit.Description = $"Allows your {data.Need} to go over 100%\n" +
                                                      $"You will receive a special status effect that restores your {data.AffectedStat} but " +
                                                      $"prevents you from {data.ActionName} until your {data.Need} falls below 100% again";
                     Indent++;
                     {
-                        tmp.FulfilledEffectValue.Format($"{data.AffectedStat} / sec", tmp.FulfilledLimit, () => tmp.FulfilledLimit > 100);
+                        tmp._fulfilledEffectValue.Format($"{data.AffectedStat} / min", tmp._fulfilledLimit, () => tmp._fulfilledLimit > 100);
                         if (data.Need == Need.Sleep)
                         {
-                            _sleepNegativeEffect.Format("mana / sec", tmp.FulfilledLimit, () => tmp.FulfilledLimit > 100);
-                            _sleepNegativeEffectIsPercent.Format("is % of max mana", tmp.FulfilledLimit, () => tmp.FulfilledLimit > 100);
+                            _sleepNegativeEffect.Format("mana / min", tmp._fulfilledLimit, () => tmp._fulfilledLimit > 100);
+                            _sleepNegativeEffectIsPercent.Format("is % of max mana", tmp._fulfilledLimit, () => tmp._fulfilledLimit > 100);
                         }
                         Indent--;
                     }
 
                     if (data.Need == Need.Sleep)
                     {
-                        _sleepBuffsDuration.Format("Buffs duration", tmp.Toggle);
+                        _sleepBuffsDuration.Format("Buffs duration", tmp._toggle);
                         _sleepBuffsDuration.Description = "Affects buffs granted by sleeping in houses, inns and tents\n" +
                                                           "(in real-time minutes)";
                     }
 
                     if (data.Need == Need.Drink)
                     {
-                        _drinkValuesToggle.Format("Items' drink values", tmp.Toggle);
+                        _drinkValuesToggle.Format("Items' drink values", tmp._toggle);
                         _drinkValuesToggle.Description = "Set how much drink is restored by each drink type";
                         Indent++;
                         {
@@ -329,7 +329,7 @@ namespace ModPack
                 statusEffect.RemoveAllEffects();
                 List<Effect> newEffects = new List<Effect>();
                 List<StatusData.EffectData> newEffectDatas = new List<StatusData.EffectData>();
-                float effectValue = _settingsByNeed[element.Key].FulfilledEffectValue;
+                float effectValue = _settingsByNeed[element.Key]._fulfilledEffectValue / 60f;
                 switch (element.Key)
                 {
                     case Need.Food:
@@ -354,7 +354,7 @@ namespace ModPack
                         mana.AffectType = AffectMana.AffectTypes.Restaure;
                         mana.IsModifier = _sleepNegativeEffectIsPercent;
                         newEffects.Add(mana);
-                        newEffectDatas.Add(new StatusData.EffectData() { Data = new[] { _sleepNegativeEffect.Value.ToString() } });
+                        newEffectDatas.Add(new StatusData.EffectData() { Data = new[] { _sleepNegativeEffect.Value.Div(60).ToString() } });
                         break;
                 }
                 statusEffect.StatusData.EffectSignature.Effects = newEffects;
@@ -457,13 +457,13 @@ namespace ModPack
         static private float DeathThreshold(Need need)
         => 0f;
         static private float VeryNegativeThreshold(Need need)
-        => _settingsByNeed[need].Thresholds.Value.x;
+        => _settingsByNeed[need]._thresholds.Value.x;
         static private float NegativeThreshold(Need need)
-        => _settingsByNeed[need].Thresholds.Value.y;
+        => _settingsByNeed[need]._thresholds.Value.y;
         static private float NeutralThreshold(Need need)
         => 100f;
         static private float FulfilledThreshold(Need need)
-        => _settingsByNeed[need].FulfilledLimit;
+        => _settingsByNeed[need]._fulfilledLimit;
         static private float MaxNeedValue(Need need)
         => FulfilledThreshold(need) * 10f;
         // Checks
