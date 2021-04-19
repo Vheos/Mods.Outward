@@ -19,9 +19,9 @@ namespace ModPack
         private const float DEFAULT_MAX_NEED_VALUE = 1000f;
         static private readonly (Need Need, Vector2 Thresholds, float DepletionRate, string NegativeName, string ActionName, string AffectedStat)[] NEEDS_DATA =
         {
-            (Need.Food, new Vector2(50f, 75f), 1000f / 15.00f, "Hungry", "eating", "max health"),
-            (Need.Drink, new Vector2(50f, 75f), 1000f / 27.77f, "Thirsty", "drinking", "max stamina"),
-            (Need.Sleep, new Vector2(25f, 50f), 1000f / 13.89f, "Tired", "sleeping", "health and stamina"),
+            (Need.Food, new Vector2(50f, 75f), 1000f / 15.00f, "Hungry", "eating", "health burn rate"),
+            (Need.Drink, new Vector2(50f, 75f), 1000f / 27.77f, "Thirsty", "drinking", "stamina burn rate"),
+            (Need.Sleep, new Vector2(25f, 50f), 1000f / 13.89f, "Tired", "sleeping", "stamina regen"),
         };
         static private readonly Dictionary<int, (Character.SpellCastType Vanilla, Character.SpellCastType Custom)> ANIMATION_PAIRS_BY_INGESTIBLE_ID
         = new Dictionary<int, (Character.SpellCastType, Character.SpellCastType)>
@@ -149,8 +149,7 @@ namespace ModPack
 
         // Settings
         static private Dictionary<Need, NeedSettings> _settingsByNeed;
-        static private ModSetting<float> _sleepNegativeEffect;
-        static private ModSetting<bool> _sleepNegativeEffectIsPercent;
+        static private ModSetting<int> _sleepNegativeEffect;
         static private ModSetting<int> _sleepBuffsDuration;
         static private ModSetting<bool> _drinkValuesToggle;
         static private ModSetting<int> _drinkValuesPotions, _drinkValuesCures, _drinkValuesTeas, _drinkValuesOther;
@@ -169,15 +168,17 @@ namespace ModPack
                 tmp._thresholds = CreateSetting(needPrefix + nameof(tmp._thresholds), data.Thresholds);
                 tmp._depletionRate = CreateSetting(needPrefix + nameof(tmp._depletionRate), new Vector2(100f, data.DepletionRate));
                 tmp._fulfilledLimit = CreateSetting(needPrefix + nameof(tmp._fulfilledLimit), 120, IntRange(100, 200));
-                tmp._fulfilledEffectValue = CreateSetting(needPrefix + nameof(tmp._fulfilledEffectValue), 1, IntRange(0, 100));
+
+                int defaultValue = data.Need == Need.Sleep ? 115 : 33;
+                AcceptableValueRange<int> range = data.Need == Need.Sleep ? IntRange(100, 200) : IntRange(0, 100);
+                tmp._fulfilledEffectValue = CreateSetting(needPrefix + nameof(tmp._fulfilledEffectValue), defaultValue, range);
             }
             _drinkValuesToggle = CreateSetting(nameof(_drinkValuesToggle), false);
-            _drinkValuesPotions = CreateSetting(nameof(_drinkValuesPotions), 5, IntRange(0, 100));
-            _drinkValuesCures = CreateSetting(nameof(_drinkValuesCures), 5, IntRange(0, 100));
-            _drinkValuesTeas = CreateSetting(nameof(_drinkValuesTeas), 5, IntRange(0, 100));
-            _drinkValuesOther = CreateSetting(nameof(_drinkValuesOther), 5, IntRange(0, 100));
-            _sleepNegativeEffect = CreateSetting(nameof(_sleepNegativeEffect), -0.25f, FloatRange(-1, +1));
-            _sleepNegativeEffectIsPercent = CreateSetting(nameof(_sleepNegativeEffectIsPercent), false);
+            _drinkValuesPotions = CreateSetting(nameof(_drinkValuesPotions), 10, IntRange(0, 100));
+            _drinkValuesCures = CreateSetting(nameof(_drinkValuesCures), 10, IntRange(0, 100));
+            _drinkValuesTeas = CreateSetting(nameof(_drinkValuesTeas), 20, IntRange(0, 100));
+            _drinkValuesOther = CreateSetting(nameof(_drinkValuesOther), 20, IntRange(0, 100));
+            _sleepNegativeEffect = CreateSetting(nameof(_sleepNegativeEffect), -12, IntRange(-100, 0));
             _sleepBuffsDuration = CreateSetting(nameof(_sleepBuffsDuration), 40, IntRange(0, 100));
             _allowCuresWhileOverlimited = CreateSetting(nameof(_allowCuresWhileOverlimited), false);
             _allowOnlyDOTCures = CreateSetting(nameof(_allowOnlyDOTCures), false);
@@ -193,7 +194,7 @@ namespace ModPack
                     _isInitialized = true;
                 }
 
-                UpdateStatusEffectPrefabs();
+                UpdateStatusEffectPrefabsData();
                 UpdateDrinkValues();
                 UpdateSleepBuffsDuration();
                 foreach (var player in Players.Local)
@@ -220,17 +221,15 @@ namespace ModPack
                     tmp._depletionRate.Format("Depletion rate", tmp._toggle);
                     tmp._depletionRate.Description = $"You lose X% of {data.Need} per Y hours";
                     tmp._fulfilledLimit.Format("Overlimit", tmp._toggle);
+                    string decOrInc = data.Need == Need.Sleep ? "decreases" : "increases";
                     tmp._fulfilledLimit.Description = $"Allows your {data.Need} to go over 100%\n" +
-                                                     $"You will receive a special status effect that restores your {data.AffectedStat} but " +
+                                                     $"You will receive a special status effect that {decOrInc} your {data.AffectedStat} but " +
                                                      $"prevents you from {data.ActionName} until your {data.Need} falls below 100% again";
                     Indent++;
                     {
-                        tmp._fulfilledEffectValue.Format($"{data.AffectedStat} / min", tmp._fulfilledLimit, () => tmp._fulfilledLimit > 100);
+                        tmp._fulfilledEffectValue.Format(data.AffectedStat, tmp._fulfilledLimit, () => tmp._fulfilledLimit > 100);
                         if (data.Need == Need.Sleep)
-                        {
                             _sleepNegativeEffect.Format("mana / min", tmp._fulfilledLimit, () => tmp._fulfilledLimit > 100);
-                            _sleepNegativeEffectIsPercent.Format("is % of max mana", tmp._fulfilledLimit, () => tmp._fulfilledLimit > 100);
-                        }
                         Indent--;
                     }
 
@@ -321,7 +320,7 @@ namespace ModPack
                 statusEffect.RefreshRate = 1f;
             }
         }
-        static private void UpdateStatusEffectPrefabs()
+        static private void UpdateStatusEffectPrefabsData()
         {
             foreach (var element in _fulfilledDataByNeed)
             {
@@ -329,34 +328,42 @@ namespace ModPack
                 statusEffect.RemoveAllEffects();
                 List<Effect> newEffects = new List<Effect>();
                 List<StatusData.EffectData> newEffectDatas = new List<StatusData.EffectData>();
-                float effectValue = _settingsByNeed[element.Key]._fulfilledEffectValue / 60f;
+
+                float effectValue = _settingsByNeed[element.Key]._fulfilledEffectValue - 100f;
                 switch (element.Key)
                 {
                     case Need.Food:
-                        // Burnt health
-                        newEffects.Add(statusEffect.AddEffect<AffectBurntHealth>());
+                        // Health burn
+                        AffectStat healthBurnModifier = statusEffect.AddEffect<AffectStat>();
+                        healthBurnModifier.AffectedStat = new TagSourceSelector("HealthBurn".ToTag());
+                        healthBurnModifier.IsModifier = true;
+                        newEffects.Add(healthBurnModifier);
                         newEffectDatas.Add(new StatusData.EffectData() { Data = new[] { effectValue.ToString() } });
                         break;
                     case Need.Drink:
-                        // Burnt stamina
-                        newEffects.Add(statusEffect.AddEffect<AffectBurntStamina>());
+                        // Stamina burn
+                        AffectStat staminaBurnModifier = statusEffect.AddEffect<AffectStat>();
+                        staminaBurnModifier.AffectedStat = new TagSourceSelector("StaminaBurn".ToTag());
+                        staminaBurnModifier.IsModifier = true;
+                        newEffects.Add(staminaBurnModifier);
                         newEffectDatas.Add(new StatusData.EffectData() { Data = new[] { effectValue.ToString() } });
                         break;
                     case Need.Sleep:
-                        // Health
-                        newEffects.Add(statusEffect.AddEffect<AffectHealth>());
-                        newEffectDatas.Add(new StatusData.EffectData() { Data = new[] { effectValue.ToString() } });
-                        // Stamina
-                        newEffects.Add(statusEffect.AddEffect<AffectStamina>());
+                        // Stamina regen
+                        AffectStat staminaRegen = statusEffect.AddEffect<AffectStat>();
+                        staminaRegen.AffectedStat = new TagSourceSelector("StaminaRegen".ToTag());
+                        staminaRegen.IsModifier = true;
+                        newEffects.Add(staminaRegen);
                         newEffectDatas.Add(new StatusData.EffectData() { Data = new[] { effectValue.ToString() } });
                         // Mana
-                        AffectMana mana = statusEffect.AddEffect<AffectMana>();
-                        mana.AffectType = AffectMana.AffectTypes.Restaure;
-                        mana.IsModifier = _sleepNegativeEffectIsPercent;
-                        newEffects.Add(mana);
+                        AffectStat manaRegen = statusEffect.AddEffect<AffectStat>();
+                        manaRegen.AffectedStat = new TagSourceSelector("ManaRegen".ToTag());
+                        manaRegen.IsModifier = false;
+                        newEffects.Add(manaRegen);
                         newEffectDatas.Add(new StatusData.EffectData() { Data = new[] { _sleepNegativeEffect.Value.Div(60).ToString() } });
                         break;
                 }
+
                 statusEffect.StatusData.EffectSignature.Effects = newEffects;
                 statusEffect.StatusData.EffectsData = newEffectDatas.ToArray();
             }
