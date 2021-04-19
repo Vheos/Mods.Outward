@@ -221,7 +221,7 @@ namespace ModPack
                     tmp._depletionRate.Format("Depletion rate", tmp._toggle);
                     tmp._depletionRate.Description = $"You lose X% of {data.Need} per Y hours";
                     tmp._fulfilledLimit.Format("Overlimit", tmp._toggle);
-                    string decOrInc = data.Need == Need.Sleep ? "decreases" : "increases";
+                    string decOrInc = data.Need == Need.Sleep ? "increases" : "decreases";
                     tmp._fulfilledLimit.Description = $"Allows your {data.Need} to go over 100%\n" +
                                                      $"You will receive a special status effect that {decOrInc} your {data.AffectedStat} but " +
                                                      $"prevents you from {data.ActionName} until your {data.Need} falls below 100% again";
@@ -288,7 +288,7 @@ namespace ModPack
                 (
                     Prefabs.StatusEffectsByID["Full"],
                     "Well-fed",
-                    $"You restore max health over time, but can't eat any more.",
+                    $"Your max health burns more slowly, but you can't eat any more.",
                     "You're well-fed!",
                     "You're too full to eat more!"
                 ),
@@ -296,7 +296,7 @@ namespace ModPack
                 (
                     Prefabs.StatusEffectsByID["Refreshed"],
                     "Well-hydrated",
-                    $"You restore max stamina over time, but can't drink any more.",
+                    $"Your max stamina burns more slowly, but you can't eat any more.",
                     "You're well-hydrated!",
                     "You're too full to drink more!"
                 ),
@@ -304,7 +304,7 @@ namespace ModPack
                 (
                     Prefabs.StatusEffectsByID["DEPRECATED_Energized"],
                     "Well-rested",
-                    $"You restore health and stamina over time, but lose mana and can't sleep any more.",
+                    $"Your stamina regens faster, but you lose mana and can't sleep any more.",
                     "You're well-rested!",
                     "You're too awake to sleep at this time!"
                 ),
