@@ -61,7 +61,7 @@ namespace ModPack
 
             AddEventOnConfigClosed(SetButterfliesRadius);
 
-            _areaSafeZones = new List<SphereCollider>();
+            _safeZoneColliders = new List<SphereCollider>();
         }
         override protected void SetFormatting()
         {
@@ -79,7 +79,7 @@ namespace ModPack
            "• Change butterfly zones spawn chance and radius";
 
         // Utility
-        static private List<SphereCollider> _areaSafeZones;
+        static private List<SphereCollider> _safeZoneColliders;
         static private bool IsCampingAllowed(Character character, Vector3 position)
         {
             AreaManager.AreaEnum currentArea = (AreaManager.AreaEnum)AreaManager.Instance.CurrentArea.ID;
@@ -99,21 +99,22 @@ namespace ModPack
         }
         static private bool IsNearButterflies(Vector3 position)
         {
-            foreach (var safeZone in _areaSafeZones)
+            foreach (var safeZone in _safeZoneColliders)
                 if (position.DistanceTo(safeZone.transform.position) <= safeZone.radius)
                     return true;
             return false;
         }
         static private void SetButterfliesRadius()
         {
-            foreach (var safeZone in _areaSafeZones)
-                safeZone.radius = _butterfliesRadius;
+            foreach (var collider in _safeZoneColliders)
+                if (collider != null)
+                    collider.radius = _butterfliesRadius;
         }
         // Hooks
         [HarmonyPatch(typeof(EnvironmentSave), "ApplyData"), HarmonyPostfix]
         static void EnvironmentSave_ApplyData_Post(ref EnvironmentSave __instance)
         {
-            _areaSafeZones.Clear();
+            _safeZoneColliders.Clear();
             GameObject fxHolder = GameObject.Find("Environment/Assets/FX");
             if (fxHolder == null)
                 return;
@@ -124,7 +125,7 @@ namespace ModPack
                     bool isActive = UnityEngine.Random.value <= _butterfliesSpawnChance / 100f;
                     fx.GOSetActive(isActive);
                     if (isActive)
-                        _areaSafeZones.Add(fx.GetComponent<SphereCollider>());
+                        _safeZoneColliders.Add(fx.GetComponent<SphereCollider>());
                 }
 
             SetButterfliesRadius();
