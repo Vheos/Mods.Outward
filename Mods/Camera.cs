@@ -285,15 +285,7 @@ namespace ModPack
 
         [HarmonyPatch(typeof(CharacterCamera), "UpdateZoom"), HarmonyPrefix]
         static bool CharacterCamera_UpdateZoom_Pre(ref CharacterCamera __instance)
-        {
-            Players.Data player = Players.GetLocal(__instance);
-            #region quit
-            if (!_perPlayerSettings[player.ID]._toggle)
-                return true;
-            #endregion
-
-            return false;
-        }
+        => !Players.TryGetLocal(__instance, out Players.Data player) || !_perPlayerSettings[player.ID]._toggle;
 
         [HarmonyPatch(typeof(ControlsInput), "RotateCameraVertical"), HarmonyPostfix]
         static void ControlsInput_RotateCameraVertical_Post(int _playerID, ref float __result)
