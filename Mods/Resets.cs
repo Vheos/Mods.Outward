@@ -13,7 +13,7 @@ using System.Collections.Generic;
  */
 namespace ModPack
 {
-        public class Resets : AMod
+    public class Resets : AMod
     {
         #region constants
         private const float AREAS_RESET_HOURS = 168f;   // Area.m_resetTime
@@ -216,13 +216,13 @@ namespace ModPack
         static bool MerchantPouch_RefreshInventory_Pre(ref MerchantPouch __instance, ref double ___m_nextRefreshTime)
         {
             #region quit
-            if (!_merchantsToggle || __instance.IsEmpty)
+            if (!_merchantsToggle)
                 return true;
             #endregion
 
             if (_merchantsMode == ResetMode.Always)
                 ___m_nextRefreshTime = 0d;
-            else if (_merchantsMode == ResetMode.Never)
+            else if (_merchantsMode == ResetMode.Never && !__instance.IsEmpty)
                 ___m_nextRefreshTime = double.PositiveInfinity;
             else if (_merchantsMode == ResetMode.Timer)
             {
