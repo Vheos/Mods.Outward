@@ -26,14 +26,17 @@ namespace ModPack
         // Order
         static private readonly Type[] MODS_ORDERING = new[]
         {
+            // Various
             typeof(Various),
 
+            // UI
             typeof(GUI),
             typeof(Descriptions),
             typeof(Camera),
             typeof(Targeting),
             typeof(KeyboardWalk),
 
+            // Gameplay
             typeof(Damage),
             typeof(Speed),
             typeof(Needs),
@@ -43,8 +46,10 @@ namespace ModPack
             typeof(Interactions),
             typeof(Revive),
 
-            typeof(Debug),
+            // Private
             typeof(PistolTweaks),
+            typeof(Prices),
+            typeof(Debug),
         };
 
         // Privates
@@ -57,7 +62,7 @@ namespace ModPack
         private string SectionOverride
         => "";
         private int ModOrderingOffset
-        => Array.IndexOf(MODS_ORDERING, GetType()) * MAX_SETTINGS_PER_MOD;
+        => Array.IndexOf(MODS_ORDERING, GetType()).Add(1) * MAX_SETTINGS_PER_MOD;
         virtual protected string Description
         => "";
 
