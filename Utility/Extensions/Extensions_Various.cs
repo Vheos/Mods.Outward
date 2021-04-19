@@ -9,6 +9,8 @@ using System.Globalization;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
+
+
 namespace ModPack
 {
     static public class Extensions_Various
@@ -328,6 +330,13 @@ namespace ModPack
         => Prefabs.ItemIDsByName[name];
         static public int SkillID(this string name)
         => Prefabs.SkillIDsByName[name];
+        static public Tag ToTag(this string name)
+        {
+            foreach (var tag in TagSourceManager.Instance.m_tags)
+                if (tag.TagName == name)
+                    return tag;
+            return default;
+        }
         static public bool IsDescendantOf(this GameObject t, GameObject a)
         {
             for (Transform i = t.transform.parent; i != null; i = i.parent)
