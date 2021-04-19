@@ -74,9 +74,6 @@ namespace ModPack
         static private ModSetting<int> _skillsLimit, _passiveSkillsLimit, _activeSkillsLimit;
         static private ModSetting<LimitedSkillTypes> _limitedSkillTypes;
         static private ModSetting<bool> _freePostBreakthroughBasicSkills;
-        static private ModSetting<bool> _allowExclusiveSkills;
-        static private ModSetting<bool> _costs;
-        static private ModSetting<int> _costBasic, _costBreakthrough, _costAdvanced;
         static private ModSetting<bool> _formattingToggle;
         static private ModSetting<Color> _iconColor, _borderColor, _indicatorColor;
         static private ModSetting<int> _indicatorSize;
@@ -88,11 +85,6 @@ namespace ModPack
             _activeSkillsLimit = CreateSetting(nameof(_activeSkillsLimit), 15, IntRange(1, 75));
             _limitedSkillTypes = CreateSetting(nameof(_limitedSkillTypes), LimitedSkillTypes.All);
             _freePostBreakthroughBasicSkills = CreateSetting(nameof(_freePostBreakthroughBasicSkills), false);
-            _allowExclusiveSkills = CreateSetting(nameof(_allowExclusiveSkills), false);
-            _costs = CreateSetting(nameof(_costs), false);
-            _costBasic = CreateSetting(nameof(_costBasic), 50, IntRange(0, 500));
-            _costBreakthrough = CreateSetting(nameof(_costBreakthrough), 0, IntRange(0, 500));
-            _costAdvanced = CreateSetting(nameof(_costAdvanced), 100, IntRange(0, 500));
 
             _formattingToggle = CreateSetting(nameof(_formattingToggle), false);
             _iconColor = CreateSetting(nameof(_iconColor), new Color(1f, 1f, 1f, 1 / 3f));
@@ -122,16 +114,7 @@ namespace ModPack
                 _freePostBreakthroughBasicSkills.Description = "After you learn a breakthrough skill, basic skills from the same tree no longer count towards limit";
                 Indent--;
             }
-            _allowExclusiveSkills.Format("Allow exclusive skills");
-            _allowExclusiveSkills.Description = "Allows you to learn both skills that are normally mutually exclusive";
-            _costs.Format("Costs");
-            Indent++;
-            {
-                _costBasic.Format("Basic", _costs);
-                _costBreakthrough.Format("Breakthrough", _costs);
-                _costAdvanced.Format("Advanced", _costs);
-                Indent--;
-            }
+
             _formattingToggle.Format("Limited skills formatting");
             _formattingToggle.IsAdvanced = true;
             Indent++;
@@ -147,6 +130,9 @@ namespace ModPack
                 Indent--;
             }
         }
+        override protected string Description
+        => "• Set limit on how many skills you can learn\n" +
+           "• Decide which skills count towards the limit";
 
         // Utility
         static private bool CanLearnMoreLimitedSkills(Character character, SkillTypes skillTypes)
@@ -176,7 +162,7 @@ namespace ModPack
         => skillTree.BreakthroughSkill != null && skillTree.BreakthroughSkill.HasSkill(character);
         static private bool IsPostBreakthrough(Character character, Skill skill)
         => TryGetSkillTree(skill, out SkillSchool tree) && HasBreakthroughInTree(character, tree);
-        static private bool IsBasic(Skill skill)
+        static public bool IsBasic(Skill skill)
         {
             if (TryGetSkillTree(skill, out SkillSchool tree))
                 if (tree.BreakthroughSkill == null)
@@ -187,10 +173,10 @@ namespace ModPack
                             return slot.ParentBranch.Index < tree.BreakthroughSkill.ParentBranch.Index;
             return false;
         }
-        static private bool IsBreakthrough(Skill skill)
+        static public bool IsBreakthrough(Skill skill)
         => TryGetSkillTree(skill, out SkillSchool tree)
         && tree.BreakthroughSkill != null && tree.BreakthroughSkill.Contains(skill);
-        static private bool IsAdvanced(Skill skill)
+        static public bool IsAdvanced(Skill skill)
         {
             if (TryGetSkillTree(skill, out SkillSchool tree) && tree.BreakthroughSkill != null)
                 foreach (var slot in tree.SkillSlots)
@@ -198,7 +184,7 @@ namespace ModPack
                         return slot.ParentBranch.Index > tree.BreakthroughSkill.ParentBranch.Index;
             return false;
         }
-        static private bool IsSide(Skill skill)
+        static public bool IsSide(Skill skill)
         => skill.ItemID.IsContainedIn(SIDE_SKILL_IDS);
         static private bool TryGetSkillTree(Skill skill, out SkillSchool skillTree)
         {
@@ -312,38 +298,6 @@ namespace ModPack
         static void TrainerPanel_Show_Post(ref TrainerPanel __instance)
         => InitializeCacheOfAllSkills(__instance.m_trainerTree);
 
-        [HarmonyPatch(typeof(TrainerPanel), "OnSkillSlotSelected"), HarmonyPrefix]
-        static bool TrainerPanel_OnSkillSlotSelected_Pre(ref TrainerPanel __instance, SkillTreeSlotDisplay _display)
-        {
-            // Cache
-            SkillSlot slot = _display.FocusedSkillSlot;
-
-            /*
-            SkillSchool tree = __instance.m_trainerTree;
-            Image currencyIcon = __instance.m_imgRemainingCurrency;
-            Text currencyLeft = __instance.m_remainingSilver;
-            CharacterInventory inventory = __instance.LocalCharacter.Inventory;
-
-            // Defaults
-            tree.AlternateCurrecy = -1;
-            tree.AlternateCurrencyIcon = null;
-            currencyIcon.overrideSprite = null;
-            currencyLeft.text = inventory.ContainedSilver.ToString(); 
-            */
-
-            // Overrides
-            if (IsBasic(slot.Skill))
-                slot.m_requiredMoney = _costBasic;
-
-            if (IsBreakthrough(slot.Skill))
-                slot.m_requiredMoney = _costBreakthrough;
-
-            if (IsAdvanced(slot.Skill))
-                slot.m_requiredMoney = _costAdvanced;
-
-            return true;
-        }
-
         [HarmonyPatch(typeof(TrainerPanel), "OnSkillSlotClicked"), HarmonyPrefix]
         static bool TrainerPanel_OnSkillSlotClicked_Pre(ref TrainerPanel __instance, ref SkillTreeSlotDisplay _slotDisplay)
         {
@@ -370,10 +324,6 @@ namespace ModPack
 
             __result |= !CanLearnMoreLimitedSkills(character, GetSkillTypes(skill));
         }
-
-        [HarmonyPatch(typeof(SkillSlot), "IsBlocked"), HarmonyPrefix]
-        static bool SkillSlot_IsBlocked_Pre(ref SkillSlot __instance)
-        => !_allowExclusiveSkills;
     }
 }
 
