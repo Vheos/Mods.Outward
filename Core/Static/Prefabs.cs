@@ -47,6 +47,16 @@ namespace ModPack
             ["Life Potion"] = 4300010,
 
             ["MistakenIngestible"] = 4500020,
+
+            ["Old Legion Shield"] = 2300070,
+            ["Boiled Azure Shrimp"] = 4100540,
+            ["Coralhorn Antler"] = 6600060,
+            ["Great Astral Potion"] = 4300250,
+            ["Alpha Tuanosaur Tail"] = 6600190,
+            ["Crystal Powder"] = 6600040,
+            ["Manticore Tail"] = 6600150,
+            ["Gold Ingot"] = 6300030,
+            ["Tsar Stone"] = 6200010,
         };
         static public readonly Dictionary<string, int> SkillIDsByName = new Dictionary<string, int>
         {
