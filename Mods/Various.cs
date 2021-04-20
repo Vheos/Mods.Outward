@@ -40,6 +40,7 @@ namespace ModPack
         static private ModSetting<bool> _healEnemiesOnLoad;
         static private ModSetting<bool> _repairOnlyEquipped;
         static private ModSetting<bool> _dontRestoreNeedsOnTravel;
+        static private ModSetting<bool> _multiplicativeStatModifiers;
         static private ModSetting<bool> _allowDodgeAnimationCancelling;
         static private ModSetting<bool> _allowPushKickRemoval;
         static private ModSetting<bool> _allowTargetingPlayers;
@@ -54,6 +55,7 @@ namespace ModPack
             _healEnemiesOnLoad = CreateSetting(nameof(_healEnemiesOnLoad), false);
             _repairOnlyEquipped = CreateSetting(nameof(_repairOnlyEquipped), false);
             _dontRestoreNeedsOnTravel = CreateSetting(nameof(_dontRestoreNeedsOnTravel), false);
+            _multiplicativeStatModifiers = CreateSetting(nameof(_multiplicativeStatModifiers), false);
 
             AddEventOnConfigClosed(() =>
             {
@@ -86,7 +88,12 @@ namespace ModPack
             _repairOnlyEquipped.Format("Smith repairs only equipment");
             _repairOnlyEquipped.Description = "Blacksmith will not repair items in your pouch and bag";
             _dontRestoreNeedsOnTravel.Format("Don't restore needs when travelling");
-            _dontRestoreNeedsOnTravel.Description = "Normally, travelling restores 100% Food, Drink and Sleep\n and resets temperature";
+            _dontRestoreNeedsOnTravel.Description = "Normally, travelling restores 100% needs and resets temperature\n" +
+                                                    "but some mages prefer to have control over their sleep level :)";
+            _multiplicativeStatModifiers.Format("Multiplicative stat modifiers");
+            _multiplicativeStatModifiers.Description = "The final stat modifier will be a PRODUCT\n" +
+            										   "of all current modifiers (instead of a SUM)\n" +
+                                                       "this prevents stats from ever reaching 0%";
 
             _allowDodgeAnimationCancelling.Format("Allow dodge to cancel actions");
             _allowDodgeAnimationCancelling.Description = "[WORK IN PROGRESS] Cancelling certain animations might lead to glitches";
@@ -101,6 +108,67 @@ namespace ModPack
         }
         override protected string Description
         => "• Mods (small and big) that didn't get their own section yet :)";
+
+        // Multiplicative stat modifiers
+        [HarmonyPatch(typeof(Stat), "GetModifier"), HarmonyPrefix]
+        static bool Stat_GetModifier_Pre(ref Stat __instance, ref float __result, ref IList<Tag> _tags, ref int baseModifier)
+        {
+            #region quit
+            if (!_multiplicativeStatModifiers)
+                return true;
+            #endregion
+
+            DictionaryExt<string, StatStack> multipliers = __instance.m_multiplierStack;
+            __result = baseModifier;
+            for (int i = 0; i < multipliers.Count; i++)
+            {
+                if (multipliers.Values[i].HasEnded)
+                    multipliers.RemoveAt(i--);
+                else if (multipliers.Values[i].SameTags(_tags))
+                {
+                    float value = multipliers.Values[i].EffectiveValue;
+                    if (!__instance.NullifyPositiveStat || value <= 0f)
+                        __result *= (1f + value);
+                }
+            }
+            return false;
+        }
+
+        [HarmonyPatch(typeof(CharacterEquipment), "GetTotalStaminaReductionModifier"), HarmonyPrefix]
+        static bool CharacterEquipment_GetTotalStaminaReductionModifier_Pre(ref CharacterEquipment __instance, ref float __result)
+        {
+            #region quit
+            if (!_multiplicativeStatModifiers)
+                return true;
+            #endregion
+
+            __result = 1f;
+            foreach (var slot in __instance.m_equipmentSlots)
+                if (slot != null && __instance.HasItemEquipped(slot.SlotType)
+                && (slot.SlotType != EquipmentSlot.EquipmentSlotIDs.LeftHand || !slot.EquippedItem.TwoHanded))
+                    __result *= 1f + slot.EquippedItem.StaminaCostReduction / 100f;
+            __result -= 1f;
+
+            return false;
+        }
+
+        [HarmonyPatch(typeof(CharacterEquipment), "GetTotalManaUseModifier"), HarmonyPrefix]
+        static bool CharacterEquipment_GetTotalManaUseModifier_Pre(ref CharacterEquipment __instance, ref float __result)
+        {
+            #region quit
+            if (!_multiplicativeStatModifiers)
+                return true;
+            #endregion
+
+            __result = 1f;
+            foreach (var slot in __instance.m_equipmentSlots)
+                if (slot != null && __instance.HasItemEquipped(slot.SlotType)
+                && (slot.SlotType != EquipmentSlot.EquipmentSlotIDs.LeftHand || !slot.EquippedItem.TwoHanded))
+                    __result *= 1f + slot.EquippedItem.ManaUseModifier / 100f;
+            __result -= 1f;
+
+            return false;
+        }
 
         // Don't restore needs when travelling
         [HarmonyPatch(typeof(FastTravelMenu), "OnConfirmFastTravel"), HarmonyPrefix]
