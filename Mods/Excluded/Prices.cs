@@ -78,9 +78,10 @@ namespace ModPack
         {
             _sellModifier.Format("Sell modifier");
             _buyModifier.Format("Buy modifier");
-            _customNonBasicSkillCosts.Format("Custom prices for non-basic skills");
+            _customNonBasicSkillCosts.Format("Custom currencies for non-basic skills");
+            _customNonBasicSkillCosts.IsAdvanced = true;
             _costBasic.Format("Basic skills");
-            _costBreakthrough.Format("Breakthrough skills");
+            _costBreakthrough.Format("Breakthrough skills", _customNonBasicSkillCosts, false);
             _costAdvanced.Format("Advanced skills", _customNonBasicSkillCosts, false);
             _allowExclusiveSkills.Format("Allow exclusive skills");
             _allowExclusiveSkills.Description = "Allows you to learn both skills that are normally mutually exclusive\n" +
