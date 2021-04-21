@@ -17,11 +17,14 @@ namespace ModPack
     {
         #region const
         private const string ICONS_FOLDER = @"Prices\";
+        static private Vector2 ALTERNATE_CURRENCY_ICON_SCALE = new Vector2(1.75f, 1.75f);
+        static private Vector2 ALTERNATE_CURRENCY_ICON_PIVOT = new Vector2(-0.5f, 1f);
         #endregion
         #region class
         private class SkillRequirement
         {
             // Fields
+            public string ItemName;
             public int ItemID
             { get; private set; }
             public int Amount
@@ -32,28 +35,32 @@ namespace ModPack
             // Constructors
             public SkillRequirement(string name, int amount = 1)
             {
+                ItemName = name;
                 ItemID = Prefabs.ItemIDsByName[name];
                 Amount = amount;
                 Icon = Utility.CreateSpriteFromFile(Utility.PluginFolderPath + ICONS_FOLDER + name + ".PNG");
             }
         }
-        #endregion 
+        #endregion
 
         // Settings
         static private ModSetting<int> _sellModifier, _buyModifier;
         static private ModSetting<bool> _customNonBasicSkillCosts;
-        static private ModSetting<int> _costBasic, _costBreakthrough, _costAdvanced;
-        static private ModSetting<bool> _allowExclusiveSkills;
+        static private ModSetting<bool> _skillCostsToggle;
+        static private ModSetting<int> _skillBasic, _skillBreakthrough, _skillAdvanced;
+        static private ModSetting<bool> _learnMutuallyExclusiveSkills;
         override protected void Initialize()
         {
             _sellModifier = CreateSetting(nameof(_sellModifier), 100, IntRange(0, 200));
             _buyModifier = CreateSetting(nameof(_buyModifier), 100, IntRange(0, 200));
-            _customNonBasicSkillCosts = CreateSetting(nameof(_customNonBasicSkillCosts), false);
-            _costBasic = CreateSetting(nameof(_costBasic), 50, IntRange(0, 1000));
-            _costBreakthrough = CreateSetting(nameof(_costBreakthrough), 0, IntRange(0, 1000));
-            _costAdvanced = CreateSetting(nameof(_costAdvanced), 100, IntRange(0, 1000));
-            _allowExclusiveSkills = CreateSetting(nameof(_allowExclusiveSkills), false);
 
+            _skillCostsToggle = CreateSetting(nameof(_skillCostsToggle), false);
+            _skillBasic = CreateSetting(nameof(_skillBasic), 50, IntRange(0, 1000));
+            _skillBreakthrough = CreateSetting(nameof(_skillBreakthrough), 0, IntRange(0, 1000));
+            _skillAdvanced = CreateSetting(nameof(_skillAdvanced), 100, IntRange(0, 1000));
+            _learnMutuallyExclusiveSkills = CreateSetting(nameof(_learnMutuallyExclusiveSkills), false);
+
+            _customNonBasicSkillCosts = CreateSetting(nameof(_customNonBasicSkillCosts), false);
             _skillRequirementsByTrainerName = new Dictionary<string, SkillRequirement>()
             {
                 ["Kazite Spellblade"] = new SkillRequirement("Old Legion Shield"),
@@ -78,14 +85,35 @@ namespace ModPack
         {
             _sellModifier.Format("Sell modifier");
             _buyModifier.Format("Buy modifier");
-            _customNonBasicSkillCosts.Format("Custom currencies for non-basic skills");
-            _customNonBasicSkillCosts.IsAdvanced = true;
-            _costBasic.Format("Basic skills");
-            _costBreakthrough.Format("Breakthrough skills", _customNonBasicSkillCosts, false);
-            _costAdvanced.Format("Advanced skills", _customNonBasicSkillCosts, false);
-            _allowExclusiveSkills.Format("Allow exclusive skills");
-            _allowExclusiveSkills.Description = "Allows you to learn both skills that are normally mutually exclusive\n" +
-                                                "for a small fee of one Tsar Stone :)";
+
+
+
+            _skillCostsToggle.Format("Skills");
+            Indent++;
+            {
+                _skillBasic.Format("Basic", _skillCostsToggle);
+                _skillBasic.Description = "below breakthrough in a skill tree";
+                _skillBreakthrough.Format("Breakthrough", _skillCostsToggle);
+                _skillAdvanced.Format("Advanced", _skillCostsToggle);
+                _skillAdvanced.Description = "above breakthrough in a skill tree";
+                _customNonBasicSkillCosts.Format("[PERSONAL] Custom costs");
+
+                _customNonBasicSkillCosts.Description = "Learning breakthrough and advanced skills will require specific items, depending on the skill tree:";
+                foreach (var skillRequirementByTrainerName in _skillRequirementsByTrainerName)
+                {
+                    string trainer = skillRequirementByTrainerName.Key;
+                    SkillRequirement requirement = skillRequirementByTrainerName.Value;
+                    if (requirement != null)
+                        _customNonBasicSkillCosts.Description += $"\n{trainer}   -   {requirement.Amount}x {requirement.ItemName}";
+                }
+
+                _customNonBasicSkillCosts.IsAdvanced = true;
+                Indent--;
+            }
+
+            _learnMutuallyExclusiveSkills.Format("Learn mutually exclusive skills");
+            _learnMutuallyExclusiveSkills.Description = "Allows you to learn both skills that are normally mutually exclusive\n" +
+                                                        "for a small fee of one Tsar Stone :)";
         }
 
         // Utility
@@ -117,11 +145,11 @@ namespace ModPack
 
             // Price
             if (SkillLimits.IsBasic(slot.Skill))
-                slot.m_requiredMoney = _costBasic;
+                slot.m_requiredMoney = _skillBasic;
             else if (SkillLimits.IsBreakthrough(slot.Skill))
-                slot.m_requiredMoney = _costBreakthrough;
+                slot.m_requiredMoney = _skillBreakthrough;
             else if (SkillLimits.IsAdvanced(slot.Skill))
-                slot.m_requiredMoney = _costAdvanced;
+                slot.m_requiredMoney = _skillAdvanced;
 
             // Defaults
             tree.AlternateCurrecy = -1;
@@ -135,7 +163,7 @@ namespace ModPack
 
             // Currency
             bool isCustomAdvancedCurrency = _customNonBasicSkillCosts && !SkillLimits.IsBasic(slot.Skill);
-            bool isExclusiveCurrency = _allowExclusiveSkills && HasMutuallyExclusiveSkill(__instance.LocalCharacter, slot);
+            bool isExclusiveCurrency = _learnMutuallyExclusiveSkills && HasMutuallyExclusiveSkill(__instance.LocalCharacter, slot);
 
             SkillRequirement skillRequirement = null;
             if (isExclusiveCurrency)
@@ -148,10 +176,10 @@ namespace ModPack
                 tree.AlternateCurrecy = skillRequirement.ItemID;
                 tree.AlternateCurrencyIcon = skillRequirement.Icon;
                 currencyIcon.overrideSprite = skillRequirement.Icon;
-                currencyIcon.rectTransform.pivot = new Vector2(-0.5f, 0.5f);
-                currencyIcon.rectTransform.localScale = 1.75f.ToVector2();
-                currencyReqIcon.rectTransform.pivot = new Vector2(-0.5f, 0.5f);
-                currencyReqIcon.rectTransform.localScale = 1.75f.ToVector2();
+                currencyIcon.rectTransform.pivot = ALTERNATE_CURRENCY_ICON_PIVOT;
+                currencyIcon.rectTransform.localScale = ALTERNATE_CURRENCY_ICON_SCALE;
+                currencyReqIcon.rectTransform.pivot = ALTERNATE_CURRENCY_ICON_PIVOT;
+                currencyReqIcon.rectTransform.localScale = ALTERNATE_CURRENCY_ICON_SCALE;
                 currencyLeft.text = inventory.ItemCount(skillRequirement.ItemID).ToString();
                 slot.m_requiredMoney = skillRequirement.Amount;
             }
@@ -161,6 +189,6 @@ namespace ModPack
 
         [HarmonyPatch(typeof(SkillSlot), "IsBlocked"), HarmonyPrefix]
         static bool SkillSlot_IsBlocked_Pre(ref SkillSlot __instance)
-        => !_allowExclusiveSkills;
+        => !_learnMutuallyExclusiveSkills;
     }
 }
