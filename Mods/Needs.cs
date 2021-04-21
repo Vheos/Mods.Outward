@@ -155,6 +155,7 @@ namespace ModPack
         static private ModSetting<int> _drinkValuesPotions, _drinkValuesCures, _drinkValuesTeas, _drinkValuesOther;
         static private ModSetting<bool> _allowCuresWhileOverlimited;
         static private ModSetting<bool> _allowOnlyDOTCures;
+        static private ModSetting<bool> _dontRestoreNeedsOnTravel;
         override protected void Initialize()
         {
             _settingsByNeed = new Dictionary<Need, NeedSettings>();
@@ -182,6 +183,7 @@ namespace ModPack
             _sleepBuffsDuration = CreateSetting(nameof(_sleepBuffsDuration), 40, IntRange(0, 100));
             _allowCuresWhileOverlimited = CreateSetting(nameof(_allowCuresWhileOverlimited), false);
             _allowOnlyDOTCures = CreateSetting(nameof(_allowOnlyDOTCures), false);
+            _dontRestoreNeedsOnTravel = CreateSetting(nameof(_dontRestoreNeedsOnTravel), false);
 
             // Events
             AddEventOnConfigClosed(() =>
@@ -269,6 +271,9 @@ namespace ModPack
                 _allowOnlyDOTCures.Description = "Same as above, but limited to curing status effects that damage you over time";
                 Indent--;
             }
+            _dontRestoreNeedsOnTravel.Format("Don't restore needs when travelling");
+            _dontRestoreNeedsOnTravel.Description = "Normally, travelling restores 100% needs and resets temperature\n" +
+                                                    "but mages may prefer to have control over their sleep level :)";
         }
         override protected string Description
         => "• Enable \"Overlimits\" system\n" +
@@ -624,6 +629,18 @@ namespace ModPack
             return false;
         }
 
+        // Don't restore needs when travelling
+        [HarmonyPatch(typeof(FastTravelMenu), "OnConfirmFastTravel"), HarmonyPrefix]
+        static bool FastTravelMenu_OnConfirmFastTravel_Pre(ref FastTravelMenu __instance)
+        {
+            #region quit
+            if (!_dontRestoreNeedsOnTravel)
+                return true;
+            #endregion
+
+            __instance.Hide();
+            return false;
+        }
     }
 }
 

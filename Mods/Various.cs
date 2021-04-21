@@ -38,7 +38,7 @@ namespace ModPack
         static private ModSetting<bool> _removeDodgeInvulnerability;
         static private ModSetting<bool> _healEnemiesOnLoad;
         static private ModSetting<bool> _repairOnlyEquipped;
-        static private ModSetting<bool> _dontRestoreNeedsOnTravel;
+
         static private ModSetting<bool> _multiplicativeStacking;
         static private ModSetting<int> _armorTrainingPenaltyReduction;
         static private ModSetting<bool> _applyArmorTrainingToManaCost;
@@ -55,7 +55,7 @@ namespace ModPack
             _removeDodgeInvulnerability = CreateSetting(nameof(_removeDodgeInvulnerability), false);
             _healEnemiesOnLoad = CreateSetting(nameof(_healEnemiesOnLoad), false);
             _repairOnlyEquipped = CreateSetting(nameof(_repairOnlyEquipped), false);
-            _dontRestoreNeedsOnTravel = CreateSetting(nameof(_dontRestoreNeedsOnTravel), false);
+          
             _multiplicativeStacking = CreateSetting(nameof(_multiplicativeStacking), false);
             _armorTrainingPenaltyReduction = CreateSetting(nameof(_armorTrainingPenaltyReduction), 50, IntRange(0, 100));
             _applyArmorTrainingToManaCost = CreateSetting(nameof(_applyArmorTrainingToManaCost), false);
@@ -90,9 +90,6 @@ namespace ModPack
             _healEnemiesOnLoad.Description = "Every loading screen fully heals all enemies";
             _repairOnlyEquipped.Format("Smith repairs only equipment");
             _repairOnlyEquipped.Description = "Blacksmith will not repair items in your pouch and bag";
-            _dontRestoreNeedsOnTravel.Format("Don't restore needs when travelling");
-            _dontRestoreNeedsOnTravel.Description = "Normally, travelling restores 100% needs and resets temperature\n" +
-                                                    "but some mages prefer to have control over their sleep level :)";
             _multiplicativeStacking.Format("Multiplicative stacking");
             _multiplicativeStacking.Description = "Some stats will stack multiplicatively instead of additvely\n" +
                                                        "(movement speed, stamina cost, mana cost)";
@@ -105,15 +102,15 @@ namespace ModPack
                 Indent--;
             }
 
-            _allowDodgeAnimationCancelling.Format("Allow dodge to cancel actions");
-            _allowDodgeAnimationCancelling.Description = "[WORK IN PROGRESS] Cancelling certain animations might lead to glitches";
+            _allowDodgeAnimationCancelling.Format("[WIP] Allow dodge to cancel actions");
+            _allowDodgeAnimationCancelling.Description = "Cancelling certain animations might lead to glitches";
             _allowDodgeAnimationCancelling.IsAdvanced = true;
-            _allowPushKickRemoval.Format("Allow \"Push Kick\" removal");
-            _allowPushKickRemoval.Description = "[WORK IN PROGRESS] For future skill trees mod\n" +
+            _allowPushKickRemoval.Format("[WIP] Allow \"Push Kick\" removal");
+            _allowPushKickRemoval.Description = "For future skill trees mod\n" +
                                                 "Normally, player data won't be saved if they don't have the \"Push Kick\" skill";
             _allowPushKickRemoval.IsAdvanced = true;
-            _allowTargetingPlayers.Format("Allow targeting players");
-            _allowTargetingPlayers.Description = "[WORK IN PROGRESS] For future co-op skills mod";
+            _allowTargetingPlayers.Format("[WIP] Allow targeting players");
+            _allowTargetingPlayers.Description = "For future co-op skills mod";
             _allowTargetingPlayers.IsAdvanced = true;
         }
         override protected string Description
@@ -185,19 +182,6 @@ namespace ModPack
         [HarmonyPatch(typeof(CharacterEquipment), "GetTotalManaUseModifier"), HarmonyPrefix]
         static bool CharacterEquipment_GetTotalManaUseModifier_Pre(ref CharacterEquipment __instance, ref float __result)
         => TryApplyMultiplicativeStacking(__instance, ref __result, slot => slot.EquippedItem.ManaUseModifier, false, _applyArmorTrainingToManaCost);
-
-        // Don't restore needs when travelling
-        [HarmonyPatch(typeof(FastTravelMenu), "OnConfirmFastTravel"), HarmonyPrefix]
-        static bool FastTravelMenu_OnConfirmFastTravel_Pre(ref FastTravelMenu __instance)
-        {
-            #region quit
-            if (!_dontRestoreNeedsOnTravel)
-                return true;
-            #endregion
-
-            __instance.Hide();
-            return false;
-        }
 
         // Blacksmith repair nerf
         [HarmonyPatch(typeof(ItemContainer), "RepairContainedEquipment"), HarmonyPrefix]
