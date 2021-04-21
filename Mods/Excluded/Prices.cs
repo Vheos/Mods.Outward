@@ -18,7 +18,7 @@ namespace ModPack
         #region const
         private const string ICONS_FOLDER = @"Prices\";
         static private Vector2 ALTERNATE_CURRENCY_ICON_SCALE = new Vector2(1.75f, 1.75f);
-        static private Vector2 ALTERNATE_CURRENCY_ICON_PIVOT = new Vector2(-0.5f, 1f);
+        static private Vector2 ALTERNATE_CURRENCY_ICON_PIVOT = new Vector2(-0.5f, 0.5f);
         #endregion
         #region class
         private class SkillRequirement
@@ -44,25 +44,38 @@ namespace ModPack
         #endregion
 
         // Settings
+        static private ModSetting<bool> _merchantsToggle;
         static private ModSetting<int> _sellModifier, _buyModifier;
+        static private ModSetting<int> _randomizePricesExtent, _randomizePricesPerDays;
+        static private ModSetting<bool> _randomizePricesPerItem, _randomizePricesPerMerchant;
         static private ModSetting<bool> _customNonBasicSkillCosts;
         static private ModSetting<bool> _skillCostsToggle;
         static private ModSetting<int> _skillBasic, _skillBreakthrough, _skillAdvanced;
         static private ModSetting<bool> _learnMutuallyExclusiveSkills;
+        static private ModSetting<bool> _exclusiveSkillCostsTsar;
+        static private ModSetting<int> _exclusiveSkillCostMultiplier;
         override protected void Initialize()
         {
+            _merchantsToggle = CreateSetting(nameof(_merchantsToggle), false);
             _sellModifier = CreateSetting(nameof(_sellModifier), 100, IntRange(0, 200));
             _buyModifier = CreateSetting(nameof(_buyModifier), 100, IntRange(0, 200));
+            _randomizePricesExtent = CreateSetting(nameof(_randomizePricesExtent), 0, IntRange(0, 100));
+            _randomizePricesPerDays = CreateSetting(nameof(_randomizePricesPerDays), 7, IntRange(1, 100));
+            _randomizePricesPerItem = CreateSetting(nameof(_randomizePricesPerItem), true);
+            _randomizePricesPerMerchant = CreateSetting(nameof(_randomizePricesPerMerchant), true);
 
             _skillCostsToggle = CreateSetting(nameof(_skillCostsToggle), false);
             _skillBasic = CreateSetting(nameof(_skillBasic), 50, IntRange(0, 1000));
-            _skillBreakthrough = CreateSetting(nameof(_skillBreakthrough), 0, IntRange(0, 1000));
-            _skillAdvanced = CreateSetting(nameof(_skillAdvanced), 100, IntRange(0, 1000));
+            _skillBreakthrough = CreateSetting(nameof(_skillBreakthrough), 500, IntRange(0, 1000));
+            _skillAdvanced = CreateSetting(nameof(_skillAdvanced), 600, IntRange(0, 1000));
             _learnMutuallyExclusiveSkills = CreateSetting(nameof(_learnMutuallyExclusiveSkills), false);
+            _exclusiveSkillCostsTsar = CreateSetting(nameof(_exclusiveSkillCostsTsar), false);
+            _exclusiveSkillCostMultiplier = CreateSetting(nameof(_exclusiveSkillCostMultiplier), 10, IntRange(0, 100));
 
             _customNonBasicSkillCosts = CreateSetting(nameof(_customNonBasicSkillCosts), false);
             _skillRequirementsByTrainerName = new Dictionary<string, SkillRequirement>()
             {
+                // Vanilla
                 ["Kazite Spellblade"] = new SkillRequirement("Old Legion Shield"),
                 ["Cabal Hermit"] = new SkillRequirement("Boiled Azure Shrimp", 3),
                 ["Wild Hunter"] = new SkillRequirement("Coralhorn Antler", 2),
@@ -71,11 +84,11 @@ namespace ModPack
                 ["Philosopher"] = new SkillRequirement("Crystal Powder", 3),
                 ["Rogue Engineer"] = new SkillRequirement("Manticore Tail"),
                 ["Mercenary"] = new SkillRequirement("Gold Ingot", 2),
-
+                // DLC
                 ["The Speedster"] = null,
                 ["Hex Mage"] = null,
                 ["Primal Ritualist"] = null,
-
+                // No breakthrough
                 ["Specialist"] = null,
                 ["Weapon Master"] = null,
             };
@@ -83,12 +96,28 @@ namespace ModPack
         }
         override protected void SetFormatting()
         {
-            _sellModifier.Format("Sell modifier");
-            _buyModifier.Format("Buy modifier");
+            _merchantsToggle.Format("Merchants");
+            Indent++;
+            {
+                _buyModifier.Format("Buying price multiplier", _merchantsToggle);
+                _sellModifier.Format("Selling price multiplier", _merchantsToggle);
+                _randomizePricesExtent.Format("Randomize prices", _merchantsToggle);
+                _randomizePricesExtent.Description = "Prices will range from [100% - X%] to [100% + X%]\n" +
+                                                     "and depend on current time, merchant and/or item";
+                Indent++;
+                {
+                    _randomizePricesPerDays.Format("per days", _randomizePricesExtent, () => _randomizePricesExtent > 0);
+                    _randomizePricesPerDays.Description = "All price modifiers will be rolled every X days";
+                    _randomizePricesPerMerchant.Format("per merchant", _randomizePricesExtent, () => _randomizePricesExtent > 0);
+                    _randomizePricesPerMerchant.Description = "Every merchant will have its own randomized price modifier";
+                    _randomizePricesPerItem.Format("per item", _randomizePricesExtent, () => _randomizePricesExtent > 0);
+                    _randomizePricesPerItem.Description = "Every item will have its own randomized price";
+                    Indent--;
+                }
+                Indent--;
+            }
 
-
-
-            _skillCostsToggle.Format("Skills");
+            _skillCostsToggle.Format("Skill trainers");
             Indent++;
             {
                 _skillBasic.Format("Basic", _skillCostsToggle);
@@ -96,8 +125,17 @@ namespace ModPack
                 _skillBreakthrough.Format("Breakthrough", _skillCostsToggle);
                 _skillAdvanced.Format("Advanced", _skillCostsToggle);
                 _skillAdvanced.Description = "above breakthrough in a skill tree";
-                _customNonBasicSkillCosts.Format("[PERSONAL] Custom costs");
 
+                _learnMutuallyExclusiveSkills.Format("Learn mutually exclusive skills", _skillCostsToggle);
+                _learnMutuallyExclusiveSkills.Description = "Allows you to learn both skills that are normally mutually exclusive at defined price";
+                Indent++;
+                {
+                    _exclusiveSkillCostsTsar.Format("at the cost of a Tsar Stone", _learnMutuallyExclusiveSkills);
+                    _exclusiveSkillCostMultiplier.Format("at normal price multiplied by", _exclusiveSkillCostsTsar, false);
+                    Indent--;
+                }
+
+                _customNonBasicSkillCosts.Format("[PERSONAL] Custom costs", _skillCostsToggle);
                 _customNonBasicSkillCosts.Description = "Learning breakthrough and advanced skills will require specific items, depending on the skill tree:";
                 foreach (var skillRequirementByTrainerName in _skillRequirementsByTrainerName)
                 {
@@ -106,30 +144,62 @@ namespace ModPack
                     if (requirement != null)
                         _customNonBasicSkillCosts.Description += $"\n{trainer}   -   {requirement.Amount}x {requirement.ItemName}";
                 }
-
                 _customNonBasicSkillCosts.IsAdvanced = true;
                 Indent--;
             }
-
-            _learnMutuallyExclusiveSkills.Format("Learn mutually exclusive skills");
-            _learnMutuallyExclusiveSkills.Description = "Allows you to learn both skills that are normally mutually exclusive\n" +
-                                                        "for a small fee of one Tsar Stone :)";
         }
+        override protected string Description
+        => "• Change final buy/sell modifiers\n" +
+           "• Randomize prices based on time, merchant and item\n" +
+           "• Set price for learning mutually exclusive skills";
 
         // Utility
         static private Dictionary<string, SkillRequirement> _skillRequirementsByTrainerName;
         static private SkillRequirement _exclusiveSkillRequirement;
         static private bool HasMutuallyExclusiveSkill(Character character, SkillSlot skillSlot)
         => skillSlot.SiblingSlot != null && skillSlot.SiblingSlot.HasSkill(character);
+        static private float GetRandomPriceModifier(Item item, Merchant merchant)
+        {
+            int itemSeed = _randomizePricesPerItem ? item.ItemID : 0;
+            int merchantSeed = _randomizePricesPerMerchant ? merchant.m_uid.GetHashCode() : 0;
+            int timeSeed = (GameTime / 24f / _randomizePricesPerDays).RoundDown();
+            UnityEngine.Random.InitState(itemSeed + merchantSeed + timeSeed);
+
+            return 1f + UnityEngine.Random.Range(-_randomizePricesExtent, +_randomizePricesExtent) / 100f;
+        }
+        static private void ModifyPriceAndColor(ref int finalPrice, Item item, Merchant merchant, ModSetting<int> buySellModifier)
+        {
+            // Price
+            float modifier = buySellModifier / 100f;
+            int preRandomPrice = (finalPrice * modifier).Round();
+
+            if (_randomizePricesExtent > 0)
+                modifier *= GetRandomPriceModifier(item, merchant);
+            finalPrice = (finalPrice * modifier).Round();
+
+            // Color
+            if (_randomizePricesExtent == 0)
+                return;
+
+            float relativeIncrease = finalPrice == 0 ? 0f : 1f;
+            if (preRandomPrice != 0)
+                relativeIncrease = (float)finalPrice / preRandomPrice - 1f;
+
+            if (item.OwnerCharacter == null)
+                relativeIncrease *= -1;
+
+            Color targetColor = relativeIncrease > 0 ? Color.green : Color.red;
+            item.m_refItemDisplay.m_lblValue.color = Color.Lerp(Color.white, targetColor, relativeIncrease.Abs() * 100f / _randomizePricesExtent);
+        }
 
         // Price modifier
         [HarmonyPatch(typeof(Item), "GetSellValue"), HarmonyPostfix]
-        static void Item_GetSellValue_Post(ref Item __instance, ref int __result)
-        => __result = (__result * _sellModifier / 100f).Round();
+        static void Item_GetSellValue_Post(ref Item __instance, ref int __result, ref Merchant _merchant)
+        => ModifyPriceAndColor(ref __result, __instance, _merchant, _sellModifier);
 
         [HarmonyPatch(typeof(Item), "GetBuyValue"), HarmonyPostfix]
-        static void Item_GetBuyValue_Post(ref Item __instance, ref int __result)
-        => __result = (__result * _buyModifier / 100f).Round();
+        static void Item_GetBuyValue_Post(ref Item __instance, ref int __result, ref Merchant _merchant)
+        => ModifyPriceAndColor(ref __result, __instance, _merchant, _buyModifier);
 
         // Skill prices
         [HarmonyPatch(typeof(TrainerPanel), "OnSkillSlotSelected"), HarmonyPrefix]
@@ -163,10 +233,10 @@ namespace ModPack
 
             // Currency
             bool isCustomAdvancedCurrency = _customNonBasicSkillCosts && !SkillLimits.IsBasic(slot.Skill);
-            bool isExclusiveCurrency = _learnMutuallyExclusiveSkills && HasMutuallyExclusiveSkill(__instance.LocalCharacter, slot);
+            bool isExclusive = _learnMutuallyExclusiveSkills && HasMutuallyExclusiveSkill(__instance.LocalCharacter, slot);
 
             SkillRequirement skillRequirement = null;
-            if (isExclusiveCurrency)
+            if (isExclusive && _exclusiveSkillCostsTsar)
                 skillRequirement = _exclusiveSkillRequirement;
             else if (isCustomAdvancedCurrency)
                 skillRequirement = _skillRequirementsByTrainerName[__instance.m_trainerTree.Name];
@@ -183,6 +253,9 @@ namespace ModPack
                 currencyLeft.text = inventory.ItemCount(skillRequirement.ItemID).ToString();
                 slot.m_requiredMoney = skillRequirement.Amount;
             }
+
+            if (isExclusive && !_exclusiveSkillCostsTsar)
+                slot.m_requiredMoney *= _exclusiveSkillCostMultiplier;
 
             return true;
         }
