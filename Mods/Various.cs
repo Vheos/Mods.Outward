@@ -80,7 +80,7 @@ namespace ModPack
             _armorSlotsToHide.Description = "Used to hide ugly helmets (purely visual)";
             _extraControllerQuickslots.Format("16 controller quickslots");
             _extraControllerQuickslots.Description = "Allows you to use the d-pad with LT/RT for 8 extra quickslots\n" +
-                                                     "(assumes default d-pad keybinds, sorry!)";
+                                                     "(requires default d-pad keybinds AND game restart)";
             _removeCoopScaling.Format("Remove multiplayer scaling");
             _removeCoopScaling.Description = "Enemies in multiplayer will have the same stats as in singleplayer";
             _removeDodgeInvulnerability.Format("Remove dodge invulnerability");
