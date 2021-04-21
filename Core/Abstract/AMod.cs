@@ -26,29 +26,31 @@ namespace ModPack
         // Order
         static private readonly Type[] MODS_ORDERING = new[]
         {
-            // Various
-            typeof(Various),
+            // Survival & Immersion
+            typeof(Needs),
+            typeof(Camping),
+            typeof(SkillLimits),
+            typeof(Prices),
+            typeof(Resets),
+            typeof(Interactions),
+            typeof(Revive),
+
+            // Combat
+            typeof(Damage),
+            typeof(Speed),
+            typeof(Targeting),  
 
             // UI
             typeof(GUI),
             typeof(Descriptions),
             typeof(Camera),
-            typeof(Targeting),
             typeof(KeyboardWalk),
 
-            // Gameplay
-            typeof(Damage),
-            typeof(Speed),
-            typeof(Needs),
-            typeof(SkillLimits),
-            typeof(Camping),
-            typeof(Resets),
-            typeof(Interactions),
-            typeof(Revive),
+            // Various
+            typeof(Various),
 
             // Private
             typeof(PistolTweaks),
-            typeof(Prices),
             typeof(Debug),
         };
 
