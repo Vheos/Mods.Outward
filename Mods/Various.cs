@@ -15,9 +15,8 @@ namespace ModPack
     public class Various : AMod
     {
         #region const
-        private const string BOTH_TRIGGERS_PANEL_NAME = "LT+RT";
-        private const string QUICKSLOT_12_NAME = "12";
         private const float DEFAULT_ENEMY_HEALTH_RESET_HOURS = 24f;   // Character.HoursToHealthReset
+        private const int ARMOR_TRAINING_ID = 8205220;
         #endregion
         #region enum
         [Flags]
@@ -40,7 +39,9 @@ namespace ModPack
         static private ModSetting<bool> _healEnemiesOnLoad;
         static private ModSetting<bool> _repairOnlyEquipped;
         static private ModSetting<bool> _dontRestoreNeedsOnTravel;
-        static private ModSetting<bool> _multiplicativeStatModifiers;
+        static private ModSetting<bool> _multiplicativeStacking;
+        static private ModSetting<int> _armorTrainingPenaltyReduction;
+        static private ModSetting<bool> _applyArmorTrainingToManaCost;
         static private ModSetting<bool> _allowDodgeAnimationCancelling;
         static private ModSetting<bool> _allowPushKickRemoval;
         static private ModSetting<bool> _allowTargetingPlayers;
@@ -55,7 +56,9 @@ namespace ModPack
             _healEnemiesOnLoad = CreateSetting(nameof(_healEnemiesOnLoad), false);
             _repairOnlyEquipped = CreateSetting(nameof(_repairOnlyEquipped), false);
             _dontRestoreNeedsOnTravel = CreateSetting(nameof(_dontRestoreNeedsOnTravel), false);
-            _multiplicativeStatModifiers = CreateSetting(nameof(_multiplicativeStatModifiers), false);
+            _multiplicativeStacking = CreateSetting(nameof(_multiplicativeStacking), false);
+            _armorTrainingPenaltyReduction = CreateSetting(nameof(_armorTrainingPenaltyReduction), 50, IntRange(0, 100));
+            _applyArmorTrainingToManaCost = CreateSetting(nameof(_applyArmorTrainingToManaCost), false);
 
             AddEventOnConfigClosed(() =>
             {
@@ -90,10 +93,17 @@ namespace ModPack
             _dontRestoreNeedsOnTravel.Format("Don't restore needs when travelling");
             _dontRestoreNeedsOnTravel.Description = "Normally, travelling restores 100% needs and resets temperature\n" +
                                                     "but some mages prefer to have control over their sleep level :)";
-            _multiplicativeStatModifiers.Format("Multiplicative stat modifiers");
-            _multiplicativeStatModifiers.Description = "The final stat modifier will be a PRODUCT\n" +
-            										   "of all current modifiers (instead of a SUM)\n" +
-                                                       "this prevents stats from ever reaching 0%";
+            _multiplicativeStacking.Format("Multiplicative stacking");
+            _multiplicativeStacking.Description = "Some stats will stack multiplicatively instead of additvely\n" +
+                                                       "(movement speed, stamina cost, mana cost)";
+            Indent++;
+            {
+                _armorTrainingPenaltyReduction.Format("Armor training penalty reduction", _multiplicativeStacking);
+                _armorTrainingPenaltyReduction.Description = "How much of equipment's movement speed and stamina cost penalties should \"Armor Training\" ignore";
+                _applyArmorTrainingToManaCost.Format("Apply armor training to mana cost", _multiplicativeStacking);
+                _applyArmorTrainingToManaCost.Description = "\"Armor Training\" will also lower equipment's mana cost penalties";
+                Indent--;
+            }
 
             _allowDodgeAnimationCancelling.Format("Allow dodge to cancel actions");
             _allowDodgeAnimationCancelling.Description = "[WORK IN PROGRESS] Cancelling certain animations might lead to glitches";
@@ -109,12 +119,43 @@ namespace ModPack
         override protected string Description
         => "• Mods (small and big) that didn't get their own section yet :)";
 
-        // Multiplicative stat modifiers
+        // Multiplicative stacking
+        static private bool HasLearnedArmorTraining(Character character)
+        => character.Inventory.SkillKnowledge.IsItemLearned(ARMOR_TRAINING_ID);
+        static private bool IsAnythingEquipped(EquipmentSlot slot)
+        => slot != null && slot.HasItemEquipped;
+        static private bool IsNotLeftHandUsedBy2H(EquipmentSlot slot)
+        => !(slot.SlotType == EquipmentSlot.EquipmentSlotIDs.LeftHand && slot.EquippedItem.TwoHanded);
+        static private bool IsEitherHand(EquipmentSlot slot)
+        => slot.SlotType == EquipmentSlot.EquipmentSlotIDs.RightHand || slot.SlotType == EquipmentSlot.EquipmentSlotIDs.LeftHand;
+        static private bool TryApplyMultiplicativeStacking(CharacterEquipment equipment, ref float result, Func<EquipmentSlot, float> getStatValue, bool invertedValue = false, bool applyArmorTraining = false)
+        {
+            #region quit
+            if (!_multiplicativeStacking)
+                return true;
+            #endregion
+
+            float invCoeff = invertedValue ? -1f : +1f;
+            bool canApplyArmorTraining = applyArmorTraining && HasLearnedArmorTraining(equipment.m_character);
+
+            result = 1f;
+            foreach (var slot in equipment.m_equipmentSlots)
+                if (IsAnythingEquipped(slot) && IsNotLeftHandUsedBy2H(slot))
+                {
+                    float armorTrainingCoeff = canApplyArmorTraining && getStatValue(slot) > 0f ? 1f - _armorTrainingPenaltyReduction / 100f : 1f;
+                    result *= 1f + getStatValue(slot) / 100f * invCoeff * armorTrainingCoeff;
+                }
+            result -= 1f;
+            result *= invCoeff;
+
+            return false;
+        }
+
         [HarmonyPatch(typeof(Stat), "GetModifier"), HarmonyPrefix]
         static bool Stat_GetModifier_Pre(ref Stat __instance, ref float __result, ref IList<Tag> _tags, ref int baseModifier)
         {
             #region quit
-            if (!_multiplicativeStatModifiers)
+            if (!_multiplicativeStacking)
                 return true;
             #endregion
 
@@ -134,41 +175,17 @@ namespace ModPack
             return false;
         }
 
-        [HarmonyPatch(typeof(CharacterEquipment), "GetTotalStaminaReductionModifier"), HarmonyPrefix]
-        static bool CharacterEquipment_GetTotalStaminaReductionModifier_Pre(ref CharacterEquipment __instance, ref float __result)
-        {
-            #region quit
-            if (!_multiplicativeStatModifiers)
-                return true;
-            #endregion
+        [HarmonyPatch(typeof(CharacterEquipment), "GetTotalMovementModifier"), HarmonyPrefix]
+        static bool CharacterEquipment_GetTotalMovementModifier_Pre(ref CharacterEquipment __instance, ref float __result)
+        => TryApplyMultiplicativeStacking(__instance, ref __result, slot => slot.EquippedItem.MovementPenalty, true, true);
 
-            __result = 1f;
-            foreach (var slot in __instance.m_equipmentSlots)
-                if (slot != null && __instance.HasItemEquipped(slot.SlotType)
-                && (slot.SlotType != EquipmentSlot.EquipmentSlotIDs.LeftHand || !slot.EquippedItem.TwoHanded))
-                    __result *= 1f + slot.EquippedItem.StaminaCostReduction / 100f;
-            __result -= 1f;
-
-            return false;
-        }
+        [HarmonyPatch(typeof(CharacterEquipment), "GetTotalStaminaUseModifier"), HarmonyPrefix]
+        static bool CharacterEquipment_GetTotalStaminaUseModifier_Pre(ref CharacterEquipment __instance, ref float __result)
+        => TryApplyMultiplicativeStacking(__instance, ref __result, slot => slot.EquippedItem.StaminaUsePenalty, false, true);
 
         [HarmonyPatch(typeof(CharacterEquipment), "GetTotalManaUseModifier"), HarmonyPrefix]
         static bool CharacterEquipment_GetTotalManaUseModifier_Pre(ref CharacterEquipment __instance, ref float __result)
-        {
-            #region quit
-            if (!_multiplicativeStatModifiers)
-                return true;
-            #endregion
-
-            __result = 1f;
-            foreach (var slot in __instance.m_equipmentSlots)
-                if (slot != null && __instance.HasItemEquipped(slot.SlotType)
-                && (slot.SlotType != EquipmentSlot.EquipmentSlotIDs.LeftHand || !slot.EquippedItem.TwoHanded))
-                    __result *= 1f + slot.EquippedItem.ManaUseModifier / 100f;
-            __result -= 1f;
-
-            return false;
-        }
+        => TryApplyMultiplicativeStacking(__instance, ref __result, slot => slot.EquippedItem.ManaUseModifier, _applyArmorTrainingToManaCost);
 
         // Don't restore needs when travelling
         [HarmonyPatch(typeof(FastTravelMenu), "OnConfirmFastTravel"), HarmonyPrefix]
@@ -472,6 +489,24 @@ namespace ModPack
 
     }
 }
+/*
+ *         [Flags]
+        private enum EquipmentStats
+        {
+            None = 0,
+            All = ~0,
+
+            Damage = 1 << 1,
+            ImpactDamage = 1 << 2,
+            Resistance = 1 << 3,
+            ImpactResistance = 1 << 4,
+            CorruptionResistance = 1 << 5,
+            MovementSpeed = 1 << 6,
+            StaminaCost = 1 << 7,
+            ManaCost = 1 << 8,
+            CooldownReduction = 1 << 9,
+        }
+ */
 
 /* POUCH
 private const float POUCH_CAPACITY = 10f;
