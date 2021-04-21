@@ -45,7 +45,10 @@ namespace ModPack
             "Doom Hex".SkillID(),
             "Curse Hex".SkillID(),
         };
-
+        static private Color ICON_COLOR = new Color(1f, 1f, 1f, 1 / 3f);
+        static private Color BORDER_COLOR = new Color(1 / 3f, 0f, 1f, 1f);
+        static private Color INDICATOR_COLOR = new Color(0.75f, 0f, 1f, 1 / 3f);
+        static private Vector2 INDICATOR_SCALE = new Vector2(1.5f, 1.5f);
         #endregion
         #region enum
         [Flags]
@@ -74,9 +77,6 @@ namespace ModPack
         static private ModSetting<int> _skillsLimit, _passiveSkillsLimit, _activeSkillsLimit;
         static private ModSetting<LimitedSkillTypes> _limitedSkillTypes;
         static private ModSetting<bool> _freePostBreakthroughBasicSkills;
-        static private ModSetting<bool> _formattingToggle;
-        static private ModSetting<Color> _iconColor, _borderColor, _indicatorColor;
-        static private ModSetting<int> _indicatorSize;
         override protected void Initialize()
         {
             _separateLimits = CreateSetting(nameof(_separateLimits), false);
@@ -85,12 +85,6 @@ namespace ModPack
             _activeSkillsLimit = CreateSetting(nameof(_activeSkillsLimit), 15, IntRange(1, 75));
             _limitedSkillTypes = CreateSetting(nameof(_limitedSkillTypes), LimitedSkillTypes.All);
             _freePostBreakthroughBasicSkills = CreateSetting(nameof(_freePostBreakthroughBasicSkills), false);
-
-            _formattingToggle = CreateSetting(nameof(_formattingToggle), false);
-            _iconColor = CreateSetting(nameof(_iconColor), new Color(1f, 1f, 1f, 1 / 3f));
-            _borderColor = CreateSetting(nameof(_borderColor), new Color(1 / 3f, 0f, 1f, 1f));
-            _indicatorColor = CreateSetting(nameof(_indicatorColor), new Color(0.75f, 0f, 1f, 1 / 3f));
-            _indicatorSize = CreateSetting(nameof(_indicatorSize), 150, IntRange(0, 200));
         }
         override protected void SetFormatting()
         {
@@ -112,21 +106,6 @@ namespace ModPack
             {
                 _freePostBreakthroughBasicSkills.Format("Basic skills are free post-break", _limitedSkillTypes, LimitedSkillTypes.Basic);
                 _freePostBreakthroughBasicSkills.Description = "After you learn a breakthrough skill, basic skills from the same tree no longer count towards limit";
-                Indent--;
-            }
-
-            _formattingToggle.Format("Limited skills formatting");
-            _formattingToggle.IsAdvanced = true;
-            Indent++;
-            {
-                _iconColor.Format("Icon", _formattingToggle);
-                _iconColor.IsAdvanced = true;
-                _indicatorColor.Format("Indicator", _formattingToggle);
-                _indicatorColor.IsAdvanced = true;
-                _borderColor.Format("Border", _formattingToggle);
-                _borderColor.IsAdvanced = true;
-                _indicatorSize.Format("Border", _formattingToggle);
-                _indicatorSize.IsAdvanced = true;
                 Indent--;
             }
         }
@@ -285,11 +264,11 @@ namespace ModPack
                 return true;
 
             // Custom
-            icon.color = _iconColor;
-            border.color = _borderColor;
-            indicator.color = _indicatorColor;
+            icon.color = ICON_COLOR;
+            border.color = BORDER_COLOR;
+            indicator.color = INDICATOR_COLOR;
             indicator.rectTransform.pivot = 1f.ToVector2();
-            indicator.rectTransform.localScale = _indicatorSize.Value.Div(100).ToVector2();
+            indicator.rectTransform.localScale = INDICATOR_SCALE;
             indicator.GOSetActive(true);
             return false;
         }

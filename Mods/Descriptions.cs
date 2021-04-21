@@ -22,6 +22,14 @@ namespace ModPack
         private const float FRESHNESS_LIFESPAN_MAX = 104f;   // Travel Ration
         private const int SIZE_MIN = 0;
         private const int DEFAULT_FONT_SIZE = 19;
+
+        static private Color HEALTH_COLOR = new Color(0.765f, 0.522f, 0.525f, 1f);
+        static private Color STAMINA_COLOR = new Color(0.827f, 0.757f, 0.584f, 1f);
+        static private Color MANA_COLOR = new Color(0.529f, 0.702f, 0.816f, 1f);
+        static private Color NEEDS_COLOR = new Color(0.584f, 0.761f, 0.522f, 1f);
+        static private Color CORRUPTION_COLOR = new Color(0.655f, 0.647f, 0.282f, 1f);
+        static private Color STATUSEFFECT_COLOR = new Color(0.780f, 1f, 0.702f, 1f);
+        static private Color STATUSCURES_COLOR = new Color(1f, 0.702f, 0.706f);
         #endregion
         #region enum
         [Flags]
@@ -61,10 +69,7 @@ namespace ModPack
                     if (Size != DEFAULT_FONT_SIZE)
                         formattedContent = $"<size={Size}>{formattedContent}</size>";
 
-                    if (_colorsToggle && _colorSetting != null)
-                        return $"<color=#{ColorUtility.ToHtmlStringRGBA(_colorSetting)}>{formattedContent}</color>";
-
-                    return formattedContent;
+                    return $"<color=#{ColorUtility.ToHtmlStringRGBA(_color)}>{formattedContent}</color>";
                 }
             }
             public Details Detail;
@@ -77,16 +82,16 @@ namespace ModPack
 
             // Private
             private string _content;
-            private ModSetting<Color> _colorSetting;
+            private Color _color;
 
             // Constructors
-            public Row(string label, string content, Details detail, int order = int.MaxValue, ModSetting<Color> colorSetting = null)
+            public Row(string label, string content, Details detail, int order = int.MaxValue, Color color = default)
             {
                 Label = label;
                 _content = content;
                 Detail = detail;
                 Order = order;
-                _colorSetting = colorSetting;
+                _color = color;
                 Prefix = "";
 
                 Size = DEFAULT_FONT_SIZE;
@@ -137,31 +142,20 @@ namespace ModPack
         #endregion
 
         // Settings
-        static private ModSetting<bool> _colorsToggle, _barsToggle;
+        static private ModSetting<bool> _barsToggle;
         static private ModSetting<bool> _addBackgrounds;
         static private ModSetting<Details> _details;
-        static private ModSetting<Color> _healthColor, _staminaColor, _manaColor, _needsColor, _corruptionColor, _statusEffectColor, _statusCuresColor, _cooldownColor;
         static private ModSetting<int> _durabilityBarSize, _freshnessBarSize, _barThickness;
         static private ModSetting<bool> _durabilityTiedToMax, _freshnessTiedToLifespan;
         override protected void Initialize()
         {
-            _colorsToggle = CreateSetting(nameof(_colorsToggle), false);
             _details = CreateSetting(nameof(_details), Details.None);
-            _healthColor = CreateSetting(nameof(_healthColor), new Color(0.765f, 0.522f, 0.525f, 1f));
-            _staminaColor = CreateSetting(nameof(_staminaColor), new Color(0.827f, 0.757f, 0.584f, 1f));
-            _manaColor = CreateSetting(nameof(_manaColor), new Color(0.529f, 0.702f, 0.816f, 1f));
-            _needsColor = CreateSetting(nameof(_needsColor), new Color(0.584f, 0.761f, 0.522f, 1f));
-            _corruptionColor = CreateSetting(nameof(_corruptionColor), new Color(0.655f, 0.647f, 0.282f, 1f));
-            _statusEffectColor = CreateSetting(nameof(_statusEffectColor), new Color(0.780f, 1f, 0.702f, 1f));
-            _statusCuresColor = CreateSetting(nameof(_statusCuresColor), new Color(1f, 0.702f, 0.706f));
-
             _barsToggle = CreateSetting(nameof(_barsToggle), false);
             _durabilityTiedToMax = CreateSetting(nameof(_durabilityTiedToMax), false);
             _durabilityBarSize = CreateSetting(nameof(_durabilityBarSize), (100 / BAR_MAX_SIZE.x).Round(), IntRange(0, 100));
             _freshnessTiedToLifespan = CreateSetting(nameof(_freshnessTiedToLifespan), false);
             _freshnessBarSize = CreateSetting(nameof(_freshnessBarSize), (100 / BAR_MAX_SIZE.x).Round(), IntRange(0, 100));
             _barThickness = CreateSetting(nameof(_barThickness), (100 / BAR_MAX_SIZE.y).Round(), IntRange(0, 100));
-
             _addBackgrounds = CreateSetting(nameof(_addBackgrounds), false);
 
             AddEventOnConfigClosed(() => SetBackgrounds(_addBackgrounds));
@@ -172,26 +166,6 @@ namespace ModPack
         {
 
             _details.Format("Details to display");
-            _colorsToggle.Description = "Extra details to display";
-            _colorsToggle.Format("Colors");
-            _colorsToggle.Description = "Change colors of displayed details";
-            Indent++;
-            {
-                _healthColor.Format("Health", _colorsToggle);
-                _healthColor.Description = "Health, max health and health regen";
-                _staminaColor.Format("Stamina", _colorsToggle);
-                _staminaColor.Description = "Stamina, max stamina and stamina regen";
-                _manaColor.Format("Mana", _colorsToggle);
-                _manaColor.Description = "Mana, max mana and mana regen";
-                _needsColor.Format("Needs", _colorsToggle);
-                _needsColor.Description = "Food, drink and sleep";
-                _corruptionColor.Format("Corruption", _colorsToggle);
-                _corruptionColor.Description = "Corruption and corruption regen";
-                _statusEffectColor.Format("Status effect", _colorsToggle);
-                _statusCuresColor.Format("Status cure", _colorsToggle);
-                Indent--;
-            }
-
             _barsToggle.Format("Bars");
             _barsToggle.Description = "Change sizes of durability and freshness progress bars";
             Indent++;
@@ -237,46 +211,46 @@ namespace ModPack
                 case AffectHealth _:
                     return new Row("CharacterStat_Health".Localized(),
                                    FormatEffectValue(effect),
-                                   Details.Vitals, 21, _healthColor);
+                                   Details.Vitals, 21, HEALTH_COLOR);
                 case AffectStamina _:
                     return new Row("CharacterStat_Stamina".Localized(),
                                    FormatEffectValue(effect),
-                                   Details.Vitals, 31, _staminaColor);
+                                   Details.Vitals, 31, STAMINA_COLOR);
                 case AffectMana _:
                     return new Row("CharacterStat_Mana".Localized(),
                                    FormatEffectValue(effect),
-                                   Details.Vitals, 41, _manaColor);
+                                   Details.Vitals, 41, MANA_COLOR);
                 // Max vitals
                 case AffectBurntHealth _:
                     return new Row("General_Max".Localized() + ". " + "CharacterStat_Health".Localized(),
                                    FormatEffectValue(effect),
-                                   Details.MaxVitals, 23, _healthColor);
+                                   Details.MaxVitals, 23, HEALTH_COLOR);
                 case AffectBurntStamina _:
                     return new Row("General_Max".Localized() + ". " + "CharacterStat_Stamina".Localized(),
                                    FormatEffectValue(effect),
-                                   Details.MaxVitals, 33, _staminaColor);
+                                   Details.MaxVitals, 33, STAMINA_COLOR);
                 case AffectBurntMana _:
                     return new Row("General_Max".Localized() + ". " + "CharacterStat_Mana".Localized(),
                                    FormatEffectValue(effect),
-                                   Details.MaxVitals, 43, _manaColor);
+                                   Details.MaxVitals, 43, MANA_COLOR);
                 // Needs
                 case AffectFood _:
                     return new Row("CharacterStat_Food".Localized(),
                                    FormatEffectValue(effect, 10f, "%"),
-                                   Details.Needs, 11, _needsColor);
+                                   Details.Needs, 11, NEEDS_COLOR);
                 case AffectDrink _:
                     return new Row("CharacterStat_Drink".Localized(),
                                    FormatEffectValue(effect, 10f, "%"),
-                                   Details.Needs, 12, _needsColor);
+                                   Details.Needs, 12, NEEDS_COLOR);
                 case AffectFatigue _:
                     return new Row("CharacterStat_Sleep".Localized(),
                                    FormatEffectValue(effect, 10f, "%"),
-                                   Details.Needs, 13, _needsColor);
+                                   Details.Needs, 13, NEEDS_COLOR);
                 // Corruption
                 case AffectCorruption _:
                     return new Row("CharacterStat_Corruption".Localized(),
                                    FormatEffectValue(effect, 10f, "%"),
-                                   Details.Corruption, 51, _corruptionColor);
+                                   Details.Corruption, 51, CORRUPTION_COLOR);
                 // Cure
                 case RemoveStatusEffect removeStatusEffect:
                     string text = "";
@@ -289,13 +263,13 @@ namespace ModPack
                     }
                     return new Row("",
                                    $"- {text}",
-                                   Details.StatusCures, 71, _statusCuresColor);
+                                   Details.StatusCures, 71, STATUSCURES_COLOR);
                 // Status
                 case AddStatusEffect addStatusEffect:
                     StatusEffect statusEffect = addStatusEffect.Status;
                     Row statusName = new Row("",
                                              $"+ {statusEffect.StatusName}",
-                                             Details.StatusEffects, 61, _statusEffectColor);
+                                             Details.StatusEffects, 61, STATUSEFFECT_COLOR);
                     if (addStatusEffect.ChancesToContract < 100)
                         statusName.Prefix = $"<color=silver>({addStatusEffect.ChancesToContract}%)</color> ";
 
@@ -312,19 +286,19 @@ namespace ModPack
                         case AffectHealth _:
                             return new Row("CharacterStat_Health".Localized() + " Regen",
                                            FormatStatusEffectValue(firstValue.ToFloat(), statusEffect.StartLifespan),
-                                           Details.Vitals | Details.RegenRates, 22, _healthColor);
+                                           Details.Vitals | Details.RegenRates, 22, HEALTH_COLOR);
                         case AffectStamina _:
                             return new Row("CharacterStat_Stamina".Localized() + " Regen",
                                            FormatStatusEffectValue(firstValue.ToFloat(), statusEffect.StartLifespan),
-                                           Details.Vitals | Details.RegenRates, 32, _staminaColor);
+                                           Details.Vitals | Details.RegenRates, 32, STAMINA_COLOR);
                         case AffectMana _:
                             return new Row("CharacterStat_Mana".Localized() + " Regen",
                                            FormatStatusEffectValue(firstValue.ToFloat(), statusEffect.StartLifespan, 1f, "%"),
-                                           Details.Vitals | Details.RegenRates, 42, _manaColor);
+                                           Details.Vitals | Details.RegenRates, 42, MANA_COLOR);
                         case AffectCorruption _:
                             return new Row("CharacterStat_Corruption".Localized() + " Regen",
                                            FormatStatusEffectValue(firstValue.ToFloat(), statusEffect.StartLifespan, 10f, "%"),
-                                           Details.Corruption | Details.RegenRates, 52, _corruptionColor);
+                                           Details.Corruption | Details.RegenRates, 52, CORRUPTION_COLOR);
                         default: return statusName;
                     }
                 default: return null;
@@ -335,25 +309,25 @@ namespace ModPack
             if (skill.Cooldown > 0)
                 rows.Add(new Row("ItemStat_Cooldown".Localized(),
                                   skill.Cooldown.FormatSeconds(skill.Cooldown >= 60),
-                                  Details.Cooldown, 11, _cooldownColor));
+                                  Details.Cooldown, 11, NEEDS_COLOR));
             if (skill.HealthCost > 0)
                 rows.Add(new Row("CharacterStat_Health".Localized() + " " + "BuildingMenu_Supplier_Cost".Localized(),
                                   skill.HealthCost.ToString(),
-                                  Details.Costs, 12, _healthColor));
+                                  Details.Costs, 12, HEALTH_COLOR));
             if (skill.StaminaCost > 0)
                 rows.Add(new Row("CharacterStat_Stamina".Localized() + " " + "BuildingMenu_Supplier_Cost".Localized(),
                                   skill.StaminaCost.ToString(),
-                                  Details.Costs, 13, _staminaColor));
+                                  Details.Costs, 13, STAMINA_COLOR));
             if (skill.ManaCost > 0)
                 rows.Add(new Row("CharacterStat_Mana".Localized() + " " + "BuildingMenu_Supplier_Cost".Localized(),
                                   skill.ManaCost.ToString(),
-                                  Details.Costs, 14, _manaColor));
+                                  Details.Costs, 14, MANA_COLOR));
             if (skill.DurabilityCost > 0 || skill.DurabilityCostPercent > 0)
             {
                 bool isPercent = skill.DurabilityCostPercent > 0;
                 rows.Add(new Row("ItemStat_Durability".Localized() + " " + "BuildingMenu_Supplier_Cost".Localized(),
                                   isPercent ? (skill.DurabilityCostPercent.ToString() + "%") : skill.DurabilityCost.ToString(),
-                                  Details.Costs, 15, _needsColor));
+                                  Details.Costs, 15, NEEDS_COLOR));
             }
 
         }
