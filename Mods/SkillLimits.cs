@@ -64,7 +64,6 @@ namespace ModPack
         private enum LimitedSkillTypes
         {
             None = 0,
-            All = ~0,
 
             Basic = 1 << 1,
             Advanced = 1 << 2,
@@ -83,7 +82,7 @@ namespace ModPack
             _skillsLimit = CreateSetting(nameof(_skillsLimit), 20, IntRange(1, 100));
             _passiveSkillsLimit = CreateSetting(nameof(_passiveSkillsLimit), 5, IntRange(1, 25));
             _activeSkillsLimit = CreateSetting(nameof(_activeSkillsLimit), 15, IntRange(1, 75));
-            _limitedSkillTypes = CreateSetting(nameof(_limitedSkillTypes), LimitedSkillTypes.All);
+            _limitedSkillTypes = CreateSetting(nameof(_limitedSkillTypes), (LimitedSkillTypes)~0);
             _freePostBreakthroughBasicSkills = CreateSetting(nameof(_freePostBreakthroughBasicSkills), false);
         }
         override protected void SetFormatting()
