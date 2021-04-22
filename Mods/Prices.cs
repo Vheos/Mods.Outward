@@ -47,7 +47,7 @@ namespace ModPack
         static private ModSetting<bool> _merchantsToggle;
         static private ModSetting<int> _sellModifier, _buyModifier;
         static private ModSetting<int> _randomizePricesExtent, _randomizePricesPerDays;
-        static private ModSetting<bool> _randomizePricesPerItem, _randomizePricesPerMerchant;
+        static private ModSetting<bool> _randomizePricesPerItem, _randomizePricesPerArea;
         static private ModSetting<bool> _customNonBasicSkillCosts;
         static private ModSetting<bool> _skillCostsToggle;
         static private ModSetting<int> _skillBasic, _skillBreakthrough, _skillAdvanced;
@@ -62,7 +62,7 @@ namespace ModPack
             _randomizePricesExtent = CreateSetting(nameof(_randomizePricesExtent), 0, IntRange(0, 100));
             _randomizePricesPerDays = CreateSetting(nameof(_randomizePricesPerDays), 7, IntRange(1, 100));
             _randomizePricesPerItem = CreateSetting(nameof(_randomizePricesPerItem), true);
-            _randomizePricesPerMerchant = CreateSetting(nameof(_randomizePricesPerMerchant), true);
+            _randomizePricesPerArea = CreateSetting(nameof(_randomizePricesPerArea), true);
 
             _skillCostsToggle = CreateSetting(nameof(_skillCostsToggle), false);
             _skillBasic = CreateSetting(nameof(_skillBasic), 50, IntRange(0, 1000));
@@ -108,8 +108,8 @@ namespace ModPack
                 {
                     _randomizePricesPerDays.Format("per days", _randomizePricesExtent, () => _randomizePricesExtent > 0);
                     _randomizePricesPerDays.Description = "All price modifiers will be rolled every X days";
-                    _randomizePricesPerMerchant.Format("per merchant", _randomizePricesExtent, () => _randomizePricesExtent > 0);
-                    _randomizePricesPerMerchant.Description = "Every merchant will have its own randomized price modifier";
+                    _randomizePricesPerArea.Format("per city", _randomizePricesExtent, () => _randomizePricesExtent > 0);
+                    _randomizePricesPerArea.Description = "Every city (and area) will have its own randomized price modifier";
                     _randomizePricesPerItem.Format("per item", _randomizePricesExtent, () => _randomizePricesExtent > 0);
                     _randomizePricesPerItem.Description = "Every item will have its own randomized price";
                     Indent--;
@@ -158,23 +158,23 @@ namespace ModPack
         static private SkillRequirement _exclusiveSkillRequirement;
         static private bool HasMutuallyExclusiveSkill(Character character, SkillSlot skillSlot)
         => skillSlot.SiblingSlot != null && skillSlot.SiblingSlot.HasSkill(character);
-        static private float GetRandomPriceModifier(Item item, Merchant merchant)
+        static private float GetRandomPriceModifier(Item item)
         {
             int itemSeed = _randomizePricesPerItem ? item.ItemID : 0;
-            int merchantSeed = _randomizePricesPerMerchant ? merchant.m_uid.GetHashCode() : 0;
+            int areaSeed = _randomizePricesPerArea ? AreaManager.Instance.CurrentArea.ID : 0;
             int timeSeed = (GameTime / 24f / _randomizePricesPerDays).RoundDown();
-            UnityEngine.Random.InitState(itemSeed + merchantSeed + timeSeed);
+            UnityEngine.Random.InitState(itemSeed + areaSeed + timeSeed);
 
             return 1f + UnityEngine.Random.Range(-_randomizePricesExtent, +_randomizePricesExtent) / 100f;
         }
-        static private void ModifyPriceAndColor(ref int finalPrice, Item item, Merchant merchant, ModSetting<int> buySellModifier)
+        static private void ModifyPriceAndColor(ref int finalPrice, Item item, ModSetting<int> buySellModifier)
         {
             // Price
             float modifier = buySellModifier / 100f;
             int preRandomPrice = (finalPrice * modifier).Round();
 
             if (_randomizePricesExtent > 0)
-                modifier *= GetRandomPriceModifier(item, merchant);
+                modifier *= GetRandomPriceModifier(item);
             finalPrice = (finalPrice * modifier).Round();
 
             // Color
@@ -194,12 +194,12 @@ namespace ModPack
 
         // Price modifier
         [HarmonyPatch(typeof(Item), "GetSellValue"), HarmonyPostfix]
-        static void Item_GetSellValue_Post(ref Item __instance, ref int __result, ref Merchant _merchant)
-        => ModifyPriceAndColor(ref __result, __instance, _merchant, _sellModifier);
+        static void Item_GetSellValue_Post(ref Item __instance, ref int __result)
+        => ModifyPriceAndColor(ref __result, __instance, _sellModifier);
 
         [HarmonyPatch(typeof(Item), "GetBuyValue"), HarmonyPostfix]
-        static void Item_GetBuyValue_Post(ref Item __instance, ref int __result, ref Merchant _merchant)
-        => ModifyPriceAndColor(ref __result, __instance, _merchant, _buyModifier);
+        static void Item_GetBuyValue_Post(ref Item __instance, ref int __result)
+        => ModifyPriceAndColor(ref __result, __instance, _buyModifier);
 
         // Skill prices
         [HarmonyPatch(typeof(TrainerPanel), "OnSkillSlotSelected"), HarmonyPrefix]
