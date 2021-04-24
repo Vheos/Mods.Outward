@@ -167,8 +167,13 @@ namespace ModPack
 
             return 1f + UnityEngine.Random.Range(-_randomizePricesExtent, +_randomizePricesExtent) / 100f;
         }
-        static private void ModifyPriceAndColor(ref int finalPrice, Item item, ModSetting<int> buySellModifier)
+        static private void TryModifyPriceAndColor(ref int finalPrice, Item item, ModSetting<int> buySellModifier)
         {
+            #region quit
+            if (!_merchantsToggle)
+                return;
+            #endregion
+
             // Price
             float modifier = buySellModifier / 100f;
             int preRandomPrice = (finalPrice * modifier).Round();
@@ -195,16 +200,21 @@ namespace ModPack
         // Price modifier
         [HarmonyPatch(typeof(Item), "GetSellValue"), HarmonyPostfix]
         static void Item_GetSellValue_Post(ref Item __instance, ref int __result)
-        => ModifyPriceAndColor(ref __result, __instance, _sellModifier);
+        => TryModifyPriceAndColor(ref __result, __instance, _sellModifier);
 
         [HarmonyPatch(typeof(Item), "GetBuyValue"), HarmonyPostfix]
         static void Item_GetBuyValue_Post(ref Item __instance, ref int __result)
-        => ModifyPriceAndColor(ref __result, __instance, _buyModifier);
+        => TryModifyPriceAndColor(ref __result, __instance, _buyModifier);
 
         // Skill prices
         [HarmonyPatch(typeof(TrainerPanel), "OnSkillSlotSelected"), HarmonyPrefix]
         static bool TrainerPanel_OnSkillSlotSelected_Pre(ref TrainerPanel __instance, SkillTreeSlotDisplay _display)
         {
+            #region quit
+            if (!_skillCostsToggle)
+                return true;
+            #endregion
+
             // Cache
             SkillSlot slot = _display.FocusedSkillSlot;
             SkillSchool tree = __instance.m_trainerTree;
@@ -262,6 +272,6 @@ namespace ModPack
 
         [HarmonyPatch(typeof(SkillSlot), "IsBlocked"), HarmonyPrefix]
         static bool SkillSlot_IsBlocked_Pre(ref SkillSlot __instance)
-        => !_learnMutuallyExclusiveSkills;
+        => !(_skillCostsToggle && _learnMutuallyExclusiveSkills);
     }
 }
