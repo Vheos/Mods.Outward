@@ -38,6 +38,7 @@ namespace ModPack
         static private ModSetting<bool> _removeDodgeInvulnerability;
         static private ModSetting<bool> _healEnemiesOnLoad;
         static private ModSetting<bool> _repairOnlyEquipped;
+        static private ModSetting<bool> _loadArrowsFromInventory;
 
         static private ModSetting<bool> _multiplicativeStacking;
         static private ModSetting<int> _armorTrainingPenaltyReduction;
@@ -55,10 +56,10 @@ namespace ModPack
             _removeDodgeInvulnerability = CreateSetting(nameof(_removeDodgeInvulnerability), false);
             _healEnemiesOnLoad = CreateSetting(nameof(_healEnemiesOnLoad), false);
             _repairOnlyEquipped = CreateSetting(nameof(_repairOnlyEquipped), false);
-          
             _multiplicativeStacking = CreateSetting(nameof(_multiplicativeStacking), false);
             _armorTrainingPenaltyReduction = CreateSetting(nameof(_armorTrainingPenaltyReduction), 50, IntRange(0, 100));
             _applyArmorTrainingToManaCost = CreateSetting(nameof(_applyArmorTrainingToManaCost), false);
+            _loadArrowsFromInventory = CreateSetting(nameof(_loadArrowsFromInventory), false);
 
             AddEventOnConfigClosed(() =>
             {
@@ -92,7 +93,8 @@ namespace ModPack
             _repairOnlyEquipped.Description = "Blacksmith will not repair items in your pouch and bag";
             _multiplicativeStacking.Format("Multiplicative stacking");
             _multiplicativeStacking.Description = "Some stats will stack multiplicatively instead of additvely\n" +
-                                                       "(movement speed, stamina cost, mana cost)";
+                                                  "(movement speed, stamina cost, mana cost)";
+            _loadArrowsFromInventory.Description = "Whenever you shoot your bow, the missing arrow is automatically replace with one from backpack or pouch (in that order).";
             Indent++;
             {
                 _armorTrainingPenaltyReduction.Format("Armor training penalty reduction", _multiplicativeStacking);
@@ -101,6 +103,7 @@ namespace ModPack
                 _applyArmorTrainingToManaCost.Description = "\"Armor Training\" will also lower equipment's mana cost penalties";
                 Indent--;
             }
+            _loadArrowsFromInventory.Format("Load arrows from inventory");
 
             _allowDodgeAnimationCancelling.Format("[WIP] Allow dodge to cancel actions");
             _allowDodgeAnimationCancelling.Description = "Cancelling certain animations might lead to glitches";
@@ -116,6 +119,43 @@ namespace ModPack
         override protected string Description
         => "• Mods (small and big) that didn't get their own section yet :)";
 
+        // Load arrows from inventory
+        [HarmonyPatch(typeof(WeaponLoadoutItem), "ReduceShotAmount"), HarmonyPrefix]
+        static bool WeaponLoadoutItem_ReduceShotAmount_Pre(ref WeaponLoadoutItem __instance)
+        {
+            #region quit
+            if (!_loadArrowsFromInventory
+            || __instance.AmunitionType != WeaponLoadout.CompatibleAmmunitionType.WeaponType
+            || __instance.CompatibleEquipment != Weapon.WeaponType.Arrow)
+                return true;
+            #endregion
+
+            CharacterInventory inventory = __instance.m_projectileWeapon.OwnerCharacter.Inventory;
+            int ammoID = inventory.GetEquippedAmmunition().ItemID;
+
+            Item ammo = null;
+            if (ammo == null && inventory.EquippedBag != null)
+                ammo = inventory.EquippedBag.Container.GetItemFromID(ammoID);
+            if (ammo == null)
+                ammo = inventory.Pouch.GetItemFromID(ammoID);
+            if (ammo == null)
+                return true;
+
+            ammo.RemoveQuantity(1);
+            return false;
+        }
+
+        [HarmonyPatch(typeof(CharacterInventory), "GetAmmunitionCount"), HarmonyPostfix]
+        static void CharacterInventory_GetAmmunitionCount_Post(ref CharacterInventory __instance, ref int __result)
+        {
+            #region quit
+            if (!_loadArrowsFromInventory || __result == 0)
+                return;
+            #endregion
+
+            __result += __instance.ItemCount(__instance.GetEquippedAmmunition().ItemID);
+        }
+
         // Multiplicative stacking
         static private bool HasLearnedArmorTraining(Character character)
         => character.Inventory.SkillKnowledge.IsItemLearned(ARMOR_TRAINING_ID);
@@ -123,8 +163,6 @@ namespace ModPack
         => slot != null && slot.HasItemEquipped;
         static private bool IsNotLeftHandUsedBy2H(EquipmentSlot slot)
         => !(slot.SlotType == EquipmentSlot.EquipmentSlotIDs.LeftHand && slot.EquippedItem.TwoHanded);
-        static private bool IsEitherHand(EquipmentSlot slot)
-        => slot.SlotType == EquipmentSlot.EquipmentSlotIDs.RightHand || slot.SlotType == EquipmentSlot.EquipmentSlotIDs.LeftHand;
         static private bool TryApplyMultiplicativeStacking(CharacterEquipment equipment, ref float result, Func<EquipmentSlot, float> getStatValue, bool invertedValue = false, bool applyArmorTraining = false)
         {
             #region quit
