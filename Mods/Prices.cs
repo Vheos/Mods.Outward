@@ -223,14 +223,6 @@ namespace ModPack
             Image currencyReqIcon = __instance.m_requirementDisplay.m_imgSilverIcon;
             CharacterInventory inventory = __instance.LocalCharacter.Inventory;
 
-            // Price
-            if (SkillLimits.IsBasic(slot.Skill))
-                slot.m_requiredMoney = _skillBasic;
-            else if (SkillLimits.IsBreakthrough(slot.Skill))
-                slot.m_requiredMoney = _skillBreakthrough;
-            else if (SkillLimits.IsAdvanced(slot.Skill))
-                slot.m_requiredMoney = _skillAdvanced;
-
             // Defaults
             tree.AlternateCurrecy = -1;
             tree.AlternateCurrencyIcon = null;
@@ -240,6 +232,17 @@ namespace ModPack
             currencyReqIcon.rectTransform.pivot = 0.5f.ToVector2();
             currencyReqIcon.rectTransform.localScale = 1f.ToVector2();
             currencyLeft.text = inventory.ContainedSilver.ToString();
+
+            if (slot.m_requiredMoney <= 0)
+                return true;
+
+            // Price
+            if (SkillLimits.IsBasic(slot.Skill))
+                slot.m_requiredMoney = _skillBasic;
+            else if (SkillLimits.IsBreakthrough(slot.Skill))
+                slot.m_requiredMoney = _skillBreakthrough;
+            else if (SkillLimits.IsAdvanced(slot.Skill))
+                slot.m_requiredMoney = _skillAdvanced;
 
             // Currency
             bool isCustomAdvancedCurrency = _customNonBasicSkillCosts && !SkillLimits.IsBasic(slot.Skill);
