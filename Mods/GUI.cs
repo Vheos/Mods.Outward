@@ -270,9 +270,9 @@ namespace ModPack
                     tmp._shopAndStashWidth.Description = "% of screen size, 0% = default\n" +
                                                      "(recommended when using vertical splitscreen)";
                     tmp._improvedGamepadStashNavigation.Format("Better gamepad stash navigation");
-                    tmp._improvedGamepadStashNavigation.Description = "LB = switch to (or page down in) the player's bag\n" +
-                                                                      "RB = switch to (or page down in) the chest contents\n" +
-                                                                      "LT = change sorting\n" +
+                    tmp._improvedGamepadStashNavigation.Description = "LB = switch to (or scroll down in) the player's bag\n" +
+                                                                      "RB = switch to (or scroll downn in) the chest contents\n" +
+                                                                      "LT = change sorting (default, by weight, by durability)\n" +
                                                                       "RT = find currently focused item in the other panel";
                     tmp._separateBuySellPanels.Format("Separate buy/sell panels", tmp._toggle);
                     tmp._separateBuySellPanels.Description = "Disabled - shops display player's and merchant's inventory in one panel\n" +
@@ -332,6 +332,8 @@ namespace ModPack
                                 SwitchToInventory(player);
                             else if (player.Pressed(ControlsInput.MenuActions.PreviousFilter))
                                 ChangeSorting(player);
+                            else if (player.Pressed(ControlsInput.MenuActions.NextFilter))
+                                FindSameItemInOtherPanel(player);
                         break;
                 }
 
@@ -408,8 +410,8 @@ namespace ModPack
         }
         static private void SwitchToInventory(Players.Data player)
         {
-            ItemDisplay currentItem = EventSystem.current.currentSelectedGameObject.GetComponent<ItemDisplay>();
-            if (currentItem == null)
+            if (EventSystem.current.currentSelectedGameObject.TryGetComponent(out ItemDisplay currentItem)
+            && currentItem.m_refItem == null)
                 return;
 
             // Cache
@@ -436,8 +438,8 @@ namespace ModPack
         }
         static private void SwitchToStash(Players.Data player)
         {
-            ItemDisplay currentItem = EventSystem.current.currentSelectedGameObject.GetComponent<ItemDisplay>();
-            if (currentItem == null)
+            if (EventSystem.current.currentSelectedGameObject.TryGetComponent(out ItemDisplay currentItem)
+            && currentItem.m_refItem == null)
                 return;
 
             // Cache
@@ -459,7 +461,6 @@ namespace ModPack
             else if (chestItems.IsNotEmpty())
                 chestItems.First().OnSelect();
         }
-
         static private void ChangeSorting(Players.Data player)
         {
             // Cache
@@ -472,22 +473,69 @@ namespace ModPack
             switch (chestDisplay.m_lastSortingType)
             {
                 case ItemListDisplay.SortingType.ByList: nextSorting = ItemListDisplay.SortingType.ByWeight; break;
-                case ItemListDisplay.SortingType.ByName: break;
                 case ItemListDisplay.SortingType.ByWeight: nextSorting = ItemListDisplay.SortingType.ByDurability; break;
-                case ItemListDisplay.SortingType.ByTakeTime: break;
-                case ItemListDisplay.SortingType.BySkill: break;
                 case ItemListDisplay.SortingType.ByDurability: nextSorting = ItemListDisplay.SortingType.ByList; break;
             }
             foreach (var containerDisplay in new[] { inventory.m_pouchDisplay, inventory.m_bagDisplay, chestDisplay })
                 containerDisplay.SortBy(nextSorting);
-
-            //stashPanelHolder.GetComponent<StashPanel>().lbl
+            UpdateStashName(player);
 
             // Select first
-            ItemDisplay currentItemDisplay = EventSystem.current.currentSelectedGameObject.GetComponent<ItemDisplay>();
-            if (currentItemDisplay == null || currentItemDisplay.ParentItemListDisplay == null)
+            if (EventSystem.current.currentSelectedGameObject != null
+            && EventSystem.current.currentSelectedGameObject.TryGetComponent(out ItemDisplay currentItem)
+            && currentItem.ParentItemListDisplay != null)
+                currentItem.ParentItemListDisplay.m_assignedDisplays.First().OnSelect();
+
+        }
+        static private void UpdateStashName(Players.Data player)
+        {
+            // Cache
+            Transform stashPanelHolder = GetStashPanel(player.UI);
+            ContainerDisplay chestDisplay = GetChestStashInventoryPanel(stashPanelHolder).GetComponent<ContainerDisplay>();
+            Text stashTitle = GetChestStashTitle(stashPanelHolder).GetComponent<Text>();
+
+            // Execute
+            stashTitle.text = "Stash";
+            switch (chestDisplay.m_lastSortingType)
+            {
+                case ItemListDisplay.SortingType.ByList: break;
+                case ItemListDisplay.SortingType.ByWeight: stashTitle.text += "<color=lime> (sorted by Weight)</color>"; break;
+                case ItemListDisplay.SortingType.ByDurability: stashTitle.text += "<color=orange> (sorted by Durability)</color>"; break;
+            }
+        }
+        static private void FindSameItemInOtherPanel(Players.Data player)
+        {
+            if (EventSystem.current.currentSelectedGameObject.TryGetComponent(out ItemDisplay currentItem) && currentItem.m_refItem == null)
                 return;
-            currentItemDisplay.ParentItemListDisplay.m_assignedDisplays.First().OnSelect();
+
+            // Cache
+            Transform stashPanelHolder = GetStashPanel(player.UI);
+            InventoryContentDisplay inventory = GetPlayerStashInventoryPanel(stashPanelHolder).GetComponent<InventoryContentDisplay>();
+            List<ItemDisplay> chestItems = GetChestStashInventoryPanel(stashPanelHolder).GetComponent<ContainerDisplay>().m_assignedDisplays;
+            List<ItemDisplay> bagItems = inventory.m_bagDisplay.m_assignedDisplays;
+            List<ItemDisplay> pouchItems = inventory.m_pouchDisplay.m_assignedDisplays;
+
+            // Execute
+            ItemDisplay foundItem;
+            if (currentItem.IsContainedIn(chestItems))
+            {
+                foundItem = FindItemInContainerDisplay(currentItem, bagItems);
+                if (foundItem == null)
+                    foundItem = FindItemInContainerDisplay(currentItem, pouchItems);
+            }
+            else if (currentItem.IsContainedIn(bagItems) || currentItem.IsContainedIn(pouchItems))
+                foundItem = FindItemInContainerDisplay(currentItem, chestItems);
+            else
+                return;
+
+            foundItem.OnSelect();
+        }
+        static private ItemDisplay FindItemInContainerDisplay(ItemDisplay item, List<ItemDisplay> otherContainerItems)
+        {
+            foreach (var otherItem in otherContainerItems)
+                if (otherItem.m_refItem.ItemID == item.m_refItem.ItemID)
+                    return otherItem;
+            return null;
         }
         static private void UpdateSeparateBuySellPanels(Players.Data player)
         {
@@ -666,6 +714,8 @@ namespace ModPack
         => stashPanel.Find("Content/MiddlePanel/PlayerInventory/InventoryContent");
         static private Transform GetChestStashInventoryPanel(Transform stashPanel)
         => stashPanel.Find("Content/MiddlePanel/StashInventory/SectionContent/Scroll View/Viewport/Content/ContainerDisplay_Simple");
+        static private Transform GetChestStashTitle(Transform stashPanel)
+        => stashPanel.Find("Content/TopPanel/Shop PanelTop/lblShopName");
         static private RectTransform GetShopPanel(CharacterUI ui)
         => ui.transform.Find("Canvas/GameplayPanels/Menus/ModalMenus/ShopMenu") as RectTransform;
         static private Transform GetPlayerShopInventoryPanel(Transform shopPanel)
@@ -702,6 +752,49 @@ namespace ModPack
         {
             UpdateSplitscreenMode();
             __instance.ExecuteOnceAfterDelay(UI_RESIZE_DELAY, UpdateShopAndStashPanelsWidths);
+        }
+
+        // Stash panel name
+        [HarmonyPatch(typeof(StashPanel), "Show"), HarmonyPostfix]
+        static void StashPanel_Show_Post(ref StashPanel __instance)
+        => UpdateStashName(Players.GetLocal(__instance));
+
+        // Sort by weight    
+        [HarmonyPatch(typeof(ItemListDisplay), "ByWeight"), HarmonyPrefix]
+        static bool ItemListDisplay_ByWeight_Pre(ref ItemListDisplay __instance, ref int __result, ItemDisplay _item1, ItemDisplay _item2)
+        {
+            float weight1 = _item1.TryAs(out ItemGroupDisplay group1) ? group1.TotalWeight : _item1.m_refItem.Weight;
+            float weight2 = _item2.TryAs(out ItemGroupDisplay group2) ? group2.TotalWeight : _item2.m_refItem.Weight;
+            __result = -weight1.CompareTo(weight2);
+            return false;
+        }
+
+        // Sort by durability    
+        [HarmonyPatch(typeof(ItemListDisplay), "ByDurability"), HarmonyPrefix]
+        static bool ItemListDisplay_ByDurability_Pre(ref int __result, ItemDisplay _display1, ItemDisplay _display2)
+        {
+            Item item1 = _display1.m_refItem;
+            Item item2 = _display2.m_refItem;
+
+            if (!item1.IsEquippable && item1.IsPerishable
+            && !item2.IsEquippable && item2.IsPerishable)
+            {
+                float remainingTime1 = item1.CurrentDurability / item1.PerishScript.m_baseDepletionRate;
+                float remainingTime2 = item2.CurrentDurability / item2.PerishScript.m_baseDepletionRate;
+                __result = remainingTime1.CompareTo(remainingTime2);
+                return false;
+            }
+
+            __result = -item1.IsPerishable.CompareTo(item2.IsPerishable);
+            if (__result != 0)
+                return false;
+
+            __result = -(item1.MaxDurability >= 0).CompareTo(item2.MaxDurability >= 0);
+            if (__result != 0)
+                return false;
+
+            __result = item1.CurrentDurability.CompareTo(item2.CurrentDurability);
+            return false;
         }
 
         // Exclusive buy/sell panels
