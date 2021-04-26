@@ -15,7 +15,8 @@ namespace ModPack
         static public readonly Vector2 DEFAULT_SHOP_OFFSET_MIN = new Vector2(-1344f, -540f);
         static public readonly Vector2 DEFAULT_SHOP_OFFSET_MAX = new Vector2(-20f, -20f);
         static public readonly (Vector2 Default, Vector2 Alternative) MANA_BAR_POSITIONS = (new Vector2(65f, 18.6f), new Vector2(10f, 83f));
-        public const float UI_RESIZE_DELAY = 0.1f;
+        private const float UI_RESIZE_DELAY = 0.1f;
+        private const int SORTING_TYPES_COUNT = 6;
         static private readonly Dictionary<HUDGroup, (Type HUDComponentType, string PanelPath, Vector2 DefaultLocalPosition)> DATA_BY_HUD_GROUP = new Dictionary<HUDGroup, (Type, string, Vector2)>
         {
             [HUDGroup.KeyboardQuickslots] = (typeof(KeyboardQuickSlotPanel), "QuickSlot/Keyboard", new Vector2(5, -40)),
@@ -72,7 +73,8 @@ namespace ModPack
             public ModSetting<int> _statusIconMaxSize, _statusIconMinSize, _statusIconMinAlpha;
             public ModSetting<bool> _hideQuickslotHints;
             public ModSetting<bool> _alternativeManaBarPlacement;
-            public ModSetting<int> _shopMenuWidth;
+            public ModSetting<int> _shopAndStashWidth;
+            public ModSetting<bool> _improvedGamepadStashNavigation;
             public ModSetting<bool> _swapPendingBuySellPanels;
             public ModSetting<SeperatePanelsMode> _separateBuySellPanels;
             public ModSetting<string> _buySellToggle, _switchToBuy, _switchToSell;
@@ -106,8 +108,9 @@ namespace ModPack
                 _statusIconMinAlpha.Value = otherPlayerSettings._statusIconMinAlpha;
                 _hideQuickslotHints.Value = otherPlayerSettings._hideQuickslotHints;
                 _alternativeManaBarPlacement.Value = otherPlayerSettings._alternativeManaBarPlacement;
-                _shopMenuWidth.Value = otherPlayerSettings._shopMenuWidth;
+                _shopAndStashWidth.Value = otherPlayerSettings._shopAndStashWidth;
                 _swapPendingBuySellPanels.Value = otherPlayerSettings._swapPendingBuySellPanels;
+                _improvedGamepadStashNavigation = otherPlayerSettings._improvedGamepadStashNavigation;
                 _separateBuySellPanels.Value = otherPlayerSettings._separateBuySellPanels;
                 _buySellToggle.Value = otherPlayerSettings._buySellToggle;
                 _switchToBuy.Value = otherPlayerSettings._switchToBuy;
@@ -128,7 +131,7 @@ namespace ModPack
         {
             _verticalSplitscreen = CreateSetting(nameof(_verticalSplitscreen), false);
             AddEventOnConfigClosed(() => UpdateSplitscreenMode());
-            AddEventOnConfigClosed(() => UpdateShopMenusWidths());
+            AddEventOnConfigClosed(() => UpdateShopAndStashPanelsWidths());
 
             _allHUDComponentTypes = new Type[DATA_BY_HUD_GROUP.Count];
             var hudData = DATA_BY_HUD_GROUP.Values.ToArray();
@@ -155,7 +158,8 @@ namespace ModPack
                 tmp._alternativeManaBarPlacement = CreateSetting(nameof(tmp._alternativeManaBarPlacement) + playerPostfix, false);
                 foreach (var hudGroup in DATA_BY_HUD_GROUP.Keys.ToArray())
                     tmp._hudOverridesByHUDGroup.Add(hudGroup, CreateSetting($"_hudOverride{hudGroup}{playerPostfix}", Vector3.zero));
-                tmp._shopMenuWidth = CreateSetting(nameof(tmp._shopMenuWidth) + playerPostfix, 0, IntRange(0, 100));
+                tmp._shopAndStashWidth = CreateSetting(nameof(tmp._shopAndStashWidth) + playerPostfix, 0, IntRange(0, 100));
+                tmp._improvedGamepadStashNavigation = CreateSetting(nameof(tmp._improvedGamepadStashNavigation) + playerPostfix, false);
                 tmp._swapPendingBuySellPanels = CreateSetting(nameof(tmp._swapPendingBuySellPanels) + playerPostfix, false);
                 tmp._separateBuySellPanels = CreateSetting(nameof(tmp._separateBuySellPanels) + playerPostfix, SeperatePanelsMode.Disabled);
                 tmp._buySellToggle = CreateSetting(nameof(tmp._buySellToggle) + playerPostfix, "");
@@ -262,9 +266,14 @@ namespace ModPack
                                                           "Gamepad - hides the button icons below quickslots";
                     tmp._alternativeManaBarPlacement.Format("Alternative mana bar placement", tmp._toggle);
                     tmp._alternativeManaBarPlacement.Description = "Move mana bar right below health bar to form a triangle out of the vitals";
-                    tmp._shopMenuWidth.Format("Shop menu width", tmp._toggle);
-                    tmp._shopMenuWidth.Description = "% of screen size, 0% = default\n" +
+                    tmp._shopAndStashWidth.Format("Shop/stash panel width", tmp._toggle);
+                    tmp._shopAndStashWidth.Description = "% of screen size, 0% = default\n" +
                                                      "(recommended when using vertical splitscreen)";
+                    tmp._improvedGamepadStashNavigation.Format("Better gamepad stash navigation");
+                    tmp._improvedGamepadStashNavigation.Description = "LB = switch to (or page down in) the player's bag\n" +
+                                                                      "RB = switch to (or page down in) the chest contents\n" +
+                                                                      "LT = change sorting\n" +
+                                                                      "RT = find currently focused item in the other panel";
                     tmp._separateBuySellPanels.Format("Separate buy/sell panels", tmp._toggle);
                     tmp._separateBuySellPanels.Description = "Disabled - shops display player's and merchant's inventory in one panel\n" +
                                                              "Toggle - toggle between player's / merchant's inventories with one button\n" +
@@ -292,25 +301,41 @@ namespace ModPack
         {
             foreach (var player in Players.Local)
             {
+                // Shop/Stash panels
                 PerPlayerSettings settings = _perPlayerSettings[player.ID];
-                if (player.UI.m_displayedMenuIndex == CharacterUI.MenuScreens.Shop)
-                    switch (settings._separateBuySellPanels.Value)
-                    {
-                        case SeperatePanelsMode.Toggle:
-                            if (player.IsUsingGamepad && (player.Pressed(ControlsInput.MenuActions.GoToPreviousMenu) || player.Pressed(ControlsInput.MenuActions.GoToNextMenu))
-                            || !player.IsUsingGamepad && settings._buySellToggle.Value.ToKeyCode().Pressed())
-                                ToggleBuySellPanel(player);
-                            break;
-                        case SeperatePanelsMode.TwoButtons:
-                            if (player.IsUsingGamepad && player.Pressed(ControlsInput.MenuActions.GoToNextMenu)
-                            || !player.IsUsingGamepad && settings._switchToBuy.Value.ToKeyCode().Pressed())
-                                SwitchToPanel(player, true);
-                            else if (player.IsUsingGamepad && player.Pressed(ControlsInput.MenuActions.GoToPreviousMenu)
-                            || !player.IsUsingGamepad && settings._switchToSell.Value.ToKeyCode().Pressed())
-                                SwitchToPanel(player, false);
-                            break;
-                    }
+                switch (player.UI.m_displayedMenuIndex)
+                {
+                    case CharacterUI.MenuScreens.Shop:
+                        switch (settings._separateBuySellPanels.Value)
+                        {
+                            case SeperatePanelsMode.Toggle:
+                                if (player.IsUsingGamepad && (player.Pressed(ControlsInput.MenuActions.GoToPreviousMenu) || player.Pressed(ControlsInput.MenuActions.GoToNextMenu))
+                                || !player.IsUsingGamepad && settings._buySellToggle.Value.ToKeyCode().Pressed())
+                                    ToggleBuySellPanel(player);
+                                break;
+                            case SeperatePanelsMode.TwoButtons:
+                                if (player.IsUsingGamepad && player.Pressed(ControlsInput.MenuActions.GoToPreviousMenu)
+                                || !player.IsUsingGamepad && settings._switchToSell.Value.ToKeyCode().Pressed())
+                                    SwitchToBuySellPanel(player, false);
+                                else if (player.IsUsingGamepad && player.Pressed(ControlsInput.MenuActions.GoToNextMenu)
+                                || !player.IsUsingGamepad && settings._switchToBuy.Value.ToKeyCode().Pressed())
+                                    SwitchToBuySellPanel(player, true);
+                                break;
+                        }
+                        break;
 
+                    case CharacterUI.MenuScreens.Stash:
+                        if (settings._improvedGamepadStashNavigation && player.IsUsingGamepad)
+                            if (player.Pressed(ControlsInput.MenuActions.GoToNextMenu))
+                                SwitchToStash(player);
+                            else if (player.Pressed(ControlsInput.MenuActions.GoToPreviousMenu))
+                                SwitchToInventory(player);
+                            else if (player.Pressed(ControlsInput.MenuActions.PreviousFilter))
+                                ChangeSorting(player);
+                        break;
+                }
+
+                // HUD Editor
                 if (settings._startHUDEditor)
                     if (KeyCode.Return.Pressed())
                     {
@@ -353,7 +378,7 @@ namespace ModPack
                                                              ? SplitScreenManager.SplitType.Vertical
                                                              : SplitScreenManager.SplitType.Horizontal;
         }
-        static private void UpdateShopMenusWidths()
+        static private void UpdateShopAndStashPanelsWidths()
         {
             foreach (var player in Players.Local)
             {
@@ -361,17 +386,19 @@ namespace ModPack
                 PerPlayerSettings playerData = _perPlayerSettings[player.ID];
                 Vector2 offsetMin = DEFAULT_SHOP_OFFSET_MIN;
                 Vector2 offsetMax = DEFAULT_SHOP_OFFSET_MAX;
-                if (playerData._shopMenuWidth > 0)
+                if (playerData._shopAndStashWidth > 0)
                 {
                     float maxWidth = player.UI.m_rectTransform.rect.width.Neg();
-                    float multiplier = playerData._shopMenuWidth / 100f;
+                    float multiplier = playerData._shopAndStashWidth / 100f;
                     offsetMin.SetX(maxWidth * multiplier);
                     offsetMax = Vector2.zero;
                 }
                 // Set
-                RectTransform shopMenuRectTransform = GetShopMenuPanel(player.UI).GetComponent<RectTransform>();
-                shopMenuRectTransform.offsetMin = offsetMin;
-                shopMenuRectTransform.offsetMax = offsetMax;
+                foreach (var rectTransform in new[] { GetShopPanel(player.UI), GetStashPanel(player.UI) })
+                {
+                    rectTransform.offsetMin = offsetMin;
+                    rectTransform.offsetMax = offsetMax;
+                }
             }
         }
         static private void UpdateQuickslotButtonIcons(Players.Data player)
@@ -379,34 +406,119 @@ namespace ModPack
             foreach (var quickslotDisplay in GetKeyboardQuickslotsGamePanel(player.UI).GetAllComponentsInHierarchy<QuickSlotDisplay>())
                 quickslotDisplay.m_lblKeyboardInput.enabled = !_perPlayerSettings[player.ID]._hideQuickslotHints;
         }
+        static private void SwitchToInventory(Players.Data player)
+        {
+            ItemDisplay currentItem = EventSystem.current.currentSelectedGameObject.GetComponent<ItemDisplay>();
+            if (currentItem == null)
+                return;
+
+            // Cache
+            InventoryContentDisplay inventory = GetPlayerStashInventoryPanel(GetStashPanel(player.UI)).GetComponent<InventoryContentDisplay>();
+            List<ItemDisplay> pouchItems = inventory.m_pouchDisplay.m_assignedDisplays;
+            List<ItemDisplay> bagItems = inventory.m_bagDisplay.m_assignedDisplays;
+            int currentID = bagItems.IndexOf(currentItem);
+
+            // Execute
+            if (currentID >= bagItems.Count - 1)
+                bagItems.First().OnSelect();
+            else if (currentID >= 0)
+            {
+                int nextID = currentID + bagItems.Count / 2;
+                if (bagItems.IsIndexValid(nextID))
+                    bagItems[nextID].OnSelect();
+                else
+                    bagItems.Last().OnSelect();
+            }
+            else if (bagItems.IsNotEmpty())
+                bagItems.First().OnSelect();
+            else if (pouchItems.IsNotEmpty())
+                pouchItems.First().OnSelect();
+        }
+        static private void SwitchToStash(Players.Data player)
+        {
+            ItemDisplay currentItem = EventSystem.current.currentSelectedGameObject.GetComponent<ItemDisplay>();
+            if (currentItem == null)
+                return;
+
+            // Cache
+            ContainerDisplay chest = GetChestStashInventoryPanel(GetStashPanel(player.UI)).GetComponent<ContainerDisplay>();
+            List<ItemDisplay> chestItems = chest.m_assignedDisplays;
+            int currentID = chestItems.IndexOf(currentItem);
+
+            // Execute
+            if (currentID >= chestItems.Count - 1)
+                chestItems.First().OnSelect();
+            else if (currentID >= 0)
+            {
+                int nextID = currentID + chestItems.Count / 2;
+                if (chestItems.IsIndexValid(nextID))
+                    chestItems[nextID].OnSelect();
+                else
+                    chestItems.Last().OnSelect();
+            }
+            else if (chestItems.IsNotEmpty())
+                chestItems.First().OnSelect();
+        }
+
+        static private void ChangeSorting(Players.Data player)
+        {
+            // Cache
+            Transform stashPanelHolder = GetStashPanel(player.UI);
+            InventoryContentDisplay inventory = GetPlayerStashInventoryPanel(stashPanelHolder).GetComponent<InventoryContentDisplay>();
+            ContainerDisplay chestDisplay = GetChestStashInventoryPanel(stashPanelHolder).GetComponent<ContainerDisplay>();
+
+            // Sort
+            ItemListDisplay.SortingType nextSorting = default;
+            switch (chestDisplay.m_lastSortingType)
+            {
+                case ItemListDisplay.SortingType.ByList: nextSorting = ItemListDisplay.SortingType.ByWeight; break;
+                case ItemListDisplay.SortingType.ByName: break;
+                case ItemListDisplay.SortingType.ByWeight: nextSorting = ItemListDisplay.SortingType.ByDurability; break;
+                case ItemListDisplay.SortingType.ByTakeTime: break;
+                case ItemListDisplay.SortingType.BySkill: break;
+                case ItemListDisplay.SortingType.ByDurability: nextSorting = ItemListDisplay.SortingType.ByList; break;
+            }
+            foreach (var containerDisplay in new[] { inventory.m_pouchDisplay, inventory.m_bagDisplay, chestDisplay })
+                containerDisplay.SortBy(nextSorting);
+
+            //stashPanelHolder.GetComponent<StashPanel>().lbl
+
+            // Select first
+            ItemDisplay currentItemDisplay = EventSystem.current.currentSelectedGameObject.GetComponent<ItemDisplay>();
+            if (currentItemDisplay == null || currentItemDisplay.ParentItemListDisplay == null)
+                return;
+            currentItemDisplay.ParentItemListDisplay.m_assignedDisplays.First().OnSelect();
+        }
         static private void UpdateSeparateBuySellPanels(Players.Data player)
         {
             if (_perPlayerSettings[player.ID]._separateBuySellPanels == SeperatePanelsMode.Disabled)
                 DisableSeparateMode(player);
             else
-                SwitchToPanel(player, true);
+                SwitchToBuySellPanel(player, true);
         }
-        static private void SwitchToPanel(Players.Data player, bool buyPanel)
+        static private void SwitchToBuySellPanel(Players.Data player, bool buyPanel)
         {
-            GetPlayerInventoryPanel(player.UI).GOSetActive(!buyPanel);
-            GetMerchantInventoryPanel(player.UI).GOSetActive(buyPanel);
-            GetShopMenuPanel(player.UI).GetComponent<ShopMenu>().GetFirstSelectable().Select();
+            Transform shopPanelHolder = GetShopPanel(player.UI);
+            GetPlayerShopInventoryPanel(shopPanelHolder).GOSetActive(!buyPanel);
+            GetMerchantShopInventoryPanel(shopPanelHolder).GOSetActive(buyPanel);
+            shopPanelHolder.GetComponent<ShopMenu>().GetFirstSelectable().Select();
+
         }
         static private void ToggleBuySellPanel(Players.Data player)
         {
-            bool isBuyPanel = GetMerchantInventoryPanel(player.UI).GOActive();
-            SwitchToPanel(player, !isBuyPanel);
+            bool isBuyPanel = GetMerchantShopInventoryPanel(GetShopPanel(player.UI)).GOActive();
+            SwitchToBuySellPanel(player, !isBuyPanel);
         }
         static private void DisableSeparateMode(Players.Data player)
         {
-            GetPlayerInventoryPanel(player.UI).GOSetActive(true);
-            GetMerchantInventoryPanel(player.UI).GOSetActive(true);
+            GetPlayerShopInventoryPanel(GetShopPanel(player.UI)).GOSetActive(true);
+            GetMerchantShopInventoryPanel(GetShopPanel(player.UI)).GOSetActive(true);
         }
         static private void UpdatePendingBuySellPanels(Players.Data player)
         {
             // Cache
-            Transform playerInventory = GetPlayerInventoryPanel(player.UI);
-            Transform merchantInventory = GetMerchantInventoryPanel(player.UI);
+            Transform playerInventory = GetPlayerShopInventoryPanel(GetShopPanel(player.UI));
+            Transform merchantInventory = GetMerchantShopInventoryPanel(GetShopPanel(player.UI));
 
             // Determine if vanilla or custom setup
             bool isModified = false;
@@ -548,12 +660,18 @@ namespace ModPack
         // Find
         static private Transform GetKeyboardQuickslotsGamePanel(CharacterUI ui)
         => ui.transform.Find("Canvas/GameplayPanels/HUD/QuickSlot/Keyboard");
-        static private Transform GetShopMenuPanel(CharacterUI ui)
-        => ui.transform.Find("Canvas/GameplayPanels/Menus/ModalMenus/ShopMenu");
-        static private Transform GetPlayerInventoryPanel(CharacterUI ui)
-        => ui.transform.Find("Canvas/GameplayPanels/Menus/ModalMenus/ShopMenu/MiddlePanel/PlayerInventory");
-        static private Transform GetMerchantInventoryPanel(CharacterUI ui)
-        => ui.transform.Find("Canvas/GameplayPanels/Menus/ModalMenus/ShopMenu/MiddlePanel/ShopInventory");
+        static private RectTransform GetStashPanel(CharacterUI ui)
+        => ui.transform.Find("Canvas/GameplayPanels/Menus/ModalMenus/Stash - Panel") as RectTransform;
+        static private Transform GetPlayerStashInventoryPanel(Transform stashPanel)
+        => stashPanel.Find("Content/MiddlePanel/PlayerInventory/InventoryContent");
+        static private Transform GetChestStashInventoryPanel(Transform stashPanel)
+        => stashPanel.Find("Content/MiddlePanel/StashInventory/SectionContent/Scroll View/Viewport/Content/ContainerDisplay_Simple");
+        static private RectTransform GetShopPanel(CharacterUI ui)
+        => ui.transform.Find("Canvas/GameplayPanels/Menus/ModalMenus/ShopMenu") as RectTransform;
+        static private Transform GetPlayerShopInventoryPanel(Transform shopPanel)
+        => shopPanel.Find("MiddlePanel/PlayerInventory");
+        static private Transform GetMerchantShopInventoryPanel(Transform shopPanel)
+        => shopPanel.Find("MiddlePanel/ShopInventory");
         static private Transform GetPendingBuyPanel(Transform inventory)
         => inventory.Find("SectionContent/Scroll View/Viewport/Content/PlayerPendingBuyItems");
         static private Transform GetPendingSellPanel(Transform inventory)
@@ -568,7 +686,7 @@ namespace ModPack
         static void LocalCharacterControl_RetrieveComponents_Post(LocalCharacterControl __instance)
         {
             UpdateSplitscreenMode();
-            __instance.ExecuteOnceAfterDelay(UI_RESIZE_DELAY, UpdateShopMenusWidths);
+            __instance.ExecuteOnceAfterDelay(UI_RESIZE_DELAY, UpdateShopAndStashPanelsWidths);
 
             Players.Data player = Players.GetLocal(__instance);
             UpdateQuickslotButtonIcons(player);
@@ -583,7 +701,7 @@ namespace ModPack
         static void RPCManager_SendPlayerHasLeft_Post(RPCManager __instance)
         {
             UpdateSplitscreenMode();
-            __instance.ExecuteOnceAfterDelay(UI_RESIZE_DELAY, UpdateShopMenusWidths);
+            __instance.ExecuteOnceAfterDelay(UI_RESIZE_DELAY, UpdateShopAndStashPanelsWidths);
         }
 
         // Exclusive buy/sell panels
