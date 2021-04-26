@@ -77,12 +77,12 @@ namespace ModPack
             {
                 // Vanilla
                 ["Kazite Spellblade"] = new SkillRequirement("Old Legion Shield"),
-                ["Cabal Hermit"] = new SkillRequirement("Boiled Azure Shrimp", 3),
-                ["Wild Hunter"] = new SkillRequirement("Coralhorn Antler", 2),
-                ["Rune Sage"] = new SkillRequirement("Great Astral Potion", 3),
-                ["Warrior Monk"] = new SkillRequirement("Alpha Tuanosaur Tail"),
-                ["Philosopher"] = new SkillRequirement("Crystal Powder", 3),
-                ["Rogue Engineer"] = new SkillRequirement("Manticore Tail"),
+                ["Cabal Hermit"] = new SkillRequirement("Boiled Azure Shrimp", 4),
+                ["Wild Hunter"] = new SkillRequirement("Coralhorn Antler", 4),
+                ["Rune Sage"] = new SkillRequirement("Great Astral Potion", 8),
+                ["Warrior Monk"] = new SkillRequirement("Alpha Tuanosaur Tail", 2),
+                ["Philosopher"] = new SkillRequirement("Crystal Powder", 4),
+                ["Rogue Engineer"] = new SkillRequirement("Manticore Tail", 2),
                 ["Mercenary"] = new SkillRequirement("Gold Ingot", 2),
                 // DLC
                 ["The Speedster"] = null,
@@ -183,7 +183,7 @@ namespace ModPack
             finalPrice = (finalPrice * modifier).Round();
 
             // Color
-            if (_randomizePricesExtent == 0)
+            if (_randomizePricesExtent == 0 || item.m_refItemDisplay == null || item.m_refItemDisplay.m_lblValue == null)
                 return;
 
             float relativeIncrease = finalPrice == 0 ? 0f : 1f;
