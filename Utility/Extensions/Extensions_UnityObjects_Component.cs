@@ -90,6 +90,9 @@ namespace ModPack
         /// <summary> Returns component T attached to this object. If there's none, adds one. </summary>
         static public T GetOrAddComponent<T>(this Component t) where T : Component
         => t.gameObject.GetOrAddComponent<T>();
+        /// <summary> Assigns component T to a. Returns whether any component was found. </summary>
+        static public bool TryGetComponent<T>(this Component t, out T a) where T : Component
+        => t.TryGetComponent(out a);
 
         //------------------------------------------------------------------------------------------------------------------------------- Various
 

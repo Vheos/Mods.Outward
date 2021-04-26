@@ -116,7 +116,12 @@ namespace ModPack
                 return component;
             return t.AddComponent<T>();
         }
-
+        /// <summary> Assigns component T to a. Returns whether any component was found. </summary>
+        static public bool TryGetComponent<T>(this GameObject t, out T a) where T : Component
+        {
+            a = t.GetComponent<T>();
+            return a != null;
+        }
 
         //------------------------------------------------------------------------------------------------------------------------------- Various
 
