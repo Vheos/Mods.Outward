@@ -410,7 +410,7 @@ namespace ModPack
         }
         static private void SwitchToInventory(Players.Data player)
         {
-            if (EventSystem.current.currentSelectedGameObject.TryGetComponent(out ItemDisplay currentItem)
+            if (EventSystem.current.GetCurrentSelectedGameObject(player.ID).TryGetComponent(out ItemDisplay currentItem)
             && currentItem.m_refItem == null)
                 return;
 
@@ -438,7 +438,7 @@ namespace ModPack
         }
         static private void SwitchToStash(Players.Data player)
         {
-            if (EventSystem.current.currentSelectedGameObject.TryGetComponent(out ItemDisplay currentItem)
+            if (EventSystem.current.GetCurrentSelectedGameObject(player.ID).TryGetComponent(out ItemDisplay currentItem)
             && currentItem.m_refItem == null)
                 return;
 
@@ -481,8 +481,9 @@ namespace ModPack
             UpdateStashName(player);
 
             // Select first
-            if (EventSystem.current.currentSelectedGameObject != null
-            && EventSystem.current.currentSelectedGameObject.TryGetComponent(out ItemDisplay currentItem)
+            GameObject selectedObject = EventSystem.current.GetCurrentSelectedGameObject(player.ID);
+            if (selectedObject != null
+            && selectedObject.TryGetComponent(out ItemDisplay currentItem)
             && currentItem.ParentItemListDisplay != null)
                 currentItem.ParentItemListDisplay.m_assignedDisplays.First().OnSelect();
 
@@ -505,7 +506,7 @@ namespace ModPack
         }
         static private void FindSameItemInOtherPanel(Players.Data player)
         {
-            if (EventSystem.current.currentSelectedGameObject.TryGetComponent(out ItemDisplay currentItem) && currentItem.m_refItem == null)
+            if (EventSystem.current.GetCurrentSelectedGameObject(player.ID).TryGetComponent(out ItemDisplay currentItem) && currentItem.m_refItem == null)
                 return;
 
             // Cache
