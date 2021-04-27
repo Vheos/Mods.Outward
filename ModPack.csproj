@@ -74,6 +74,9 @@
       <HintPath>D:\Multiplayer\Outward\Outward_Data\Managed\UnityEngine.ImageConversionModule.dll</HintPath>
       <Private>False</Private>
     </Reference>
+    <Reference Include="UnityEngine.ParticleSystemModule">
+      <HintPath>D:\Multiplayer\Outward\Outward_Data\Managed\UnityEngine.ParticleSystemModule.dll</HintPath>
+    </Reference>
     <Reference Include="UnityEngine.PhysicsModule">
       <HintPath>D:\Multiplayer\Outward\Outward_Data\Managed\UnityEngine.PhysicsModule.dll</HintPath>
       <Private>False</Private>
