@@ -409,6 +409,12 @@ namespace ModPack
         => t.y = a;
         static public void SetZ(ref this Vector3 t, float a)
         => t.z = a;
+        static public void SetSizeZ(this BoxCollider t, float a)
+        {
+            Vector3 size = t.size;
+            size.z = a;
+            t.size = size;
+        }
 
         static public Coroutine ExecuteOnceAfterDelay(this MonoBehaviour monoBehaviour, float delay, Action action)
         => monoBehaviour.StartCoroutine(Utility.CoroutineWaitForSeconds(delay, action));
