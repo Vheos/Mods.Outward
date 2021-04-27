@@ -66,6 +66,7 @@ namespace ModPack
                 return foundTransform.gameObject;
             return null;
         }
+        /// <summary> Returns component T attached to this object's child with name a. If it doesn't exist, returns null.</summary>
         static public T FindChild<T>(this GameObject t, string a) where T : Component
         {
             Transform foundTransform = t.transform.Find(a);
