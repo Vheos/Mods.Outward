@@ -107,24 +107,19 @@ namespace ModPack
         [HarmonyPatch(typeof(Character), "VitalityHit"), HarmonyPrefix]
         static bool Character_VitalityHit_Pre(ref Character __instance, Character _dealerChar, ref float _damage)
         {
-            #region quit
-            if (_dealerChar == null)
-                return true;
-            #endregion
-
-            if (_dealerChar.IsPlayer())
-            {
-                if (_playersToggle)
-                    _damage *= _playersHealthDamage / 100f;
-                if (_playersFriendlyFireToggle && __instance.IsPlayer())
-                    _damage *= _playersFriendlyFireHealthDamage / 100f;
-            }
-            else if (_dealerChar.IsEnemyOf(Character.Factions.Player))
+            if (_dealerChar != null && _dealerChar.IsEnemyOf(Character.Factions.Player))
             {
                 if (_enemiesToggle)
                     _damage *= _enemiesHealthDamage / 100f;
                 if (__instance.IsEnemyOf(Character.Factions.Player))
                     _damage *= _enemiesFriendlyFireHealthDamage / 100f;
+            }
+            else
+            {
+                if (_playersToggle)
+                    _damage *= _playersHealthDamage / 100f;
+                if (_playersFriendlyFireToggle && __instance.IsPlayer())
+                    _damage *= _playersFriendlyFireHealthDamage / 100f;
             }
 
             return true;
@@ -133,24 +128,19 @@ namespace ModPack
         [HarmonyPatch(typeof(Character), "StabilityHit"), HarmonyPrefix]
         static bool Character_StabilityHit_Pre(ref Character __instance, Character _dealerChar, ref float _knockValue)
         {
-            #region quit
-            if (_dealerChar == null)
-                return true;
-            #endregion
-
-            if (_dealerChar.IsPlayer())
-            {
-                if (_playersToggle)
-                    _knockValue *= _playersStabilityDamage / 100f;
-                if (_playersFriendlyFireToggle && __instance.IsPlayer())
-                    _knockValue *= _playersFriendlyFireStabilityDamage / 100f;
-            }
-            else if (_dealerChar.IsEnemyOf(Character.Factions.Player))
+            if (_dealerChar != null && _dealerChar.IsEnemyOf(Character.Factions.Player))
             {
                 if (_enemiesToggle)
                     _knockValue *= _enemiesStabilityDamage / 100f;
                 if (__instance.IsEnemyOf(Character.Factions.Player))
                     _knockValue *= _enemiesFriendlyFireStabilityDamage / 100f;
+            }
+            else
+            {
+                if (_playersToggle)
+                    _knockValue *= _playersStabilityDamage / 100f;
+                if (_playersFriendlyFireToggle && __instance.IsPlayer())
+                    _knockValue *= _playersFriendlyFireStabilityDamage / 100f;
             }
 
             return true;
