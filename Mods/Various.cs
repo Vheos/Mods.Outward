@@ -17,6 +17,12 @@ namespace ModPack
         #region const
         private const float DEFAULT_ENEMY_HEALTH_RESET_HOURS = 24f;   // Character.HoursToHealthReset
         private const int ARMOR_TRAINING_ID = 8205220;
+        static private Color TRAP_START_COLOR = Color.white;
+        static private Color TRAP_TRANSITION_COLOR = new Color(1f, 0.1f, 0f);
+        static private Color TRAP_ARMED_COLOR = Color.red;
+        static private Color RUNIC_TRAP_START_COLOR = new Color(1f, 1f, 1f, 0f);
+        static private Color RUNIC_TRAP_TRANSITION_COLOR = new Color(1f, 0.1f, 0f, 0.1f);
+        static private Color RUNIC_TRAP_ARMED_COLOR = new Color(1f, 0.05f, 0.025f, 1f);
         #endregion
         #region enum
         [Flags]
@@ -39,7 +45,9 @@ namespace ModPack
         static private ModSetting<bool> _healEnemiesOnLoad;
         static private ModSetting<bool> _repairOnlyEquipped;
         static private ModSetting<bool> _loadArrowsFromInventory;
-
+        static private ModSetting<float> _trapsArmDelay;
+        static private ModSetting<bool> _trapsFriendlyFire;
+        static private ModSetting<float> _pressureTrapRadius, _wireTrapDepth, _runicTrapRadius;
         static private ModSetting<bool> _multiplicativeStacking;
         static private ModSetting<int> _armorTrainingPenaltyReduction;
         static private ModSetting<bool> _applyArmorTrainingToManaCost;
@@ -61,9 +69,22 @@ namespace ModPack
             _applyArmorTrainingToManaCost = CreateSetting(nameof(_applyArmorTrainingToManaCost), false);
             _loadArrowsFromInventory = CreateSetting(nameof(_loadArrowsFromInventory), false);
 
+            // Traps
+            _trapsArmDelay = CreateSetting(nameof(_trapsArmDelay), 0f, FloatRange(0f, 5f));
+            _trapsFriendlyFire = CreateSetting(nameof(_trapsFriendlyFire), false);
+            _wireTrapDepth = CreateSetting(nameof(_wireTrapDepth), 0.703f, FloatRange(0f, 5f));
+            _pressureTrapRadius = CreateSetting(nameof(_pressureTrapRadius), 1.1f, FloatRange(0f, 5f));
+            _runicTrapRadius = CreateSetting(nameof(_runicTrapRadius), 2.5f, FloatRange(0f, 5f));
+
             AddEventOnConfigClosed(() =>
             {
                 Global.CheatsEnabled = _enableCheats;
+            });
+
+            _trapsArmDelay.AddEvent(() =>
+            {
+                if (_trapsArmDelay == 0)
+                    _trapsFriendlyFire.Value = false;
             });
 
             // WIP
@@ -94,7 +115,6 @@ namespace ModPack
             _multiplicativeStacking.Format("Multiplicative stacking");
             _multiplicativeStacking.Description = "Some stats will stack multiplicatively instead of additvely\n" +
                                                   "(movement speed, stamina cost, mana cost)";
-            _loadArrowsFromInventory.Description = "Whenever you shoot your bow, the missing arrow is automatically replace with one from backpack or pouch (in that order).";
             Indent++;
             {
                 _armorTrainingPenaltyReduction.Format("Armor training penalty reduction", _multiplicativeStacking);
@@ -104,6 +124,19 @@ namespace ModPack
                 Indent--;
             }
             _loadArrowsFromInventory.Format("Load arrows from inventory");
+            _loadArrowsFromInventory.Description = "Whenever you shoot your bow, the missing arrow is automatically replace with one from backpack or pouch (in that order).";
+
+            _trapsArmDelay.Format("Traps arm delay");
+            _trapsArmDelay.Description = "How long the trap has to stay on ground before it can explode (in seconds)";
+            Indent++;
+            {
+                _trapsFriendlyFire.Format("Friendly fire", _trapsArmDelay, () => _trapsArmDelay > 0);
+                _trapsFriendlyFire.Description = "The trap will also explode in contact with you and other players";
+                Indent--;
+            }
+            _wireTrapDepth.Format("Tripwire Trap depth");
+            _pressureTrapRadius.Format("Presure Plate radius");
+            _runicTrapRadius.Format("Runic Trap radius");
 
             _allowDodgeAnimationCancelling.Format("[WIP] Allow dodge to cancel actions");
             _allowDodgeAnimationCancelling.Description = "Cancelling certain animations might lead to glitches";
@@ -118,6 +151,116 @@ namespace ModPack
         }
         override protected string Description
         => "• Mods (small and big) that didn't get their own section yet :)";
+
+        // Runic Trap arm delay
+        static private void ResetColor(DeployableTrap __instance)
+        {
+            if (__instance.CurrentTrapType == DeployableTrap.TrapType.Runic)
+            {
+                ParticleSystem.MainModule particleSystemMain = GetRunicTrapParticleSystemMainModule(__instance);
+                particleSystemMain.startColor = RUNIC_TRAP_START_COLOR;
+            }
+            else
+            {
+                Material material = GetTrapMainMaterial(__instance);
+                material.color = TRAP_START_COLOR;
+            }
+        }
+        static private ParticleSystem.MainModule GetRunicTrapParticleSystemMainModule(DeployableTrap __instance)
+        => __instance.CurrentVisual.GetComponentInChildren<ParticleSystem>().main;
+        static private Material GetTrapMainMaterial(DeployableTrap __instance)
+        => __instance.CurrentVisual.FindChild("TrapVisual").GetComponentInChildren<MeshRenderer>().material;
+
+        [HarmonyPatch(typeof(DeployableTrap), "StartInit"), HarmonyPostfix]
+        static void DeployableTrap_StartInit_Post(ref DeployableTrap __instance)
+        {
+            // Friendly fire
+            Character.Factions[] factions = __instance.TargetFactions;
+            Character.Factions playerFaction = Character.Factions.Player;
+            Character.Factions noneFaction = Character.Factions.NONE;
+            if (_trapsFriendlyFire && !factions.Contains(playerFaction))
+            {
+                if (factions.Contains(noneFaction))
+                    factions[factions.IndexOf(noneFaction)] = playerFaction;
+                else
+                {
+                    Array.Resize(ref factions, factions.Length + 1);
+                    factions.SetLast(playerFaction);
+                }
+            }
+            else if (!_trapsFriendlyFire && factions.Contains(playerFaction))
+                factions[factions.IndexOf(playerFaction)] = noneFaction;
+
+            // Rune trap only
+            #region quit
+            if (__instance.CurrentTrapType != DeployableTrap.TrapType.Runic)
+                return;
+            #endregion
+
+            // Cache
+            ParticleSystem.MainModule particleSystemMain = __instance.CurrentVisual.GetComponentInChildren<ParticleSystem>().main;
+            SphereCollider collider = __instance.m_interactionToggle.m_interactionCollider as SphereCollider;
+
+            // Disarm
+            particleSystemMain.startColor = RUNIC_TRAP_START_COLOR;
+            collider.enabled = false;
+            collider.radius = _runicTrapRadius;
+
+            // Arm
+            float setupTime = Time.time;
+            __instance.ExecuteUntil
+            (
+                () => Time.time - setupTime >= _trapsArmDelay,
+                () => particleSystemMain.startColor = Color.Lerp(RUNIC_TRAP_START_COLOR, RUNIC_TRAP_TRANSITION_COLOR, (Time.time - setupTime) / _trapsArmDelay),
+                () => { particleSystemMain.startColor = RUNIC_TRAP_ARMED_COLOR; collider.enabled = true; }
+            );
+        }
+
+        [HarmonyPatch(typeof(DeployableTrap), "OnReceiveArmTrap"), HarmonyPostfix]
+        static void DeployableTrap_OnReceiveArmTrap_Post(ref DeployableTrap __instance)
+        {
+            #region quit
+            if (__instance.CurrentTrapType == DeployableTrap.TrapType.Runic)
+                return;
+            #endregion
+
+            // Cache
+            Collider collider = __instance.m_interactionToggle.m_interactionCollider;
+            Material material = __instance.CurrentVisual.FindChild("TrapVisual").GetComponentInChildren<MeshRenderer>().material;
+
+            // Disarm
+            material.color = TRAP_START_COLOR;
+            collider.enabled = false;
+            switch (__instance.CurrentTrapType)
+            {
+                case DeployableTrap.TrapType.TripWireTrap: collider.As<BoxCollider>().SetSizeZ(_wireTrapDepth); break;
+                case DeployableTrap.TrapType.PressurePlateTrap: collider.As<SphereCollider>().radius = _pressureTrapRadius; break;
+            }
+
+            // Arm
+            float setupTime = Time.time;
+            __instance.ExecuteUntil
+            (
+                () => Time.time - setupTime >= _trapsArmDelay,
+                () => material.color = Color.Lerp(TRAP_START_COLOR, TRAP_TRANSITION_COLOR, (Time.time - setupTime) / _trapsArmDelay),
+                () => { material.color = TRAP_ARMED_COLOR; collider.enabled = true; }
+            );
+        }
+
+        [HarmonyPatch(typeof(DeployableTrap), "CleanUp"), HarmonyPrefix]
+        static bool DeployableTrap_CleanUp_Pre(ref DeployableTrap __instance)
+        {
+            ResetColor(__instance);
+            return true;
+        }
+
+        [HarmonyPatch(typeof(DeployableTrap), "Disassemble"), HarmonyPrefix]
+        static bool DeployableTrap_Disassemble_Pre(ref DeployableTrap __instance)
+        {
+            ResetColor(__instance);
+            return true;
+        }
+
 
         // Load arrows from inventory
         [HarmonyPatch(typeof(WeaponLoadoutItem), "ReduceShotAmount"), HarmonyPrefix]
