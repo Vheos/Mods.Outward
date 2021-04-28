@@ -39,7 +39,6 @@ namespace ModPack
         static private ModSetting<bool> _enableCheats;
         static private ModSetting<bool> _skipStartupVideos;
         static private ModSetting<ArmorSlots> _armorSlotsToHide;
-        static private ModSetting<bool> _extraControllerQuickslots;
         static private ModSetting<bool> _removeCoopScaling;
         static private ModSetting<bool> _removeDodgeInvulnerability;
         static private ModSetting<bool> _healEnemiesOnLoad;
@@ -59,7 +58,7 @@ namespace ModPack
             _enableCheats = CreateSetting(nameof(_enableCheats), false);
             _skipStartupVideos = CreateSetting(nameof(_skipStartupVideos), false);
             _armorSlotsToHide = CreateSetting(nameof(_armorSlotsToHide), ArmorSlots.None);
-            _extraControllerQuickslots = CreateSetting(nameof(_extraControllerQuickslots), false);
+
             _removeCoopScaling = CreateSetting(nameof(_removeCoopScaling), false);
             _removeDodgeInvulnerability = CreateSetting(nameof(_removeDodgeInvulnerability), false);
             _healEnemiesOnLoad = CreateSetting(nameof(_healEnemiesOnLoad), false);
@@ -100,9 +99,7 @@ namespace ModPack
             _skipStartupVideos.Description = "Saves ~3 seconds each time you launch the game";
             _armorSlotsToHide.Format("Armor slots to hide");
             _armorSlotsToHide.Description = "Used to hide ugly helmets (purely visual)";
-            _extraControllerQuickslots.Format("16 controller quickslots");
-            _extraControllerQuickslots.Description = "Allows you to use the d-pad with LT/RT for 8 extra quickslots\n" +
-                                                     "(requires default d-pad keybinds AND game restart)";
+
             _removeCoopScaling.Format("Remove multiplayer scaling");
             _removeCoopScaling.Description = "Enemies in multiplayer will have the same stats as in singleplayer";
             _removeDodgeInvulnerability.Format("Remove dodge invulnerability");
@@ -498,159 +495,6 @@ namespace ModPack
             }
             return true;
         }
-
-        // 16 controller quickslots
-        static private void TryOverrideVanillaQuickslotInput(ref bool input, int playerID)
-        {
-            #region quit
-            if (!_extraControllerQuickslots)
-                return;
-            #endregion
-
-            input &= !ControlsInput.QuickSlotToggle1(playerID) && !ControlsInput.QuickSlotToggle2(playerID);
-        }
-        static private void TryHandleCustomQuickslotInput(Character character)
-        {
-            #region quit
-            if (!_extraControllerQuickslots)
-                return;
-            #endregion
-
-            if (character == null || character.QuickSlotMngr == null || character.CharacterUI.IsMenuFocused)
-                return;
-
-            int playerID = character.OwnerPlayerSys.PlayerID;
-            if (!ControlsInput.QuickSlotToggle1(playerID) && !ControlsInput.QuickSlotToggle2(playerID))
-                return;
-
-            int quickslotID = -1;
-            if (GameInput.Pressed(playerID, ControlsInput.GameplayActions.Sheathe))
-                quickslotID = 8;
-            else if (GameInput.Pressed(playerID, ControlsInput.MenuActions.ToggleMapMenu))
-                quickslotID = 9;
-            else if (GameInput.Pressed(playerID, ControlsInput.GameplayActions.ToggleLights))
-                quickslotID = 10;
-            else if (GameInput.Pressed(playerID, ControlsInput.GameplayActions.HandleBag))
-                quickslotID = 11;
-
-            if (quickslotID < 0)
-                return;
-
-            if (ControlsInput.QuickSlotToggle1(playerID))
-                quickslotID += 4;
-
-            character.QuickSlotMngr.QuickSlotInput(quickslotID);
-        }
-        static private void SetupQuickslots(Transform quickslotsHolder)
-        {
-            Transform quickslotTemplate = quickslotsHolder.Find("1");
-            for (int i = quickslotsHolder.childCount; i < 16; i++)
-                GameObject.Instantiate(quickslotTemplate, quickslotsHolder);
-
-            QuickSlot[] quickslots = quickslotsHolder.GetComponentsInChildren<QuickSlot>();
-            for (int i = 0; i < quickslots.Length; i++)
-            {
-                quickslots[i].GOSetName((i + 1).ToString());
-                quickslots[i].ItemQuickSlot = false;
-            }
-        }
-        static private void SetupQuickslotPanels(CharacterUI ui)
-        {
-            // Cache
-            Transform menuPanelsHolder = GetMenuPanelsHolder(ui);
-            Transform gamePanelsHolder = GetGamePanelsHolder(ui);
-            Component[] menuSlotsLT = menuPanelsHolder.Find("LT/QuickSlots").GetComponentsInChildren<EditorQuickSlotDisplayPlacer>();
-            Component[] menuSlotsRT = menuPanelsHolder.Find("RT/QuickSlots").GetComponentsInChildren<EditorQuickSlotDisplayPlacer>();
-            Component[] gameSlotsLT = gamePanelsHolder.Find("LT/QuickSlots").GetComponentsInChildren<EditorQuickSlotDisplayPlacer>();
-            Component[] gameSlotsRT = gamePanelsHolder.Find("RT/QuickSlots").GetComponentsInChildren<EditorQuickSlotDisplayPlacer>();
-            // Copy game 
-            for (int i = 0; i < menuSlotsLT.Length; i++)
-                menuSlotsLT[i].transform.localPosition = gameSlotsLT[i].transform.localPosition;
-            for (int i = 0; i < menuSlotsRT.Length; i++)
-                menuSlotsRT[i].transform.localPosition = gameSlotsRT[i].transform.localPosition;
-
-            gamePanelsHolder.Find("imgLT").localPosition = new Vector3(-195f, +170f);
-            gamePanelsHolder.Find("imgRT").localPosition = new Vector3(-155f, +170f);
-
-            menuPanelsHolder.Find("LT").localPosition = new Vector3(-90f, +50f);
-            menuPanelsHolder.Find("RT").localPosition = new Vector3(+340f, -100f);
-            menuPanelsHolder.Find("LT/imgLT").localPosition = new Vector3(-125f, 125f);
-            menuPanelsHolder.Find("RT/imgRT").localPosition = new Vector3(-125f, 125f);
-            menuPanelsHolder.Find("LeftDecoration").gameObject.SetActive(false);
-            menuPanelsHolder.Find("RightDecoration").gameObject.SetActive(false);
-
-            DuplicateQuickslotsInPanel(gamePanelsHolder.Find("LT"), +8, new Vector3(-250f, 0f));
-            DuplicateQuickslotsInPanel(gamePanelsHolder.Find("RT"), +8, new Vector3(-250f, 0f));
-            DuplicateQuickslotsInPanel(menuPanelsHolder.Find("LT"), +8, new Vector3(-250f, 0f));
-            DuplicateQuickslotsInPanel(menuPanelsHolder.Find("RT"), +8, new Vector3(-250f, 0f));
-        }
-        static private void DuplicateQuickslotsInPanel(Transform panelHolder, int idOffset, Vector3 posOffset)
-        {
-            Transform quickslotsHolder = panelHolder.Find("QuickSlots");
-            foreach (var editorPlacer in quickslotsHolder.GetComponentsInChildren<EditorQuickSlotDisplayPlacer>())
-            {
-                // Instantiate
-                editorPlacer.IsTemplate = true;
-                Transform newSlot = GameObject.Instantiate(editorPlacer.transform);
-                editorPlacer.IsTemplate = false;
-                // Setup
-                newSlot.SetParent(quickslotsHolder);
-                newSlot.localPosition = editorPlacer.transform.localPosition + posOffset;
-                EditorQuickSlotDisplayPlacer newEditorPlacer = newSlot.GetComponent<EditorQuickSlotDisplayPlacer>();
-                newEditorPlacer.RefSlotID += idOffset;
-                newEditorPlacer.IsTemplate = false;
-            }
-        }
-        static private Transform GetGamePanelsHolder(CharacterUI ui)
-        => ui.transform.Find("Canvas/GameplayPanels/HUD/QuickSlot/Controller/LT-RT");
-        static private Transform GetMenuPanelsHolder(CharacterUI ui)
-        => ui.transform.Find("Canvas/GameplayPanels/Menus/CharacterMenus/MainPanel/Content/MiddlePanel/QuickSlotPanel/PanelSwitcher/Controller/LT-RT");
-
-        [HarmonyPatch(typeof(ControlsInput), "Sheathe"), HarmonyPostfix]
-        static void ControlsInput_Sheathe_Post(ref bool __result, ref int _playerID)
-        => TryOverrideVanillaQuickslotInput(ref __result, _playerID);
-
-        [HarmonyPatch(typeof(ControlsInput), "ToggleMap"), HarmonyPostfix]
-        static void ControlsInput_ToggleMap_Post(ref bool __result, ref int _playerID)
-        => TryOverrideVanillaQuickslotInput(ref __result, _playerID);
-
-        [HarmonyPatch(typeof(ControlsInput), "ToggleLights"), HarmonyPostfix]
-        static void ControlsInput_ToggleLights_Post(ref bool __result, ref int _playerID)
-        => TryOverrideVanillaQuickslotInput(ref __result, _playerID);
-
-        [HarmonyPatch(typeof(ControlsInput), "HandleBackpack"), HarmonyPostfix]
-        static void ControlsInput_HandleBackpack_Post(ref bool __result, ref int _playerID)
-        => TryOverrideVanillaQuickslotInput(ref __result, _playerID);
-
-        [HarmonyPatch(typeof(LocalCharacterControl), "UpdateQuickSlots"), HarmonyPostfix]
-        static void LocalCharacterControl_UpdateQuickSlots_Pre(ref Character ___m_character)
-        => TryHandleCustomQuickslotInput(___m_character);
-
-        [HarmonyPatch(typeof(SplitScreenManager), "Awake"), HarmonyPostfix]
-        static void SplitScreenManager_Awake_Post(ref SplitScreenManager __instance)
-        {
-            #region quit
-            if (!_extraControllerQuickslots)
-                return;
-            #endregion
-
-            CharacterUI charUIPrefab = __instance.m_charUIPrefab;
-            GameObject.DontDestroyOnLoad(charUIPrefab);
-            SetupQuickslotPanels(charUIPrefab);
-        }
-
-        [HarmonyPatch(typeof(CharacterQuickSlotManager), "Awake"), HarmonyPrefix]
-        static bool CharacterQuickSlotManager_Awake_Pre(ref CharacterQuickSlotManager __instance)
-        {
-            #region quit
-            if (!_extraControllerQuickslots)
-                return true;
-            #endregion
-
-            SetupQuickslots(__instance.transform.Find("QuickSlots"));
-            return true;
-        }
-
     }
 }
 /*
