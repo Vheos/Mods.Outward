@@ -5,12 +5,14 @@ using System.Collections.Generic;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
 using System;
+using System.Linq;
 
 namespace ModPack
 {
     public class Camping : AMod
     {
         #region const
+        private const int FAST_MAINTENANCE_ID = 8205140;
         private const string CANT_CAMP_NOTIFICATION = "You can't camp here!";
         static private AreaManager.AreaEnum[] OPEN_REGIONS = new[]
         {
@@ -36,23 +38,53 @@ namespace ModPack
         private enum CampingSpots
         {
             None = 0,
-            All = ~0,
 
             Cities = 1 << 1,
             OpenRegions = 1 << 2,
             Butterflies = 1 << 3,
             Dungeons = 1 << 4,
         }
+        [Flags]
+        private enum CampingActivities
+        {
+            None = 0,
+
+            Sleep = 1 << 1,
+            Guard = 1 << 2,
+            Repair = 1 << 3,
+        }
+        private enum MultiRepairBehaviour
+        {
+            UseFixedValueForAllItems = 1,
+            DivideValueAmongItems = 2,
+            TryToEqualizeRatios = 3,
+        }
+        private enum RepairValueSemantic
+        {
+            PercentOfMaxDurability = 1,
+            PercentOfMissingDurability = 2,
+        }
         #endregion
         // Setting
         static private ModSetting<CampingSpots> _campingSpots;
         static private ModSetting<int> _butterfliesSpawnChance;
         static private ModSetting<int> _butterfliesRadius;
+        static private ModSetting<CampingActivities> _campingActivities;
+        static private ModSetting<int> _repairDurabilityPerHour;
+        static private ModSetting<RepairValueSemantic> _repairValueSemantic;
+        static private ModSetting<MultiRepairBehaviour> _multiRepairBehaviour;
+        static private ModSetting<int> _fastMaintenanceMultiplier;
         override protected void Initialize()
         {
-            _campingSpots = CreateSetting(nameof(_campingSpots), CampingSpots.All);
+            _campingSpots = CreateSetting(nameof(_campingSpots), (CampingSpots)~0);
             _butterfliesSpawnChance = CreateSetting(nameof(_butterfliesSpawnChance), 100, IntRange(0, 100));
             _butterfliesRadius = CreateSetting(nameof(_butterfliesRadius), 25, IntRange(5, 50));
+            _campingActivities = CreateSetting(nameof(_campingActivities), (CampingActivities)~0);
+            _repairDurabilityPerHour = CreateSetting(nameof(_repairDurabilityPerHour), 10, IntRange(0, 100));
+            _repairValueSemantic = CreateSetting(nameof(_repairValueSemantic), RepairValueSemantic.PercentOfMaxDurability);
+            _multiRepairBehaviour = CreateSetting(nameof(_multiRepairBehaviour), MultiRepairBehaviour.UseFixedValueForAllItems);
+            _fastMaintenanceMultiplier = CreateSetting(nameof(_fastMaintenanceMultiplier), 150, IntRange(100, 200));
+
             _campingSpots.AddEvent(() =>
             {
                 if (_campingSpots.Value.HasFlag(CampingSpots.OpenRegions))
@@ -72,7 +104,23 @@ namespace ModPack
                                                   "Allows you to randomize safe zones for more unpredictability";
             _butterfliesRadius.Format("Butterflies radius");
             _butterfliesRadius.Description = "Vanilla radius is so big that it's possible to accidently set up a camp in a safe zone\n" +
-                                             "(mMinimum settings is still twice as big as the visuals)";
+                                             "(minimum settings is still twice as big as the visuals)";
+            _campingActivities.Format("Available camping activities");
+            _repairDurabilityPerHour.Format("Repair value per hour");
+            _repairDurabilityPerHour.Description = "By default, % of max durability (can be changed below)";
+            Indent++;
+            {
+                _repairValueSemantic.Format("");
+                _repairValueSemantic.Description = "Percent of max durability   -   vanilla setting" +
+                                                   "Percent of missing durability   -   the less damaged item, the less useful repairing is\n" +
+                                                   "(total amount is multiplicative, so 10h x 10% will NOT equal 100%)";
+                Indent--;
+            }
+            _multiRepairBehaviour.Format("When repairing multiple items");
+            _multiRepairBehaviour.Description = "Use fixed value for all items   -   the same repair value will be used for all items\n" +
+                                                "Divide value among items   -   the repair value will be divided by the number of equipped items\n" +
+                                                "Try to equalize ratios   -   each hour will be spent on repairing the most damaged item, so after enough time spent all items will have nearly equal durability ratios";
+            _fastMaintenanceMultiplier.Format("\"Fast Maintenance\" repair multiplier");
         }
         override protected string Description
         => "• Restrict camping spots to chosen places\n" +
@@ -110,6 +158,59 @@ namespace ModPack
                 if (collider != null)
                     collider.radius = _butterfliesRadius;
         }
+        static private float CalculateNewDurabilityRatio(Item item, float repairValue)
+        {
+            if (_repairValueSemantic == RepairValueSemantic.PercentOfMissingDurability)
+                repairValue *= 1 - item.DurabilityRatio;
+            return item.DurabilityRatio + repairValue;
+        }
+        static private bool HasLearnedFastMaintenance(Character character)
+        => character.Inventory.SkillKnowledge.IsItemLearned(FAST_MAINTENANCE_ID);
+        static public void RepairEquipmentAfterRest(CharacterEquipment __instance, int hours)
+        {
+            // Cache
+            List<Equipment> equippedItems = new List<Equipment>();
+            foreach (var slot in __instance.m_equipmentSlots)
+                if (Various.IsAnythingEquipped(slot) && Various.IsNotLeftHandUsedBy2H(slot) && slot.EquippedItem.RepairedInRest)
+                    equippedItems.Add(slot.EquippedItem);
+
+            #region quit
+            if (equippedItems.IsEmpty())
+                return;
+            #endregion
+
+            // Repair value
+            float repairValue = _repairDurabilityPerHour / 100f;
+            if (HasLearnedFastMaintenance(__instance.m_character))
+                repairValue *= _fastMaintenanceMultiplier / 100f;
+            if (_multiRepairBehaviour == MultiRepairBehaviour.DivideValueAmongItems)
+                repairValue /= equippedItems.Count;
+
+            // Execute
+            for (int i = 0; i < hours; i++)
+                if (_multiRepairBehaviour == MultiRepairBehaviour.TryToEqualizeRatios)
+                {
+                    float minRatio = equippedItems.Min(item => item.DurabilityRatio);
+                    Equipment minItem = equippedItems.Find(item => item.DurabilityRatio == minRatio);
+                    minItem.SetDurabilityRatio(CalculateNewDurabilityRatio(minItem, repairValue));
+                }
+                else
+                    foreach (var item in equippedItems)
+                        item.SetDurabilityRatio(CalculateNewDurabilityRatio(item, repairValue));
+
+            // Clamp
+            foreach (var item in equippedItems)
+                if (item.DurabilityRatio > 1f)
+                    item.SetDurabilityRatio(1f);
+        }
+        static public void BreakEquipment(CharacterEquipment __instance)
+        {
+            foreach (var slot in __instance.m_equipmentSlots)
+                if (Various.IsAnythingEquipped(slot) && Various.IsNotLeftHandUsedBy2H(slot))
+                    slot.EquippedItem.SetDurabilityRatio(UnityEngine.Random.Range(0f, 0.5f));
+        }
+
+
         // Hooks
         [HarmonyPatch(typeof(EnvironmentSave), "ApplyData"), HarmonyPostfix]
         static void EnvironmentSave_ApplyData_Post(ref EnvironmentSave __instance)
@@ -122,10 +223,18 @@ namespace ModPack
             foreach (Transform fx in fxHolder.transform)
                 if (fx.GOName().ContainsSubstring("butterfly"))
                 {
-                    bool isActive = UnityEngine.Random.value <= _butterfliesSpawnChance / 100f;
-                    fx.GOSetActive(isActive);
-                    if (isActive)
+                    AmbienceSound ambienceSound = fx.GetComponentInChildren<AmbienceSound>();
+                    if (UnityEngine.Random.value <= _butterfliesSpawnChance / 100f)
+                    {
+                        fx.GOSetActive(true);
+                        ambienceSound.MinVolume = ambienceSound.MaxVolume = 1;
                         _safeZoneColliders.Add(fx.GetComponent<SphereCollider>());
+                    }
+                    else
+                    {
+                        fx.GOSetActive(false);
+                        ambienceSound.MinVolume = ambienceSound.MaxVolume = 0;
+                    }
                 }
 
             SetButterfliesRadius();
@@ -152,6 +261,56 @@ namespace ModPack
             #endregion
 
             return IsNearButterflies(__instance.transform.position);
+        }
+
+        [HarmonyPatch(typeof(RestingMenu), "Show"), HarmonyPostfix]
+        static void RestingMenu_Show_Post(ref RestingMenu __instance)
+        {
+            foreach (Transform child in __instance.m_restingActivitiesHolder.transform)
+                foreach (var campingActivity in new[] { CampingActivities.Sleep, CampingActivities.Guard, CampingActivities.Repair })
+                    if (child.GOName().ContainsSubstring(campingActivity.ToString()))
+                        child.GOSetActive(_campingActivities.Value.HasFlag(campingActivity));
+        }
+
+        [HarmonyPatch(typeof(CharacterEquipment), "RepairEquipmentAfterRest"), HarmonyPrefix]
+        static bool CharacterEquipment_RepairEquipmentAfterRest_Pre(ref CharacterEquipment __instance)
+        {
+            // Cache
+            List<Equipment> equippedItems = new List<Equipment>();
+            foreach (var slot in __instance.m_equipmentSlots)
+                if (Various.IsAnythingEquipped(slot) && Various.IsNotLeftHandUsedBy2H(slot) && slot.EquippedItem.RepairedInRest)
+                    equippedItems.Add(slot.EquippedItem);
+
+            #region quit
+            if (equippedItems.IsEmpty())
+                return false;
+            #endregion
+
+            // Repair value
+            float repairValue = _repairDurabilityPerHour / 100f;
+            if (HasLearnedFastMaintenance(__instance.m_character))
+                repairValue *= _fastMaintenanceMultiplier / 100f;
+            if (_multiRepairBehaviour == MultiRepairBehaviour.DivideValueAmongItems)
+                repairValue /= equippedItems.Count;
+
+            // Execute
+            for (int i = 0; i < __instance.m_character.CharacterResting.GetRepairLength(); i++)
+                if (_multiRepairBehaviour == MultiRepairBehaviour.TryToEqualizeRatios)
+                {
+                    float minRatio = equippedItems.Min(item => item.DurabilityRatio);
+                    Equipment minItem = equippedItems.Find(item => item.DurabilityRatio == minRatio);
+                    minItem.SetDurabilityRatio(CalculateNewDurabilityRatio(minItem, repairValue));
+                }
+                else
+                    foreach (var item in equippedItems)
+                        item.SetDurabilityRatio(CalculateNewDurabilityRatio(item, repairValue));
+
+            // Clamp
+            foreach (var item in equippedItems)
+                if (item.DurabilityRatio > 1f)
+                    item.SetDurabilityRatio(1f);
+
+            return false;
         }
     }
 }
