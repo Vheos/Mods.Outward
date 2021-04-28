@@ -39,6 +39,7 @@ namespace ModPack
             typeof(Damage),
             typeof(Speed),
             typeof(Targeting),  
+            typeof(Traps),
 
             // UI
             typeof(GUI),
@@ -49,8 +50,6 @@ namespace ModPack
 
             // Various
             typeof(Various),
-
-            // Private
             typeof(PistolTweaks),
             typeof(Debug),
         };
