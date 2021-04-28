@@ -156,6 +156,7 @@ namespace ModPack
         static private ModSetting<int> _drinkValuesPotions, _drinkValuesCures, _drinkValuesTeas, _drinkValuesOther;
         static private ModSetting<bool> _allowCuresWhileOverlimited;
         static private ModSetting<bool> _allowOnlyDOTCures;
+        static private ModSetting<bool> _noFoodOrDrinkOverlimitAfterSleep;
         static private ModSetting<bool> _dontRestoreNeedsOnTravel;
         override protected void Initialize()
         {
@@ -185,6 +186,7 @@ namespace ModPack
             _sleepBuffsDuration = CreateSetting(nameof(_sleepBuffsDuration), 40, IntRange(0, 100));
             _allowCuresWhileOverlimited = CreateSetting(nameof(_allowCuresWhileOverlimited), false);
             _allowOnlyDOTCures = CreateSetting(nameof(_allowOnlyDOTCures), false);
+            _noFoodOrDrinkOverlimitAfterSleep =  CreateSetting(nameof(_noFoodOrDrinkOverlimitAfterSleep), false);
             _dontRestoreNeedsOnTravel = CreateSetting(nameof(_dontRestoreNeedsOnTravel), false);
 
             // Events
@@ -276,6 +278,8 @@ namespace ModPack
                 _allowOnlyDOTCures.Description = "Same as above, but limited to curing status effects that damage you over time";
                 Indent--;
             }
+            _noFoodOrDrinkOverlimitAfterSleep.Format("Max 100% food/drink after sleep");
+            _noFoodOrDrinkOverlimitAfterSleep.Description = "Allows you to eat/drink at least 1 meal before setting out on an adventure";
             _dontRestoreNeedsOnTravel.Format("Don't restore needs when travelling");
             _dontRestoreNeedsOnTravel.Description = "Normally, travelling restores 100% needs and resets temperature\n" +
                                                     "but mages may prefer to have control over their sleep level :)";
@@ -632,6 +636,19 @@ namespace ModPack
 
             ___m_sleep = value.ClampMax(MaxNeedValue(Need.Sleep));
             return false;
+        }
+
+        // No food/drink overlimit after bed sleep
+        [HarmonyPatch(typeof(PlayerCharacterStats), "UpdateStatsAfterRest"), HarmonyPostfix]
+        static void PlayerCharacterStats_UpdateStatsAfterRest_Post(ref PlayerCharacterStats __instance)
+        {
+            #region MyRegion
+            if (!_noFoodOrDrinkOverlimitAfterSleep)
+                return;
+            #endregion
+
+            __instance.m_food = __instance.m_food.ClampMax(1000f);
+            __instance.m_drink = __instance.m_drink.ClampMax(1000f);
         }
 
         // Don't restore needs when travelling
