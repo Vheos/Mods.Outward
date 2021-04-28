@@ -299,9 +299,9 @@ namespace ModPack
         // Multiplicative stacking
         static private bool HasLearnedArmorTraining(Character character)
         => character.Inventory.SkillKnowledge.IsItemLearned(ARMOR_TRAINING_ID);
-        static private bool IsAnythingEquipped(EquipmentSlot slot)
+        static public bool IsAnythingEquipped(EquipmentSlot slot)
         => slot != null && slot.HasItemEquipped;
-        static private bool IsNotLeftHandUsedBy2H(EquipmentSlot slot)
+        static public bool IsNotLeftHandUsedBy2H(EquipmentSlot slot)
         => !(slot.SlotType == EquipmentSlot.EquipmentSlotIDs.LeftHand && slot.EquippedItem.TwoHanded);
         static private bool TryApplyMultiplicativeStacking(CharacterEquipment equipment, ref float result, Func<EquipmentSlot, float> getStatValue, bool invertedValue = false, bool applyArmorTraining = false)
         {
