@@ -83,7 +83,6 @@ namespace ModPack
         static private ConfigurationManager.ConfigurationManager _configManager;
         static private bool _isConfigWindowDirty;
         static private BepInPlugin _plugin;
-        static private ModSetting<bool> _alwaysExpanded;
 
         // Initializers
         static public void Initialize(BaseUnityPlugin pluginComponent, ManualLogSource logger)
@@ -94,30 +93,7 @@ namespace ModPack
             _configManager = pluginComponent.GetComponent<ConfigurationManager.ConfigurationManager>();
             _plugin = pluginComponent.Info.Metadata;
 
-            CreateAlwaysExpandedToggle();
             Harmony.CreateAndPatchAll(typeof(Tools));
-        }
-        static private void CreateAlwaysExpandedToggle()
-        {
-            _alwaysExpanded = new ModSetting<bool>("", nameof(_alwaysExpanded), true);
-            _alwaysExpanded.Format("Always expanded");
-            _alwaysExpanded.Description = "\"Vheos Mod Pack\" plugin will always be expanded, even if you choose to collapse all plugins." +
-                                          "This prevents the plugin from collapsing when changing settings while default collapsing in enabled";
-            _alwaysExpanded.IsAdvanced = true;
-        }
-
-        // Hooks
-        [HarmonyPatch(typeof(ConfigurationManager.ConfigurationManager), "DrawSinglePlugin"), HarmonyPrefix]
-        static bool ConfigurationManager_DrawSinglePlugin_Pre(ref ConfigurationManager.ConfigurationManager __instance, ref ConfigurationManager.ConfigurationManager.PluginSettingsData plugin)
-        {
-            #region quit
-            if (!_alwaysExpanded)
-                return true;
-            #endregion
-
-            if (plugin.Info == _plugin)
-                plugin.Collapsed = false;
-            return true;
         }
     }
 }

@@ -53,8 +53,8 @@
       <HintPath>D:\Multiplayer\Outward\BepInEx\core\BepInEx.dll</HintPath>
       <Private>False</Private>
     </Reference>
-    <Reference Include="ConfigurationManager_publicized">
-      <HintPath>..\..\AssemblyPublicizer\ConfigurationManager_publicized.dll</HintPath>
+    <Reference Include="ConfigurationManager">
+      <HintPath>D:\Multiplayer\Outward\BepInEx\plugins\ConfigurationManager.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="System" />
@@ -76,6 +76,7 @@
     </Reference>
     <Reference Include="UnityEngine.ParticleSystemModule">
       <HintPath>D:\Multiplayer\Outward\Outward_Data\Managed\UnityEngine.ParticleSystemModule.dll</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="UnityEngine.PhysicsModule">
       <HintPath>D:\Multiplayer\Outward\Outward_Data\Managed\UnityEngine.PhysicsModule.dll</HintPath>
