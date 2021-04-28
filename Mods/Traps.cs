@@ -57,9 +57,9 @@ namespace ModPack
             _runicTrapRadius.Format("Runic trap trigger radius");
         }
         override protected string Description
-        => "• Aarming delay\n" +
-           "• Friendly fire\n" +
-           "• Trigger size";
+        => "• Set a delay before a trap can explode\n" +
+           "• Make traps explode in contact with players\n" +
+           "• Change trigger size for each trap";
 
         // Utility
         static private void ResetColor(DeployableTrap __instance)

@@ -108,14 +108,7 @@ namespace ModPack
             _campingActivities.Format("Available camping activities");
             _repairDurabilityPerHour.Format("Repair value per hour");
             _repairDurabilityPerHour.Description = "By default, % of max durability (can be changed below)";
-            Indent++;
-            {
-                _repairValueSemantic.Format("");
-                _repairValueSemantic.Description = "Percent of max durability   -   vanilla setting" +
-                                                   "Percent of missing durability   -   the less damaged item, the less useful repairing is\n" +
-                                                   "(total amount is multiplicative, so 10h x 10% will NOT equal 100%)";
-                Indent--;
-            }
+            _repairValueSemantic.Format("");
             _multiRepairBehaviour.Format("When repairing multiple items");
             _multiRepairBehaviour.Description = "Use fixed value for all items   -   the same repair value will be used for all items\n" +
                                                 "Divide value among items   -   the repair value will be divided by the number of equipped items\n" +
@@ -124,7 +117,8 @@ namespace ModPack
         }
         override protected string Description
         => "• Restrict camping spots to chosen places\n" +
-           "• Change butterfly zones spawn chance and radius";
+           "• Change butterfly zones spawn chance and radius\n" +
+           "• Customize repairing mechanic";
 
         // Utility
         static private List<SphereCollider> _safeZoneColliders;
@@ -166,50 +160,6 @@ namespace ModPack
         }
         static private bool HasLearnedFastMaintenance(Character character)
         => character.Inventory.SkillKnowledge.IsItemLearned(FAST_MAINTENANCE_ID);
-        static public void RepairEquipmentAfterRest(CharacterEquipment __instance, int hours)
-        {
-            // Cache
-            List<Equipment> equippedItems = new List<Equipment>();
-            foreach (var slot in __instance.m_equipmentSlots)
-                if (Various.IsAnythingEquipped(slot) && Various.IsNotLeftHandUsedBy2H(slot) && slot.EquippedItem.RepairedInRest)
-                    equippedItems.Add(slot.EquippedItem);
-
-            #region quit
-            if (equippedItems.IsEmpty())
-                return;
-            #endregion
-
-            // Repair value
-            float repairValue = _repairDurabilityPerHour / 100f;
-            if (HasLearnedFastMaintenance(__instance.m_character))
-                repairValue *= _fastMaintenanceMultiplier / 100f;
-            if (_multiRepairBehaviour == MultiRepairBehaviour.DivideValueAmongItems)
-                repairValue /= equippedItems.Count;
-
-            // Execute
-            for (int i = 0; i < hours; i++)
-                if (_multiRepairBehaviour == MultiRepairBehaviour.TryToEqualizeRatios)
-                {
-                    float minRatio = equippedItems.Min(item => item.DurabilityRatio);
-                    Equipment minItem = equippedItems.Find(item => item.DurabilityRatio == minRatio);
-                    minItem.SetDurabilityRatio(CalculateNewDurabilityRatio(minItem, repairValue));
-                }
-                else
-                    foreach (var item in equippedItems)
-                        item.SetDurabilityRatio(CalculateNewDurabilityRatio(item, repairValue));
-
-            // Clamp
-            foreach (var item in equippedItems)
-                if (item.DurabilityRatio > 1f)
-                    item.SetDurabilityRatio(1f);
-        }
-        static public void BreakEquipment(CharacterEquipment __instance)
-        {
-            foreach (var slot in __instance.m_equipmentSlots)
-                if (Various.IsAnythingEquipped(slot) && Various.IsNotLeftHandUsedBy2H(slot))
-                    slot.EquippedItem.SetDurabilityRatio(UnityEngine.Random.Range(0f, 0.5f));
-        }
-
 
         // Hooks
         [HarmonyPatch(typeof(EnvironmentSave), "ApplyData"), HarmonyPostfix]

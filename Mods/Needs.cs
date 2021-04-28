@@ -278,7 +278,7 @@ namespace ModPack
                 _allowOnlyDOTCures.Description = "Same as above, but limited to curing status effects that damage you over time";
                 Indent--;
             }
-            _noFoodOrDrinkOverlimitAfterSleep.Format("Max 100% food/drink after sleep");
+            _noFoodOrDrinkOverlimitAfterSleep.Format("Limit food/drink to 100% after sleep");
             _noFoodOrDrinkOverlimitAfterSleep.Description = "Allows you to eat/drink at least 1 meal before setting out on an adventure";
             _dontRestoreNeedsOnTravel.Format("Don't restore needs when travelling");
             _dontRestoreNeedsOnTravel.Description = "Normally, travelling restores 100% needs and resets temperature\n" +
