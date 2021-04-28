@@ -150,6 +150,7 @@ namespace ModPack
         // Settings
         static private Dictionary<Need, NeedSettings> _settingsByNeed;
         static private ModSetting<int> _sleepNegativeEffect;
+        static private ModSetting<bool> _sleepNegativeEffectIsPercent;
         static private ModSetting<int> _sleepBuffsDuration;
         static private ModSetting<bool> _drinkValuesToggle;
         static private ModSetting<int> _drinkValuesPotions, _drinkValuesCures, _drinkValuesTeas, _drinkValuesOther;
@@ -180,6 +181,7 @@ namespace ModPack
             _drinkValuesTeas = CreateSetting(nameof(_drinkValuesTeas), 20, IntRange(0, 100));
             _drinkValuesOther = CreateSetting(nameof(_drinkValuesOther), 20, IntRange(0, 100));
             _sleepNegativeEffect = CreateSetting(nameof(_sleepNegativeEffect), -12, IntRange(-100, 0));
+            _sleepNegativeEffectIsPercent = CreateSetting(nameof(_sleepNegativeEffectIsPercent), false);
             _sleepBuffsDuration = CreateSetting(nameof(_sleepBuffsDuration), 40, IntRange(0, 100));
             _allowCuresWhileOverlimited = CreateSetting(nameof(_allowCuresWhileOverlimited), false);
             _allowOnlyDOTCures = CreateSetting(nameof(_allowOnlyDOTCures), false);
@@ -231,7 +233,10 @@ namespace ModPack
                     {
                         tmp._fulfilledEffectValue.Format(data.AffectedStat, tmp._fulfilledLimit, () => tmp._fulfilledLimit > 100);
                         if (data.Need == Need.Sleep)
+                        {
                             _sleepNegativeEffect.Format("mana / min", tmp._fulfilledLimit, () => tmp._fulfilledLimit > 100);
+                            _sleepNegativeEffectIsPercent.Format("is % of max mana");
+                        }
                         Indent--;
                     }
 
@@ -361,9 +366,9 @@ namespace ModPack
                         newEffects.Add(staminaRegen);
                         newEffectDatas.Add(new StatusData.EffectData() { Data = new[] { effectValue.ToString() } });
                         // Mana
-                        AffectStat manaRegen = statusEffect.AddEffect<AffectStat>();
-                        manaRegen.AffectedStat = new TagSourceSelector("ManaRegen".ToTag());
-                        manaRegen.IsModifier = false;
+                        AffectMana manaRegen = statusEffect.AddEffect<AffectMana>();
+                        manaRegen.AffectType = AffectMana.AffectTypes.Restaure;
+                        manaRegen.IsModifier = _sleepNegativeEffectIsPercent;
                         newEffects.Add(manaRegen);
                         newEffectDatas.Add(new StatusData.EffectData() { Data = new[] { _sleepNegativeEffect.Value.Div(60).ToString() } });
                         break;

@@ -98,6 +98,7 @@
     <Compile Include="Core\Static\Prefabs.cs" />
     <Compile Include="Core\Static\GameInput.cs" />
     <Compile Include="Mods\Camping.cs" />
+    <Compile Include="Mods\Gamepad.cs" />
     <Compile Include="Mods\Prices.cs" />
     <Compile Include="Mods\SkillLimits.cs" />
     <Compile Include="Mods\Targeting.cs" />
