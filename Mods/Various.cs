@@ -18,11 +18,11 @@ namespace ModPack
         private const float DEFAULT_ENEMY_HEALTH_RESET_HOURS = 24f;   // Character.HoursToHealthReset
         private const int ARMOR_TRAINING_ID = 8205220;
         static private Color TRAP_START_COLOR = Color.white;
-        static private Color TRAP_TRANSITION_COLOR = new Color(1f, 0.1f, 0f);
+        static private Color TRAP_TRANSITION_COLOR = Color.yellow;
         static private Color TRAP_ARMED_COLOR = Color.red;
         static private Color RUNIC_TRAP_START_COLOR = new Color(1f, 1f, 1f, 0f);
-        static private Color RUNIC_TRAP_TRANSITION_COLOR = new Color(1f, 0.1f, 0f, 0.1f);
-        static private Color RUNIC_TRAP_ARMED_COLOR = new Color(1f, 0.05f, 0.025f, 1f);
+        static private Color RUNIC_TRAP_TRANSITION_COLOR = new Color(1f, 1f, 0.05f, 0.05f);
+        static private Color RUNIC_TRAP_ARMED_COLOR = new Color(1f, 0.05f, 0f, 1f);
         #endregion
         #region enum
         [Flags]
@@ -211,7 +211,7 @@ namespace ModPack
             __instance.ExecuteUntil
             (
                 () => Time.time - setupTime >= _trapsArmDelay,
-                () => particleSystemMain.startColor = Color.Lerp(RUNIC_TRAP_START_COLOR, RUNIC_TRAP_TRANSITION_COLOR, (Time.time - setupTime) / _trapsArmDelay),
+                () => particleSystemMain.startColor = Utility.Lerp3(RUNIC_TRAP_START_COLOR, RUNIC_TRAP_TRANSITION_COLOR, RUNIC_TRAP_ARMED_COLOR, (Time.time - setupTime) / _trapsArmDelay),
                 () => { particleSystemMain.startColor = RUNIC_TRAP_ARMED_COLOR; collider.enabled = true; }
             );
         }
@@ -242,7 +242,7 @@ namespace ModPack
             __instance.ExecuteUntil
             (
                 () => Time.time - setupTime >= _trapsArmDelay,
-                () => material.color = Color.Lerp(TRAP_START_COLOR, TRAP_TRANSITION_COLOR, (Time.time - setupTime) / _trapsArmDelay),
+                () => material.color = Utility.Lerp3(TRAP_START_COLOR, TRAP_TRANSITION_COLOR, TRAP_ARMED_COLOR, (Time.time - setupTime) / _trapsArmDelay),
                 () => { material.color = TRAP_ARMED_COLOR; collider.enabled = true; }
             );
         }

@@ -104,6 +104,12 @@ namespace ModPack
             a.BecomeSiblingOf(temp);
             temp.DestroyObject();
         }
+        static public Color Lerp3(Color a, Color b, Color c, float t)
+        {
+            if (t < 0.5f)
+                return Color.Lerp(a, b, t * 2);
+            return Color.Lerp(b, c, t * 2 - 1);
+        }
         static public IEnumerator CoroutineWaitForSeconds(float delay, Action action)
         {
             yield return new WaitForSeconds(delay);
