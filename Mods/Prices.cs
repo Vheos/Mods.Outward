@@ -19,6 +19,7 @@ namespace ModPack
         private const string ICONS_FOLDER = @"Prices\";
         static private Vector2 ALTERNATE_CURRENCY_ICON_SCALE = new Vector2(1.75f, 1.75f);
         static private Vector2 ALTERNATE_CURRENCY_ICON_PIVOT = new Vector2(-0.5f, 0.5f);
+        private const int GOLD_INGOT_ID = 6300030;
         #endregion
         #region class
         private class SkillRequirement
@@ -176,6 +177,9 @@ namespace ModPack
 
             // Price
             float modifier = buySellModifier / 100f;
+
+            if (item.ItemID == GOLD_INGOT_ID)
+                modifier = 1f;
             int preRandomPrice = (finalPrice * modifier).Round();
 
             if (_randomizePricesExtent > 0)
