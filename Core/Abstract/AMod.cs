@@ -45,6 +45,7 @@ namespace ModPack
             typeof(Descriptions),
             typeof(Camera),
             typeof(KeyboardWalk),
+            typeof(Gamepad),
 
             // Various
             typeof(Various),
