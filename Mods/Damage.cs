@@ -107,11 +107,12 @@ namespace ModPack
         [HarmonyPatch(typeof(Character), "VitalityHit"), HarmonyPrefix]
         static bool Character_VitalityHit_Pre(ref Character __instance, Character _dealerChar, ref float _damage)
         {
-            if (_dealerChar != null && _dealerChar.IsEnemyOf(Character.Factions.Player))
+            if (_dealerChar != null && _dealerChar.IsEnemy()
+            || _dealerChar == null && __instance.IsPlayer())
             {
                 if (_enemiesToggle)
                     _damage *= _enemiesHealthDamage / 100f;
-                if (__instance.IsEnemyOf(Character.Factions.Player))
+                if (__instance.IsEnemy())
                     _damage *= _enemiesFriendlyFireHealthDamage / 100f;
             }
             else
@@ -128,11 +129,12 @@ namespace ModPack
         [HarmonyPatch(typeof(Character), "StabilityHit"), HarmonyPrefix]
         static bool Character_StabilityHit_Pre(ref Character __instance, Character _dealerChar, ref float _knockValue)
         {
-            if (_dealerChar != null && _dealerChar.IsEnemyOf(Character.Factions.Player))
+            if (_dealerChar != null && _dealerChar.IsEnemy()
+            || _dealerChar == null && __instance.IsPlayer())
             {
                 if (_enemiesToggle)
                     _knockValue *= _enemiesStabilityDamage / 100f;
-                if (__instance.IsEnemyOf(Character.Factions.Player))
+                if (__instance.IsEnemy())
                     _knockValue *= _enemiesFriendlyFireStabilityDamage / 100f;
             }
             else
