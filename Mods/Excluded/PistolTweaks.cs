@@ -34,12 +34,12 @@ namespace ModPack
         #endregion
 
         // Config
-        static public ModSetting<float> _shotSpeed;
-        static public ModSetting<float> _reloadSpeed;
-        static public ModSetting<int> _bulletsPerReload;
-        static public ModSetting<int> _bulletStackSize;
-        static public ModSetting<float> _bulletWeight;
-        static public ModSetting<int> _bulletPrice;
+        static private ModSetting<float> _shotSpeed;
+        static private ModSetting<float> _reloadSpeed;
+        static private ModSetting<int> _bulletsPerReload;
+        static private ModSetting<int> _bulletStackSize;
+        static private ModSetting<float> _bulletWeight;
+        static private ModSetting<int> _bulletPrice;
         override protected void Initialize()
         {
             // Settings
@@ -69,7 +69,7 @@ namespace ModPack
             _bulletPrice.Format("Bullet price");
         }
         override protected string SectionOverride
-        => Presets.SECTION_VARIOUS;
+        => SECTION_VARIOUS;
 
         // Utility
         static private float _overrideSpeed;

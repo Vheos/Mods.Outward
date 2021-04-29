@@ -35,7 +35,7 @@ namespace ModPack
         #endregion
         #region enum
         [Flags]
-        public enum CampingSpots
+        private enum CampingSpots
         {
             None = 0,
 
@@ -45,7 +45,7 @@ namespace ModPack
             Dungeons = 1 << 4,
         }
         [Flags]
-        public enum CampingActivities
+        private enum CampingActivities
         {
             None = 0,
 
@@ -53,27 +53,27 @@ namespace ModPack
             Guard = 1 << 2,
             Repair = 1 << 3,
         }
-        public enum MultiRepairBehaviour
+        private enum MultiRepairBehaviour
         {
             UseFixedValueForAllItems = 1,
             DivideValueAmongItems = 2,
             TryToEqualizeRatios = 3,
         }
-        public enum RepairValueSemantic
+        private enum RepairValueSemantic
         {
             PercentOfMaxDurability = 1,
             PercentOfMissingDurability = 2,
         }
         #endregion
         // Setting
-        static public ModSetting<CampingSpots> _campingSpots;
-        static public ModSetting<int> _butterfliesSpawnChance;
-        static public ModSetting<int> _butterfliesRadius;
-        static public ModSetting<CampingActivities> _campingActivities;
-        static public ModSetting<int> _repairDurabilityPerHour;
-        static public ModSetting<RepairValueSemantic> _repairValueSemantic;
-        static public ModSetting<MultiRepairBehaviour> _multiRepairBehaviour;
-        static public ModSetting<int> _fastMaintenanceMultiplier;
+        static private ModSetting<CampingSpots> _campingSpots;
+        static private ModSetting<int> _butterfliesSpawnChance;
+        static private ModSetting<int> _butterfliesRadius;
+        static private ModSetting<CampingActivities> _campingActivities;
+        static private ModSetting<int> _repairDurabilityPerHour;
+        static private ModSetting<RepairValueSemantic> _repairValueSemantic;
+        static private ModSetting<MultiRepairBehaviour> _multiRepairBehaviour;
+        static private ModSetting<int> _fastMaintenanceMultiplier;
         override protected void Initialize()
         {
             _campingSpots = CreateSetting(nameof(_campingSpots), (CampingSpots)~0);
@@ -120,7 +120,7 @@ namespace ModPack
            "• Change butterfly zones spawn chance and radius\n" +
            "• Customize repairing mechanic";
         override protected string SectionOverride
-        => Presets.SECTION_SURVIVAL;
+        => SECTION_SURVIVAL;
 
         // Utility
         static private List<SphereCollider> _safeZoneColliders;
@@ -269,8 +269,8 @@ namespace ModPack
 
 /*
  *         // Setting
-        static public ModSetting<int> _currentVal, _maxVal, _activeMax;
-        static public ModSetting<bool> _forceSet;
+        static private ModSetting<int> _currentVal, _maxVal, _activeMax;
+        static private ModSetting<bool> _forceSet;
         override protected void Initialize()
         {
             _currentVal = CreateSetting(nameof(_currentVal), 0, IntRange(0, 100));

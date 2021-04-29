@@ -20,7 +20,7 @@ namespace ModPack
         #endregion
         #region enum
         [Flags]
-        public enum GroundInteractions
+        private enum GroundInteractions
         {
             None = 0,
             All = ~0,
@@ -32,7 +32,7 @@ namespace ModPack
             DeployKit = 1 << 5,
         }
         [Flags]
-        public enum InteractionsInCombat
+        private enum InteractionsInCombat
         {
             None = 0,
 
@@ -188,12 +188,12 @@ namespace ModPack
         #endregion
 
         // Settings
-        static public ModSetting<float> _holdInteractionsDuration;
-        static public ModSetting<bool> _swapWaterInteractions;
-        static public ModSetting<bool> _singleHoldsToPresses;
-        static public ModSetting<bool> _takeAnimations;
-        static public ModSetting<GroundInteractions> _groundInteractions;
-        static public ModSetting<InteractionsInCombat> _disallowedInCombat;
+        static private ModSetting<float> _holdInteractionsDuration;
+        static private ModSetting<bool> _swapWaterInteractions;
+        static private ModSetting<bool> _singleHoldsToPresses;
+        static private ModSetting<bool> _takeAnimations;
+        static private ModSetting<GroundInteractions> _groundInteractions;
+        static private ModSetting<InteractionsInCombat> _disallowedInCombat;
         override protected void Initialize()
         {
             _groundInteractions = CreateSetting(nameof(_groundInteractions), GroundInteractions.None);
@@ -229,7 +229,7 @@ namespace ModPack
            "• \"Take item\" animations\n" +
            "• Disallow certain interactions while in combat";
         override protected string SectionOverride
-        => Presets.SECTION_SURVIVAL;
+        => SECTION_SURVIVAL;
 
         // Utility
         static private void SwapBasicAndHoldInteractions(InteractionActivator activator, ref IInteraction vanillaBasic, ref IInteraction vanillaHold)
@@ -342,7 +342,7 @@ namespace ModPack
 }
 
 /*
-static public ModSetting<bool> _overrideIsInCombat;
+static private ModSetting<bool> _overrideIsInCombat;
 _overrideIsInCombat = CreateSetting(nameof(_overrideIsInCombat), false);
 _overrideIsInCombat.Format("Override \"InCombat\"");
 
@@ -355,8 +355,8 @@ static bool Character_InCombat_Pre(ref Character __instance, ref bool __result)
 */
 
 /*
-static public ModSetting<bool> _mobileUseToggle;
-static public ModSetting<int> _mobileEatSpeed, _mobileDrinkSpeed, _mobileInfuseSpeed;
+static private ModSetting<bool> _mobileUseToggle;
+static private ModSetting<int> _mobileEatSpeed, _mobileDrinkSpeed, _mobileInfuseSpeed;
 
 _mobileUseToggle = CreateSetting(nameof(_mobileUseToggle), false);
 _mobileEatSpeed = CreateSetting(nameof(_mobileEatSpeed), 50, IntRange(0, 100));

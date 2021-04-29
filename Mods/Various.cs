@@ -20,7 +20,7 @@ namespace ModPack
         #endregion
         #region enum
         [Flags]
-        public enum ArmorSlots
+        private enum ArmorSlots
         {
             None = 0,
             Head = 1 << 1,
@@ -30,20 +30,20 @@ namespace ModPack
         #endregion
 
         // Settings
-        static public ModSetting<bool> _enableCheats;
-        static public ModSetting<bool> _skipStartupVideos;
-        static public ModSetting<ArmorSlots> _armorSlotsToHide;
-        static public ModSetting<bool> _removeCoopScaling;
-        static public ModSetting<bool> _removeDodgeInvulnerability;
-        static public ModSetting<bool> _healEnemiesOnLoad;
-        static public ModSetting<bool> _repairOnlyEquipped;
-        static public ModSetting<bool> _loadArrowsFromInventory;
-        static public ModSetting<bool> _multiplicativeStacking;
-        static public ModSetting<int> _armorTrainingPenaltyReduction;
-        static public ModSetting<bool> _applyArmorTrainingToManaCost;
-        static public ModSetting<bool> _allowDodgeAnimationCancelling;
-        static public ModSetting<bool> _allowPushKickRemoval;
-        static public ModSetting<bool> _allowTargetingPlayers;
+        static private ModSetting<bool> _enableCheats;
+        static private ModSetting<bool> _skipStartupVideos;
+        static private ModSetting<ArmorSlots> _armorSlotsToHide;
+        static private ModSetting<bool> _removeCoopScaling;
+        static private ModSetting<bool> _removeDodgeInvulnerability;
+        static private ModSetting<bool> _healEnemiesOnLoad;
+        static private ModSetting<bool> _repairOnlyEquipped;
+        static private ModSetting<bool> _loadArrowsFromInventory;
+        static private ModSetting<bool> _multiplicativeStacking;
+        static private ModSetting<int> _armorTrainingPenaltyReduction;
+        static private ModSetting<bool> _applyArmorTrainingToManaCost;
+        static private ModSetting<bool> _allowDodgeAnimationCancelling;
+        static private ModSetting<bool> _allowPushKickRemoval;
+        static private ModSetting<bool> _allowTargetingPlayers;
         override protected void Initialize()
         {
             _enableCheats = CreateSetting(nameof(_enableCheats), false);
@@ -115,7 +115,7 @@ namespace ModPack
         override protected string Description
         => "• Mods (small and big) that didn't get their own section yet :)";
         override protected string SectionOverride
-        => Presets.SECTION_VARIOUS;
+        => SECTION_VARIOUS;
 
         // Load arrows from inventory
         [HarmonyPatch(typeof(WeaponLoadoutItem), "ReduceShotAmount"), HarmonyPrefix]
@@ -357,7 +357,7 @@ namespace ModPack
 }
 /*
  *         [Flags]
-        public enum EquipmentStats
+        private enum EquipmentStats
         {
             None = 0,
             All = ~0,
@@ -376,9 +376,9 @@ namespace ModPack
 
 /* POUCH
 private const float POUCH_CAPACITY = 10f;
-static public ModSetting<bool> _pouchToggle;
-static public ModSetting<int> _pouchCapacity;
-static public ModSetting<bool> _allowOverCapacity;
+static private ModSetting<bool> _pouchToggle;
+static private ModSetting<int> _pouchCapacity;
+static private ModSetting<bool> _allowOverCapacity;
 
 _pouchToggle = CreateSetting(nameof(_pouchToggle), false);
 _pouchCapacity = CreateSetting(nameof(_pouchCapacity), POUCH_CAPACITY.Round(), IntRange(0, 100));

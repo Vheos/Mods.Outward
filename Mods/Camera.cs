@@ -18,7 +18,7 @@ namespace ModPack
         #endregion
         #region enum
         [Flags]
-        public enum GamepadInputs
+        private enum GamepadInputs
         {
             None = 0,
 
@@ -197,8 +197,6 @@ namespace ModPack
            "(position, fov, follow speed, sensitivity)\n" +
            "• Control camera using mouse/gamepad\n" +
            "• Define presets and smoothly interpolate between them";
-        override protected string SectionOverride
-        => Presets.SECTION_UI;
         public void OnUpdate()
         {
             foreach (var player in Players.Local)
@@ -226,6 +224,8 @@ namespace ModPack
                 }
             }
         }
+        override protected string SectionOverride
+        => SECTION_UI;
 
         // Utility            
         static private void UpdateCameraSettings(Players.Data player)

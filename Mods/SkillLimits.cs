@@ -52,7 +52,7 @@ namespace ModPack
         #endregion
         #region enum
         [Flags]
-        public enum SkillTypes
+        private enum SkillTypes
         {
             None = 0,
             Any = ~0,
@@ -61,7 +61,7 @@ namespace ModPack
             Active = 1 << 2,
         }
         [Flags]
-        public enum LimitedSkillTypes
+        private enum LimitedSkillTypes
         {
             None = 0,
 
@@ -72,10 +72,10 @@ namespace ModPack
         #endregion
 
         // Setting
-        static public ModSetting<bool> _separateLimits;
-        static public ModSetting<int> _skillsLimit, _passiveSkillsLimit, _activeSkillsLimit;
-        static public ModSetting<LimitedSkillTypes> _limitedSkillTypes;
-        static public ModSetting<bool> _freePostBreakthroughBasicSkills;
+        static private ModSetting<bool> _separateLimits;
+        static private ModSetting<int> _skillsLimit, _passiveSkillsLimit, _activeSkillsLimit;
+        static private ModSetting<LimitedSkillTypes> _limitedSkillTypes;
+        static private ModSetting<bool> _freePostBreakthroughBasicSkills;
         override protected void Initialize()
         {
             _separateLimits = CreateSetting(nameof(_separateLimits), false);
@@ -115,7 +115,7 @@ namespace ModPack
         => "• Set limit on how many skills you can learn\n" +
            "• Decide which skills count towards the limit";
         override protected string SectionOverride
-        => Presets.SECTION_SURVIVAL;
+        => SECTION_SURVIVAL;
 
         // Utility
         static private bool CanLearnMoreLimitedSkills(Character character, SkillTypes skillTypes)
@@ -174,7 +174,7 @@ namespace ModPack
             skillTree = SkillTreeHolder.Instance.m_skillTrees.DefaultOnInvalid(skill.SchoolIndex - 1);
             return skillTree != null;
         }
-        static public ModSetting<int> GetLimitingSetting(SkillTypes skillTypes)
+        static private ModSetting<int> GetLimitingSetting(SkillTypes skillTypes)
         {
             switch (skillTypes)
             {

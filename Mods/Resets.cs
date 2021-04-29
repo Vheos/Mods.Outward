@@ -26,14 +26,14 @@ namespace ModPack
         private const float TIME_UNIT = 24f;   // Day = TIME_UNIT
         #endregion
         #region enums
-        public enum ResetMode
+        private enum ResetMode
         {
             Always = 1,
             Timer = 2,
             Never = 3,
         }
         [Flags]
-        public enum AreasResetLayers
+        private enum AreasResetLayers
         {
             None = 0,
             ItemsAndContainers = 1 << 1,
@@ -48,11 +48,11 @@ namespace ModPack
         #endregion
 
         // Config
-        static public ModSetting<bool> _areasToggle, _gatherablesToggle, _merchantsToggle;
-        static public ModSetting<ResetMode> _areasMode, _gatheringMode, _fishingMode, _miningMode, _merchantsMode;
-        static public ModSetting<int> _areasTimer, _gatheringTimer, _fishingTimer, _miningTimer, _merchantsTimer;
-        static public ModSetting<int> _areasTimerSinceReset;
-        static public ModSetting<AreasResetLayers> _areasResetLayers;
+        static private ModSetting<bool> _areasToggle, _gatherablesToggle, _merchantsToggle;
+        static private ModSetting<ResetMode> _areasMode, _gatheringMode, _fishingMode, _miningMode, _merchantsMode;
+        static private ModSetting<int> _areasTimer, _gatheringTimer, _fishingTimer, _miningTimer, _merchantsTimer;
+        static private ModSetting<int> _areasTimerSinceReset;
+        static private ModSetting<AreasResetLayers> _areasResetLayers;
         override protected void Initialize()
         {
             _areasToggle = CreateSetting(nameof(_areasToggle), false);
@@ -120,7 +120,7 @@ namespace ModPack
            "• Gatherable respawns (for each type)\n" +
            "• Merchant restocks";
         override protected string SectionOverride
-        => Presets.SECTION_SURVIVAL;
+        => SECTION_SURVIVAL;
 
         // Areas
         [HarmonyPatch(typeof(EnvironmentSave), "ApplyData"), HarmonyPrefix]

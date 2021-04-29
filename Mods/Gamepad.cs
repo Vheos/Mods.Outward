@@ -7,14 +7,12 @@ using UnityEngine.EventSystems;
 using System;
 using System.Linq;
 
-
-
 namespace ModPack
 {
     public class Gamepad : AMod, IDelayedInit, IUpdatable
     {
         // Setting
-        static public ModSetting<bool> _extraGamepadQuickslots;
+        static private ModSetting<bool> _extraGamepadQuickslots;
         public ModSetting<bool> _betterStashNavigation;
         override protected void Initialize()
         {
@@ -36,7 +34,7 @@ namespace ModPack
         => "• 16 quickslots\n" +
            "• Better stash navigation";
         override protected string SectionOverride
-        => Presets.SECTION_UI;
+        => SECTION_UI;
         public void OnUpdate()
         {
             #region quit

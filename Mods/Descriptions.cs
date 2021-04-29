@@ -33,7 +33,7 @@ namespace ModPack
         #endregion
         #region enum
         [Flags]
-        public enum Details
+        private enum Details
         {
             None = 0,
             All = ~0,
@@ -142,11 +142,11 @@ namespace ModPack
         #endregion
 
         // Settings
-        static public ModSetting<bool> _barsToggle;
-        static public ModSetting<bool> _addBackgrounds;
-        static public ModSetting<Details> _details;
-        static public ModSetting<int> _durabilityBarSize, _freshnessBarSize, _barThickness;
-        static public ModSetting<bool> _durabilityTiedToMax, _freshnessTiedToLifespan;
+        static private ModSetting<bool> _barsToggle;
+        static private ModSetting<bool> _addBackgrounds;
+        static private ModSetting<Details> _details;
+        static private ModSetting<int> _durabilityBarSize, _freshnessBarSize, _barThickness;
+        static private ModSetting<bool> _durabilityTiedToMax, _freshnessTiedToLifespan;
         override protected void Initialize()
         {
             _details = CreateSetting(nameof(_details), Details.None);
@@ -193,7 +193,7 @@ namespace ModPack
         "• Override durability and freshness bars\n" +
         "(automatic scaling, thickness)";
         override protected string SectionOverride
-        => Presets.SECTION_UI;
+        => SECTION_UI;
 
         // Utility
         static private RowsCache _rowsCache;

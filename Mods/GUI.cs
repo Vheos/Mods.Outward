@@ -29,13 +29,13 @@ namespace ModPack
         };
         #endregion
         #region enum
-        public enum SeperatePanelsMode
+        private enum SeperatePanelsMode
         {
             Disabled = 0,
             Toggle = 1,
             TwoButtons = 2,
         }
-        public enum HUDGroup
+        private enum HUDGroup
         {
             KeyboardQuickslots,
             GamepadQuickslots,
@@ -47,13 +47,13 @@ namespace ModPack
             Stability,
             Notifications,
         }
-        public enum SettingsOperation
+        private enum SettingsOperation
         {
             Save,
             Load,
             Reset,
         }
-        public enum Tool
+        private enum Tool
         {
             Move,
             Scale,
@@ -123,7 +123,7 @@ namespace ModPack
 
         // Setting
         static private PerPlayerSettings[] _perPlayerSettings;
-        static public ModSetting<bool> _verticalSplitscreen;
+        static private ModSetting<bool> _verticalSplitscreen;
         override protected void Initialize()
         {
             _verticalSplitscreen = CreateSetting(nameof(_verticalSplitscreen), false);
@@ -289,7 +289,7 @@ namespace ModPack
         => "• Rearrange HUD elements\n" +
            "• Vertical splitscreen (with shop tweaks)";
         override protected string SectionOverride
-        => Presets.SECTION_UI;
+        => SECTION_UI;
         public void OnUpdate()
         {
             foreach (var player in Players.Local)

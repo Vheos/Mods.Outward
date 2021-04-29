@@ -15,7 +15,7 @@ namespace ModPack
         #endregion
         #region enum
         [Flags]
-        public enum RangedTypes
+        private enum RangedTypes
         {
             None = 0,
             Bow = 1 << 1,
@@ -24,7 +24,7 @@ namespace ModPack
             Lexicon = 1 << 4,
         }
         [Flags]
-        public enum AutoTargetActions
+        private enum AutoTargetActions
         {
             None = 0,
             Attack = 1 << 1,
@@ -35,10 +35,10 @@ namespace ModPack
         #endregion
 
         // Setting
-        static public ModSetting<int> _meleeDistance, _rangedDistance, _huntersEyeDistance;
-        static public ModSetting<RangedTypes> _rangedEquipmentTypes;
-        static public ModSetting<AutoTargetActions> _autoTargetActions;
-        static public ModSetting<float> _targetingPitchOffset;
+        static private ModSetting<int> _meleeDistance, _rangedDistance, _huntersEyeDistance;
+        static private ModSetting<RangedTypes> _rangedEquipmentTypes;
+        static private ModSetting<AutoTargetActions> _autoTargetActions;
+        static private ModSetting<float> _targetingPitchOffset;
         override protected void Initialize()
         {
             _meleeDistance = CreateSetting(nameof(_meleeDistance), 20, IntRange(0, 100));
@@ -69,7 +69,7 @@ namespace ModPack
            "• Auto-target on specific actions\n" +
            "• Tilt targeting camera";
         override protected string SectionOverride
-        => Presets.SECTION_COMBAT;
+        => SECTION_COMBAT;
 
         // Utility
         static private bool HasHuntersEye(Character character)

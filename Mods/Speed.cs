@@ -13,11 +13,11 @@ namespace ModPack
         #endregion
 
         // Config
-        static public ModSetting<bool> _gameToggle, _playersToggle, _npcsToggle;
-        static public ModSetting<int> _defaultGameSpeed, _speedHackMultiplier;
-        static public ModSetting<string> _speedHackKey;
-        static public ModSetting<int> _playersAnimationSpeed, _playersMovementSpeed, _playersAttackSpeed;
-        static public ModSetting<int> _npcsAnimationSpeed, _npcMovementSpeed, _npcAttackSpeed;
+        static private ModSetting<bool> _gameToggle, _playersToggle, _npcsToggle;
+        static private ModSetting<int> _defaultGameSpeed, _speedHackMultiplier;
+        static private ModSetting<string> _speedHackKey;
+        static private ModSetting<int> _playersAnimationSpeed, _playersMovementSpeed, _playersAttackSpeed;
+        static private ModSetting<int> _npcsAnimationSpeed, _npcMovementSpeed, _npcAttackSpeed;
         override protected void Initialize()
         {
             _gameToggle = CreateSetting(nameof(_gameToggle), false);
@@ -83,12 +83,13 @@ namespace ModPack
            "• Override default game speed\n" +
            "• Toggle speedhack with a hotkey";
         override protected string SectionOverride
-        => Presets.SECTION_COMBAT;
+        => SECTION_COMBAT;
 
         public void OnUpdate()
         {
-            if (_speedHackKey.Value.ToKeyCode().Pressed())
-                ToggleSpeedHack();
+            if (IsEnabled)
+                if (_speedHackKey.Value.ToKeyCode().Pressed())
+                    ToggleSpeedHack();
         }
 
         // Utility
@@ -176,7 +177,7 @@ namespace ModPack
 
 /*
 
-static public ModSetting<string> _pauseKey,
+static private ModSetting<string> _pauseKey,
 
 _pauseKey = CreateSetting(nameof(_pauseKey), "");
 
