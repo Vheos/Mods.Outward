@@ -95,6 +95,7 @@
   <ItemGroup>
     <Compile Include="Core\Abstract\Interfaces.cs" />
     <Compile Include="Core\Static\Players.cs" />
+    <Compile Include="Core\Static\Presets.cs" />
     <Compile Include="Core\Static\Prefabs.cs" />
     <Compile Include="Core\Static\GameInput.cs" />
     <Compile Include="Mods\Camping.cs" />
@@ -116,6 +117,10 @@
     <Compile Include="Mods\Interactions.cs" />
     <Compile Include="Mods\Traps.cs" />
     <Compile Include="Mods\Various.cs" />
+    <Compile Include="Presets\Preset_IggyTheMad_TrueHardcore.cs" />
+    <Compile Include="Presets\Preset_Vheos_Survival.cs" />
+    <Compile Include="Presets\Preset_ResetToDefaults.cs" />
+    <Compile Include="Presets\APreset.cs" />
     <Compile Include="Utility\Extensions\Extensions_Collections_ICollection.cs" />
     <Compile Include="Utility\Extensions\Extensions_Collections_IList.cs" />
     <Compile Include="Utility\Extensions\Extensions_Math_Common.cs" />
