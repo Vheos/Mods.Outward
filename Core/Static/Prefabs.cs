@@ -101,7 +101,7 @@ namespace ModPack
         => ResourcesPrefabManager.STATUSEFFECT_PREFABS;
         static public Dictionary<string, QuestEventSignature> QuestsByID
         => QuestEventDictionary.m_questEvents;
-        static public Dictionary<int, Item> SkillsByID
+        static public Dictionary<int, Skill> SkillsByID
         { get; private set; }
         static public Dictionary<int, Item> IngestiblesByID
         { get; private set; }
@@ -117,7 +117,7 @@ namespace ModPack
         // Initializers
         static public void Initialize()
         {
-            SkillsByID = new Dictionary<int, Item>();
+            SkillsByID = new Dictionary<int, Skill>();
             IngestiblesByID = new Dictionary<int, Item>();
             foreach (var itemByID in ItemsByID)
             {
