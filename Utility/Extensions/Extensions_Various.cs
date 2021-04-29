@@ -222,6 +222,8 @@ namespace ModPack
         => t.SetVisibility(false);
 
         // Various
+        static public Vector3 ToVector3(this (float X, float Y, float Z) t)
+        => new Vector3(t.X, t.Y, t.Z);
         static public CodeMatcher CodeMatcher(this IEnumerable<CodeInstruction> t)
         => new CodeMatcher(t);
         static public string SplitCamelCase(this string t)
