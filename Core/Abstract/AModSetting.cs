@@ -64,6 +64,8 @@ namespace ModPack
 
             IsVisible = _visibilityCheck();
         }
+        public void Reset()
+        => _configEntryBase.BoxedValue = _configEntryBase.DefaultValue;
 
         // Attributes
         public string Name
