@@ -16,6 +16,7 @@ namespace ModPack
         public const float UNPACK_OFFSET_Y = 0.2f;
         public const float UNPACK_BUMP_FORCE = 60f;
         public const float UNPACK_USE_DELAY = 0.1f;
+        public const string DISALLOW_IN_COMBAT_NOTIFICATION = "Can't while in combat!";
         #endregion
         #region enum
         [Flags]
@@ -29,6 +30,16 @@ namespace ModPack
             InfuseWeapon = 1 << 3,
             SwitchEquipment = 1 << 4,
             DeployKit = 1 << 5,
+        }
+        [Flags]
+        private enum InteractionsInCombat
+        {
+            None = 0,
+
+            Loot = 1 << 1,
+            Travel = 1 << 2,
+            Warp = 1 << 3,
+            Talk = 1 << 4,
         }
         #endregion
         #region interaction
@@ -182,33 +193,42 @@ namespace ModPack
         static private ModSetting<bool> _singleHoldsToPresses;
         static private ModSetting<bool> _takeAnimations;
         static private ModSetting<GroundInteractions> _groundInteractions;
+        static private ModSetting<InteractionsInCombat> _disallowedInCombat;
+
         override protected void Initialize()
         {
-            _holdInteractionsDuration = CreateSetting(nameof(_holdInteractionsDuration), GameInput.HOLD_THRESHOLD + GameInput.HOLD_DURATION, FloatRange(0.1f + GameInput.HOLD_THRESHOLD, 5f));
-            _swapWaterInteractions = CreateSetting(nameof(_swapWaterInteractions), false);
-            _singleHoldsToPresses = CreateSetting(nameof(_singleHoldsToPresses), false);
-            _takeAnimations = CreateSetting(nameof(_takeAnimations), false);
             _groundInteractions = CreateSetting(nameof(_groundInteractions), GroundInteractions.None);
+            _singleHoldsToPresses = CreateSetting(nameof(_singleHoldsToPresses), false);
+            _holdInteractionsDuration = CreateSetting(nameof(_holdInteractionsDuration), GameInput.HOLD_THRESHOLD + GameInput.HOLD_DURATION, FloatRange(0.1f + GameInput.HOLD_THRESHOLD, 5f));
+            _takeAnimations = CreateSetting(nameof(_takeAnimations), false);
+            _swapWaterInteractions = CreateSetting(nameof(_swapWaterInteractions), false);
+            _disallowedInCombat = CreateSetting(nameof(_disallowedInCombat), InteractionsInCombat.None);
         }
         override protected void SetFormatting()
         {
-            _holdInteractionsDuration.Format("\"Hold\" interactions duration");
-            _holdInteractionsDuration.Description = "How long you want to hold the button for \"Hold\" interaction to trigger";
+            _groundInteractions.Format("Use items from ground");
+            _groundInteractions.Description = "Items to use straight from the ground with a \"Hold\" interaction";
             _singleHoldsToPresses.Format("Instant \"Hold\" interactions");
             _singleHoldsToPresses.Description = "Changes many objects' \"Hold\" interaction to \"Press\"\n" +
                                                 "(examples: gathering, fishing, mining, opening chests)";
-            _groundInteractions.Format("Use items from ground");
-            _groundInteractions.Description = "Items to use straight from the ground with a \"Hold\" interaction";
+            _holdInteractionsDuration.Format("\"Hold\" interactions duration");
+            _holdInteractionsDuration.Description = "How long you want to hold the button for \"Hold\" interaction to trigger";
             _takeAnimations.Format("Item take animations");
             _takeAnimations.Description = "Animates (and greatly slows down) the process of taking items";
             _swapWaterInteractions.Format("Swap water gather/drink");
             _swapWaterInteractions.Description = "Vanilla: press to gather, hold to drink\n" +
                                                  "Custom: press to drink, hold to gather";
+            _disallowedInCombat.Format("Disallowed in combat");
+            _disallowedInCombat.Description = "Loot   -   opening chests, backpacks, corpses, etc.\n" +
+                                              "Travel   -   move to another area with loading screen\n" +
+                                              "Warp   -   enter door, climb rope or teleport without loading screen\n" +
+                                              "Talk   -   talk to NPCs";
         }
         override protected string Description
-        => "• Instant \"Hold\" interactions" +
-           "• Use items straight from the ground" +
-           "• \"Take item\" animations";
+        => "• Instant \"Hold\" interactions\n" +
+           "• Use items straight from the ground\n" +
+           "• \"Take item\" animations\n" +
+           "• Disallow certain interactions while in combat";
 
         // Utility
         static private void SwapBasicAndHoldInteractions(InteractionActivator activator, ref IInteraction vanillaBasic, ref IInteraction vanillaHold)
@@ -268,6 +288,22 @@ namespace ModPack
                 oldInteraction.Destroy();
             }
         }
+        static private bool TryDisallowInteractionInCombat(InteractionBase interaction, InteractionsInCombat interactionType)
+        {
+            Character character = interaction.LastCharacter;
+            Tools.Log($"Character: {character != null}\tInteraction: {interactionType}");
+
+            #region quit
+            if (!_disallowedInCombat.Value.HasFlag(interactionType)
+            || character == null || !character.InCombat)
+                return true;
+            #endregion
+
+            character.CharacterUI.ShowInfoNotification(DISALLOW_IN_COMBAT_NOTIFICATION);
+            interaction.m_activating = false;
+            return false;
+
+        }
 
         // Hooks
         [HarmonyPatch(typeof(InteractionBase), "HoldActivationTime", MethodType.Getter), HarmonyPrefix]
@@ -284,8 +320,38 @@ namespace ModPack
             AddCustomHoldInteractions(__instance, ref ___m_defaultHoldInteraction);
             AddAnimationsToTakeInteractions(__instance, ref ___m_defaultBasicInteraction);
         }
+
+        // Disallow interactions in combat
+        [HarmonyPatch(typeof(InteractionOpenContainer), "OnActivate"), HarmonyPrefix]
+        static bool InteractionOpenContainer_OnActivate_Pre(ref InteractionOpenContainer __instance)
+        => TryDisallowInteractionInCombat(__instance, InteractionsInCombat.Loot);
+
+        [HarmonyPatch(typeof(InteractionSwitchArea), "OnActivate"), HarmonyPrefix]
+        static bool InteractionSwitchArea_OnActivate_Pre(ref InteractionSwitchArea __instance)
+        => TryDisallowInteractionInCombat(__instance, InteractionsInCombat.Travel);
+
+        [HarmonyPatch(typeof(InteractionWarp), "OnActivate"), HarmonyPrefix]
+        static bool InteractionWarp_OnActivate_Pre(ref InteractionWarp __instance)
+        => TryDisallowInteractionInCombat(__instance, InteractionsInCombat.Warp);
+
+        [HarmonyPatch(typeof(NPCInteraction), "OnActivate"), HarmonyPrefix]
+        static bool NPCInteraction_OnActivate_Pre(ref NPCInteraction __instance)
+        => TryDisallowInteractionInCombat(__instance, InteractionsInCombat.Talk);
     }
 }
+
+/*
+static private ModSetting<bool> _overrideIsInCombat;
+_overrideIsInCombat = CreateSetting(nameof(_overrideIsInCombat), false);
+_overrideIsInCombat.Format("Override \"InCombat\"");
+
+[HarmonyPatch(typeof(Character), "InCombat", MethodType.Getter), HarmonyPrefix]
+static bool Character_InCombat_Pre(ref Character __instance, ref bool __result)
+{
+    __result = _overrideIsInCombat;
+    return false;
+}
+*/
 
 /*
 static private ModSetting<bool> _mobileUseToggle;
