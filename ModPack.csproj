@@ -114,6 +114,7 @@
     <Compile Include="Mods\Revive.cs" />
     <Compile Include="Mods\Needs.cs" />
     <Compile Include="Mods\Interactions.cs" />
+    <Compile Include="Mods\Skills.cs" />
     <Compile Include="Mods\Traps.cs" />
     <Compile Include="Mods\Various.cs" />
     <Compile Include="Utility\Extensions\Extensions_Collections_ICollection.cs" />
