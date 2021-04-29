@@ -1,13 +1,13 @@
-﻿using HarmonyLib;
+﻿using System;
+using System.Linq;
+using System.Collections.Generic;
 using UnityEngine;
 using BepInEx.Configuration;
-using System;
-using System.Collections.Generic;
+using HarmonyLib;
 
 
 
 /* TO DO:
- * - fix gatherables stuck in NEVER reset mode
  * - include side quests
  * - include unique items and enemies
  */

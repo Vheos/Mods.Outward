@@ -1,15 +1,13 @@
-﻿using HarmonyLib;
+﻿using System;
+using System.Linq;
+using System.Collections.Generic;
 using UnityEngine;
 using BepInEx.Configuration;
-using System;
-using System.Collections.Generic;
+using HarmonyLib;
 
 
 
-/* TO DO:
- * - hide armor extras (like scarf)
- * - prevent dodging right after hitting
- */
+
 namespace ModPack
 {
     public class Traps : AMod

@@ -1,15 +1,14 @@
-﻿using HarmonyLib;
-using UnityEngine;
-using BepInEx.Configuration;
+﻿using System;
 using System.Linq;
 using System.Collections.Generic;
-using System;
+using UnityEngine;
+using BepInEx.Configuration;
+using HarmonyLib;
 
 
 
 /* TO DO:
  * - extend to more item types (rags, varnishes)
- * - add removed status effects
  */
 namespace ModPack
 {

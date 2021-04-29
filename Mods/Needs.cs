@@ -1,15 +1,12 @@
-﻿using HarmonyLib;
+﻿using System;
+using System.Linq;
+using System.Collections.Generic;
 using UnityEngine;
 using BepInEx.Configuration;
-using System.Collections.Generic;
-using System;
+using HarmonyLib;
 
 
 
-/* TO DO:
- * - add drink effects to potions
- * - display effect values in status effect description
- */
 namespace ModPack
 {
     public class Needs : AMod, IDelayedInit

@@ -1,8 +1,9 @@
-﻿using HarmonyLib;
+﻿using System;
+using System.Linq;
+using System.Collections.Generic;
 using UnityEngine;
 using BepInEx.Configuration;
-using System;
-using System.Collections.Generic;
+using HarmonyLib;
 
 
 
@@ -49,7 +50,6 @@ namespace ModPack
             _enableCheats = CreateSetting(nameof(_enableCheats), false);
             _skipStartupVideos = CreateSetting(nameof(_skipStartupVideos), false);
             _armorSlotsToHide = CreateSetting(nameof(_armorSlotsToHide), ArmorSlots.None);
-
             _removeCoopScaling = CreateSetting(nameof(_removeCoopScaling), false);
             _removeDodgeInvulnerability = CreateSetting(nameof(_removeDodgeInvulnerability), false);
             _healEnemiesOnLoad = CreateSetting(nameof(_healEnemiesOnLoad), false);
