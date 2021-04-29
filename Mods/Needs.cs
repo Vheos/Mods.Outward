@@ -41,14 +41,7 @@ namespace ModPack
             ["Food Waste".ItemID()] = (Character.SpellCastType.DrinkWater, Character.SpellCastType.Eat),
             ["Warm Boozu’s Milk".ItemID()] = (Character.SpellCastType.Potion, Character.SpellCastType.DrinkWater),
         };
-        static private int[] CURE_DRINK_IDS = new[]
-        {
-            "Panacea".ItemID(),
-            "Antidote".ItemID(),
-            "Hex Cleaner".ItemID(),
-            "Invigorating Potion".ItemID(),
-        };
-        static private int[] TEA_DRINK_IDS = new[]
+        static private int[] OTHER_DRINK_IDS = new[]
         {
             "Able Tea".ItemID(),
             "Bitter Spicy Tea".ItemID(),
@@ -60,14 +53,6 @@ namespace ModPack
             "Boozu’s Milk".ItemID(),
             "Warm Boozu’s Milk".ItemID(),
             "Gaberry Wine".ItemID(),
-            "Gep's Drink".ItemID(),
-        };
-        static private int[] OTHER_DRINK_IDS = new[]
-        {
-            "Boozu’s Milk".ItemID(),
-            "Warm Boozu’s Milk".ItemID(),
-            "Gaberry Wine".ItemID(),
-            "Gep's Drink".ItemID(),
         };
         static private int[] MILK_IDS = new[]
         {
@@ -152,11 +137,11 @@ namespace ModPack
         static private ModSetting<int> _sleepNegativeEffect;
         static private ModSetting<bool> _sleepNegativeEffectIsPercent;
         static private ModSetting<int> _sleepBuffsDuration;
-        static private ModSetting<bool> _drinkValuesToggle;
-        static private ModSetting<int> _drinkValuesPotions, _drinkValuesCures, _drinkValuesTeas, _drinkValuesOther;
+        static private ModSetting<bool> _overrideDrinkValues;
+        static private ModSetting<int> _drinkValuesPotions, _drinkValuesOther;
         static private ModSetting<bool> _allowCuresWhileOverlimited;
         static private ModSetting<bool> _allowOnlyDOTCures;
-        static private ModSetting<bool> _noFoodOrDrinkOverlimitAfterSleep;
+        static private ModSetting<bool> _dontRestoreFoodDrinkOnSleep;
         static private ModSetting<bool> _dontRestoreNeedsOnTravel;
         override protected void Initialize()
         {
@@ -176,17 +161,15 @@ namespace ModPack
                 AcceptableValueRange<int> range = data.Need == Need.Sleep ? IntRange(100, 200) : IntRange(0, 100);
                 tmp._fulfilledEffectValue = CreateSetting(needPrefix + nameof(tmp._fulfilledEffectValue), defaultValue, range);
             }
-            _drinkValuesToggle = CreateSetting(nameof(_drinkValuesToggle), false);
+            _overrideDrinkValues = CreateSetting(nameof(_overrideDrinkValues), false);
             _drinkValuesPotions = CreateSetting(nameof(_drinkValuesPotions), 10, IntRange(0, 100));
-            _drinkValuesCures = CreateSetting(nameof(_drinkValuesCures), 10, IntRange(0, 100));
-            _drinkValuesTeas = CreateSetting(nameof(_drinkValuesTeas), 20, IntRange(0, 100));
             _drinkValuesOther = CreateSetting(nameof(_drinkValuesOther), 20, IntRange(0, 100));
             _sleepNegativeEffect = CreateSetting(nameof(_sleepNegativeEffect), -12, IntRange(-100, 0));
             _sleepNegativeEffectIsPercent = CreateSetting(nameof(_sleepNegativeEffectIsPercent), false);
             _sleepBuffsDuration = CreateSetting(nameof(_sleepBuffsDuration), 40, IntRange(0, 100));
             _allowCuresWhileOverlimited = CreateSetting(nameof(_allowCuresWhileOverlimited), false);
             _allowOnlyDOTCures = CreateSetting(nameof(_allowOnlyDOTCures), false);
-            _noFoodOrDrinkOverlimitAfterSleep =  CreateSetting(nameof(_noFoodOrDrinkOverlimitAfterSleep), false);
+            _dontRestoreFoodDrinkOnSleep = CreateSetting(nameof(_dontRestoreFoodDrinkOnSleep), false);
             _dontRestoreNeedsOnTravel = CreateSetting(nameof(_dontRestoreNeedsOnTravel), false);
 
             // Events
@@ -201,7 +184,8 @@ namespace ModPack
                 }
 
                 UpdateStatusEffectPrefabsData();
-                UpdateDrinkValues();
+                if (_overrideDrinkValues)
+                    UpdateDrinkValues();
                 UpdateSleepBuffsDuration();
                 foreach (var player in Players.Local)
                 {
@@ -251,17 +235,15 @@ namespace ModPack
 
                     if (data.Need == Need.Drink)
                     {
-                        _drinkValuesToggle.Format("Items' drink values", tmp._toggle);
-                        _drinkValuesToggle.Description = "Set how much drink is restored by each drink type";
+                        _overrideDrinkValues.Format("Items' drink values", tmp._toggle);
+                        _overrideDrinkValues.Description = "Set how much drink is restored by each drink type";
                         Indent++;
                         {
-                            _drinkValuesPotions.Format("Potions", _drinkValuesToggle);
-                            _drinkValuesPotions.Description = "potions, great potions, elixirs";
-                            _drinkValuesCures.Format("Cures", _drinkValuesToggle);
-                            _drinkValuesCures.Description = "antidote, hex cleaner, invigorating potion, panacea";
-                            _drinkValuesTeas.Format("Teas", _drinkValuesToggle);
-                            _drinkValuesOther.Format("Other", _drinkValuesToggle);
-                            _drinkValuesOther.Description = "milks, gaberry wine, Gep's drink";
+                            _drinkValuesPotions.Format("Potions", _overrideDrinkValues);
+                            _drinkValuesPotions.Description = "potions, great potions, elixirs, Gep's Drink\n" +
+                                                              "antidote, hex cleaner, invigorating potion, panacea";
+                            _drinkValuesOther.Format("Other", _overrideDrinkValues);
+                            _drinkValuesOther.Description = "teas, milks, gaberry wine";
                             Indent--;
                         }
                     }
@@ -278,8 +260,8 @@ namespace ModPack
                 _allowOnlyDOTCures.Description = "Same as above, but limited to curing status effects that damage you over time";
                 Indent--;
             }
-            _noFoodOrDrinkOverlimitAfterSleep.Format("Limit food/drink to 100% after sleep");
-            _noFoodOrDrinkOverlimitAfterSleep.Description = "Allows you to eat/drink at least 1 meal before setting out on an adventure";
+            _dontRestoreFoodDrinkOnSleep.Format("Don't restore food/drink when sleeping");
+            _dontRestoreFoodDrinkOnSleep.Description = "Sleeping in beds will only stop the depletion of food and drink, not restore them";
             _dontRestoreNeedsOnTravel.Format("Don't restore needs when travelling");
             _dontRestoreNeedsOnTravel.Description = "Normally, travelling restores 100% needs and resets temperature\n" +
                                                     "but mages may prefer to have control over their sleep level :)";
@@ -454,11 +436,7 @@ namespace ModPack
                     affectDrink = ingestible.AddEffect<AffectDrink>();
 
                 float drinkValue = _drinkValuesPotions;
-                if (ingestible.ItemID.IsContainedIn(CURE_DRINK_IDS))
-                    drinkValue = _drinkValuesCures;
-                else if (ingestible.ItemID.IsContainedIn(TEA_DRINK_IDS))
-                    drinkValue = _drinkValuesTeas;
-                else if (ingestible.ItemID.IsContainedIn(OTHER_DRINK_IDS))
+                if (ingestible.ItemID.IsContainedIn(OTHER_DRINK_IDS))
                     drinkValue = _drinkValuesOther;
 
                 affectDrink.SetAffectDrinkQuantity(drinkValue * 10f);
@@ -640,18 +618,14 @@ namespace ModPack
             return false;
         }
 
-        // No food/drink overlimit after bed sleep
-        [HarmonyPatch(typeof(PlayerCharacterStats), "UpdateStatsAfterRest"), HarmonyPostfix]
-        static void PlayerCharacterStats_UpdateStatsAfterRest_Post(ref PlayerCharacterStats __instance)
-        {
-            #region MyRegion
-            if (!_noFoodOrDrinkOverlimitAfterSleep)
-                return;
-            #endregion
+        // Don't restore food/drink when sleeping
+        [HarmonyPatch(typeof(CharacterResting), "GetFoodRestored"), HarmonyPrefix]
+        static bool CharacterResting_GetFoodRestored_Pre(ref CharacterResting __instance)
+        => !_dontRestoreFoodDrinkOnSleep;
 
-            __instance.m_food = __instance.m_food.ClampMax(1000f);
-            __instance.m_drink = __instance.m_drink.ClampMax(1000f);
-        }
+        [HarmonyPatch(typeof(CharacterResting), "GetDrinkRestored"), HarmonyPrefix]
+        static bool CharacterResting_GetDrinkRestored_Pre(ref CharacterResting __instance)
+        => !_dontRestoreFoodDrinkOnSleep;
 
         // Don't restore needs when travelling
         [HarmonyPatch(typeof(FastTravelMenu), "OnConfirmFastTravel"), HarmonyPrefix]
@@ -668,6 +642,20 @@ namespace ModPack
     }
 }
 
+/*
+// No food/drink overlimit after bed sleep
+[HarmonyPatch(typeof(PlayerCharacterStats), "UpdateStatsAfterRest"), HarmonyPostfix]
+static void PlayerCharacterStats_UpdateStatsAfterRest_Post(ref PlayerCharacterStats __instance)
+{
+    #region MyRegion
+    if (!_dontRestoreFoodDrinkOnSleep)
+        return;
+    #endregion
+
+    __instance.m_food = __instance.m_food.ClampMax(1000f);
+    __instance.m_drink = __instance.m_drink.ClampMax(1000f);
+}
+*/
 /*
 static private float MaxAllowedSleepValue
 {
