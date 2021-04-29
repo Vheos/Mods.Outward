@@ -50,7 +50,6 @@ namespace ModPack
         private void InstantiateMod(Type modType)
         {
             AMod newMod = (AMod)Activator.CreateInstance(modType);
-            Presets.RegisterMod(newMod);
             if (modType.IsAssignableTo<IUpdatable>())
                 _updatableMods.Add(newMod as IUpdatable);
         }
@@ -75,7 +74,6 @@ namespace ModPack
             Tools.Initialize(this, Logger);
             GameInput.Initialize();
             Players.Initialize();
-            Presets.Initialize();
 
             CategorizeModsByInstantiationTime();
             InstantiateMods(_awakeModTypes);
