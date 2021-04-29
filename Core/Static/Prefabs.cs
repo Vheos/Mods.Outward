@@ -84,6 +84,13 @@ namespace ModPack
             ["Chill Hex"] = 8201021,
             ["Doom Hex"] = 8201022,
             ["Curse Hex"] = 8201023,
+
+            ["Dagger Slash"] = 8100070,
+            ["Backstab"] = 8100072,
+
+            ["Evasion Shot"] = 8100100,
+            ["Sniper Shot"] = 8100101,
+            ["Piercing Shot"] = 8100102,
         };
         #endregion
 
@@ -94,27 +101,35 @@ namespace ModPack
         => ResourcesPrefabManager.STATUSEFFECT_PREFABS;
         static public Dictionary<string, QuestEventSignature> QuestsByID
         => QuestEventDictionary.m_questEvents;
+        static public Dictionary<int, Item> SkillsByID
+        { get; private set; }
         static public Dictionary<int, Item> IngestiblesByID
         { get; private set; }
         static public List<StatusEffect> AllSleepBuffs
         { get; private set; }
         static public bool IsInitialized
         { get; private set; }
+        static public Skill GetSkillByName(string name)
+        => SkillsByID[SkillIDsByName[name]];
         static public Item GetIngestibleByName(string name)
         => IngestiblesByID[ItemIDsByName[name]];
 
         // Initializers
         static public void Initialize()
         {
+            SkillsByID = new Dictionary<int, Item>();
             IngestiblesByID = new Dictionary<int, Item>();
             foreach (var itemByID in ItemsByID)
             {
                 Item item = itemByID.Value;
 
+                if (item.TryAs(out Skill skill))
+                    SkillsByID.Add(skill.ItemID, skill);
+
                 if (item.IsUsable
                 && (item.IsEatable() || item.IsDrinkable())
                 && item.ItemID != "MistakenIngestible".ItemID())
-                    IngestiblesByID.Add(itemByID.Value.ItemID, item);
+                    IngestiblesByID.Add(item.ItemID, item);
             }
 
             AllSleepBuffs = new List<StatusEffect>();
