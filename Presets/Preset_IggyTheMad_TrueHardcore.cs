@@ -1,4 +1,11 @@
-﻿namespace ModPack
+﻿using UnityEngine;
+using System;
+using System.Linq;
+using System.Collections.Generic;
+
+
+
+namespace ModPack
 {
     public class Preset_IggyTheMad_TrueHardcore : APreset
     {
@@ -6,7 +13,7 @@
         => "IggyTheMad's TrueHardcore";
         override public int Ordering
         => 3;
-        override public System.Type[] RequiredMods => new System.Type[]
+        override public Type[] RequiredMods => new Type[]
         {
             typeof(Various),
         };
