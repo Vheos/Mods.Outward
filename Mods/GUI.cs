@@ -141,27 +141,27 @@ namespace ModPack
             {
                 PerPlayerSettings tmp = new PerPlayerSettings();
                 _perPlayerSettings[i] = tmp;
-                string playerPostfix = (i + 1).ToString();
+                string playerPrefix = $"player{i + 1}";
 
-                tmp._toggle = CreateSetting(nameof(tmp._toggle) + playerPostfix, false);
-                tmp._copySettings = CreateSetting(nameof(tmp._copySettings) + playerPostfix, false);
-                tmp._rearrangeHUD = CreateSetting(nameof(tmp._rearrangeHUD) + playerPostfix, false);
-                tmp._startHUDEditor = CreateSetting(nameof(tmp._startHUDEditor) + playerPostfix, false);
-                tmp._hudTransparency = CreateSetting(nameof(tmp._hudTransparency) + playerPostfix, 0, IntRange(0, 100));
-                tmp._fadingStatusEffectIcons = CreateSetting(nameof(tmp._fadingStatusEffectIcons) + playerPostfix, false);
-                tmp._statusIconMaxSize = CreateSetting(nameof(tmp._statusIconMaxSize) + playerPostfix, 120, IntRange(100, 125));
-                tmp._statusIconMinSize = CreateSetting(nameof(tmp._statusIconMinSize) + playerPostfix, 60, IntRange(0, 100));
-                tmp._statusIconMinAlpha = CreateSetting(nameof(tmp._statusIconMinAlpha) + playerPostfix, 50, IntRange(0, 100));
-                tmp._hideQuickslotHints = CreateSetting(nameof(tmp._hideQuickslotHints) + playerPostfix, false);
-                tmp._alternativeManaBarPlacement = CreateSetting(nameof(tmp._alternativeManaBarPlacement) + playerPostfix, false);
+                tmp._toggle = CreateSetting(playerPrefix + nameof(tmp._toggle) , false);
+                tmp._copySettings = CreateSetting(playerPrefix + nameof(tmp._copySettings) , false);
+                tmp._rearrangeHUD = CreateSetting(playerPrefix + nameof(tmp._rearrangeHUD) , false);
+                tmp._startHUDEditor = CreateSetting(playerPrefix + nameof(tmp._startHUDEditor) , false);
+                tmp._hudTransparency = CreateSetting(playerPrefix + nameof(tmp._hudTransparency) , 0, IntRange(0, 100));
+                tmp._fadingStatusEffectIcons = CreateSetting(playerPrefix + nameof(tmp._fadingStatusEffectIcons) , false);
+                tmp._statusIconMaxSize = CreateSetting(playerPrefix + nameof(tmp._statusIconMaxSize) , 120, IntRange(100, 125));
+                tmp._statusIconMinSize = CreateSetting(playerPrefix + nameof(tmp._statusIconMinSize) , 60, IntRange(0, 100));
+                tmp._statusIconMinAlpha = CreateSetting(playerPrefix + nameof(tmp._statusIconMinAlpha) , 50, IntRange(0, 100));
+                tmp._hideQuickslotHints = CreateSetting(playerPrefix + nameof(tmp._hideQuickslotHints) , false);
+                tmp._alternativeManaBarPlacement = CreateSetting(playerPrefix + nameof(tmp._alternativeManaBarPlacement) , false);
                 foreach (var hudGroup in DATA_BY_HUD_GROUP.Keys.ToArray())
-                    tmp._hudOverridesByHUDGroup.Add(hudGroup, CreateSetting($"_hudOverride{hudGroup}{playerPostfix}", Vector3.zero));
-                tmp._shopAndStashWidth = CreateSetting(nameof(tmp._shopAndStashWidth) + playerPostfix, 0, IntRange(0, 100));
-                tmp._swapPendingBuySellPanels = CreateSetting(nameof(tmp._swapPendingBuySellPanels) + playerPostfix, false);
-                tmp._separateBuySellPanels = CreateSetting(nameof(tmp._separateBuySellPanels) + playerPostfix, SeperatePanelsMode.Disabled);
-                tmp._buySellToggle = CreateSetting(nameof(tmp._buySellToggle) + playerPostfix, "");
-                tmp._switchToBuy = CreateSetting(nameof(tmp._switchToBuy) + playerPostfix, "");
-                tmp._switchToSell = CreateSetting(nameof(tmp._switchToSell) + playerPostfix, "");
+                    tmp._hudOverridesByHUDGroup.Add(hudGroup, CreateSetting($"_hudOverride{hudGroup}{playerPrefix}", Vector3.zero));
+                tmp._shopAndStashWidth = CreateSetting(playerPrefix + nameof(tmp._shopAndStashWidth) , 0, IntRange(0, 100));
+                tmp._swapPendingBuySellPanels = CreateSetting(playerPrefix + nameof(tmp._swapPendingBuySellPanels) , false);
+                tmp._separateBuySellPanels = CreateSetting(playerPrefix + nameof(tmp._separateBuySellPanels) , SeperatePanelsMode.Disabled);
+                tmp._buySellToggle = CreateSetting(playerPrefix + nameof(tmp._buySellToggle) , "");
+                tmp._switchToBuy = CreateSetting(playerPrefix + nameof(tmp._switchToBuy) , "");
+                tmp._switchToSell = CreateSetting(playerPrefix + nameof(tmp._switchToSell) , "");
 
                 // Events
                 int id = i;

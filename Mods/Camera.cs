@@ -105,23 +105,23 @@ namespace ModPack
             {
                 PerPlayerSettings tmp = new PerPlayerSettings();
                 _perPlayerSettings[i] = tmp;
-                string playerPostfix = (i + 1).ToString();
+                string playerPrefix = $"player{i + 1}";
 
-                tmp._toggle = CreateSetting(nameof(tmp._toggle) + playerPostfix, false);
-                tmp._zoomControlAmount = CreateSetting(nameof(tmp._zoomControlAmount) + playerPostfix, 0f, FloatRange(-1f, 1f));
-                tmp._zoomControlSpeed = CreateSetting(nameof(tmp._zoomControlSpeed) + playerPostfix, 0.5f, FloatRange(0f, 1f));
-                tmp._gamepadInputs = CreateSetting(nameof(tmp._gamepadInputs) + playerPostfix, GamepadInputs.LeftQS | GamepadInputs.RightQS);
+                tmp._toggle = CreateSetting(playerPrefix + nameof(tmp._toggle) , false);
+                tmp._zoomControlAmount = CreateSetting(playerPrefix + nameof(tmp._zoomControlAmount) , 0f, FloatRange(-1f, 1f));
+                tmp._zoomControlSpeed = CreateSetting(playerPrefix + nameof(tmp._zoomControlSpeed) , 0.5f, FloatRange(0f, 1f));
+                tmp._gamepadInputs = CreateSetting(playerPrefix + nameof(tmp._gamepadInputs) , GamepadInputs.LeftQS | GamepadInputs.RightQS);
 
-                tmp._offsetToggle = CreateSetting(nameof(tmp._offsetToggle) + playerPostfix, false);
-                tmp._offsetMin = CreateSetting(nameof(tmp._offsetMin) + playerPostfix, DEFAULT_OFFSET.Add(0, 1f, -3f));
-                tmp._offsetAvg = CreateSetting(nameof(tmp._offsetAvg) + playerPostfix, DEFAULT_OFFSET);
-                tmp._offsetMax = CreateSetting(nameof(tmp._offsetMax) + playerPostfix, DEFAULT_OFFSET.Add(0.75f, -0.25f, 1f));
+                tmp._offsetToggle = CreateSetting(playerPrefix + nameof(tmp._offsetToggle) , false);
+                tmp._offsetMin = CreateSetting(playerPrefix + nameof(tmp._offsetMin) , DEFAULT_OFFSET.Add(0, 1f, -3f));
+                tmp._offsetAvg = CreateSetting(playerPrefix + nameof(tmp._offsetAvg) , DEFAULT_OFFSET);
+                tmp._offsetMax = CreateSetting(playerPrefix + nameof(tmp._offsetMax) , DEFAULT_OFFSET.Add(0.75f, -0.25f, 1f));
 
                 Vector3 otherDefault = new Vector3(DEFAULT_FOV, DEFAULT_FOLLOW_SPEED, 1f);
-                tmp._variousToggle = CreateSetting(nameof(tmp._variousToggle) + playerPostfix, false);
-                tmp._variousMin = CreateSetting(nameof(tmp._variousMin) + playerPostfix, otherDefault.Mul(1.2f, 2 / 3f, 1f));
-                tmp._variousAvg = CreateSetting(nameof(tmp._variousAvg) + playerPostfix, otherDefault);
-                tmp._variousMax = CreateSetting(nameof(tmp._variousMax) + playerPostfix, otherDefault.Mul(0.8f, 2.0f, 0.75f));
+                tmp._variousToggle = CreateSetting(playerPrefix + nameof(tmp._variousToggle) , false);
+                tmp._variousMin = CreateSetting(playerPrefix + nameof(tmp._variousMin) , otherDefault.Mul(1.2f, 2 / 3f, 1f));
+                tmp._variousAvg = CreateSetting(playerPrefix + nameof(tmp._variousAvg) , otherDefault);
+                tmp._variousMax = CreateSetting(playerPrefix + nameof(tmp._variousMax) , otherDefault.Mul(0.8f, 2.0f, 0.75f));
 
                 int id = i;
                 tmp._zoomControlAmount.AddEvent(() =>
