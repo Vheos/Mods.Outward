@@ -16,23 +16,21 @@ namespace ModPack
         // Settings
         public const string GUID = "com.Vheos.ModPack";
         public const string NAME = "Vheos Mod Pack";
-        public const string VERSION = "1.6.0";
+        public const string VERSION = "1.6.1";
 
         // Utility
-        private List<Type> _awakeMods;
-        private List<Type> _delayedMods;
+        private List<Type> _awakeModTypes;
+        private List<Type> _delayedModTypes;
         private List<IUpdatable> _updatableMods;
         private void CategorizeModsByInstantiationTime(params Type[] whitelist)
         {
             foreach (var modType in Utility.GetDerivedTypes<AMod>())
                 if (modType.IsNotAssignableTo<IExcludeFromBuild>())
                     if (whitelist.Length == 0 || modType.IsContainedIn(whitelist))
-                    {
                         if (modType.IsAssignableTo<IDelayedInit>())
-                            _delayedMods.Add(modType);
+                            _delayedModTypes.Add(modType);
                         else
-                            _awakeMods.Add(modType);
-                    }
+                            _awakeModTypes.Add(modType);
         }
         private void TryDelayedInitialize()
         {
@@ -41,7 +39,7 @@ namespace ModPack
             && SplitScreenManager.Instance != null)
             {
                 Prefabs.Initialize();
-                InstantiateMods(_delayedMods);
+                InstantiateMods(_delayedModTypes);
             }
         }
         private void InstantiateMods(ICollection<Type> modTypes)
@@ -52,6 +50,7 @@ namespace ModPack
         private void InstantiateMod(Type modType)
         {
             AMod newMod = (AMod)Activator.CreateInstance(modType);
+            Presets.RegisterMod(newMod);
             if (modType.IsAssignableTo<IUpdatable>())
                 _updatableMods.Add(newMod as IUpdatable);
         }
@@ -69,16 +68,17 @@ namespace ModPack
         // Mono
         private void Awake()
         {
-            _awakeMods = new List<Type>();
-            _delayedMods = new List<Type>();
+            _awakeModTypes = new List<Type>();
+            _delayedModTypes = new List<Type>();
             _updatableMods = new List<IUpdatable>();
 
             Tools.Initialize(this, Logger);
             GameInput.Initialize();
             Players.Initialize();
+            Presets.Initialize();
 
             CategorizeModsByInstantiationTime();
-            InstantiateMods(_awakeMods);
+            InstantiateMods(_awakeModTypes);
         }
         private void Update()
         {
