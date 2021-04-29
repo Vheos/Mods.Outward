@@ -194,7 +194,6 @@ namespace ModPack
         static private ModSetting<bool> _takeAnimations;
         static private ModSetting<GroundInteractions> _groundInteractions;
         static private ModSetting<InteractionsInCombat> _disallowedInCombat;
-
         override protected void Initialize()
         {
             _groundInteractions = CreateSetting(nameof(_groundInteractions), GroundInteractions.None);
@@ -229,6 +228,8 @@ namespace ModPack
            "• Use items straight from the ground\n" +
            "• \"Take item\" animations\n" +
            "• Disallow certain interactions while in combat";
+        override protected string SectionOverride
+        => SECTION_SURVIVAL;
 
         // Utility
         static private void SwapBasicAndHoldInteractions(InteractionActivator activator, ref IInteraction vanillaBasic, ref IInteraction vanillaHold)

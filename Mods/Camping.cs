@@ -119,6 +119,8 @@ namespace ModPack
         => "• Restrict camping spots to chosen places\n" +
            "• Change butterfly zones spawn chance and radius\n" +
            "• Customize repairing mechanic";
+        override protected string SectionOverride
+        => SECTION_SURVIVAL;
 
         // Utility
         static private List<SphereCollider> _safeZoneColliders;

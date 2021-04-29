@@ -101,6 +101,8 @@ namespace ModPack
            "• Prioritize revive over other objects\n" +
            "• Change stats after revive\n" +
            "(vitals, max vitals, needs, corruption)";
+        override protected string SectionOverride
+        => SECTION_SURVIVAL;
 
         // Hooks
         [HarmonyPatch(typeof(Character), "UpdateReviveInteraction"), HarmonyPostfix]

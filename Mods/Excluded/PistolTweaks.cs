@@ -11,7 +11,7 @@ using BepInEx.Configuration;
  */
 namespace ModPack
 {
-        public class PistolTweaks : AMod, IDelayedInit, IExcludeFromBuild
+    public class PistolTweaks : AMod, IDelayedInit, IExcludeFromBuild
     {
         #region const
         private const int MAX_LOADED_BULLETS = 1;   // WeaponLoadout.MaxProjectileLoaded 
@@ -53,7 +53,7 @@ namespace ModPack
             // Events
             Item bulletPrefab = Prefabs.ItemsByID[BULLET_ID.ToString()];
             _bulletStackSize.AddEvent(() => bulletPrefab.m_stackable.m_maxStackAmount = _bulletStackSize.Value);
-            _bulletWeight.AddEvent(() => bulletPrefab.Stats.m_rawWeight= _bulletWeight.Value);
+            _bulletWeight.AddEvent(() => bulletPrefab.Stats.m_rawWeight = _bulletWeight.Value);
             _bulletPrice.AddEvent(() => bulletPrefab.Stats.m_baseValue = _bulletPrice.Value);
 
             // Fields
@@ -68,6 +68,8 @@ namespace ModPack
             _bulletWeight.Format("Bullet weight");
             _bulletPrice.Format("Bullet price");
         }
+        override protected string SectionOverride
+        => SECTION_VARIOUS;
 
         // Utility
         static private float _overrideSpeed;

@@ -153,6 +153,8 @@ namespace ModPack
         => "• Change final buy/sell modifiers\n" +
            "• Randomize prices based on time, merchant and item\n" +
            "• Set price for learning mutually exclusive skills";
+        override protected string SectionOverride
+        => SECTION_SURVIVAL;
 
         // Utility
         static private Dictionary<string, SkillRequirement> _skillRequirementsByTrainerName;

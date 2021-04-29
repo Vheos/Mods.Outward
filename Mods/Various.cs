@@ -85,8 +85,10 @@ namespace ModPack
                                                       "(even without a backpack)";
             _healEnemiesOnLoad.Format("Heal enemies on load");
             _healEnemiesOnLoad.Description = "Every loading screen fully heals all enemies";
-            _repairOnlyEquipped.Format("Smith repairs only equipment");
+            _repairOnlyEquipped.Format("Smith repairs only equipped items");
             _repairOnlyEquipped.Description = "Blacksmith will not repair items in your pouch and bag";
+            _loadArrowsFromInventory.Format("Load arrows from inventory");
+            _loadArrowsFromInventory.Description = "Whenever you shoot your bow, the missing arrow is automatically replace with one from backpack or pouch (in that order).";
             _multiplicativeStacking.Format("Multiplicative stacking");
             _multiplicativeStacking.Description = "Some stats will stack multiplicatively instead of additvely\n" +
                                                   "(movement speed, stamina cost, mana cost)";
@@ -94,12 +96,10 @@ namespace ModPack
             {
                 _armorTrainingPenaltyReduction.Format("\"Armor Training\" penalty reduction", _multiplicativeStacking);
                 _armorTrainingPenaltyReduction.Description = "How much of equipment's movement speed and stamina cost penalties should \"Armor Training\" ignore";
-                _applyArmorTrainingToManaCost.Format("Apply \"Armor Training\"  to mana cost", _multiplicativeStacking);
+                _applyArmorTrainingToManaCost.Format("\"Armor Training\" affects mana cost", _multiplicativeStacking);
                 _applyArmorTrainingToManaCost.Description = "\"Armor Training\" will also lower equipment's mana cost penalties";
                 Indent--;
             }
-            _loadArrowsFromInventory.Format("Load arrows from inventory");
-            _loadArrowsFromInventory.Description = "Whenever you shoot your bow, the missing arrow is automatically replace with one from backpack or pouch (in that order).";
 
             _allowDodgeAnimationCancelling.Format("[WIP] Allow dodge to cancel actions");
             _allowDodgeAnimationCancelling.Description = "Cancelling certain animations might lead to glitches";
@@ -114,6 +114,8 @@ namespace ModPack
         }
         override protected string Description
         => "• Mods (small and big) that didn't get their own section yet :)";
+        override protected string SectionOverride
+        => SECTION_VARIOUS;
 
         // Load arrows from inventory
         [HarmonyPatch(typeof(WeaponLoadoutItem), "ReduceShotAmount"), HarmonyPrefix]

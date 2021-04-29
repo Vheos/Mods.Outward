@@ -60,6 +60,8 @@ namespace ModPack
         => "• Set a delay before a trap can explode\n" +
            "• Make traps explode in contact with players\n" +
            "• Change trigger size for each trap";
+        override protected string SectionOverride
+        => SECTION_COMBAT;
 
         // Utility
         static private void ResetColor(DeployableTrap __instance)

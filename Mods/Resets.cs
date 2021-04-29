@@ -119,6 +119,8 @@ namespace ModPack
         => "• Area resets (with fine-tuning)\n" +
            "• Gatherable respawns (for each type)\n" +
            "• Merchant restocks";
+        override protected string SectionOverride
+        => SECTION_SURVIVAL;
 
         // Areas
         [HarmonyPatch(typeof(EnvironmentSave), "ApplyData"), HarmonyPrefix]

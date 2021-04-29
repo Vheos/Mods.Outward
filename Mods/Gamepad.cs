@@ -33,6 +33,8 @@ namespace ModPack
         override protected string Description
         => "• 16 quickslots\n" +
            "• Better stash navigation";
+        override protected string SectionOverride
+        => SECTION_UI;
         public void OnUpdate()
         {
             #region quit

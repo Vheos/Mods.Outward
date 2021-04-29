@@ -288,6 +288,8 @@ namespace ModPack
         override protected string Description
         => "• Rearrange HUD elements\n" +
            "• Vertical splitscreen (with shop tweaks)";
+        override protected string SectionOverride
+        => SECTION_UI;
         public void OnUpdate()
         {
             foreach (var player in Players.Local)

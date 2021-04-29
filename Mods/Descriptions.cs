@@ -192,6 +192,8 @@ namespace ModPack
         "(restored health/stamina/mana, granted status effects)\n" +
         "• Override durability and freshness bars\n" +
         "(automatic scaling, thickness)";
+        override protected string SectionOverride
+        => SECTION_UI;
 
         // Utility
         static private RowsCache _rowsCache;

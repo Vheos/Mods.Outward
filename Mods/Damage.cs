@@ -75,6 +75,8 @@ namespace ModPack
            "(health, stability)\n" +
            "• Affects FINAL damage, after all reductions and amplifications\n" +
            "• Enable friendly fire between players";
+        override protected string SectionOverride
+        => SECTION_COMBAT;
 
         // Hooks
         [HarmonyPatch(typeof(Weapon), "ElligibleFaction", new[] { typeof(Character) }), HarmonyPostfix]

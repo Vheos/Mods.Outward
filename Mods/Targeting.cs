@@ -68,6 +68,8 @@ namespace ModPack
         => "• Set targeting distance by weapon type\n" +
            "• Auto-target on specific actions\n" +
            "• Tilt targeting camera";
+        override protected string SectionOverride
+        => SECTION_COMBAT;
 
         // Utility
         static private bool HasHuntersEye(Character character)

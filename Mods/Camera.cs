@@ -224,6 +224,8 @@ namespace ModPack
                 }
             }
         }
+        override protected string SectionOverride
+        => SECTION_UI;
 
         // Utility            
         static private void UpdateCameraSettings(Players.Data player)

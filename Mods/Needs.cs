@@ -290,6 +290,8 @@ namespace ModPack
            "• Override negative status effects thresholds\n" +
            "• Override needs depletion rates\n" +
            "• Override drink values and sleep buffs duration";
+        override protected string SectionOverride
+        => SECTION_SURVIVAL;
 
         // Utility
         static private bool _isInitialized;

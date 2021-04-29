@@ -11,6 +11,10 @@ namespace ModPack
     {
         #region const
         private const int MAX_SETTINGS_PER_MOD = 1000;
+        protected const string SECTION_SURVIVAL = "    \nSURVIVAL & IMMERSION";
+        protected const string SECTION_COMBAT = "   \nCOMBAT";
+        protected const string SECTION_UI = "  \nUSER INTERFACE";
+        protected const string SECTION_VARIOUS = " \nVARIOUS";
         #endregion
         #region enum
         [Flags]
@@ -38,7 +42,7 @@ namespace ModPack
             // Combat
             typeof(Damage),
             typeof(Speed),
-            typeof(Targeting),  
+            typeof(Targeting),
             typeof(Traps),
 
             // UI
@@ -61,10 +65,10 @@ namespace ModPack
         private bool _isInitialized;
         private string SectionName
         => GetType().Name;
-        private string SectionOverride
-        => "";
         private int ModOrderingOffset
         => Array.IndexOf(MODS_ORDERING, GetType()).Add(1) * MAX_SETTINGS_PER_MOD;
+        virtual protected string SectionOverride
+        => "";
         virtual protected string Description
         => "";
 

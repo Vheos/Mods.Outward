@@ -6,7 +6,7 @@ using BepInEx.Configuration;
 
 namespace ModPack
 {
-        public class Speed : AMod, IUpdatable
+    public class Speed : AMod, IUpdatable
     {
         #region const
         private const float FIXED_TIME_DELTA = 0.022f;   // Global.Update(), PauseMenu.Pause(), PauseMenu.TogglePause()
@@ -82,6 +82,8 @@ namespace ModPack
            "• Affects FINAL speed, after all reductions and amplifications\n" +
            "• Override default game speed\n" +
            "• Toggle speedhack with a hotkey";
+        override protected string SectionOverride
+        => SECTION_COMBAT;
 
         public void OnUpdate()
         {

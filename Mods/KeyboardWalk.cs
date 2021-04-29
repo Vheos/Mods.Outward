@@ -42,6 +42,8 @@ namespace ModPack
         override protected string Description
         => "• Allows keyboard players to walk\n" +
            "(can be held or toggled)";
+        override protected string SectionOverride
+        => SECTION_UI;
         public void OnUpdate()
         {
             if (_key.Value.ToKeyCode().Pressed())
