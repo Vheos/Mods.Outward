@@ -99,7 +99,7 @@ namespace ModPack
         };
         #endregion
         #region enum
-        private enum Need
+        public enum Need
         {
             Food = 0,
             Drink = 1,
@@ -149,15 +149,15 @@ namespace ModPack
 
         // Settings
         static private Dictionary<Need, NeedSettings> _settingsByNeed;
-        static private ModSetting<int> _sleepNegativeEffect;
-        static private ModSetting<bool> _sleepNegativeEffectIsPercent;
-        static private ModSetting<int> _sleepBuffsDuration;
-        static private ModSetting<bool> _drinkValuesToggle;
-        static private ModSetting<int> _drinkValuesPotions, _drinkValuesCures, _drinkValuesTeas, _drinkValuesOther;
-        static private ModSetting<bool> _allowCuresWhileOverlimited;
-        static private ModSetting<bool> _allowOnlyDOTCures;
-        static private ModSetting<bool> _noFoodOrDrinkOverlimitAfterSleep;
-        static private ModSetting<bool> _dontRestoreNeedsOnTravel;
+        static public ModSetting<int> _sleepNegativeEffect;
+        static public ModSetting<bool> _sleepNegativeEffectIsPercent;
+        static public ModSetting<int> _sleepBuffsDuration;
+        static public ModSetting<bool> _drinkValuesToggle;
+        static public ModSetting<int> _drinkValuesPotions, _drinkValuesCures, _drinkValuesTeas, _drinkValuesOther;
+        static public ModSetting<bool> _allowCuresWhileOverlimited;
+        static public ModSetting<bool> _allowOnlyDOTCures;
+        static public ModSetting<bool> _noFoodOrDrinkOverlimitAfterSleep;
+        static public ModSetting<bool> _dontRestoreNeedsOnTravel;
         override protected void Initialize()
         {
             _settingsByNeed = new Dictionary<Need, NeedSettings>();
@@ -291,7 +291,7 @@ namespace ModPack
            "• Override needs depletion rates\n" +
            "• Override drink values and sleep buffs duration";
         override protected string SectionOverride
-        => SECTION_SURVIVAL;
+        => Presets.SECTION_SURVIVAL;
 
         // Utility
         static private bool _isInitialized;

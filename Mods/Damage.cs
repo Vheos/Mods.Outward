@@ -12,9 +12,9 @@ namespace ModPack
     public class Damage : AMod
     {
         // Config
-        static private ModSetting<bool> _playersToggle, _enemiesToggle, _playersFriendlyFireToggle, _enemiesFriendlyFireToggle;
-        static private ModSetting<int> _playersHealthDamage, _enemiesHealthDamage, _playersFriendlyFireHealthDamage, _enemiesFriendlyFireHealthDamage;
-        static private ModSetting<int> _playersStabilityDamage, _enemiesStabilityDamage, _playersFriendlyFireStabilityDamage, _enemiesFriendlyFireStabilityDamage;
+        static public ModSetting<bool> _playersToggle, _enemiesToggle, _playersFriendlyFireToggle, _enemiesFriendlyFireToggle;
+        static public ModSetting<int> _playersHealthDamage, _enemiesHealthDamage, _playersFriendlyFireHealthDamage, _enemiesFriendlyFireHealthDamage;
+        static public ModSetting<int> _playersStabilityDamage, _enemiesStabilityDamage, _playersFriendlyFireStabilityDamage, _enemiesFriendlyFireStabilityDamage;
         override protected void Initialize()
         {
             _playersToggle = CreateSetting(nameof(_playersToggle), false);
@@ -76,7 +76,7 @@ namespace ModPack
            "• Affects FINAL damage, after all reductions and amplifications\n" +
            "• Enable friendly fire between players";
         override protected string SectionOverride
-        => SECTION_COMBAT;
+        => Presets.SECTION_COMBAT;
 
         // Hooks
         [HarmonyPatch(typeof(Weapon), "ElligibleFaction", new[] { typeof(Character) }), HarmonyPostfix]

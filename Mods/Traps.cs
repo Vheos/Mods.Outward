@@ -24,9 +24,9 @@ namespace ModPack
         #endregion
 
         // Settings
-        static private ModSetting<float> _trapsArmDelay;
-        static private ModSetting<bool> _trapsFriendlyFire;
-        static private ModSetting<float> _pressureTrapRadius, _wireTrapDepth, _runicTrapRadius;
+        static public ModSetting<float> _trapsArmDelay;
+        static public ModSetting<bool> _trapsFriendlyFire;
+        static public ModSetting<float> _pressureTrapRadius, _wireTrapDepth, _runicTrapRadius;
         override protected void Initialize()
         {
 
@@ -61,7 +61,7 @@ namespace ModPack
            "• Make traps explode in contact with players\n" +
            "• Change trigger size for each trap";
         override protected string SectionOverride
-        => SECTION_COMBAT;
+        => Presets.SECTION_COMBAT;
 
         // Utility
         static private void ResetColor(DeployableTrap __instance)

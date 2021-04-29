@@ -9,10 +9,10 @@ namespace ModPack
     public class KeyboardWalk : AMod, IUpdatable
     {
         // Setting
-        static private ModSetting<int> _walkSpeed;
-        static private ModSetting<string> _key;
-        static private ModSetting<bool> _doubleTapToToggle;
-        static private ModSetting<int> _doubleTapWaitTime;
+        static public ModSetting<int> _walkSpeed;
+        static public ModSetting<string> _key;
+        static public ModSetting<bool> _doubleTapToToggle;
+        static public ModSetting<int> _doubleTapWaitTime;
         override protected void Initialize()
         {
             _key = CreateSetting(nameof(_key), "LeftAlt");
@@ -43,7 +43,7 @@ namespace ModPack
         => "• Allows keyboard players to walk\n" +
            "(can be held or toggled)";
         override protected string SectionOverride
-        => SECTION_UI;
+        => Presets.SECTION_UI;
         public void OnUpdate()
         {
             if (_key.Value.ToKeyCode().Pressed())

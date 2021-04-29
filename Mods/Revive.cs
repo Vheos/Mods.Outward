@@ -19,13 +19,13 @@ namespace ModPack
         #endregion
 
         // Config
-        static private ModSetting<bool> _interactionToggle, _maxVitalsToggle, _vitalsToggle, _needsToggle;
-        static private ModSetting<float> _interactionDuration;
-        static private ModSetting<float> _interactionDistance;
-        static private ModSetting<bool> _interactionPrioritize;
-        static private ModSetting<int> _maxHealthLost, _maxStaminaLost, _maxManaLost;
-        static private ModSetting<int> _newHealth, _newStamina, _manaLost;
-        static private ModSetting<int> _foodLost, _drinkLost, _sleepLost, _corruptionGained;
+        static public ModSetting<bool> _interactionToggle, _maxVitalsToggle, _vitalsToggle, _needsToggle;
+        static public ModSetting<float> _interactionDuration;
+        static public ModSetting<float> _interactionDistance;
+        static public ModSetting<bool> _interactionPrioritize;
+        static public ModSetting<int> _maxHealthLost, _maxStaminaLost, _maxManaLost;
+        static public ModSetting<int> _newHealth, _newStamina, _manaLost;
+        static public ModSetting<int> _foodLost, _drinkLost, _sleepLost, _corruptionGained;
         override protected void Initialize()
         {
             _interactionToggle = CreateSetting(nameof(_interactionToggle), false);
@@ -102,7 +102,7 @@ namespace ModPack
            "• Change stats after revive\n" +
            "(vitals, max vitals, needs, corruption)";
         override protected string SectionOverride
-        => SECTION_SURVIVAL;
+        => Presets.SECTION_SURVIVAL;
 
         // Hooks
         [HarmonyPatch(typeof(Character), "UpdateReviveInteraction"), HarmonyPostfix]

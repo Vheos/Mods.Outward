@@ -45,16 +45,16 @@ namespace ModPack
         #endregion
 
         // Settings
-        static private ModSetting<bool> _merchantsToggle;
-        static private ModSetting<int> _sellModifier, _buyModifier;
-        static private ModSetting<int> _randomizePricesExtent, _randomizePricesPerDays;
-        static private ModSetting<bool> _randomizePricesPerItem, _randomizePricesPerArea;
-        static private ModSetting<bool> _customNonBasicSkillCosts;
-        static private ModSetting<bool> _skillCostsToggle;
-        static private ModSetting<int> _skillBasic, _skillBreakthrough, _skillAdvanced;
-        static private ModSetting<bool> _learnMutuallyExclusiveSkills;
-        static private ModSetting<bool> _exclusiveSkillCostsTsar;
-        static private ModSetting<int> _exclusiveSkillCostMultiplier;
+        static public ModSetting<bool> _merchantsToggle;
+        static public ModSetting<int> _sellModifier, _buyModifier;
+        static public ModSetting<int> _randomizePricesExtent, _randomizePricesPerDays;
+        static public ModSetting<bool> _randomizePricesPerItem, _randomizePricesPerArea;
+        static public ModSetting<bool> _customNonBasicSkillCosts;
+        static public ModSetting<bool> _skillCostsToggle;
+        static public ModSetting<int> _skillBasic, _skillBreakthrough, _skillAdvanced;
+        static public ModSetting<bool> _learnMutuallyExclusiveSkills;
+        static public ModSetting<bool> _exclusiveSkillCostsTsar;
+        static public ModSetting<int> _exclusiveSkillCostMultiplier;
         override protected void Initialize()
         {
             _merchantsToggle = CreateSetting(nameof(_merchantsToggle), false);
@@ -154,7 +154,7 @@ namespace ModPack
            "• Randomize prices based on time, merchant and item\n" +
            "• Set price for learning mutually exclusive skills";
         override protected string SectionOverride
-        => SECTION_SURVIVAL;
+        => Presets.SECTION_SURVIVAL;
 
         // Utility
         static private Dictionary<string, SkillRequirement> _skillRequirementsByTrainerName;
