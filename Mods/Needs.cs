@@ -148,7 +148,7 @@ namespace ModPack
                 NeedSettings tmp = new NeedSettings();
                 _settingsByNeed[data.Need] = tmp;
 
-                string needPrefix = $"{data.Need} ";
+                string needPrefix = data.Need.ToString().ToLower();
                 tmp._toggle = CreateSetting(needPrefix + nameof(tmp._toggle), false);
                 tmp._thresholds = CreateSetting(needPrefix + nameof(tmp._thresholds), data.Thresholds);
                 tmp._depletionRate = CreateSetting(needPrefix + nameof(tmp._depletionRate), new Vector2(100f, data.DepletionRate));
