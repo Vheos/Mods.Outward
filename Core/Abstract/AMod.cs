@@ -11,10 +11,6 @@ namespace ModPack
     {
         #region const
         private const int MAX_SETTINGS_PER_MOD = 1000;
-        protected const string SECTION_SURVIVAL = "    \nSURVIVAL & IMMERSION";
-        protected const string SECTION_COMBAT = "   \nCOMBAT";
-        protected const string SECTION_UI = "  \nUSER INTERFACE";
-        protected const string SECTION_VARIOUS = " \nVARIOUS";
         #endregion
         #region enum
         [Flags]
@@ -27,37 +23,6 @@ namespace ModPack
         }
         #endregion
 
-        // Order
-        static private readonly Type[] MODS_ORDERING = new[]
-        {
-            // Survival & Immersion
-            typeof(Needs),
-            typeof(Camping),
-            typeof(SkillLimits),
-            typeof(Prices),
-            typeof(Resets),
-            typeof(Interactions),
-            typeof(Revive),
-
-            // Combat
-            typeof(Damage),
-            typeof(Speed),
-            typeof(Targeting),
-            typeof(Traps),
-
-            // UI
-            typeof(GUI),
-            typeof(Descriptions),
-            typeof(Camera),
-            typeof(KeyboardWalk),
-            typeof(Gamepad),
-
-            // Various
-            typeof(Various),
-            typeof(PistolTweaks),
-            typeof(Debug),
-        };
-
         // Privates
         private readonly Harmony _patcher;
         private readonly List<AModSetting> _settings;
@@ -66,7 +31,7 @@ namespace ModPack
         private string SectionName
         => GetType().Name;
         private int ModOrderingOffset
-        => Array.IndexOf(MODS_ORDERING, GetType()).Add(1) * MAX_SETTINGS_PER_MOD;
+        => Array.IndexOf(Presets.MODS_ORDERING, GetType()).Add(1) * MAX_SETTINGS_PER_MOD;
         virtual protected string SectionOverride
         => "";
         virtual protected string Description
@@ -200,10 +165,21 @@ namespace ModPack
         // Utility     
         public bool IsEnabled
         => _mainToggle.Value.HasFlag(Toggles.Apply);
-        protected bool IsCollapsed
+        public bool IsCollapsed
         => _mainToggle.Value.HasFlag(Toggles.Collapse);
-        protected bool IsHidden
+        public bool IsHidden
         => _mainToggle.Value.HasFlag(Toggles.Hide);
+        public void EnableAndCollapse()
+        {
+            _mainToggle.Value |= Toggles.Apply;
+            _mainToggle.Value |= Toggles.Collapse;
+        }
+        public void Reset()
+        {
+            foreach (var setting in _settings)
+                setting.Reset();
+            _mainToggle.Reset();
+        }
         protected void ResetSettingPosition(int offset = 0)
         => AModSetting.NextPosition = ModOrderingOffset + offset;
         protected int Indent
