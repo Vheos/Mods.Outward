@@ -141,7 +141,7 @@ namespace ModPack
         static public ModSetting<int> _drinkValuesPotions, _drinkValuesCures, _drinkValuesTeas, _drinkValuesOther;
         static public ModSetting<bool> _allowCuresWhileOverlimited;
         static public ModSetting<bool> _allowOnlyDOTCures;
-        static public ModSetting<bool> _noFoodOrDrinkOverlimitAfterSleep;
+        static public ModSetting<bool> _dontRestoreFoodDrinkOnSleep;
         static public ModSetting<bool> _dontRestoreNeedsOnTravel;
         override protected void Initialize()
         {
@@ -169,7 +169,7 @@ namespace ModPack
             _sleepBuffsDuration = CreateSetting(nameof(_sleepBuffsDuration), 40, IntRange(0, 100));
             _allowCuresWhileOverlimited = CreateSetting(nameof(_allowCuresWhileOverlimited), false);
             _allowOnlyDOTCures = CreateSetting(nameof(_allowOnlyDOTCures), false);
-            _noFoodOrDrinkOverlimitAfterSleep = CreateSetting(nameof(_noFoodOrDrinkOverlimitAfterSleep), false);
+            _dontRestoreFoodDrinkOnSleep = CreateSetting(nameof(_dontRestoreFoodDrinkOnSleep), false);
             _dontRestoreNeedsOnTravel = CreateSetting(nameof(_dontRestoreNeedsOnTravel), false);
 
             // Events
@@ -260,8 +260,8 @@ namespace ModPack
                 _allowOnlyDOTCures.Description = "Same as above, but limited to curing status effects that damage you over time";
                 Indent--;
             }
-            _noFoodOrDrinkOverlimitAfterSleep.Format("Limit food/drink to 100% after sleep");
-            _noFoodOrDrinkOverlimitAfterSleep.Description = "Allows you to eat/drink at least 1 meal before setting out on an adventure";
+            _dontRestoreFoodDrinkOnSleep.Format("Don't restore food/drink when sleeping");
+            _dontRestoreFoodDrinkOnSleep.Description = "Sleeping in beds and plant tent will stop food/drink depletion instead of restoring them";
             _dontRestoreNeedsOnTravel.Format("Don't restore needs when travelling");
             _dontRestoreNeedsOnTravel.Description = "Normally, travelling restores 100% needs and resets temperature\n" +
                                                     "but mages may prefer to have control over their sleep level :)";
@@ -486,14 +486,17 @@ namespace ModPack
             foreach (var removeStatusEffect in item.GetEffects<RemoveStatusEffect>())
                 switch (removeStatusEffect.CleanseType)
                 {
-                    case RemoveStatusEffect.RemoveTypes.StatusSpecific: return character.StatusEffectMngr.HasStatusEffect(removeStatusEffect.StatusEffect.IdentifierName);
-                    case RemoveStatusEffect.RemoveTypes.StatusType: return character.StatusEffectMngr.HasStatusEffect(removeStatusEffect.StatusType);
+                    case RemoveStatusEffect.RemoveTypes.StatusSpecific:
+                        return character.StatusEffectMngr.HasStatusEffect(removeStatusEffect.StatusEffect.IdentifierName);
+                    case RemoveStatusEffect.RemoveTypes.StatusType:
+                        return character.StatusEffectMngr.HasStatusEffect(removeStatusEffect.StatusType);
                     case RemoveStatusEffect.RemoveTypes.StatusFamily:
                         Disease disease = character.GetDiseaseOfFamily(removeStatusEffect.StatusFamily);
                         if (disease != null)
                             return !disease.IsReceding;
                         return character.StatusEffectMngr.HasStatusEffect(removeStatusEffect.StatusFamily);
-                    case RemoveStatusEffect.RemoveTypes.NegativeStatuses: return character.HasAnyPurgeableNegativeStatusEffect();
+                    case RemoveStatusEffect.RemoveTypes.NegativeStatuses:
+                        return character.HasAnyPurgeableNegativeStatusEffect();
                 }
             return false;
         }
@@ -618,6 +621,7 @@ namespace ModPack
             return false;
         }
 
+        /*
         // No food/drink overlimit after bed sleep
         [HarmonyPatch(typeof(PlayerCharacterStats), "UpdateStatsAfterRest"), HarmonyPostfix]
         static void PlayerCharacterStats_UpdateStatsAfterRest_Post(ref PlayerCharacterStats __instance)
@@ -630,6 +634,7 @@ namespace ModPack
             __instance.m_food = __instance.m_food.ClampMax(1000f);
             __instance.m_drink = __instance.m_drink.ClampMax(1000f);
         }
+        */
 
         // Don't restore needs when travelling
         [HarmonyPatch(typeof(FastTravelMenu), "OnConfirmFastTravel"), HarmonyPrefix]
