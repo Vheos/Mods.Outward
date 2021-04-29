@@ -85,8 +85,8 @@ namespace ModPack
             ["Doom Hex"] = 8201022,
             ["Curse Hex"] = 8201023,
 
-            ["Dagger Slash"] = 8100070,
-            ["Backstab"] = 8100072,
+            ["Dagger Slash"] = 8100072,
+            ["Backstab"] = 8100070,
 
             ["Evasion Shot"] = 8100100,
             ["Sniper Shot"] = 8100101,
