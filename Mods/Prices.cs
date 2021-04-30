@@ -82,9 +82,9 @@ namespace ModPack
                 ["Cabal Hermit"] = new SkillRequirement("Boiled Azure Shrimp", 4),
                 ["Wild Hunter"] = new SkillRequirement("Coralhorn Antler", 4),
                 ["Rune Sage"] = new SkillRequirement("Great Astral Potion", 8),
-                ["Warrior Monk"] = new SkillRequirement("Alpha Tuanosaur Tail", 2),
+                ["Warrior Monk"] = new SkillRequirement("Alpha Tuanosaur Tail"),
                 ["Philosopher"] = new SkillRequirement("Crystal Powder", 4),
-                ["Rogue Engineer"] = new SkillRequirement("Manticore Tail", 2),
+                ["Rogue Engineer"] = new SkillRequirement("Manticore Tail"),
                 ["Mercenary"] = new SkillRequirement("Gold Ingot", 2),
                 // DLC
                 ["The Speedster"] = null,
