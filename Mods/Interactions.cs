@@ -293,7 +293,6 @@ namespace ModPack
         static private bool TryDisallowInteractionInCombat(InteractionBase interaction, InteractionsInCombat interactionType)
         {
             Character character = interaction.LastCharacter;
-            Tools.Log($"Character: {character != null}\tInteraction: {interactionType}");
 
             #region quit
             if (!_disallowedInCombat.Value.HasFlag(interactionType)
