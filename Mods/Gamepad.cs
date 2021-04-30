@@ -11,7 +11,7 @@ using UnityEngine.EventSystems;
 
 namespace ModPack
 {
-    public class Gamepad : AMod, IDelayedInit, IUpdatable
+    public class Gamepad : AMod, IUpdatable
     {
         // Setting
         static private ModSetting<bool> _extraGamepadQuickslots;
