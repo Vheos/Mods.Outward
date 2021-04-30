@@ -15,14 +15,14 @@ namespace ModPack
         private readonly (Vector3, Vector3, Vector3) DEFAULT_VALUES_DAGGER_SLASH =
         (
             new Vector3(0, 0, 0),
-            new Vector3(0, 5, 0),
-            new Vector3(0, 0, 15)
+            new Vector3(0, 2, 0),
+            new Vector3(0, 0, 0.5f)
         );
         private readonly (Vector3, Vector3, Vector3) DEFAULT_VALUES_BACKSTAB =
         (
             new Vector3(1, 3, 0),
-            new Vector3(0, 2, 0),
-            new Vector3(0, 0, 0.5f)
+            new Vector3(0, 5, 0),
+            new Vector3(0, 0, 15)
         );
         private readonly (Vector3, Vector3, Vector3) DEFAULT_VALUES_EVASION_SHOT =
         (
