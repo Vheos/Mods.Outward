@@ -46,6 +46,7 @@ namespace ModPack
             typeof(Speed),
             typeof(Targeting),
             typeof(Traps),
+            typeof(Skills),
 
             // UI
             typeof(GUI),
