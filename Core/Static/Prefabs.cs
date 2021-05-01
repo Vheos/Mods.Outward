@@ -87,10 +87,17 @@ namespace ModPack
 
             ["Dagger Slash"] = 8100072,
             ["Backstab"] = 8100070,
+            ["Opportunist Stab"] = 8100071,
+            ["Serpent's Parry"] = 8100261,
 
             ["Evasion Shot"] = 8100100,
             ["Sniper Shot"] = 8100101,
             ["Piercing Shot"] = 8100102,
+
+            ["Dez"] = 8100210,
+            ["Shim"] = 8100220,
+            ["Egoth"] = 8100230,
+            ["Fal"] = 8100240,
         };
         #endregion
 
