@@ -41,6 +41,7 @@ namespace ModPack
             Travel = 1 << 2,
             Warp = 1 << 3,
             Talk = 1 << 4,
+            Revive = 1 << 5,
         }
         #endregion
         #region interaction
@@ -222,7 +223,8 @@ namespace ModPack
             _disallowedInCombat.Description = "Loot   -   opening chests, backpacks, corpses, etc.\n" +
                                               "Travel   -   move to another area with loading screen\n" +
                                               "Warp   -   enter door, climb rope or teleport without loading screen\n" +
-                                              "Talk   -   talk to NPCs";
+                                              "Talk   -   talk to NPCs\n" +
+                                              "Revive   -   revive other players";
         }
         override protected string Description
         => "• Instant \"Hold\" interactions\n" +
@@ -303,7 +305,6 @@ namespace ModPack
             character.CharacterUI.ShowInfoNotification(DISALLOW_IN_COMBAT_NOTIFICATION);
             interaction.m_activating = false;
             return false;
-
         }
 
         // Hooks
@@ -338,6 +339,10 @@ namespace ModPack
         [HarmonyPatch(typeof(NPCInteraction), "OnActivate"), HarmonyPrefix]
         static bool NPCInteraction_OnActivate_Pre(ref NPCInteraction __instance)
         => TryDisallowInteractionInCombat(__instance, InteractionsInCombat.Talk);
+
+        [HarmonyPatch(typeof(InteractionRevive), "OnActivate"), HarmonyPrefix]
+        static bool InteractionRevive_OnActivate_Pre(ref InteractionOpenContainer __instance)
+        => TryDisallowInteractionInCombat(__instance, InteractionsInCombat.Revive);
     }
 }
 
