@@ -37,7 +37,6 @@ namespace ModPack
         static private ModSetting<bool> _removeCoopScaling;
         static private ModSetting<bool> _removeDodgeInvulnerability;
         static private ModSetting<bool> _healEnemiesOnLoad;
-        static private ModSetting<bool> _repairOnlyEquipped;
         static private ModSetting<bool> _loadArrowsFromInventory;
         static private ModSetting<bool> _multiplicativeStacking;
         static private ModSetting<int> _armorTrainingPenaltyReduction;
@@ -53,7 +52,6 @@ namespace ModPack
             _removeCoopScaling = CreateSetting(nameof(_removeCoopScaling), false);
             _removeDodgeInvulnerability = CreateSetting(nameof(_removeDodgeInvulnerability), false);
             _healEnemiesOnLoad = CreateSetting(nameof(_healEnemiesOnLoad), false);
-            _repairOnlyEquipped = CreateSetting(nameof(_repairOnlyEquipped), false);
             _multiplicativeStacking = CreateSetting(nameof(_multiplicativeStacking), false);
             _armorTrainingPenaltyReduction = CreateSetting(nameof(_armorTrainingPenaltyReduction), 50, IntRange(0, 100));
             _applyArmorTrainingToManaCost = CreateSetting(nameof(_applyArmorTrainingToManaCost), false);
@@ -85,8 +83,6 @@ namespace ModPack
                                                       "(even without a backpack)";
             _healEnemiesOnLoad.Format("Heal enemies on load");
             _healEnemiesOnLoad.Description = "Every loading screen fully heals all enemies";
-            _repairOnlyEquipped.Format("Smith repairs only equipped items");
-            _repairOnlyEquipped.Description = "Blacksmith will not repair items in your pouch and bag";
             _loadArrowsFromInventory.Format("Load arrows from inventory");
             _loadArrowsFromInventory.Description = "Whenever you shoot your bow, the missing arrow is automatically replace with one from backpack or pouch (in that order).";
             _multiplicativeStacking.Format("Multiplicative stacking");
@@ -218,11 +214,6 @@ namespace ModPack
         [HarmonyPatch(typeof(CharacterEquipment), "GetTotalManaUseModifier"), HarmonyPrefix]
         static bool CharacterEquipment_GetTotalManaUseModifier_Pre(ref CharacterEquipment __instance, ref float __result)
         => TryApplyMultiplicativeStacking(__instance, ref __result, slot => slot.EquippedItem.ManaUseModifier, false, _applyArmorTrainingToManaCost);
-
-        // Blacksmith repair nerf
-        [HarmonyPatch(typeof(ItemContainer), "RepairContainedEquipment"), HarmonyPrefix]
-        static bool ItemContainer_RepairContainedEquipment_Pre(ref ItemContainer __instance)
-        => !_repairOnlyEquipped;
 
         // Skip startup video
         [HarmonyPatch(typeof(StartupVideo), "Awake"), HarmonyPrefix]

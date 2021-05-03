@@ -36,6 +36,7 @@ namespace ModPack
             typeof(Needs),
             typeof(Camping),
             typeof(SkillLimits),
+            typeof(Durability),
             typeof(Prices),
             typeof(Resets),
             typeof(Interactions),
