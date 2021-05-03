@@ -116,44 +116,48 @@ namespace ModPack
         static void Character_AttackInput_Post(ref Character __instance)
         {
             #region quit
-            if (!_autoTargetActions.Value.HasFlag(AutoTargetActions.Attack) || __instance.TargetingSystem.Locked)
+            if (!_autoTargetActions.Value.HasFlag(AutoTargetActions.Attack) || __instance.TargetingSystem.Locked
+            || !__instance.TryAs(out LocalCharacterControl localCharacterControl))
                 return;
             #endregion
 
-            __instance.CharacterControl.As<LocalCharacterControl>().AcquireTarget();
+            localCharacterControl.AcquireTarget();
         }
 
         [HarmonyPatch(typeof(Character), "SetLastUsedSkill"), HarmonyPostfix]
         static void Character_SetLastUsedSkill_Post(ref Character __instance, ref Skill _skill)
         {
             #region quit
-            if (!_autoTargetActions.Value.HasFlag(AutoTargetActions.CombatSkill) || __instance.TargetingSystem.Locked || _skill.IsNot<AttackSkill>())
+            if (!_autoTargetActions.Value.HasFlag(AutoTargetActions.CombatSkill) || __instance.TargetingSystem.Locked || _skill.IsNot<AttackSkill>()
+            || !__instance.TryAs(out LocalCharacterControl localCharacterControl))
                 return;
             #endregion
 
-            __instance.CharacterControl.As<LocalCharacterControl>().AcquireTarget();
+            localCharacterControl.AcquireTarget();
         }
 
         [HarmonyPatch(typeof(Character), "BlockInput"), HarmonyPostfix]
         static void Character_BlockInput_Post(ref Character __instance, ref bool _active)
         {
             #region quit
-            if (!_autoTargetActions.Value.HasFlag(AutoTargetActions.Block) || __instance.TargetingSystem.Locked || !_active || HasBow(__instance))
+            if (!_autoTargetActions.Value.HasFlag(AutoTargetActions.Block) || __instance.TargetingSystem.Locked || !_active || HasBow(__instance)
+            || !__instance.TryAs(out LocalCharacterControl localCharacterControl))
                 return;
             #endregion
 
-            __instance.CharacterControl.As<LocalCharacterControl>().AcquireTarget();
+            localCharacterControl.AcquireTarget();
         }
 
         [HarmonyPatch(typeof(Character), "DodgeInput", new[] { typeof(Vector3) }), HarmonyPostfix]
         static void Character_DodgeInput_Post(ref Character __instance)
         {
             #region quit
-            if (!_autoTargetActions.Value.HasFlag(AutoTargetActions.Dodge) || __instance.TargetingSystem.Locked)
+            if (!_autoTargetActions.Value.HasFlag(AutoTargetActions.Dodge) || __instance.TargetingSystem.Locked
+            || !__instance.TryAs(out LocalCharacterControl localCharacterControl))
                 return;
             #endregion
 
-            __instance.CharacterControl.As<LocalCharacterControl>().AcquireTarget();
+            localCharacterControl.AcquireTarget();
         }
     }
 }
