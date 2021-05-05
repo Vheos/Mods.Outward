@@ -49,12 +49,16 @@ namespace ModPack
 
         // Setting
         static private ModSetting<bool> _lossModifiers;
-        static private ModSetting<int> _lossWeapons, _lossArmors, _lossLights, _lossFood;
+        static private ModSetting<int> _lossWeapons, _lossArmors, _lossLights, _lossIngestibles;
         static private ModSetting<bool> _campingRepairToggle;
         static private ModSetting<int> _repairDurabilityPerHour, _repairDurabilityPercentPerHour;
         static private ModSetting<RepairPercentReference> _repairPercentReference;
         static private ModSetting<MultiRepairBehaviour> _multiRepairBehaviour;
         static private ModSetting<int> _fastMaintenanceMultiplier;
+
+        static private ModSetting<bool> _effectivenessAffectsAllStats;
+        static private ModSetting<bool> _linearEffectiveness;
+        static private ModSetting<int> _minNonBrokenEffectiveness, _brokenEffectiveness;
         static private ModSetting<bool> _smithRepairsOnlyEquipped;
         override protected void Initialize()
         {
@@ -62,7 +66,7 @@ namespace ModPack
             _lossWeapons = CreateSetting(nameof(_lossWeapons), 100, IntRange(0, 200));
             _lossArmors = CreateSetting(nameof(_lossArmors), 100, IntRange(0, 200));
             _lossLights = CreateSetting(nameof(_lossLights), 100, IntRange(0, 200));
-            _lossFood = CreateSetting(nameof(_lossFood), 100, IntRange(0, 200));
+            _lossIngestibles = CreateSetting(nameof(_lossIngestibles), 100, IntRange(0, 200));
 
             _campingRepairToggle = CreateSetting(nameof(_campingRepairToggle), false);
             _repairDurabilityPerHour = CreateSetting(nameof(_repairDurabilityPerHour), 0, IntRange(0, 100));
@@ -71,6 +75,10 @@ namespace ModPack
             _multiRepairBehaviour = CreateSetting(nameof(_multiRepairBehaviour), MultiRepairBehaviour.UseFixedValueForAllItems);
             _fastMaintenanceMultiplier = CreateSetting(nameof(_fastMaintenanceMultiplier), 150, IntRange(100, 200));
 
+            _effectivenessAffectsAllStats = CreateSetting(nameof(_effectivenessAffectsAllStats), false);
+            _linearEffectiveness = CreateSetting(nameof(_linearEffectiveness), false);
+            _minNonBrokenEffectiveness = CreateSetting(nameof(_minNonBrokenEffectiveness), 50, IntRange(0, 100));
+            _brokenEffectiveness = CreateSetting(nameof(_brokenEffectiveness), 15, IntRange(0, 100));
             _smithRepairsOnlyEquipped = CreateSetting(nameof(_smithRepairsOnlyEquipped), false);
         }
         override protected void SetFormatting()
@@ -81,10 +89,9 @@ namespace ModPack
                 _lossWeapons.Format("Weapons", _lossModifiers);
                 _lossArmors.Format("Armors", _lossModifiers);
                 _lossLights.Format("Lights", _lossModifiers);
-                _lossFood.Format("Food", _lossModifiers);
+                _lossIngestibles.Format("Food", _lossModifiers);
                 Indent--;
             }
-            _smithRepairsOnlyEquipped.Description = "Blacksmith will not repair items in your pouch and bag";
             _campingRepairToggle.Format("Camping repair");
             Indent++;
             {
@@ -100,7 +107,17 @@ namespace ModPack
                                                     "Try to equalize ratios   -   repair item with the lowest durabilty ratio";
                 Indent--;
             }
+
+            _effectivenessAffectsAllStats.Format("Effectiveness affects all stats");
+            _linearEffectiveness.Format("Linear effectiveness");
+            Indent++;
+            {
+                _minNonBrokenEffectiveness.Format("when nearing zero durability", _linearEffectiveness);
+                _brokenEffectiveness.Format("when broken", _linearEffectiveness);
+                Indent--;
+            }
             _smithRepairsOnlyEquipped.Format("Smith repairs only equipped items");
+            _smithRepairsOnlyEquipped.Description = "Blacksmith will not repair items in your pouch and bag";
         }
         override protected string Description
         => "• Restrict camping spots to chosen places\n" +
@@ -119,6 +136,15 @@ namespace ModPack
         }
         static private bool HasLearnedFastMaintenance(Character character)
         => character.Inventory.SkillKnowledge.IsItemLearned(FAST_MAINTENANCE_ID);
+        static private void TryApplyEffectiveness(ref float stat, EquipmentStats equipmentStats)
+        {
+            #region quit
+            if (!_effectivenessAffectsAllStats)
+                return;
+            #endregion
+
+            stat *= equipmentStats.Effectiveness;
+        }
 
         // Hooks
         [HarmonyPatch(typeof(Item), "ReduceDurability"), HarmonyPrefix]
@@ -137,7 +163,7 @@ namespace ModPack
             else if (__instance.LitStatus != Item.Lit.Unlightable)
                 modifier = _lossLights;
             else if (__instance.IsIngestible())
-                modifier = _lossFood;
+                modifier = _lossIngestibles;
 
             _durabilityLost *= modifier / 100f;
             return true;
@@ -196,5 +222,34 @@ namespace ModPack
 
             return false;
         }
+
+        [HarmonyPatch(typeof(ItemStats), "Effectiveness", MethodType.Getter), HarmonyPrefix]
+        static bool ItemStats_Effectiveness_Pre(ref ItemStats __instance, ref float __result)
+        {
+            #region quit
+            if (!_linearEffectiveness || __instance.m_item.IsNot<Equipment>())
+                return true;
+            #endregion
+
+            float ratio = __instance.m_item.DurabilityRatio;
+            if (ratio > 0)
+                __result = __instance.m_item.DurabilityRatio.MapFrom01(_minNonBrokenEffectiveness / 100f, 1f);
+            else
+                __result = _brokenEffectiveness / 100f;
+
+            return false;
+        }
+
+        [HarmonyPatch(typeof(EquipmentStats), "MovementPenalty", MethodType.Getter), HarmonyPostfix]
+        static void EquipmentStats_MovementPenalty_Post(ref EquipmentStats __instance, ref float __result)
+        => TryApplyEffectiveness(ref __result, __instance);
+
+        [HarmonyPatch(typeof(EquipmentStats), "StaminaUsePenalty", MethodType.Getter), HarmonyPostfix]
+        static void EquipmentStats_StaminaUsePenalty_Post(ref EquipmentStats __instance, ref float __result)
+        => TryApplyEffectiveness(ref __result, __instance);
+
+        [HarmonyPatch(typeof(EquipmentStats), "ManaUseModifier", MethodType.Getter), HarmonyPostfix]
+        static void EquipmentStats_ManaUseModifier_Post(ref EquipmentStats __instance, ref float __result)
+        => TryApplyEffectiveness(ref __result, __instance);
     }
 }
