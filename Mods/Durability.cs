@@ -223,6 +223,10 @@ namespace ModPack
             return false;
         }
 
+        [HarmonyPatch(typeof(ItemContainer), "RepairContainedEquipment"), HarmonyPrefix]
+        static bool ItemContainer_RepairContainedEquipment_Pre(ref ItemContainer __instance)
+        => !_smithRepairsOnlyEquipped;
+
         [HarmonyPatch(typeof(ItemStats), "Effectiveness", MethodType.Getter), HarmonyPrefix]
         static bool ItemStats_Effectiveness_Pre(ref ItemStats __instance, ref float __result)
         {
