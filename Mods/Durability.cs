@@ -170,7 +170,7 @@ namespace ModPack
         }
 
         [HarmonyPatch(typeof(CharacterEquipment), "RepairEquipmentAfterRest"), HarmonyPrefix]
-        static bool CharacterEquipment_RepairEquipmentAfterRest_Pre(ref CharacterEquipment __instance)
+        static bool CharacterEquipment_RepairEquipmentAfterRest_Pre(CharacterEquipment __instance)
         {
             #region quit
             if (!_campingRepairToggle)
@@ -224,7 +224,7 @@ namespace ModPack
         }
 
         [HarmonyPatch(typeof(ItemContainer), "RepairContainedEquipment"), HarmonyPrefix]
-        static bool ItemContainer_RepairContainedEquipment_Pre(ref ItemContainer __instance)
+        static bool ItemContainer_RepairContainedEquipment_Pre(ItemContainer __instance)
         => !_smithRepairsOnlyEquipped;
 
         [HarmonyPatch(typeof(ItemStats), "Effectiveness", MethodType.Getter), HarmonyPrefix]

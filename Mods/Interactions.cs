@@ -325,23 +325,23 @@ namespace ModPack
 
         // Disallow interactions in combat
         [HarmonyPatch(typeof(InteractionOpenContainer), "OnActivate"), HarmonyPrefix]
-        static bool InteractionOpenContainer_OnActivate_Pre(ref InteractionOpenContainer __instance)
+        static bool InteractionOpenContainer_OnActivate_Pre(InteractionOpenContainer __instance)
         => TryDisallowInteractionInCombat(__instance, InteractionsInCombat.Loot);
 
         [HarmonyPatch(typeof(InteractionSwitchArea), "OnActivate"), HarmonyPrefix]
-        static bool InteractionSwitchArea_OnActivate_Pre(ref InteractionSwitchArea __instance)
+        static bool InteractionSwitchArea_OnActivate_Pre(InteractionSwitchArea __instance)
         => TryDisallowInteractionInCombat(__instance, InteractionsInCombat.Travel);
 
         [HarmonyPatch(typeof(InteractionWarp), "OnActivate"), HarmonyPrefix]
-        static bool InteractionWarp_OnActivate_Pre(ref InteractionWarp __instance)
+        static bool InteractionWarp_OnActivate_Pre(InteractionWarp __instance)
         => TryDisallowInteractionInCombat(__instance, InteractionsInCombat.Warp);
 
         [HarmonyPatch(typeof(NPCInteraction), "OnActivate"), HarmonyPrefix]
-        static bool NPCInteraction_OnActivate_Pre(ref NPCInteraction __instance)
+        static bool NPCInteraction_OnActivate_Pre(NPCInteraction __instance)
         => TryDisallowInteractionInCombat(__instance, InteractionsInCombat.Talk);
 
         [HarmonyPatch(typeof(InteractionRevive), "OnActivate"), HarmonyPrefix]
-        static bool InteractionRevive_OnActivate_Pre(ref InteractionOpenContainer __instance)
+        static bool InteractionRevive_OnActivate_Pre(InteractionOpenContainer __instance)
         => TryDisallowInteractionInCombat(__instance, InteractionsInCombat.Revive);
     }
 }

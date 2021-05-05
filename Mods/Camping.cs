@@ -129,7 +129,7 @@ namespace ModPack
 
         // Hooks
         [HarmonyPatch(typeof(EnvironmentSave), "ApplyData"), HarmonyPostfix]
-        static void EnvironmentSave_ApplyData_Post(ref EnvironmentSave __instance)
+        static void EnvironmentSave_ApplyData_Post(EnvironmentSave __instance)
         {
             _safeZoneColliders.Clear();
             GameObject fxHolder = GameObject.Find("Environment/Assets/FX");
@@ -165,7 +165,7 @@ namespace ModPack
         => __instance.IsInnsBed || IsCampingAllowed(_character, __instance.transform.position);
 
         [HarmonyPatch(typeof(OrientOnTerrain), "IsValid", MethodType.Getter), HarmonyPrefix]
-        static bool OrientOnTerrain_IsValid_Pre(ref OrientOnTerrain __instance)
+        static bool OrientOnTerrain_IsValid_Pre(OrientOnTerrain __instance)
         {
             AreaManager.AreaEnum currentArea = (AreaManager.AreaEnum)AreaManager.Instance.CurrentArea.ID;
             #region quit
@@ -180,7 +180,7 @@ namespace ModPack
         }
 
         [HarmonyPatch(typeof(RestingMenu), "Show"), HarmonyPostfix]
-        static void RestingMenu_Show_Post(ref RestingMenu __instance)
+        static void RestingMenu_Show_Post(RestingMenu __instance)
         {
             foreach (Transform child in __instance.m_restingActivitiesHolder.transform)
                 foreach (var campingActivity in new[] { CampingActivities.Sleep, CampingActivities.Guard, CampingActivities.Repair })

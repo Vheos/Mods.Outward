@@ -119,7 +119,7 @@ namespace ModPack
 
         // Load arrows from inventory
         [HarmonyPatch(typeof(WeaponLoadoutItem), "ReduceShotAmount"), HarmonyPrefix]
-        static bool WeaponLoadoutItem_ReduceShotAmount_Pre(ref WeaponLoadoutItem __instance)
+        static bool WeaponLoadoutItem_ReduceShotAmount_Pre(WeaponLoadoutItem __instance)
         {
             #region quit
             if (!_loadArrowsFromInventory
@@ -299,7 +299,7 @@ namespace ModPack
 
         // Enemy health reset time
         [HarmonyPatch(typeof(Character), "LoadCharSave"), HarmonyPrefix]
-        static bool Character_LoadCharSave_Pre(ref Character __instance)
+        static bool Character_LoadCharSave_Pre(Character __instance)
         {
             __instance.HoursToHealthReset = _healEnemiesOnLoad ? 0 : DEFAULT_ENEMY_HEALTH_RESET_HOURS;
             return true;

@@ -127,7 +127,7 @@ namespace ModPack
 
         // Hooks
         [HarmonyPatch(typeof(Character), "LateUpdate"), HarmonyPostfix]
-        static void Character_LateUpdate_Post(ref Character __instance)
+        static void Character_LateUpdate_Post(Character __instance)
         {
             #region quit
             if (!_playersToggle && !_npcsToggle)
@@ -142,7 +142,7 @@ namespace ModPack
         }
 
         [HarmonyPatch(typeof(Character), "TempSlowDown"), HarmonyPrefix]
-        static bool Character_TempSlowDown_Pre(ref Character __instance)
+        static bool Character_TempSlowDown_Pre(Character __instance)
         {
             #region quit
             if (!_playersToggle && !_npcsToggle)

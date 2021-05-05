@@ -644,12 +644,12 @@ namespace ModPack
 
         // Exclusive buy/sell panels
         [HarmonyPatch(typeof(ShopMenu), "Show"), HarmonyPostfix]
-        static void ShopMenu_Show_Post(ref ShopMenu __instance)
+        static void ShopMenu_Show_Post(ShopMenu __instance)
         => UpdateSeparateBuySellPanels(Players.GetLocal(__instance));
 
         // Disable quickslot button icons
         [HarmonyPatch(typeof(QuickSlotDisplay), "Update"), HarmonyPostfix]
-        static void QuickSlotDisplay_Update_Post(ref QuickSlotDisplay __instance)
+        static void QuickSlotDisplay_Update_Post(QuickSlotDisplay __instance)
         {
             Players.Data player = Players.GetLocal(__instance);
             #region quit
@@ -663,7 +663,7 @@ namespace ModPack
 
         // Vertical splitscreen
         [HarmonyPatch(typeof(CharacterUI), "DelayedRefreshSize"), HarmonyPostfix]
-        static void CharacterUI_DelayedRefreshSize_Post(ref CharacterUI __instance)
+        static void CharacterUI_DelayedRefreshSize_Post(CharacterUI __instance)
         {
             #region quit
             if (SplitScreenManager.Instance.CurrentSplitType != SplitScreenManager.SplitType.Vertical)

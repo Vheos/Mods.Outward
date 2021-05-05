@@ -508,7 +508,7 @@ namespace ModPack
 
         // Initialize
         [HarmonyPatch(typeof(PlayerCharacterStats), "OnStart"), HarmonyPostfix]
-        static private void PlayerCharacterStats_OnAwake_Post(ref PlayerCharacterStats __instance)
+        static private void PlayerCharacterStats_OnAwake_Post(PlayerCharacterStats __instance)
         {
             UpdateThresholds(__instance);
             UpdateDepletionRates(__instance);
@@ -527,7 +527,7 @@ namespace ModPack
         }
 
         [HarmonyPatch(typeof(Item), "TryQuickSlotUse"), HarmonyPrefix]
-        static bool Item_TryQuickSlotUse_Pre(ref Item __instance)
+        static bool Item_TryQuickSlotUse_Pre(Item __instance)
         {
             Character character = __instance.OwnerCharacter;
             if (!character.IsPlayer() || !__instance.IsIngestible() || CanIngest(character, __instance))
@@ -548,7 +548,7 @@ namespace ModPack
         }
 
         [HarmonyPatch(typeof(DrinkWaterInteraction), "OnActivate"), HarmonyPrefix]
-        static bool DrinkWaterInteraction_OnActivate_Pre(ref DrinkWaterInteraction __instance)
+        static bool DrinkWaterInteraction_OnActivate_Pre(DrinkWaterInteraction __instance)
         {
             Character character = __instance.LastCharacter;
             if (!character.IsPlayer() || !IsLimited(character, Need.Drink) || character.IsBurning())
@@ -617,16 +617,16 @@ namespace ModPack
 
         // Don't restore food/drink when sleeping
         [HarmonyPatch(typeof(CharacterResting), "GetFoodRestored"), HarmonyPrefix]
-        static bool CharacterResting_GetFoodRestored_Pre(ref CharacterResting __instance)
+        static bool CharacterResting_GetFoodRestored_Pre(CharacterResting __instance)
         => !_dontRestoreFoodDrinkOnSleep;
 
         [HarmonyPatch(typeof(CharacterResting), "GetDrinkRestored"), HarmonyPrefix]
-        static bool CharacterResting_GetDrinkRestored_Pre(ref CharacterResting __instance)
+        static bool CharacterResting_GetDrinkRestored_Pre(CharacterResting __instance)
         => !_dontRestoreFoodDrinkOnSleep;
 
         // Don't restore needs when travelling
         [HarmonyPatch(typeof(FastTravelMenu), "OnConfirmFastTravel"), HarmonyPrefix]
-        static bool FastTravelMenu_OnConfirmFastTravel_Pre(ref FastTravelMenu __instance)
+        static bool FastTravelMenu_OnConfirmFastTravel_Pre(FastTravelMenu __instance)
         {
             #region quit
             if (!_dontRestoreNeedsOnTravel)
@@ -642,7 +642,7 @@ namespace ModPack
 /*
 // No food/drink overlimit after bed sleep
 [HarmonyPatch(typeof(PlayerCharacterStats), "UpdateStatsAfterRest"), HarmonyPostfix]
-static void PlayerCharacterStats_UpdateStatsAfterRest_Post(ref PlayerCharacterStats __instance)
+static void PlayerCharacterStats_UpdateStatsAfterRest_Post(PlayerCharacterStats __instance)
 {
     #region MyRegion
     if (!_dontRestoreFoodDrinkOnSleep)

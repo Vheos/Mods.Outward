@@ -246,7 +246,7 @@ namespace ModPack
         }
 
         [HarmonyPatch(typeof(ItemDisplay), "RefreshEnchantedIcon"), HarmonyPrefix]
-        static bool ItemDisplay_RefreshEnchantedIcon_Pre(ref ItemDisplay __instance)
+        static bool ItemDisplay_RefreshEnchantedIcon_Pre(ItemDisplay __instance)
         {
             #region quit
             if (!__instance.m_refItem.TryAs(out Skill skill))
@@ -278,7 +278,7 @@ namespace ModPack
         }
 
         [HarmonyPatch(typeof(TrainerPanel), "Show"), HarmonyPostfix]
-        static void TrainerPanel_Show_Post(ref TrainerPanel __instance)
+        static void TrainerPanel_Show_Post(TrainerPanel __instance)
         => InitializeCacheOfAllSkills(__instance.m_trainerTree);
 
         [HarmonyPatch(typeof(TrainerPanel), "OnSkillSlotClicked"), HarmonyPrefix]

@@ -325,7 +325,7 @@ namespace ModPack
         => TryHandleCustomQuickslotInput(___m_character);
 
         [HarmonyPatch(typeof(SplitScreenManager), "Awake"), HarmonyPostfix]
-        static void SplitScreenManager_Awake_Post(ref SplitScreenManager __instance)
+        static void SplitScreenManager_Awake_Post(SplitScreenManager __instance)
         {
             #region quit
             if (!_extraGamepadQuickslots)
@@ -338,7 +338,7 @@ namespace ModPack
         }
 
         [HarmonyPatch(typeof(CharacterQuickSlotManager), "Awake"), HarmonyPrefix]
-        static bool CharacterQuickSlotManager_Awake_Pre(ref CharacterQuickSlotManager __instance)
+        static bool CharacterQuickSlotManager_Awake_Pre(CharacterQuickSlotManager __instance)
         {
             #region quit
             if (!_extraGamepadQuickslots)
@@ -351,7 +351,7 @@ namespace ModPack
 
         // Better stash navigation
         [HarmonyPatch(typeof(StashPanel), "Show"), HarmonyPostfix]
-        static void StashPanel_Show_Post(ref StashPanel __instance)
+        static void StashPanel_Show_Post(StashPanel __instance)
         => UpdateStashName(Players.GetLocal(__instance));
     }
 }

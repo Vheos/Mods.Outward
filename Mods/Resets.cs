@@ -135,7 +135,7 @@ namespace ModPack
 
         // Areas
         [HarmonyPatch(typeof(EnvironmentSave), "ApplyData"), HarmonyPrefix]
-        static bool EnvironmentSave_ApplyData_Pre(ref EnvironmentSave __instance)
+        static bool EnvironmentSave_ApplyData_Pre(EnvironmentSave __instance)
         {
             #region quit
             if (!_areasToggle)
@@ -185,7 +185,7 @@ namespace ModPack
 
         // Gatherables
         [HarmonyPatch(typeof(Gatherable), "StartInit"), HarmonyPostfix]
-        static void Gatherable_StartInit_Post(ref Gatherable __instance)
+        static void Gatherable_StartInit_Post(Gatherable __instance)
         {
             #region quit
             if (!_gatherablesToggle)

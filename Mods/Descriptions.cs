@@ -360,7 +360,7 @@ namespace ModPack
         }
 
         [HarmonyPatch(typeof(ItemDetailsDisplay), "ShowDetails"), HarmonyPrefix]
-        static bool ItemDetailsDisplay_ShowDetails_Pre(ref ItemDetailsDisplay __instance)
+        static bool ItemDetailsDisplay_ShowDetails_Pre(ItemDetailsDisplay __instance)
         {
             Item item = __instance.m_lastItem;
             #region quit
@@ -381,7 +381,7 @@ namespace ModPack
         }
 
         [HarmonyPatch(typeof(ItemDetailsDisplay), "RefreshDetails"), HarmonyPostfix]
-        static void ItemDetailsDisplay_RefreshDetails_Post(ref ItemDetailsDisplay __instance)
+        static void ItemDetailsDisplay_RefreshDetails_Post(ItemDetailsDisplay __instance)
         {
             Item item = __instance.m_lastItem;
             GameObject durabilityHolder = __instance.m_durabilityHolder;

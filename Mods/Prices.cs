@@ -337,7 +337,7 @@ namespace ModPack
         }
 
         [HarmonyPatch(typeof(SkillSlot), "IsBlocked"), HarmonyPrefix]
-        static bool SkillSlot_IsBlocked_Pre(ref SkillSlot __instance)
+        static bool SkillSlot_IsBlocked_Pre(SkillSlot __instance)
         => !(_skillCostsToggle && _learnMutuallyExclusiveSkills);
     }
 }

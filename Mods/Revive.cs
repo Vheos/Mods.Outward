@@ -109,7 +109,7 @@ namespace ModPack
 
         // Hooks
         [HarmonyPatch(typeof(Character), "UpdateReviveInteraction"), HarmonyPostfix]
-        static void Character_UpdateReviveInteraction_Pre(ref Character __instance)
+        static void Character_UpdateReviveInteraction_Pre(Character __instance)
         {
             #region quit
             if (!_interactionToggle)

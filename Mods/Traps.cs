@@ -82,7 +82,7 @@ namespace ModPack
 
         // Hooks
         [HarmonyPatch(typeof(DeployableTrap), "StartInit"), HarmonyPostfix]
-        static void DeployableTrap_StartInit_Post(ref DeployableTrap __instance)
+        static void DeployableTrap_StartInit_Post(DeployableTrap __instance)
         {
             // Friendly fire
             Character.Factions[] factions = __instance.TargetFactions;
@@ -127,7 +127,7 @@ namespace ModPack
         }
 
         [HarmonyPatch(typeof(DeployableTrap), "OnReceiveArmTrap"), HarmonyPostfix]
-        static void DeployableTrap_OnReceiveArmTrap_Post(ref DeployableTrap __instance)
+        static void DeployableTrap_OnReceiveArmTrap_Post(DeployableTrap __instance)
         {
             #region quit
             if (__instance.CurrentTrapType == DeployableTrap.TrapType.Runic)
@@ -158,14 +158,14 @@ namespace ModPack
         }
 
         [HarmonyPatch(typeof(DeployableTrap), "CleanUp"), HarmonyPrefix]
-        static bool DeployableTrap_CleanUp_Pre(ref DeployableTrap __instance)
+        static bool DeployableTrap_CleanUp_Pre(DeployableTrap __instance)
         {
             ResetColor(__instance);
             return true;
         }
 
         [HarmonyPatch(typeof(DeployableTrap), "Disassemble"), HarmonyPrefix]
-        static bool DeployableTrap_Disassemble_Pre(ref DeployableTrap __instance)
+        static bool DeployableTrap_Disassemble_Pre(DeployableTrap __instance)
         {
             ResetColor(__instance);
             return true;

@@ -80,7 +80,7 @@ namespace ModPack
 
         // Hooks
         [HarmonyPatch(typeof(WeaponLoadoutItem), "Load"), HarmonyPrefix]
-        static bool WeaponLoadoutItem_Load_Pre(ref WeaponLoadoutItem __instance)
+        static bool WeaponLoadoutItem_Load_Pre(WeaponLoadoutItem __instance)
         {
             if (__instance.CompatibleAmmunition.ItemID == BULLET_ID)
                 __instance.MaxProjectileLoaded = _bulletsPerReload.Value;
@@ -88,7 +88,7 @@ namespace ModPack
         }
 
         [HarmonyPatch(typeof(Character), "PerformSpellCast"), HarmonyPrefix]
-        static bool Character_PerformSpellCast_Pre(ref Character __instance)
+        static bool Character_PerformSpellCast_Pre(Character __instance)
         {
             _overrideSpeed = float.NaN;
             if (__instance.CurrentSpellCast.IsContainedIn(SHOT_SPELLS))
@@ -105,7 +105,7 @@ namespace ModPack
         }
 
         [HarmonyPatch(typeof(Character), "CastDone"), HarmonyPrefix]
-        static bool Character_CastDone_Pre(ref Character __instance)
+        static bool Character_CastDone_Pre(Character __instance)
         {
             if (!_overrideSpeed.IsNaN())
             {

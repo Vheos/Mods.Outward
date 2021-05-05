@@ -91,7 +91,7 @@ namespace ModPack
 
         // Hooks
         [HarmonyPatch(typeof(CharacterCamera), "LateUpdate"), HarmonyPostfix]
-        static void CharacterCamera_LateUpdate_Post(ref CharacterCamera __instance)
+        static void CharacterCamera_LateUpdate_Post(CharacterCamera __instance)
         {
             if (__instance.m_targetCharacter.TargetingSystem.LockedCharacter != null)
                 __instance.m_cameraVertHolder.rotation *= Quaternion.Euler(_targetingPitchOffset, 0, 0);
@@ -113,7 +113,7 @@ namespace ModPack
 
         // Auto-target
         [HarmonyPatch(typeof(Character), "AttackInput"), HarmonyPostfix]
-        static void Character_AttackInput_Post(ref Character __instance)
+        static void Character_AttackInput_Post(Character __instance)
         {
             #region quit
             if (!_autoTargetActions.Value.HasFlag(AutoTargetActions.Attack) || __instance.TargetingSystem.Locked
@@ -149,7 +149,7 @@ namespace ModPack
         }
 
         [HarmonyPatch(typeof(Character), "DodgeInput", new[] { typeof(Vector3) }), HarmonyPostfix]
-        static void Character_DodgeInput_Post(ref Character __instance)
+        static void Character_DodgeInput_Post(Character __instance)
         {
             #region quit
             if (!_autoTargetActions.Value.HasFlag(AutoTargetActions.Dodge) || __instance.TargetingSystem.Locked

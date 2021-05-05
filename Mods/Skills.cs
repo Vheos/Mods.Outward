@@ -254,7 +254,7 @@ namespace ModPack
         => SECTION_COMBAT;
 
         [HarmonyPatch(typeof(AddStatusEffect), "ActivateLocally"), HarmonyPrefix]
-        static bool AddStatusEffect_ActivateLocally_Pre(ref AddStatusEffect __instance)
+        static bool AddStatusEffect_ActivateLocally_Pre(AddStatusEffect __instance)
         {
             #region quit
             if (!_runesToggle || __instance.Status == null || __instance.Status.IdentifierName != RUNIC_LANTERN_ID)
@@ -276,7 +276,7 @@ namespace ModPack
         }
 
         [HarmonyPatch(typeof(PlaySoundEffect), "ActivateLocally"), HarmonyPrefix]
-        static bool PlaySoundEffect_ActivateLocally_Pre(ref PlaySoundEffect __instance)
+        static bool PlaySoundEffect_ActivateLocally_Pre(PlaySoundEffect __instance)
         {
             #region quit
             if (!_runesToggle || __instance.Sounds.IsEmpty() || __instance.Sounds.First() != GlobalAudioManager.Sounds.SFX_SKILL_RuneSpell)
