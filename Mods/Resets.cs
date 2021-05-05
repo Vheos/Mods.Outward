@@ -122,6 +122,17 @@ namespace ModPack
         override protected string SectionOverride
         => SECTION_SURVIVAL;
 
+        // Utility
+        static private void RemovePouchItemsFromSaveData(List<BasicSaveData> saveDataList)
+        {
+            List<BasicSaveData> saveDatasToRemove = new List<BasicSaveData>();
+            foreach (var saveData in saveDataList)
+                if (saveData.SyncData.ContainsSubstring("Pouch_") && !saveData.SyncData.ContainsSubstring("MerchantPouch_"))
+                    saveDatasToRemove.Add(saveData);
+
+            saveDataList.Remove(saveDatasToRemove);
+        }
+
         // Areas
         [HarmonyPatch(typeof(EnvironmentSave), "ApplyData"), HarmonyPrefix]
         static bool EnvironmentSave_ApplyData_Pre(ref EnvironmentSave __instance)
@@ -145,15 +156,19 @@ namespace ModPack
             float sinceLastReset = GameTime - __instance.SaveCreationGameTime;
             resetArea &= _areasMode == ResetMode.Always
                       || _areasMode == ResetMode.Timer
-                                   && sinceLastVisit >= _areasTimer * TIME_UNIT
-                                   && sinceLastReset >= _areasTimerSinceReset * TIME_UNIT;
+                                    && sinceLastVisit >= _areasTimer * TIME_UNIT
+                                    && sinceLastReset >= _areasTimerSinceReset * TIME_UNIT;
             // Execute
             if (resetArea)
                 __instance.SaveCreationGameTime = GameTime.RoundDown();
-            if (!resetArea || !_areasResetLayers.Value.HasFlag(AreasResetLayers.ItemsAndContainers))
-                ItemManager.Instance.LoadItems(__instance.ItemList, true);
+
             if (!resetArea || !_areasResetLayers.Value.HasFlag(AreasResetLayers.Enemies))
                 CharacterManager.Instance.LoadAiCharactersFromSave(__instance.CharList.ToArray());
+            else
+                RemovePouchItemsFromSaveData(__instance.ItemList);
+
+            if (!resetArea || !_areasResetLayers.Value.HasFlag(AreasResetLayers.ItemsAndContainers))
+                ItemManager.Instance.LoadItems(__instance.ItemList, true);
             if (!resetArea || !_areasResetLayers.Value.HasFlag(AreasResetLayers.Switches))
                 SceneInteractionManager.Instance.LoadInteractableStates(__instance.InteractionActivatorList);
             if (!resetArea || !_areasResetLayers.Value.HasFlag(AreasResetLayers.Gatherables))
