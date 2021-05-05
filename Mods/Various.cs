@@ -18,6 +18,7 @@ namespace ModPack
         #region const
         private const float DEFAULT_ENEMY_HEALTH_RESET_HOURS = 24f;   // Character.HoursToHealthReset
         private const int ARMOR_TRAINING_ID = 8205220;
+
         #endregion
         #region enum
         [Flags]
@@ -37,10 +38,11 @@ namespace ModPack
         static private ModSetting<bool> _removeCoopScaling;
         static private ModSetting<bool> _removeDodgeInvulnerability;
         static private ModSetting<bool> _healEnemiesOnLoad;
-        static private ModSetting<bool> _loadArrowsFromInventory;
         static private ModSetting<bool> _multiplicativeStacking;
         static private ModSetting<int> _armorTrainingPenaltyReduction;
         static private ModSetting<bool> _applyArmorTrainingToManaCost;
+        static private ModSetting<bool> _loadArrowsFromInventory;
+        static private ModSetting<bool> _markItemsWithLegacyUpgrade;
         static private ModSetting<bool> _allowDodgeAnimationCancelling;
         static private ModSetting<bool> _allowPushKickRemoval;
         static private ModSetting<bool> _allowTargetingPlayers;
@@ -56,6 +58,7 @@ namespace ModPack
             _armorTrainingPenaltyReduction = CreateSetting(nameof(_armorTrainingPenaltyReduction), 50, IntRange(0, 100));
             _applyArmorTrainingToManaCost = CreateSetting(nameof(_applyArmorTrainingToManaCost), false);
             _loadArrowsFromInventory = CreateSetting(nameof(_loadArrowsFromInventory), false);
+            _markItemsWithLegacyUpgrade = CreateSetting(nameof(_markItemsWithLegacyUpgrade), false);
 
             AddEventOnConfigClosed(() =>
             {
@@ -83,8 +86,6 @@ namespace ModPack
                                                       "(even without a backpack)";
             _healEnemiesOnLoad.Format("Heal enemies on load");
             _healEnemiesOnLoad.Description = "Every loading screen fully heals all enemies";
-            _loadArrowsFromInventory.Format("Load arrows from inventory");
-            _loadArrowsFromInventory.Description = "Whenever you shoot your bow, the missing arrow is automatically replace with one from backpack or pouch (in that order).";
             _multiplicativeStacking.Format("Multiplicative stacking");
             _multiplicativeStacking.Description = "Some stats will stack multiplicatively instead of additvely\n" +
                                                   "(movement speed, stamina cost, mana cost)";
@@ -96,6 +97,9 @@ namespace ModPack
                 _applyArmorTrainingToManaCost.Description = "\"Armor Training\" will also lower equipment's mana cost penalties";
                 Indent--;
             }
+            _loadArrowsFromInventory.Format("Load arrows from inventory");
+            _loadArrowsFromInventory.Description = "Whenever you shoot your bow, the missing arrow is automatically replace with one from backpack or pouch (in that order).";
+            _markItemsWithLegacyUpgrade.Format("Mark items with legacy upgrades");
 
             _allowDodgeAnimationCancelling.Format("[WIP] Allow dodge to cancel actions");
             _allowDodgeAnimationCancelling.Description = "Cancelling certain animations might lead to glitches";
