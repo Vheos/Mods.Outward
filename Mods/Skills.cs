@@ -12,6 +12,8 @@ namespace ModPack
     public class Skills : AMod, IDelayedInit
     {
         #region const
+        private const string RUNIC_LANTERN_ID = "Runic Lantern";
+        private const float RUNIC_LANTERN_EMISSION_RATE = 20;
         private readonly (Vector3, Vector3, Vector3) DEFAULT_VALUES_DAGGER_SLASH =
         (
             new Vector3(0, 0, 0),
@@ -177,6 +179,7 @@ namespace ModPack
         static private SkillData _daggerSlash, _backstab, _opportunistStab, _serpentsParry;
         static private SkillData _evasionShot, _sniperShot, _piercingShot;
         static private SkillData _dez, _egoth, _fal, _shim;
+        static private ModSetting<int> _runeSoundEffectVolume, _runicLanternIntensity;
         override protected void Initialize()
         {
             _daggerToggle = CreateSetting(nameof(_daggerToggle), false);
@@ -195,6 +198,8 @@ namespace ModPack
             _egoth = new SkillData(this, nameof(_egoth), "Egoth", DEFAULT_VALUES_RUNE);
             _fal = new SkillData(this, nameof(_fal), "Fal", DEFAULT_VALUES_RUNE);
             _shim = new SkillData(this, nameof(_shim), "Shim", DEFAULT_VALUES_RUNE);
+            _runicLanternIntensity = CreateSetting(nameof(_runicLanternIntensity), 100, IntRange(0, 100));
+            _runeSoundEffectVolume = CreateSetting(nameof(_runeSoundEffectVolume), 100, IntRange(0, 100));
 
             _backstab.InitializeEffectX("Frontstab multiplier", (prefab, value) =>
             {
@@ -236,6 +241,10 @@ namespace ModPack
                 _egoth.FormatSettings(_runesToggle);
                 _fal.FormatSettings(_runesToggle);
                 _shim.FormatSettings(_runesToggle);
+                _runeSoundEffectVolume.Format("Runes sound effect volume");
+                _runeSoundEffectVolume.Description = "If the runes are too loud for your ears";
+                _runicLanternIntensity.Format("Runic Lantern intensity");
+                _runicLanternIntensity.Description = "If the glowing orb is too bright for your eyes";
                 Indent--;
             }
         }
@@ -243,6 +252,41 @@ namespace ModPack
         => "• Change effects, costs and cooldown of select skills";
         override protected string SectionOverride
         => SECTION_COMBAT;
+
+        [HarmonyPatch(typeof(AddStatusEffect), "ActivateLocally"), HarmonyPrefix]
+        static bool AddStatusEffect_ActivateLocally_Pre(ref AddStatusEffect __instance)
+        {
+            #region quit
+            if (!_runesToggle || __instance.Status == null || __instance.Status.IdentifierName != RUNIC_LANTERN_ID)
+                return true;
+            #endregion
+
+            // Cache
+            ParticleSystem particleSystem = __instance.Status.FXPrefab.GetFirstComponentsInHierarchy<ParticleSystem>();
+            ParticleSystem.MainModule main = particleSystem.main;
+            ParticleSystem.EmissionModule emission = particleSystem.emission;
+            float intensity = _runicLanternIntensity / 100f;
+            Color newColor = main.startColor.color;
+
+            // Execute
+            newColor.a = intensity;
+            main.startColor = newColor;
+            emission.rateOverTime =  intensity.MapFrom01(2, RUNIC_LANTERN_EMISSION_RATE);
+            return true;
+        }
+
+        [HarmonyPatch(typeof(PlaySoundEffect), "ActivateLocally"), HarmonyPrefix]
+        static bool PlaySoundEffect_ActivateLocally_Pre(ref PlaySoundEffect __instance)
+        {
+            #region quit
+            if (!_runesToggle || __instance.Sounds.IsEmpty() || __instance.Sounds.First() != GlobalAudioManager.Sounds.SFX_SKILL_RuneSpell)
+                return true;
+            #endregion
+
+            float volume = _runeSoundEffectVolume / 100f;
+            Global.AudioManager.PlaySoundAtPosition(GlobalAudioManager.Sounds.SFX_SKILL_RuneSpell, __instance.transform, 0f, volume, volume, __instance.MinPitch, __instance.MaxPitch);
+            return false;
+        }
     }
 }
 
