@@ -1,4 +1,4 @@
-﻿public interface IExcludeFromBuild
+﻿public interface IDevelopmentOnly
 { }
 
 public interface IDelayedInit

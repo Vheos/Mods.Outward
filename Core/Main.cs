@@ -13,23 +13,25 @@ namespace ModPack
     public class Main : BaseUnityPlugin
     {
         // Settings
+        public const bool IS_DEVELOPMENT_VERSION = true;
         public const string GUID = "com.Vheos.ModPack";
-        public const string NAME = "Vheos Mod Pack";
+        public const string NAME = "Vheos Mod Pack" + (IS_DEVELOPMENT_VERSION ? " (DEVELOPMENT)" : "");
         public const string VERSION = "1.7.0";
 
         // Utility
         private List<Type> _awakeModTypes;
         private List<Type> _delayedModTypes;
         private List<IUpdatable> _updatableMods;
-        private void CategorizeModsByInstantiationTime(params Type[] whitelist)
+        private void CategorizeModsByInstantiationTime(Type[] whitelist = null, Type[] blacklist = null)
         {
             foreach (var modType in Utility.GetDerivedTypes<AMod>())
-                if (modType.IsNotAssignableTo<IExcludeFromBuild>())
-                    if (whitelist.Length == 0 || modType.IsContainedIn(whitelist))
-                        if (modType.IsAssignableTo<IDelayedInit>())
-                            _delayedModTypes.Add(modType);
-                        else
-                            _awakeModTypes.Add(modType);
+                if ((IS_DEVELOPMENT_VERSION || modType.IsNotAssignableTo<IDevelopmentOnly>())
+                && (blacklist.IsEmpty() || modType.IsNotContainedIn(blacklist))
+                && (whitelist.IsEmpty() || modType.IsContainedIn(whitelist)))
+                    if (modType.IsAssignableTo<IDelayedInit>())
+                        _delayedModTypes.Add(modType);
+                    else
+                        _awakeModTypes.Add(modType);
         }
         private void TryDelayedInitialize()
         {
