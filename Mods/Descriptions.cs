@@ -21,6 +21,7 @@ namespace ModPack
         private const float FRESHNESS_LIFESPAN_MAX = 104f;   // Travel Ration
         private const int SIZE_MIN = 0;
         private const int DEFAULT_FONT_SIZE = 19;
+        private const int WATER_ITEMS_FIRST_ID = 5600000;
 
         static private Color HEALTH_COLOR = new Color(0.765f, 0.522f, 0.525f, 1f);
         static private Color STAMINA_COLOR = new Color(0.827f, 0.757f, 0.584f, 1f);
@@ -107,13 +108,13 @@ namespace ModPack
             // Publics
             public List<Row> GetRows(Item item)
             {
-                if (!_rowsByItem.ContainsKey(item))
+                if (!_rowsByItem.ContainsKey(item.ItemID))
                     CacheItemRows(item);
-                return _rowsByItem[item];
+                return _rowsByItem[item.ItemID];
             }
 
             // Privates
-            private Dictionary<Item, List<Row>> _rowsByItem;
+            private Dictionary<int, List<Row>> _rowsByItem;
             private void CacheItemRows(Item item)
             {
                 List<Row> rows = new List<Row>();
@@ -121,21 +122,24 @@ namespace ModPack
                 if (item.TryAs(out Skill skill))
                     FormatSkillRows(skill, rows);
                 else
-                    foreach (var effect in item.GetEffects())
+                {
+                    Effect[] effects = item is WaterItem ? GetWaterEffects(item.ItemID) : item.GetEffects();
+                    foreach (var effect in effects)
                     {
                         Row newRow = GetFormattedItemRow(effect);
                         if (newRow != null)
                             rows.Add(newRow);
                     }
+                }
 
                 rows.Sort((a, b) => a.Order.CompareTo(b.Order));
-                _rowsByItem.Add(item, rows);
+                _rowsByItem.Add(item.ItemID, rows);
             }
 
             // Constructors
             public RowsCache()
             {
-                _rowsByItem = new Dictionary<Item, List<Row>>();
+                _rowsByItem = new Dictionary<int, List<Row>>();
             }
         }
         #endregion
@@ -358,15 +362,34 @@ namespace ModPack
 
             return content;
         }
+        static private Effect[] GetWaterEffects(WaterType waterType)
+        {
+            switch (waterType)
+            {
+                case WaterType.Clean: return Global.WaterDistributor.m_cleanWaterEffects;
+                case WaterType.Fresh: return Global.WaterDistributor.m_freshWaterEffects;
+                case WaterType.Salt: return Global.WaterDistributor.m_saltWaterEffects;
+                case WaterType.Rancid: return Global.WaterDistributor.m_rancidWaterEffects;
+                case WaterType.Magic: return Global.WaterDistributor.m_magicWaterEffects;
+                case WaterType.Pure: return Global.WaterDistributor.m_pureWaterEffects;
+                case WaterType.Healing: return Global.WaterDistributor.m_healingWaterEffects;
+                default: return null;
+            }
+        }
+        static private Effect[] GetWaterEffects(int waterID)
+        => GetWaterEffects((WaterType)(waterID - WATER_ITEMS_FIRST_ID));
 
         [HarmonyPatch(typeof(ItemDetailsDisplay), "ShowDetails"), HarmonyPrefix]
         static bool ItemDetailsDisplay_ShowDetails_Pre(ItemDetailsDisplay __instance)
         {
-            Item item = __instance.m_lastItem;
             #region quit
-            if (_details.Value == Details.None || item == null || !item.IsIngestible() && item.IsNot<Skill>())
+            if (_details.Value == Details.None || !__instance.m_lastItem.TryAssign(out var item) || !item.IsIngestible() && item.IsNot<Skill>())
                 return true;
             #endregion
+
+            if (item.TryAs(out WaterContainer waterskin)
+            && waterskin.GetWaterItem().TryAssign(out var waterItem))
+                item = waterItem;
 
             int rowIndex = 0;
             foreach (var row in _rowsCache.GetRows(item))
