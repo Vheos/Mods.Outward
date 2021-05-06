@@ -245,6 +245,11 @@ namespace ModPack
             result = t as T;
             return result != null;
         }
+        static public bool TryAssign<T>(this T t, out T result) where T : class
+        {
+            result = t;
+            return t != null;
+        }
         static public bool Is<T>(this object t)
         => t is T;
         static public bool IsNot<T>(this object t)
