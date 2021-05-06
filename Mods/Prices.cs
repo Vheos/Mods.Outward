@@ -20,7 +20,7 @@ namespace ModPack
         private const string ICONS_FOLDER = @"Prices\";
         static private Vector2 ALTERNATE_CURRENCY_ICON_SCALE = new Vector2(1.75f, 1.75f);
         static private Vector2 ALTERNATE_CURRENCY_ICON_PIVOT = new Vector2(-0.5f, 0.5f);
-        private const float SELL_MODIFIER = 0.3f;
+        private const float DEFAULT_SELL_MODIFIER = 0.3f;
         private const int GOLD_INGOT_ID = 6300030;
         #endregion
         #region class
@@ -50,9 +50,9 @@ namespace ModPack
         static private ModSetting<bool> _merchantsToggle;
         static private ModSetting<float> _pricesCurveArc;
         static private ModSetting<int> _sellModifier;
-        static private ModSetting<bool> _pricesPerTypeToggle;
-        static private ModSetting<int> _pricesWeapons, _pricesArmors, _pricesIngestibles, _pricesRecipes , _pricesOther;
         static private ModSetting<Vector2> _pricesGold;
+        static private ModSetting<bool> _pricesPerTypeToggle;
+        static private ModSetting<int> _pricesWeapons, _pricesArmors, _pricesIngestibles, _pricesRecipes, _pricesOther;   
         static private ModSetting<int> _randomizePricesExtent, _randomizePricesPerDays;
         static private ModSetting<bool> _randomizePricesPerItem, _randomizePricesPerArea;
         static private ModSetting<bool> _customNonBasicSkillCosts;
@@ -64,8 +64,8 @@ namespace ModPack
         override protected void Initialize()
         {
             _merchantsToggle = CreateSetting(nameof(_merchantsToggle), false);
-            _pricesCurveArc = CreateSetting(nameof(_pricesCurveArc), 1f, FloatRange(0f, 1f));
-            _sellModifier = CreateSetting(nameof(_sellModifier), 30, IntRange(0, 200));
+            _pricesCurveArc = CreateSetting(nameof(_pricesCurveArc), 1f, FloatRange(0.5f, 1f));
+            _sellModifier = CreateSetting(nameof(_sellModifier), DEFAULT_SELL_MODIFIER.Mul(100f).Round(), IntRange(0, 200));
 
             _pricesPerTypeToggle = CreateSetting(nameof(_pricesPerTypeToggle), false);
             _pricesWeapons = CreateSetting(nameof(_pricesWeapons), 100, IntRange(0, 200));
@@ -117,6 +117,7 @@ namespace ModPack
             {
                 _pricesCurveArc.Format("Prices curve arc", _merchantsToggle);
                 _sellModifier.Format("Selling multiplier", _merchantsToggle);
+                _pricesGold.Format("Gold");
                 _pricesPerTypeToggle.Format("Prices per type");
                 Indent++;
                 {
@@ -125,7 +126,6 @@ namespace ModPack
                     _pricesIngestibles.Format("Food", _pricesPerTypeToggle);
                     _pricesRecipes.Format("Recipes", _pricesPerTypeToggle);
                     _pricesOther.Format("Other items", _pricesPerTypeToggle);
-                    _pricesGold.Format("Gold", _pricesPerTypeToggle);
                     Indent--;
                 }
 
@@ -188,6 +188,27 @@ namespace ModPack
         static private SkillRequirement _exclusiveSkillRequirement;
         static private bool HasMutuallyExclusiveSkill(Character character, SkillSlot skillSlot)
         => skillSlot.SiblingSlot != null && skillSlot.SiblingSlot.HasSkill(character);
+        // Prices
+        static private int GetFinalModifiedPrice(Item item, Character player, Merchant merchant, bool isSelling)
+        {
+            float price = item.RawCurrentValue;
+
+            if (item.ItemID == GOLD_INGOT_ID)
+                ApplyGoldPrice(ref price, isSelling);
+            else
+            {
+                ApplyCurve(ref price);
+                if (_pricesPerTypeToggle)
+                    ApplyTypeModifier(ref price, item);
+                if (_randomizePricesExtent > 0)
+                    ApplyRandomModifier(ref price, item, true);
+                ApplyVanillaStatModifier(ref price, item, player, merchant, isSelling);
+                if (isSelling)
+                    ApplySellModifier(ref price);
+            }
+
+            return price.Round();
+        }
         static private float GetRandomPriceModifier(Item item)
         {
             int itemSeed = _randomizePricesPerItem ? item.ItemID : 0;
@@ -197,32 +218,33 @@ namespace ModPack
 
             return 1f + UnityEngine.Random.Range(-_randomizePricesExtent, +_randomizePricesExtent) / 100f;
         }
-
-        static private void TryModifyPriceAndColor(ref int finalPrice, Item item, bool isSelling = false)
+        static private void ApplyCurve(ref float price)
+        => price = price.Pow(_pricesCurveArc);
+        static private void ApplyTypeModifier(ref float price, Item item)
         {
-            #region quit
-            if (!_merchantsToggle)
-                return;
-            #endregion
-
-            // Price
-            if (isSelling)
-                if (item.ItemID == GOLD_INGOT_ID)
-                    finalPrice = _pricesGold.Value.y.Round();
-                else
-                    finalPrice = (finalPrice / SELL_MODIFIER * _sellModifier / 100f).Round();
-
-            int preRandomPrice = finalPrice;
-            if (_randomizePricesExtent > 0)
-                finalPrice = (finalPrice * GetRandomPriceModifier(item)).Round();
+            float modifier = _pricesOther;
+            if (item is Weapon)
+                modifier = _pricesWeapons;
+            else if (item is Armor)
+                modifier = _pricesArmors;
+            else if (item is RecipeItem)
+                modifier = _pricesRecipes;
+            else if (item.IsIngestible())
+                modifier = _pricesIngestibles;
+            price *= modifier;
+        }
+        static private void ApplyRandomModifier(ref float price, Item item, bool changePriceColor)
+        {
+            int preRandomPrice = price.Round();
+            price = (price * GetRandomPriceModifier(item)).Round();
 
             // Color
-            if (_randomizePricesExtent == 0 || item.m_refItemDisplay == null || item.m_refItemDisplay.m_lblValue == null)
+            if (!changePriceColor || item.m_refItemDisplay == null || item.m_refItemDisplay.m_lblValue == null)
                 return;
 
-            float relativeIncrease = finalPrice == 0 ? 0f : 1f;
+            float relativeIncrease = price == 0 ? 0f : 1f;
             if (preRandomPrice != 0)
-                relativeIncrease = (float)finalPrice / preRandomPrice - 1f;
+                relativeIncrease = (float)price / preRandomPrice - 1f;
 
             if (item.OwnerCharacter == null)
                 relativeIncrease *= -1;
@@ -230,44 +252,30 @@ namespace ModPack
             Color targetColor = relativeIncrease > 0 ? Color.green : Color.red;
             item.m_refItemDisplay.m_lblValue.color = Color.Lerp(Color.white, targetColor, relativeIncrease.Abs() * 100f / _randomizePricesExtent);
         }
-
-        // Price modifier
-        [HarmonyPatch(typeof(Item), "RawCurrentValue", MethodType.Getter), HarmonyPrefix]
-        static bool Item_RawCurrentValue_Pre(ref Item __instance, ref int __result)
+        static private void ApplyVanillaStatModifier(ref float price, Item item, Character player, Merchant merchant, bool isSelling)
         {
-            #region quit
-            if (!_merchantsToggle)
-                return true;
-            #endregion
+            float vanillaModifierIncrease = isSelling ? player.GetItemSellPriceModifier(merchant, item) + merchant.GetItemSellPriceModifier(player, item)
+                                                       : player.GetItemBuyPriceModifier(merchant, item) + merchant.GetItemBuyPriceModifier(player, item);
+            price *= 1f + vanillaModifierIncrease;
+        }
+        static private void ApplySellModifier(ref float price)
+        => price *= _sellModifier;
+        static private void ApplyGoldPrice(ref float price, bool isSelling)
+        => price = isSelling ? _pricesGold.Value.y : _pricesGold.Value.x;
 
-            if (__instance.ItemID == GOLD_INGOT_ID)
-            {
-                __result = _pricesGold.Value.x.Round();
-                return false;
-            }
-
-            float finalValue = __instance.Stats != null ? __instance.Stats.CurrentValue : __instance.RawBaseValue;
-            float typeModifier = _pricesOther;
-            if (__instance is Weapon)
-                typeModifier = _pricesWeapons;
-            else if (__instance is Armor)
-                typeModifier = _pricesArmors;
-            else if (__instance is RecipeItem)
-                typeModifier = _pricesRecipes;
-            else if (__instance.IsIngestible())
-                typeModifier = _pricesIngestibles;
-
-            __result = finalValue.Pow(_pricesCurveArc).Mul(typeModifier / 100f).Round();
+        [HarmonyPatch(typeof(Item), "GetBuyValue"), HarmonyPrefix]
+        static bool Item_GetBuyValue_Pre(ref Item __instance, ref int __result, ref Character _player, ref Merchant _merchant)
+        {
+            __result = GetFinalModifiedPrice(__instance, _player, _merchant, false);
             return false;
         }
 
-        [HarmonyPatch(typeof(Item), "GetBuyValue"), HarmonyPostfix]
-        static void Item_GetBuyValue_Post(ref Item __instance, ref int __result)
-        => TryModifyPriceAndColor(ref __result, __instance);
-
-        [HarmonyPatch(typeof(Item), "GetSellValue"), HarmonyPostfix]
-        static void Item_GetSellValue_Post(ref Item __instance, ref int __result)
-        => TryModifyPriceAndColor(ref __result, __instance, true);
+        [HarmonyPatch(typeof(Item), "GetSellValue"), HarmonyPrefix]
+        static bool Item_GetSellValue_Pre(ref Item __instance, ref int __result, ref Character _player, ref Merchant _merchant)
+        {
+            __result = GetFinalModifiedPrice(__instance, _player, _merchant, true);
+            return false;
+        }
 
         // Skill prices
         [HarmonyPatch(typeof(TrainerPanel), "OnSkillSlotSelected"), HarmonyPrefix]
