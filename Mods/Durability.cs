@@ -56,7 +56,7 @@ namespace ModPack
         static private ModSetting<MultiRepairBehaviour> _multiRepairBehaviour;
         static private ModSetting<int> _fastMaintenanceMultiplier;
 
-        static private ModSetting<bool> _effectivenessAffectsAllStats;
+        static private ModSetting<bool> _effectivenessAffectsAllStats, _effectivenessAffectsPenalties;
         static private ModSetting<bool> _linearEffectiveness;
         static private ModSetting<int> _minNonBrokenEffectiveness, _brokenEffectiveness;
         static private ModSetting<bool> _smithRepairsOnlyEquipped;
@@ -76,6 +76,7 @@ namespace ModPack
             _fastMaintenanceMultiplier = CreateSetting(nameof(_fastMaintenanceMultiplier), 150, IntRange(100, 200));
 
             _effectivenessAffectsAllStats = CreateSetting(nameof(_effectivenessAffectsAllStats), false);
+            _effectivenessAffectsPenalties = CreateSetting(nameof(_effectivenessAffectsPenalties), false);
             _linearEffectiveness = CreateSetting(nameof(_linearEffectiveness), false);
             _minNonBrokenEffectiveness = CreateSetting(nameof(_minNonBrokenEffectiveness), 50, IntRange(0, 100));
             _brokenEffectiveness = CreateSetting(nameof(_brokenEffectiveness), 15, IntRange(0, 100));
@@ -109,6 +110,11 @@ namespace ModPack
             }
 
             _effectivenessAffectsAllStats.Format("Effectiveness affects all stats");
+            Indent++;
+            {
+                _effectivenessAffectsPenalties.Format("affect penalties");
+                Indent--;
+            }
             _linearEffectiveness.Format("Linear effectiveness");
             Indent++;
             {
@@ -136,14 +142,17 @@ namespace ModPack
         }
         static private bool HasLearnedFastMaintenance(Character character)
         => character.Inventory.SkillKnowledge.IsItemLearned(FAST_MAINTENANCE_ID);
-        static private void TryApplyEffectiveness(ref float stat, EquipmentStats equipmentStats)
+        static private void TryApplyEffectiveness(ref float stat, EquipmentStats equipmentStats, bool invertedPositivity)
         {
             #region quit
             if (!_effectivenessAffectsAllStats)
                 return;
             #endregion
 
-            stat *= equipmentStats.Effectiveness;
+            bool isNegative = stat < 0 && !invertedPositivity
+                           || stat > 0 && invertedPositivity;
+            if (!isNegative || _effectivenessAffectsPenalties)
+                stat *= equipmentStats.Effectiveness;
         }
 
         // Hooks
@@ -246,14 +255,37 @@ namespace ModPack
 
         [HarmonyPatch(typeof(EquipmentStats), "MovementPenalty", MethodType.Getter), HarmonyPostfix]
         static void EquipmentStats_MovementPenalty_Post(ref EquipmentStats __instance, ref float __result)
-        => TryApplyEffectiveness(ref __result, __instance);
+        => TryApplyEffectiveness(ref __result, __instance, true);
 
         [HarmonyPatch(typeof(EquipmentStats), "StaminaUsePenalty", MethodType.Getter), HarmonyPostfix]
         static void EquipmentStats_StaminaUsePenalty_Post(ref EquipmentStats __instance, ref float __result)
-        => TryApplyEffectiveness(ref __result, __instance);
+        => TryApplyEffectiveness(ref __result, __instance, true);
 
         [HarmonyPatch(typeof(EquipmentStats), "ManaUseModifier", MethodType.Getter), HarmonyPostfix]
         static void EquipmentStats_ManaUseModifier_Post(ref EquipmentStats __instance, ref float __result)
-        => TryApplyEffectiveness(ref __result, __instance);
+        => TryApplyEffectiveness(ref __result, __instance, true);
+
+        [HarmonyPatch(typeof(ItemDetailsDisplay), "GetPenaltyDisplay"), HarmonyPrefix]
+        static bool ItemDetailsDisplay_GetPenaltyDisplay_Pre(ref ItemDetailsDisplay __instance, ref string __result, float _value, bool _negativeIsPositive, bool _showPercent)
+        {
+            #region quit
+            if (!_effectivenessAffectsAllStats)
+                return true;
+            #endregion
+
+            string text = _value.Round().ToString();
+            if (_value > 0)
+                text = "+" + text;
+            if (_showPercent)
+                text += "%";
+
+            Color color = Global.LIGHT_GREEN;
+            if (_value < 0 && !_negativeIsPositive
+            || _value > 0 && _negativeIsPositive)
+                color = Global.LIGHT_RED;
+
+            __result = Global.SetTextColor(text, color);
+            return false;
+        }
     }
 }
