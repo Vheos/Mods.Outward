@@ -52,10 +52,10 @@ namespace ModPack
         }
         /// <summary> Tests whether this collection contains any element. </summary>
         static public bool IsEmpty<T>(this ICollection<T> t)
-        => t.Count == 0;
+        => t == null || t.Count == 0;
         /// <summary> Tests whether this collection contains zero elements. </summary>
         static public bool IsNotEmpty<T>(this ICollection<T> t)
-        => t.Count != 0;
+        => !t.IsEmpty();
         /// <summary> Tests whether this object is contained within the given collection. </summary>
         static public bool IsContainedIn<T>(this T t, ICollection<T> collection)
         => collection.Contains(t);
