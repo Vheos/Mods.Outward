@@ -18,10 +18,11 @@ namespace ModPack
     {
         #region const
         private const string ICONS_FOLDER = @"Prices\";
-        static private Vector2 ALTERNATE_CURRENCY_ICON_SCALE = new Vector2(1.75f, 1.75f);
-        static private Vector2 ALTERNATE_CURRENCY_ICON_PIVOT = new Vector2(-0.5f, 0.5f);
+        static private readonly Vector2 ALTERNATE_CURRENCY_ICON_SCALE = new Vector2(1.75f, 1.75f);
+        static private readonly Vector2 ALTERNATE_CURRENCY_ICON_PIVOT = new Vector2(-0.5f, 0.5f);
         private const float DEFAULT_SELL_MODIFIER = 0.3f;
         private const int GOLD_INGOT_ID = 6300030;
+        static private readonly Color DEFAULT_PRICE_COLOR = new Color(0.8235294f, 0.8877006f, 1f);
         #endregion
         #region class
         private class SkillRequirement
@@ -52,7 +53,7 @@ namespace ModPack
         static private ModSetting<int> _sellModifier;
         static private ModSetting<Vector2> _pricesGold;
         static private ModSetting<bool> _pricesPerTypeToggle;
-        static private ModSetting<int> _pricesWeapons, _pricesArmors, _pricesIngestibles, _pricesRecipes, _pricesOther;   
+        static private ModSetting<int> _pricesWeapons, _pricesArmors, _pricesIngestibles, _pricesRecipes, _pricesOther;
         static private ModSetting<int> _randomizePricesExtent, _randomizePricesPerDays;
         static private ModSetting<bool> _randomizePricesPerItem, _randomizePricesPerArea;
         static private ModSetting<bool> _customNonBasicSkillCosts;
@@ -65,7 +66,7 @@ namespace ModPack
         {
             _merchantsToggle = CreateSetting(nameof(_merchantsToggle), false);
             _pricesCurveArc = CreateSetting(nameof(_pricesCurveArc), 1f, FloatRange(0.5f, 1f));
-            _sellModifier = CreateSetting(nameof(_sellModifier), DEFAULT_SELL_MODIFIER.Mul(100f).Round(), IntRange(0, 200));
+            _sellModifier = CreateSetting(nameof(_sellModifier), DEFAULT_SELL_MODIFIER.Mul(100f).Round(), IntRange(0, 100));
 
             _pricesPerTypeToggle = CreateSetting(nameof(_pricesPerTypeToggle), false);
             _pricesWeapons = CreateSetting(nameof(_pricesWeapons), 100, IntRange(0, 200));
@@ -200,12 +201,12 @@ namespace ModPack
                 ApplyCurve(ref price);
                 if (_pricesPerTypeToggle)
                     ApplyTypeModifier(ref price, item);
-                if (_randomizePricesExtent > 0)
-                    ApplyRandomModifier(ref price, item, true);
                 ApplyVanillaStatModifier(ref price, item, player, merchant, isSelling);
                 if (isSelling)
                     ApplySellModifier(ref price);
             }
+            if (_randomizePricesExtent > 0)
+                ApplyRandomModifier(ref price, item, true);
 
             return price.Round();
         }
@@ -231,7 +232,7 @@ namespace ModPack
                 modifier = _pricesRecipes;
             else if (item.IsIngestible())
                 modifier = _pricesIngestibles;
-            price *= modifier;
+            price *= modifier / 100f;
         }
         static private void ApplyRandomModifier(ref float price, Item item, bool changePriceColor)
         {
@@ -239,18 +240,21 @@ namespace ModPack
             price = (price * GetRandomPriceModifier(item)).Round();
 
             // Color
-            if (!changePriceColor || item.m_refItemDisplay == null || item.m_refItemDisplay.m_lblValue == null)
+            if (!changePriceColor
+            || !item.m_refItemDisplay.TryAssign(out var itemDisplay)
+            || !itemDisplay.m_lblValue.TryAssign(out var priceText))
                 return;
 
             float relativeIncrease = price == 0 ? 0f : 1f;
             if (preRandomPrice != 0)
                 relativeIncrease = (float)price / preRandomPrice - 1f;
-
             if (item.OwnerCharacter == null)
                 relativeIncrease *= -1;
 
-            Color targetColor = relativeIncrease > 0 ? Color.green : Color.red;
-            item.m_refItemDisplay.m_lblValue.color = Color.Lerp(Color.white, targetColor, relativeIncrease.Abs() * 100f / _randomizePricesExtent);
+            if (relativeIncrease == 0)
+                priceText.color = DEFAULT_PRICE_COLOR;
+            else
+                priceText.color = Color.Lerp(Color.white, relativeIncrease > 0 ? Color.green : Color.red, relativeIncrease.Abs() * 100f / _randomizePricesExtent);
         }
         static private void ApplyVanillaStatModifier(ref float price, Item item, Character player, Merchant merchant, bool isSelling)
         {
@@ -259,7 +263,7 @@ namespace ModPack
             price *= 1f + vanillaModifierIncrease;
         }
         static private void ApplySellModifier(ref float price)
-        => price *= _sellModifier;
+        => price *= _sellModifier / 100f;
         static private void ApplyGoldPrice(ref float price, bool isSelling)
         => price = isSelling ? _pricesGold.Value.y : _pricesGold.Value.x;
 
