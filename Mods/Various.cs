@@ -192,14 +192,14 @@ namespace ModPack
         => slot != null && slot.HasItemEquipped;
         static public bool IsNotLeftHandUsedBy2H(EquipmentSlot slot)
         => !(slot.SlotType == EquipmentSlot.EquipmentSlotIDs.LeftHand && slot.EquippedItem.TwoHanded);
-        static private bool TryApplyMultiplicativeStacking(CharacterEquipment equipment, ref float result, Func<EquipmentSlot, float> getStatValue, bool invertedValue = false, bool applyArmorTraining = false)
+        static private bool TryApplyMultiplicativeStacking(CharacterEquipment equipment, ref float result, Func<EquipmentSlot, float> getStatValue, bool invertedPositivity = false, bool applyArmorTraining = false)
         {
             #region quit
             if (!_multiplicativeStacking)
                 return true;
             #endregion
 
-            float invCoeff = invertedValue ? -1f : +1f;
+            float invCoeff = invertedPositivity ? -1f : +1f;
             bool canApplyArmorTraining = applyArmorTraining && HasLearnedArmorTraining(equipment.m_character);
 
             result = 1f;
