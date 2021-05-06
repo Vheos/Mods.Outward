@@ -19,7 +19,8 @@ namespace ModPack
         #region const
         private const float DEFAULT_ENEMY_HEALTH_RESET_HOURS = 24f;   // Character.HoursToHealthReset
         private const int ARMOR_TRAINING_ID = 8205220;
-
+        private const int PRIMITIVE_SATCHEL_CAPACITY = 25;
+        private const int TRADER_BACKPACK = 100;
         #endregion
         #region enum
         [Flags]
@@ -43,6 +44,8 @@ namespace ModPack
         static private ModSetting<int> _armorTrainingPenaltyReduction;
         static private ModSetting<bool> _applyArmorTrainingToManaCost;
         static private ModSetting<bool> _loadArrowsFromInventory;
+        static private ModSetting<Vector2> _remapBackpackCapacities;
+
         static private ModSetting<bool> _markItemsWithLegacyUpgrade;
         static private ModSetting<bool> _allowDodgeAnimationCancelling;
         static private ModSetting<bool> _allowPushKickRemoval;
@@ -59,7 +62,7 @@ namespace ModPack
             _armorTrainingPenaltyReduction = CreateSetting(nameof(_armorTrainingPenaltyReduction), 50, IntRange(0, 100));
             _applyArmorTrainingToManaCost = CreateSetting(nameof(_applyArmorTrainingToManaCost), false);
             _loadArrowsFromInventory = CreateSetting(nameof(_loadArrowsFromInventory), false);
-            _markItemsWithLegacyUpgrade = CreateSetting(nameof(_markItemsWithLegacyUpgrade), false);
+            _remapBackpackCapacities = CreateSetting(nameof(_remapBackpackCapacities), new Vector2(PRIMITIVE_SATCHEL_CAPACITY, TRADER_BACKPACK));
 
             AddEventOnConfigClosed(() =>
             {
@@ -67,6 +70,7 @@ namespace ModPack
             });
 
             // WIP
+            _markItemsWithLegacyUpgrade = CreateSetting(nameof(_markItemsWithLegacyUpgrade), false);
             _allowDodgeAnimationCancelling = CreateSetting(nameof(_allowDodgeAnimationCancelling), false);
             _allowPushKickRemoval = CreateSetting(nameof(_allowPushKickRemoval), false);
             _allowTargetingPlayers = CreateSetting(nameof(_allowTargetingPlayers), false);
@@ -100,6 +104,10 @@ namespace ModPack
             }
             _loadArrowsFromInventory.Format("Load arrows from inventory");
             _loadArrowsFromInventory.Description = "Whenever you shoot your bow, the missing arrow is automatically replace with one from backpack or pouch (in that order).";
+            _remapBackpackCapacities.Format("Remap backpack capacities");
+            _remapBackpackCapacities.Description = "X   -   Primitive Satchel's capacity\n" +
+                                                   "Y   -   Trader Backpack's capacity\n" +
+                                                   "(all other backpacks will have their capacities scaled accordingly)";
 
             _markItemsWithLegacyUpgrade.Format("[WIP] Mark items with legacy upgrades");
             _markItemsWithLegacyUpgrade.IsAdvanced = true;
@@ -118,6 +126,17 @@ namespace ModPack
         => "• Mods (small and big) that didn't get their own section yet :)";
         override protected string SectionOverride
         => SECTION_VARIOUS;
+
+        // Remap backpack capacities
+        [HarmonyPatch(typeof(ItemContainer), "ContainerCapacity", MethodType.Getter), HarmonyPostfix]
+        static void ItemContainer_ContainerCapacity_Post(ref ItemContainer __instance, ref float __result)
+        {
+            if (__instance.RefBag == null || __instance.m_baseContainerCapacity <= 0)
+                return;
+
+            __result = __result.Map(PRIMITIVE_SATCHEL_CAPACITY, TRADER_BACKPACK,
+                                    _remapBackpackCapacities.Value.x, _remapBackpackCapacities.Value.y).Round();
+        }
 
         // Mark items with legacy upgrades
         [HarmonyPatch(typeof(ItemDisplay), "RefreshEnchantedIcon"), HarmonyPrefix]
