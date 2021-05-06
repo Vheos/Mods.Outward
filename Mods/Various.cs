@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using BepInEx.Configuration;
 using HarmonyLib;
+using UnityEngine.UI;
 
 
 
@@ -99,8 +100,9 @@ namespace ModPack
             }
             _loadArrowsFromInventory.Format("Load arrows from inventory");
             _loadArrowsFromInventory.Description = "Whenever you shoot your bow, the missing arrow is automatically replace with one from backpack or pouch (in that order).";
-            _markItemsWithLegacyUpgrade.Format("Mark items with legacy upgrades");
 
+            _markItemsWithLegacyUpgrade.Format("[WIP] Mark items with legacy upgrades");
+            _markItemsWithLegacyUpgrade.IsAdvanced = true;
             _allowDodgeAnimationCancelling.Format("[WIP] Allow dodge to cancel actions");
             _allowDodgeAnimationCancelling.Description = "Cancelling certain animations might lead to glitches";
             _allowDodgeAnimationCancelling.IsAdvanced = true;
@@ -116,6 +118,35 @@ namespace ModPack
         => "• Mods (small and big) that didn't get their own section yet :)";
         override protected string SectionOverride
         => SECTION_VARIOUS;
+
+        // Mark items with legacy upgrades
+        [HarmonyPatch(typeof(ItemDisplay), "RefreshEnchantedIcon"), HarmonyPrefix]
+        static bool ItemDisplay_RefreshEnchantedIcon_Pre(ItemDisplay __instance)
+        {
+            #region quit
+            if (!_markItemsWithLegacyUpgrade || __instance.m_refItem == null || __instance.m_imgEnchantedIcon == null)
+                return true;
+            #endregion
+
+            // Cache
+            //Image icon = __instance.FindChild<Image>("Icon");
+            //Image border = icon.FindChild<Image>("border");
+            Image indicator = __instance.m_imgEnchantedIcon;
+
+            // Default
+            indicator.GOSetActive(false);
+
+            // Quit
+            if (__instance.m_refItem.LegacyItemID <= 0)
+                return true;
+
+            // Custom
+            indicator.color = Color.red;
+            indicator.rectTransform.pivot = 1f.ToVector2();
+            indicator.rectTransform.localScale = new Vector2(1.5f, 1.5f);
+            indicator.GOSetActive(true);
+            return false;
+        }
 
         // Load arrows from inventory
         [HarmonyPatch(typeof(WeaponLoadoutItem), "ReduceShotAmount"), HarmonyPrefix]
