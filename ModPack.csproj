@@ -105,11 +105,11 @@
     <Compile Include="Mods\Targeting.cs" />
     <Compile Include="Mods\GUI.cs" />
     <Compile Include="Mods\KeyboardWalk.cs" />
-    <Compile Include="Mods\Excluded\Debug.cs" />
+    <Compile Include="Mods\Development\Debug.cs" />
     <Compile Include="Mods\Descriptions.cs" />
     <Compile Include="Mods\Speed.cs" />
     <Compile Include="Mods\Camera.cs" />
-    <Compile Include="Mods\Excluded\PistolTweaks.cs" />
+    <Compile Include="Mods\Development\PistolTweaks.cs" />
     <Compile Include="Mods\Resets.cs" />
     <Compile Include="Mods\Damage.cs" />
     <Compile Include="Mods\Revive.cs" />
