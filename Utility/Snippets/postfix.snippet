@@ -10,7 +10,7 @@
       
       <Code Language="CSharp">
         <![CDATA[[HarmonyPatch(typeof($TYPE$), "$METHOD$"), HarmonyPostfix]
-static void $TYPE$_$METHOD$_Post(ref $TYPE$ __instance, ref bool __result, ref bool __state)
+static void $TYPE$_$METHOD$_Post($TYPE$ __instance, ref bool __result, ref bool __state)
 {
     $end$
 }]]>
