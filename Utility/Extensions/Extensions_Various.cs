@@ -308,7 +308,11 @@ namespace ModPack
                 return component;
 
             foreach (Transform child in root)
-                return child.GetFirstComponentsInHierarchy<T>();
+            {
+                component = child.GetFirstComponentsInHierarchy<T>();
+                if (component != null)
+                    return component;
+            }
 
             return null;
         }
