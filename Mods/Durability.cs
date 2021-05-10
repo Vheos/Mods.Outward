@@ -142,7 +142,7 @@ namespace ModPack
         }
         static private bool HasLearnedFastMaintenance(Character character)
         => character.Inventory.SkillKnowledge.IsItemLearned(FAST_MAINTENANCE_ID);
-        static private void TryApplyEffectiveness(ref float stat, EquipmentStats equipmentStats, bool invertedPositivity)
+        static private void TryApplyEffectiveness(ref float stat, EquipmentStats equipmentStats, bool invertedPositivity = false)
         {
             #region quit
             if (!_effectivenessAffectsAllStats)
@@ -253,18 +253,7 @@ namespace ModPack
             return false;
         }
 
-        [HarmonyPatch(typeof(EquipmentStats), "MovementPenalty", MethodType.Getter), HarmonyPostfix]
-        static void EquipmentStats_MovementPenalty_Post(ref EquipmentStats __instance, ref float __result)
-        => TryApplyEffectiveness(ref __result, __instance, true);
-
-        [HarmonyPatch(typeof(EquipmentStats), "StaminaUsePenalty", MethodType.Getter), HarmonyPostfix]
-        static void EquipmentStats_StaminaUsePenalty_Post(ref EquipmentStats __instance, ref float __result)
-        => TryApplyEffectiveness(ref __result, __instance, true);
-
-        [HarmonyPatch(typeof(EquipmentStats), "ManaUseModifier", MethodType.Getter), HarmonyPostfix]
-        static void EquipmentStats_ManaUseModifier_Post(ref EquipmentStats __instance, ref float __result)
-        => TryApplyEffectiveness(ref __result, __instance, true);
-
+        // Affect all stats
         [HarmonyPatch(typeof(ItemDetailsDisplay), "GetPenaltyDisplay"), HarmonyPrefix]
         static bool ItemDetailsDisplay_GetPenaltyDisplay_Pre(ref ItemDetailsDisplay __instance, ref string __result, float _value, bool _negativeIsPositive, bool _showPercent)
         {
@@ -286,6 +275,26 @@ namespace ModPack
 
             __result = Global.SetTextColor(text, color);
             return false;
+        }
+
+        [HarmonyPatch(typeof(EquipmentStats), "MovementPenalty", MethodType.Getter), HarmonyPostfix]
+        static void EquipmentStats_MovementPenalty_Post(ref EquipmentStats __instance, ref float __result)
+        => TryApplyEffectiveness(ref __result, __instance, true);
+
+        [HarmonyPatch(typeof(EquipmentStats), "StaminaUsePenalty", MethodType.Getter), HarmonyPostfix]
+        static void EquipmentStats_StaminaUsePenalty_Post(ref EquipmentStats __instance, ref float __result)
+        => TryApplyEffectiveness(ref __result, __instance, true);
+
+        [HarmonyPatch(typeof(EquipmentStats), "ManaUseModifier", MethodType.Getter), HarmonyPostfix]
+        static void EquipmentStats_ManaUseModifier_Post(ref EquipmentStats __instance, ref float __result)
+        => TryApplyEffectiveness(ref __result, __instance, true);
+
+        [HarmonyPatch(typeof(Weapon), "BaseAttackSpeed", MethodType.Getter), HarmonyPostfix]
+        static void Weapon_BaseAttackSpeed_Post(Weapon __instance, ref float __result)
+        {
+            float relativeAttackSpeed = __result - 1f;
+            TryApplyEffectiveness(ref relativeAttackSpeed, __instance.Stats);
+            __result = relativeAttackSpeed + 1f;
         }
     }
 }
