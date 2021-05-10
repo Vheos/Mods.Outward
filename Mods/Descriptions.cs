@@ -145,18 +145,22 @@ namespace ModPack
         #endregion
 
         // Settings
-        static private ModSetting<bool> _barsToggle;
+        static private ModSetting<bool> _barsToggle, _equipmentToggle;
         static private ModSetting<bool> _addBackgrounds;
         static private ModSetting<Details> _details;
-        static private ModSetting<bool> _displayRelativeAttackSpeed;
-        static private ModSetting<bool> _normalizeImpactDisplay;
+        static private ModSetting<bool> _displayRelativeAttackSpeed, _normalizeImpactDisplay, _moveBarrierBelowProtection, _hideNumericalDurability;
         static private ModSetting<int> _durabilityBarSize, _freshnessBarSize, _barThickness;
         static private ModSetting<bool> _durabilityTiedToMax, _freshnessTiedToLifespan;
         override protected void Initialize()
         {
             _details = CreateSetting(nameof(_details), Details.None);
+
+            _equipmentToggle = CreateSetting(nameof(_equipmentToggle), false);
             _displayRelativeAttackSpeed = CreateSetting(nameof(_displayRelativeAttackSpeed), false);
             _normalizeImpactDisplay = CreateSetting(nameof(_normalizeImpactDisplay), false);
+            _moveBarrierBelowProtection = CreateSetting(nameof(_moveBarrierBelowProtection), false);
+            _hideNumericalDurability = CreateSetting(nameof(_hideNumericalDurability), false);
+
             _barsToggle = CreateSetting(nameof(_barsToggle), false);
             _durabilityTiedToMax = CreateSetting(nameof(_durabilityTiedToMax), false);
             _durabilityBarSize = CreateSetting(nameof(_durabilityBarSize), (100 / BAR_MAX_SIZE.x).Round(), IntRange(0, 100));
@@ -173,10 +177,20 @@ namespace ModPack
         {
 
             _details.Format("Details to display");
-            _displayRelativeAttackSpeed.Format("Display relative attack speed");
-            _displayRelativeAttackSpeed.Description = "Attack speed will be displayedas +/- X%\n" +
-                                                      "If the weapon has default attack speed (1), it won't be displayed";
-            _normalizeImpactDisplay.Format("Normalize impact damage display");
+            _equipmentToggle.Format("Equipment");
+            Indent++;
+            {
+                _displayRelativeAttackSpeed.Format("Display relative attack speed", _equipmentToggle);
+                _displayRelativeAttackSpeed.Description = "Attack speed will be displayedas +/- X%\n" +
+                                                          "If the weapon has default attack speed (1), it won't be displayed";
+                _normalizeImpactDisplay.Format("Normalize impact display", _equipmentToggle);
+                _normalizeImpactDisplay.Description = "Impact damage/resistance will be displayed in the damages/resistances list and will have its own icon, just like all the other damage/resistance types";
+                _moveBarrierBelowProtection.Format("Move barrier below protection", _equipmentToggle);
+                _moveBarrierBelowProtection.Description = "Barrier will be displayed right under protection instead of between resistances and impact resistance";
+                _hideNumericalDurability.Format("Hide numerical durability display", _equipmentToggle);
+                _hideNumericalDurability.Description = "Hides the \"Durability: XXX/YYY\" row so the only indicator is the durability bar";
+                Indent--;
+            }
             _barsToggle.Format("Bars");
             _barsToggle.Description = "Change sizes of durability and freshness progress bars";
             Indent++;
@@ -396,10 +410,27 @@ namespace ModPack
         }
         static private Effect[] GetWaterEffects(int waterID)
         => GetWaterEffects((WaterType)(waterID - WATER_ITEMS_FIRST_ID));
+        static private void TrySwapProtectionWithResistances(Item item)
+        {
+            #region quit
+            if (!_moveBarrierBelowProtection || !item.TryAs(out Equipment equipment) || equipment.BarrierProt <= 0)
+                return;
+            #endregion
+
+            int resistancesIndex = item.m_displayedInfos.IndexOf(ItemDetailsDisplay.DisplayedInfos.DamageResistance);
+            int barrierIndex = item.m_displayedInfos.IndexOf(ItemDetailsDisplay.DisplayedInfos.BarrierProtection);
+            if (resistancesIndex < 0 || barrierIndex < 0 || barrierIndex < resistancesIndex)
+                return;
+
+            Tools.Log($"swapping...");
+            Utility.Swap(ref item.m_displayedInfos[resistancesIndex], ref item.m_displayedInfos[barrierIndex]);
+        }
 
         [HarmonyPatch(typeof(ItemDetailsDisplay), "ShowDetails"), HarmonyPrefix]
         static bool ItemDetailsDisplay_ShowDetails_Pre(ItemDetailsDisplay __instance)
         {
+            TrySwapProtectionWithResistances(__instance.m_lastItem);
+
             #region quit
             if (_details.Value == Details.None || !__instance.m_lastItem.TryAssign(out var item) || !item.IsIngestible() && item.IsNot<Skill>())
                 return true;
@@ -472,8 +503,7 @@ namespace ModPack
                 __result = true;
                 return false;
             }
-            else if ((_infoType == ItemDetailsDisplay.DisplayedInfos.Impact || _infoType == ItemDetailsDisplay.DisplayedInfos.ImpactResistance)
-                 && _normalizeImpactDisplay)
+            else if ((_infoType == ItemDetailsDisplay.DisplayedInfos.Impact || _infoType == ItemDetailsDisplay.DisplayedInfos.ImpactResistance) && _normalizeImpactDisplay)
             {
                 float value = _infoType == ItemDetailsDisplay.DisplayedInfos.Impact
                                          ? __instance.cachedWeapon.Impact
@@ -486,6 +516,8 @@ namespace ModPack
                 __result = true;
                 return false;
             }
+            else if (_infoType == ItemDetailsDisplay.DisplayedInfos.Durability && _hideNumericalDurability)
+                return false;
 
             return true;
         }
