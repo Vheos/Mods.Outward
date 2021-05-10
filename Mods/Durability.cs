@@ -45,6 +45,14 @@ namespace ModPack
             OfMaxDurability = 1,
             OfMissingDurability = 2,
         }
+        private enum EffectivnessStats
+        {
+            None = 0,
+            AttackSpeed = 1 << 1,
+            ImpactDamage = 1 << 2,
+            Barrier = 1 << 3,
+            ImpactResistance = 1 << 4,
+        }
         #endregion
 
         // Setting
@@ -277,6 +285,42 @@ namespace ModPack
             return false;
         }
 
+        [HarmonyPatch(typeof(ItemDetailRowDisplay), "SetInfo", new[] { typeof(string), typeof(float) }), HarmonyPrefix]
+        static bool ItemDetailRowDisplay_SetInfo_Pre(ItemDetailRowDisplay __instance, string _dataName, float _dataValue)
+        {
+            #region quit
+            if (!_effectivenessAffectsAllStats)
+                return true;
+            #endregion
+
+            __instance.SetInfo(_dataName, _dataValue.Round(), false, null);
+            return false;
+        }
+
+        [HarmonyPatch(typeof(Weapon), "BaseImpact", MethodType.Getter), HarmonyPostfix]
+        static void Weapon_BaseImpact_Post(ref Weapon __instance, ref float __result)
+        => TryApplyEffectiveness(ref __result, __instance.Stats);
+
+        [HarmonyPatch(typeof(Weapon), "BaseAttackSpeed", MethodType.Getter), HarmonyPostfix]
+        static void Weapon_BaseAttackSpeed_Post(Weapon __instance, ref float __result)
+        {
+            float relativeAttackSpeed = __result - 1f;
+            TryApplyEffectiveness(ref relativeAttackSpeed, __instance.Stats);
+            __result = relativeAttackSpeed + 1f;
+        }
+
+        [HarmonyPatch(typeof(EquipmentStats), "BarrierProtection", MethodType.Getter), HarmonyPostfix]
+        static void EquipmentStats_BarrierProtection_Post(ref EquipmentStats __instance, ref float __result)
+        => TryApplyEffectiveness(ref __result, __instance);
+
+        [HarmonyPatch(typeof(EquipmentStats), "ImpactResistance", MethodType.Getter), HarmonyPrefix]
+        static bool EquipmentStats_ImpactResistance_Pre(EquipmentStats __instance)
+        {
+            __instance.m_impactResistEfficiencyAffected = _effectivenessAffectsAllStats
+                                                       || __instance.m_item.TryAs(out Weapon weapon) && weapon.Type == Weapon.WeaponType.Shield;
+            return true;
+        }
+
         [HarmonyPatch(typeof(EquipmentStats), "MovementPenalty", MethodType.Getter), HarmonyPostfix]
         static void EquipmentStats_MovementPenalty_Post(ref EquipmentStats __instance, ref float __result)
         => TryApplyEffectiveness(ref __result, __instance, true);
@@ -289,12 +333,37 @@ namespace ModPack
         static void EquipmentStats_ManaUseModifier_Post(ref EquipmentStats __instance, ref float __result)
         => TryApplyEffectiveness(ref __result, __instance, true);
 
-        [HarmonyPatch(typeof(Weapon), "BaseAttackSpeed", MethodType.Getter), HarmonyPostfix]
-        static void Weapon_BaseAttackSpeed_Post(Weapon __instance, ref float __result)
-        {
-            float relativeAttackSpeed = __result - 1f;
-            TryApplyEffectiveness(ref relativeAttackSpeed, __instance.Stats);
-            __result = relativeAttackSpeed + 1f;
-        }
+        [HarmonyPatch(typeof(EquipmentStats), "HeatProtection", MethodType.Getter), HarmonyPostfix]
+        static void EquipmentStats_HeatProtection_Post(ref EquipmentStats __instance, ref float __result)
+        => TryApplyEffectiveness(ref __result, __instance);
+
+        [HarmonyPatch(typeof(EquipmentStats), "ColdProtection", MethodType.Getter), HarmonyPostfix]
+        static void EquipmentStats_ColdProtection_Post(ref EquipmentStats __instance, ref float __result)
+        => TryApplyEffectiveness(ref __result, __instance);
+
+        [HarmonyPatch(typeof(EquipmentStats), "CorruptionResistance", MethodType.Getter), HarmonyPostfix]
+        static void EquipmentStats_CorruptionResistance_Post(ref EquipmentStats __instance, ref float __result)
+        => TryApplyEffectiveness(ref __result, __instance);
+
+        [HarmonyPatch(typeof(EquipmentStats), "CooldownReduction", MethodType.Getter), HarmonyPostfix]
+        static void EquipmentStats_CooldownReduction_Post(ref EquipmentStats __instance, ref float __result)
+        => TryApplyEffectiveness(ref __result, __instance, true);
+
+        [HarmonyPatch(typeof(EquipmentStats), "HealthRegenBonus", MethodType.Getter), HarmonyPostfix]
+        static void EquipmentStats_HealthRegenBonus_Post(ref EquipmentStats __instance, ref float __result)
+        => TryApplyEffectiveness(ref __result, __instance);
+
+        [HarmonyPatch(typeof(EquipmentStats), "ManaRegenBonus", MethodType.Getter), HarmonyPostfix]
+        static void EquipmentStats_ManaRegenBonus_Post(ref EquipmentStats __instance, ref float __result)
+        => TryApplyEffectiveness(ref __result, __instance);
+
+        [HarmonyPatch(typeof(EquipmentStats), "StaminaCostReduction", MethodType.Getter), HarmonyPostfix]
+        static void EquipmentStats_StaminaCostReduction_Post(ref EquipmentStats __instance, ref float __result)
+        => TryApplyEffectiveness(ref __result, __instance);
+
+        [HarmonyPatch(typeof(EquipmentStats), "StaminaRegenModifier", MethodType.Getter), HarmonyPostfix]
+        static void EquipmentStats_StaminaRegenModifier_Post(ref EquipmentStats __instance, ref float __result)
+        => TryApplyEffectiveness(ref __result, __instance);
+
     }
 }
