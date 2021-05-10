@@ -148,11 +148,13 @@ namespace ModPack
         static private ModSetting<bool> _barsToggle;
         static private ModSetting<bool> _addBackgrounds;
         static private ModSetting<Details> _details;
+        static private ModSetting<bool> _displayRelativeAttackSpeed;
         static private ModSetting<int> _durabilityBarSize, _freshnessBarSize, _barThickness;
         static private ModSetting<bool> _durabilityTiedToMax, _freshnessTiedToLifespan;
         override protected void Initialize()
         {
             _details = CreateSetting(nameof(_details), Details.None);
+            _displayRelativeAttackSpeed = CreateSetting(nameof(_displayRelativeAttackSpeed), false);
             _barsToggle = CreateSetting(nameof(_barsToggle), false);
             _durabilityTiedToMax = CreateSetting(nameof(_durabilityTiedToMax), false);
             _durabilityBarSize = CreateSetting(nameof(_durabilityBarSize), (100 / BAR_MAX_SIZE.x).Round(), IntRange(0, 100));
@@ -169,6 +171,9 @@ namespace ModPack
         {
 
             _details.Format("Details to display");
+            _displayRelativeAttackSpeed.Format("Display relative attack speed");
+            _displayRelativeAttackSpeed.Description = "Attack speed will be displayedas +/- X%\n" +
+                                                      "If the weapon has default attack speed (1), it won't be displayed";
             _barsToggle.Format("Bars");
             _barsToggle.Description = "Change sizes of durability and freshness progress bars";
             Indent++;
@@ -435,6 +440,24 @@ namespace ModPack
             float sizeOffset = barSize / 100f * BAR_MAX_SIZE.x - 1f;
             rectTransform.pivot = BAR_PIVOT;
             rectTransform.localScale = new Vector2(1f + sizeOffset, _barThickness / 100f * BAR_MAX_SIZE.y);
+        }
+
+        [HarmonyPatch(typeof(ItemDetailsDisplay), "RefreshDetail"), HarmonyPrefix]
+        static bool ItemDetailsDisplay_RefreshDetail_Post(ItemDetailsDisplay __instance, ref bool __result, int _rowIndex, ItemDetailsDisplay.DisplayedInfos _infoType)
+        {
+            if (!_displayRelativeAttackSpeed || _infoType != ItemDetailsDisplay.DisplayedInfos.AttackSpeed)
+                return true;
+
+            float attackSpeedOffset = __instance.cachedWeapon.BaseAttackSpeed - 1f;
+            Weapon.WeaponType weaponType = __instance.cachedWeapon.Type;
+            if (attackSpeedOffset == 0 || weaponType == Weapon.WeaponType.Shield || weaponType == Weapon.WeaponType.Bow)
+                return false;
+
+            string text = (attackSpeedOffset > 0 ? "+" : "") + attackSpeedOffset.ToString("P0");
+            Color color = attackSpeedOffset > 0 ? Global.LIGHT_GREEN : Global.LIGHT_RED;
+            __instance.GetRow(_rowIndex).SetInfo(LocalizationManager.Instance.GetLoc("ItemStat_AttackSpeed"), Global.SetTextColor(text, color));
+            __result = true;
+            return false;
         }
     }
 }
