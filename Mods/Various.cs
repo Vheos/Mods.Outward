@@ -351,6 +351,11 @@ namespace ModPack
         [HarmonyPatch(typeof(Character), "LoadCharSave"), HarmonyPrefix]
         static bool Character_LoadCharSave_Pre(Character __instance)
         {
+            #region quit
+            if (!__instance.IsEnemy())
+                return true;
+            #endregion
+
             __instance.HoursToHealthReset = _healEnemiesOnLoad ? 0 : DEFAULT_ENEMY_HEALTH_RESET_HOURS;
             return true;
         }
