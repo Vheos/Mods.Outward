@@ -35,13 +35,11 @@ namespace ModPack
         }
         private void TryDelayedInitialize()
         {
-            if (!Prefabs.IsInitialized
-            && ResourcesPrefabManager.Instance.Loaded
-            && SplitScreenManager.Instance != null)
-            {
-                Prefabs.Initialize();
-                InstantiateMods(_delayedModTypes);
-            }
+            if (Prefabs.IsInitialized || !IsGameInitialized)
+                return;
+
+            Prefabs.Initialize();
+            InstantiateMods(_delayedModTypes);
         }
         private void InstantiateMods(ICollection<Type> modTypes)
         {
@@ -64,6 +62,12 @@ namespace ModPack
             if (updatableMod.IsEnabled)
                 updatableMod.OnUpdate();
         }
+        private bool IsGameInitialized
+        => SplitScreenManager.Instance != null
+        && ResourcesPrefabManager.Instance.Loaded
+        && ItemManager.m_prefabLoaded
+        && ItemManager.m_recipeLoaded
+        && ItemManager.m_diseaseLoaded;
 
         // Mono
         private void Awake()
