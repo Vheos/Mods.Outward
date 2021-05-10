@@ -149,12 +149,14 @@ namespace ModPack
         static private ModSetting<bool> _addBackgrounds;
         static private ModSetting<Details> _details;
         static private ModSetting<bool> _displayRelativeAttackSpeed;
+        static private ModSetting<bool> _normalizeImpactDisplay;
         static private ModSetting<int> _durabilityBarSize, _freshnessBarSize, _barThickness;
         static private ModSetting<bool> _durabilityTiedToMax, _freshnessTiedToLifespan;
         override protected void Initialize()
         {
             _details = CreateSetting(nameof(_details), Details.None);
             _displayRelativeAttackSpeed = CreateSetting(nameof(_displayRelativeAttackSpeed), false);
+            _normalizeImpactDisplay = CreateSetting(nameof(_normalizeImpactDisplay), false);
             _barsToggle = CreateSetting(nameof(_barsToggle), false);
             _durabilityTiedToMax = CreateSetting(nameof(_durabilityTiedToMax), false);
             _durabilityBarSize = CreateSetting(nameof(_durabilityBarSize), (100 / BAR_MAX_SIZE.x).Round(), IntRange(0, 100));
@@ -174,6 +176,7 @@ namespace ModPack
             _displayRelativeAttackSpeed.Format("Display relative attack speed");
             _displayRelativeAttackSpeed.Description = "Attack speed will be displayedas +/- X%\n" +
                                                       "If the weapon has default attack speed (1), it won't be displayed";
+            _normalizeImpactDisplay.Format("Normalize impact damage display");
             _barsToggle.Format("Bars");
             _barsToggle.Description = "Change sizes of durability and freshness progress bars";
             Indent++;
@@ -204,7 +207,17 @@ namespace ModPack
         => SECTION_UI;
 
         // Utility
+        static private Sprite _impactIcon;
         static private RowsCache _rowsCache;
+        static private void TryCacheImpactIcon(CharacterUI characterUI)
+        {
+            if (_impactIcon == null
+            && characterUI.m_menus[(int)CharacterUI.MenuScreens.Equipment].TryAs(out EquipmentMenu equipmentMenu)
+            && equipmentMenu.transform.GetFirstComponentsInHierarchy<EquipmentOverviewPanel>().TryAssign(out var equipmentOverview)
+            && equipmentOverview.m_lblImpactAtk.TryAssign(out var impactDisplay)
+            && impactDisplay.m_imgIcon.TryAssign(out var impactImage))
+                _impactIcon = impactImage.sprite;
+        }
         static private void SetBackgrounds(bool state)
         {
             Item lifePotion = Prefabs.GetIngestibleByName("Life Potion");
@@ -445,19 +458,36 @@ namespace ModPack
         [HarmonyPatch(typeof(ItemDetailsDisplay), "RefreshDetail"), HarmonyPrefix]
         static bool ItemDetailsDisplay_RefreshDetail_Post(ItemDetailsDisplay __instance, ref bool __result, int _rowIndex, ItemDetailsDisplay.DisplayedInfos _infoType)
         {
-            if (!_displayRelativeAttackSpeed || _infoType != ItemDetailsDisplay.DisplayedInfos.AttackSpeed)
-                return true;
+            if (_infoType == ItemDetailsDisplay.DisplayedInfos.AttackSpeed
+            && _displayRelativeAttackSpeed)
+            {
+                float attackSpeedOffset = __instance.cachedWeapon.BaseAttackSpeed - 1f;
+                Weapon.WeaponType weaponType = __instance.cachedWeapon.Type;
+                if (attackSpeedOffset == 0 || weaponType == Weapon.WeaponType.Shield || weaponType == Weapon.WeaponType.Bow)
+                    return false;
 
-            float attackSpeedOffset = __instance.cachedWeapon.BaseAttackSpeed - 1f;
-            Weapon.WeaponType weaponType = __instance.cachedWeapon.Type;
-            if (attackSpeedOffset == 0 || weaponType == Weapon.WeaponType.Shield || weaponType == Weapon.WeaponType.Bow)
+                string text = (attackSpeedOffset > 0 ? "+" : "") + attackSpeedOffset.ToString("P0");
+                Color color = attackSpeedOffset > 0 ? Global.LIGHT_GREEN : Global.LIGHT_RED;
+                __instance.GetRow(_rowIndex).SetInfo(LocalizationManager.Instance.GetLoc("ItemStat_AttackSpeed"), Global.SetTextColor(text, color));
+                __result = true;
                 return false;
+            }
+            else if ((_infoType == ItemDetailsDisplay.DisplayedInfos.Impact || _infoType == ItemDetailsDisplay.DisplayedInfos.ImpactResistance)
+                 && _normalizeImpactDisplay)
+            {
+                float value = _infoType == ItemDetailsDisplay.DisplayedInfos.Impact
+                                         ? __instance.cachedWeapon.Impact
+                                         : __instance.cachedEquipment.ImpactResistance;
+                if (value <= 0)
+                    return false;
 
-            string text = (attackSpeedOffset > 0 ? "+" : "") + attackSpeedOffset.ToString("P0");
-            Color color = attackSpeedOffset > 0 ? Global.LIGHT_GREEN : Global.LIGHT_RED;
-            __instance.GetRow(_rowIndex).SetInfo(LocalizationManager.Instance.GetLoc("ItemStat_AttackSpeed"), Global.SetTextColor(text, color));
-            __result = true;
-            return false;
+                TryCacheImpactIcon(__instance.CharacterUI);
+                __instance.GetRow(_rowIndex).SetInfo("", value.Round(), _impactIcon);
+                __result = true;
+                return false;
+            }
+
+            return true;
         }
     }
 }
