@@ -45,6 +45,7 @@ namespace ModPack
         static private ModSetting<bool> _applyArmorTrainingToManaCost;
         static private ModSetting<bool> _loadArrowsFromInventory;
         static private ModSetting<Vector2> _remapBackpackCapacities;
+        static private ModSetting<int> _waterskinCapacity;
 
         static private ModSetting<bool> _markItemsWithLegacyUpgrade;
         static private ModSetting<bool> _allowDodgeAnimationCancelling;
@@ -63,6 +64,7 @@ namespace ModPack
             _applyArmorTrainingToManaCost = CreateSetting(nameof(_applyArmorTrainingToManaCost), false);
             _loadArrowsFromInventory = CreateSetting(nameof(_loadArrowsFromInventory), false);
             _remapBackpackCapacities = CreateSetting(nameof(_remapBackpackCapacities), new Vector2(PRIMITIVE_SATCHEL_CAPACITY, TRADER_BACKPACK));
+            _waterskinCapacity = CreateSetting(nameof(_waterskinCapacity), 5, IntRange(1, 18));
 
             AddEventOnConfigClosed(() =>
             {
@@ -108,6 +110,8 @@ namespace ModPack
             _remapBackpackCapacities.Description = "X   -   Primitive Satchel's capacity\n" +
                                                    "Y   -   Trader Backpack's capacity\n" +
                                                    "(all other backpacks will have their capacities scaled accordingly)";
+            _waterskinCapacity.Format("Waterskin capacity");
+            _waterskinCapacity.Description = "Have one big waterskin instead of a few small ones so you don't have to swap quickslots";
 
             _markItemsWithLegacyUpgrade.Format("[WIP] Mark items with legacy upgrades");
             _markItemsWithLegacyUpgrade.IsAdvanced = true;
@@ -126,6 +130,25 @@ namespace ModPack
         => "• Mods (small and big) that didn't get their own section yet :)";
         override protected string SectionOverride
         => SECTION_VARIOUS;
+
+        // Waterskin capacity
+        [HarmonyPatch(typeof(WaterContainer), "RefreshDisplay"), HarmonyPrefix]
+        static bool WaterContainer_RefreshDisplay_Pre(WaterContainer __instance)
+        {
+            __instance.m_stackable.m_maxStackAmount = _waterskinCapacity;
+            return true;
+        }
+
+        [HarmonyPatch(typeof(Item), "OnAwake"), HarmonyPostfix]
+        static void Item_Awake_Post(Item __instance)
+        {
+            #region quit
+            if (__instance.IsNot<WaterContainer>())
+                return;
+            #endregion
+
+            __instance.m_stackable.m_maxStackAmount = _waterskinCapacity;
+        }
 
         // Remap backpack capacities
         [HarmonyPatch(typeof(ItemContainer), "ContainerCapacity", MethodType.Getter), HarmonyPostfix]
