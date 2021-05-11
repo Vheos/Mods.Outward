@@ -85,8 +85,8 @@ namespace ModPack
         static private ModSetting<int> _restoreMissingDurability;
         static private ModSetting<bool> _autoLearnCrystalPowderRecipe;
         static private ModSetting<bool> _limitedManualCrafting;
-        static private ModSetting<int> _extraResultsMultiplier;
         static private ModSetting<CraftingExceptions> _limitedManulCraftingExceptions;
+        static private ModSetting<int> _extraResultsMultiplier;
         override protected void Initialize()
         {
             _preserveDurability = CreateSetting(nameof(_preserveDurability), false);
@@ -119,8 +119,8 @@ namespace ModPack
                 _limitedManulCraftingExceptions.Description = "If you use any of these items in manual crafting, you will be able to use all 4 ingredient slots\n" +
                                                               "This allows you craft items whose recipes can't be learned in advance";
                 _autoLearnCrystalPowderRecipe.Format("Auto-learn \"Crystal Powder\" recipe", _limitedManualCrafting);
-                _autoLearnCrystalPowderRecipe.Format("Normally, \"Crystal Powder\" recipe can only be learned via crafting\n" +
-                                                     "This will give you the recipe when you interact with the alchemy kit");
+                _autoLearnCrystalPowderRecipe.Description = "Normally, \"Crystal Powder\" recipe can only be learned via crafting\n" +
+                                                            "This will give you the recipe when you interact with the alchemy kit";
                 Indent--;
             }
             _extraResultsMultiplier.Format("Extra results multiplier");
@@ -128,6 +128,11 @@ namespace ModPack
                                                   "For example, Gaberry Tartine gives 3 (1+2) items, so the extra amount is 2\n" +
                                                   "at 0% extra amount, it will give 1 (1+0) item, and at 200% - 5 (1+4) items";
         }
+        override protected string Description
+        => "• Make crafted items' durability relative to ingredients\n" +
+           "• Require recipes for advanced crafting\n" +
+           "• Multiply amount of crafted items\n" +
+           "• Randomize starting durability of spawned items";
         override protected string SectionOverride
         => SECTION_SURVIVAL;
 
@@ -154,11 +159,15 @@ namespace ModPack
         }
         static private List<Item> GetDestructibleResults(CraftingMenu craftingMenu)
         {
-            if (craftingMenu.m_lastRecipeIndex < 0)
+            // Choose recipe index
+            int selectorIndex = craftingMenu.m_lastRecipeIndex;
+            int recipeIndex = selectorIndex >= 0 ? craftingMenu.m_complexeRecipes[selectorIndex].Key : craftingMenu.m_lastFreeRecipeIndex;
+            if (recipeIndex < 0)
                 return null;
 
+            // Execute
             List<Item> desctructibleResults = new List<Item>();
-            Recipe recipe = craftingMenu.m_allRecipes[craftingMenu.m_complexeRecipes[craftingMenu.m_lastRecipeIndex].Key];
+            Recipe recipe = craftingMenu.m_allRecipes[recipeIndex];
             foreach (var result in recipe.Results)
                 if (result.RefItem.TryAssign(out var item)
                 && item.MaxDurability > 0)
@@ -206,7 +215,7 @@ namespace ModPack
         static void CraftingMenu_CraftingDone_Post(CraftingMenu __instance, ref List<Item> __state)
         {
             #region quit
-            if (!_preserveDurability || __state == null)
+            if (__state == null)
                 return;
             #endregion
 
