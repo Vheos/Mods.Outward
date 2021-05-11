@@ -56,7 +56,7 @@ namespace ModPack
         #endregion
 
         // Setting
-        static private ModSetting<bool> _lossModifiers;
+        static private ModSetting<bool> _lossMultipliers;
         static private ModSetting<int> _lossWeapons, _lossArmors, _lossLights, _lossIngestibles;
         static private ModSetting<bool> _campingRepairToggle;
         static private ModSetting<int> _repairDurabilityPerHour, _repairDurabilityPercentPerHour;
@@ -68,9 +68,10 @@ namespace ModPack
         static private ModSetting<bool> _linearEffectiveness;
         static private ModSetting<int> _minNonBrokenEffectiveness, _brokenEffectiveness;
         static private ModSetting<bool> _smithRepairsOnlyEquipped;
+        static private ModSetting<int> _minStartingDurability;
         override protected void Initialize()
         {
-            _lossModifiers = CreateSetting(nameof(_lossModifiers), false);
+            _lossMultipliers = CreateSetting(nameof(_lossMultipliers), false);
             _lossWeapons = CreateSetting(nameof(_lossWeapons), 100, IntRange(0, 200));
             _lossArmors = CreateSetting(nameof(_lossArmors), 100, IntRange(0, 200));
             _lossLights = CreateSetting(nameof(_lossLights), 100, IntRange(0, 200));
@@ -89,16 +90,19 @@ namespace ModPack
             _minNonBrokenEffectiveness = CreateSetting(nameof(_minNonBrokenEffectiveness), 50, IntRange(0, 100));
             _brokenEffectiveness = CreateSetting(nameof(_brokenEffectiveness), 15, IntRange(0, 100));
             _smithRepairsOnlyEquipped = CreateSetting(nameof(_smithRepairsOnlyEquipped), false);
+            _minStartingDurability = CreateSetting(nameof(_minStartingDurability), 100, IntRange(0, 100));
         }
         override protected void SetFormatting()
         {
-            _lossModifiers.Format("Durability loss modifiers");
+            _lossMultipliers.Format("Durability loss multipliers");
             Indent++;
             {
-                _lossWeapons.Format("Weapons", _lossModifiers);
-                _lossArmors.Format("Armors", _lossModifiers);
-                _lossLights.Format("Lights", _lossModifiers);
-                _lossIngestibles.Format("Food", _lossModifiers);
+                _lossWeapons.Format("Weapons", _lossMultipliers);
+                _lossWeapons.Description = "Inclueds shields";
+                _lossArmors.Format("Armors", _lossMultipliers);
+                _lossLights.Format("Lights", _lossMultipliers);
+                _lossLights.Description = "Torches and lanterns";
+                _lossIngestibles.Format("Food", _lossMultipliers);
                 Indent--;
             }
             _campingRepairToggle.Format("Camping repair");
@@ -117,13 +121,19 @@ namespace ModPack
                 Indent--;
             }
 
-            _effectivenessAffectsAllStats.Format("Effectiveness affects all stats");
+            _effectivenessAffectsAllStats.Format("Durability affects all stats");
+            _effectivenessAffectsAllStats.Description = "Normally, durability affects only damages, resistances (impact only for shields) and protection\n" +
+                                                        "This will make all* equipment stats decrease with durability\n" +
+                                                        "( * currently all except damage bonuses)";
             Indent++;
             {
                 _effectivenessAffectsPenalties.Format("affect penalties");
+                _effectivenessAffectsPenalties.Format("Stat penalties (like negative movement speed on heavy armors) will also decrease with durability");
                 Indent--;
             }
-            _linearEffectiveness.Format("Linear effectiveness");
+            _linearEffectiveness.Format("Smooth durability effects");
+            _linearEffectiveness.Description = "Normally, equipment stats change only when durability reaches certain thresholds (50%, 25% and 0%)\n" +
+                                               "This will update the stats smoothly, without any thersholds";
             Indent++;
             {
                 _minNonBrokenEffectiveness.Format("when nearing zero durability", _linearEffectiveness);
@@ -132,11 +142,15 @@ namespace ModPack
             }
             _smithRepairsOnlyEquipped.Format("Smith repairs only equipped items");
             _smithRepairsOnlyEquipped.Description = "Blacksmith will not repair items in your pouch and bag";
+            _minStartingDurability.Format("Minimum starting durability");
+            _minStartingDurability.Description = "When items are spawned, their durability is randomized between this value and 100%\n" +
+                                                 "Only affects item containers, enemy corpses and merchant stock";
         }
         override protected string Description
-        => "• Restrict camping spots to chosen places\n" +
-           "• Change butterfly zones spawn chance and radius\n" +
-           "• Customize repairing mechanic";
+        => "• Change how quickly durability decreases per item type\n" +
+           "• Tweak camping repair mechanics\n" +
+           "• Change how durability affects equipment stats\n" +
+           "• Randomize starting durability of spawned items";
         override protected string SectionOverride
         => SECTION_SURVIVAL;
 
@@ -168,7 +182,7 @@ namespace ModPack
         static bool Item_ReduceDurability_Pre(ref Item __instance, ref float _durabilityLost)
         {
             #region quit
-            if (!_lossModifiers)
+            if (!_lossMultipliers)
                 return true;
             #endregion
 
@@ -259,6 +273,32 @@ namespace ModPack
                 __result = _brokenEffectiveness / 100f;
 
             return false;
+        }
+
+        [HarmonyPatch(typeof(ItemDropper), "GenerateItem"), HarmonyPrefix]
+        static bool ItemDropper_GenerateItem_Pre(ItemDropper __instance, ref Item __state, ItemContainer _container, BasicItemDrop _itemDrop, int _spawnAmount)
+        {
+            #region quit
+            if (_minStartingDurability >= 100
+            || !_itemDrop.DroppedItem.TryAssign(out var item) || !Prefabs.ItemsByID[item.ItemIDString].TryAssign(out var prefab)
+            || prefab.Stats == null || prefab.MaxDurability <= 0)
+                return true;
+            #endregion
+
+            prefab.Stats.StartingDurability = (prefab.MaxDurability * UnityEngine.Random.Range(_minStartingDurability / 100f, 1f)).Round();
+            __state = prefab;
+            return true;
+        }
+
+        [HarmonyPatch(typeof(ItemDropper), "GenerateItem"), HarmonyPostfix]
+        static void ItemDropper_GenerateItem_Post(ItemDropper __instance, ref Item __state)
+        {
+            #region quit
+            if (__state == null)
+                return;
+            #endregion
+
+            __state.Stats.StartingDurability = -1;
         }
 
         // Affect all stats
