@@ -275,7 +275,7 @@ namespace ModPack
         }
 
         [HarmonyPatch(typeof(Character), "SetZoomMode"), HarmonyPostfix]
-        static void Character_SetZoomMode_Post(ref Character __instance, ref bool _zoomed)
+        static void Character_SetZoomMode_Post(Character __instance, ref bool _zoomed)
         {
             Players.Data player = Players.GetLocal(__instance);
             #region quit

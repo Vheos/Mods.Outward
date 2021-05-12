@@ -152,7 +152,7 @@ namespace ModPack
 
         // Remap backpack capacities
         [HarmonyPatch(typeof(ItemContainer), "ContainerCapacity", MethodType.Getter), HarmonyPostfix]
-        static void ItemContainer_ContainerCapacity_Post(ref ItemContainer __instance, ref float __result)
+        static void ItemContainer_ContainerCapacity_Post(ItemContainer __instance, ref float __result)
         {
             if (__instance.RefBag == null || __instance.m_baseContainerCapacity <= 0)
                 return;
@@ -217,7 +217,7 @@ namespace ModPack
         }
 
         [HarmonyPatch(typeof(CharacterInventory), "GetAmmunitionCount"), HarmonyPostfix]
-        static void CharacterInventory_GetAmmunitionCount_Post(ref CharacterInventory __instance, ref int __result)
+        static void CharacterInventory_GetAmmunitionCount_Post(CharacterInventory __instance, ref int __result)
         {
             #region quit
             if (!_loadArrowsFromInventory || __result == 0)
@@ -257,7 +257,7 @@ namespace ModPack
         }
 
         [HarmonyPatch(typeof(Stat), "GetModifier"), HarmonyPrefix]
-        static bool Stat_GetModifier_Pre(ref Stat __instance, ref float __result, ref IList<Tag> _tags, ref int baseModifier)
+        static bool Stat_GetModifier_Pre(Stat __instance, ref float __result, ref IList<Tag> _tags, ref int baseModifier)
         {
             #region quit
             if (!_multiplicativeStacking)
@@ -281,15 +281,15 @@ namespace ModPack
         }
 
         [HarmonyPatch(typeof(CharacterEquipment), "GetTotalMovementModifier"), HarmonyPrefix]
-        static bool CharacterEquipment_GetTotalMovementModifier_Pre(ref CharacterEquipment __instance, ref float __result)
+        static bool CharacterEquipment_GetTotalMovementModifier_Pre(CharacterEquipment __instance, ref float __result)
         => TryApplyMultiplicativeStacking(__instance, ref __result, slot => slot.EquippedItem.MovementPenalty, true, true);
 
         [HarmonyPatch(typeof(CharacterEquipment), "GetTotalStaminaUseModifier"), HarmonyPrefix]
-        static bool CharacterEquipment_GetTotalStaminaUseModifier_Pre(ref CharacterEquipment __instance, ref float __result)
+        static bool CharacterEquipment_GetTotalStaminaUseModifier_Pre(CharacterEquipment __instance, ref float __result)
         => TryApplyMultiplicativeStacking(__instance, ref __result, slot => slot.EquippedItem.StaminaUsePenalty, false, true);
 
         [HarmonyPatch(typeof(CharacterEquipment), "GetTotalManaUseModifier"), HarmonyPrefix]
-        static bool CharacterEquipment_GetTotalManaUseModifier_Pre(ref CharacterEquipment __instance, ref float __result)
+        static bool CharacterEquipment_GetTotalManaUseModifier_Pre(CharacterEquipment __instance, ref float __result)
         => TryApplyMultiplicativeStacking(__instance, ref __result, slot => slot.EquippedItem.ManaUseModifier, false, _applyArmorTrainingToManaCost);
 
         // Skip startup video
@@ -412,7 +412,7 @@ namespace ModPack
 
         // Target other players
         [HarmonyPatch(typeof(TargetingSystem), "IsTargetable", new[] { typeof(Character) }), HarmonyPrefix]
-        static bool TargetingSystem_IsTargetable_Pre(ref TargetingSystem __instance, ref bool __result, ref Character _char)
+        static bool TargetingSystem_IsTargetable_Pre(TargetingSystem __instance, ref bool __result, ref Character _char)
         {
             #region quit
             if (!_allowTargetingPlayers)
@@ -466,7 +466,7 @@ Indent++;
 }
 
 [HarmonyPatch(typeof(CharacterInventory), "ProcessStart"), HarmonyPostfix]
-static void CharacterInventory_ProcessStart_Post(ref CharacterInventory __instance, ref Character ___m_character)
+static void CharacterInventory_ProcessStart_Post(CharacterInventory __instance, ref Character ___m_character)
 {
     #region quit
     if (!_pouchToggle)
@@ -484,7 +484,7 @@ static void CharacterInventory_ProcessStart_Post(ref CharacterInventory __instan
 
 /* Extra Controller Quickslots
 [HarmonyPatch(typeof(QuickSlotPanel), "InitializeQuickSlotDisplays"), HarmonyPostfix]
-static void QuickSlotPanel_InitializeQuickSlotDisplays_Post(ref QuickSlotPanel __instance, ref QuickSlotDisplay[] ___m_quickSlotDisplays)
+static void QuickSlotPanel_InitializeQuickSlotDisplays_Post(QuickSlotPanel __instance, ref QuickSlotDisplay[] ___m_quickSlotDisplays)
 {
     #region quit
     if (!_extraControllerQuickslots)

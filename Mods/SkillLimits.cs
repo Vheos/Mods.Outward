@@ -16,13 +16,13 @@ namespace ModPack
         #region const
         private const int UNLEARN_ACTION_ID = -1;
         private const string UNLEARN_ACTION_TEXT = "Forget";
-        static private Dictionary<SkillTypes, string> NOTIFICATION_BY_SKILL_TYPE = new Dictionary<SkillTypes, string>
+        private static readonly Dictionary<SkillTypes, string> NOTIFICATION_BY_SKILL_TYPE = new Dictionary<SkillTypes, string>
         {
             [SkillTypes.Passive] = "You can't learn any more passive skills!",
             [SkillTypes.Active] = "You can't learn any more active skills!",
             [SkillTypes.Any] = "You can't learn any more skills!",
         };
-        static private int[] SIDE_SKILL_IDS =
+        static private readonly int[] SIDE_SKILL_IDS =
         {
             "Puncture".SkillID(),
             "Pommel Counter".SkillID(),
@@ -208,7 +208,7 @@ namespace ModPack
 
         // Hooks
         [HarmonyPatch(typeof(ItemDisplayOptionPanel), "GetActiveActions"), HarmonyPostfix]
-        static void ItemDisplayOptionPanel_GetActiveActions_Post(ref ItemDisplayOptionPanel __instance, ref List<int> __result)
+        static void ItemDisplayOptionPanel_GetActiveActions_Post(ItemDisplayOptionPanel __instance, ref List<int> __result)
         {
             #region quit
             if (!__instance.m_pendingItem.TryAs(out Skill skill) || !IsLimited(__instance.LocalCharacter, skill))
@@ -219,7 +219,7 @@ namespace ModPack
         }
 
         [HarmonyPatch(typeof(ItemDisplayOptionPanel), "GetActionText"), HarmonyPrefix]
-        static bool ItemDisplayOptionPanel_GetActionText_Pre(ref ItemDisplayOptionPanel __instance, ref string __result, ref int _actionID)
+        static bool ItemDisplayOptionPanel_GetActionText_Pre(ItemDisplayOptionPanel __instance, ref string __result, ref int _actionID)
         {
             #region quit
             if (_actionID != UNLEARN_ACTION_ID)
@@ -231,7 +231,7 @@ namespace ModPack
         }
 
         [HarmonyPatch(typeof(ItemDisplayOptionPanel), "ActionHasBeenPressed"), HarmonyPrefix]
-        static bool ItemDisplayOptionPanel_ActionHasBeenPressed_Pre(ref ItemDisplayOptionPanel __instance, ref int _actionID)
+        static bool ItemDisplayOptionPanel_ActionHasBeenPressed_Pre(ItemDisplayOptionPanel __instance, ref int _actionID)
         {
             #region quit
             if (_actionID != UNLEARN_ACTION_ID)
@@ -282,7 +282,7 @@ namespace ModPack
         => InitializeCacheOfAllSkills(__instance.m_trainerTree);
 
         [HarmonyPatch(typeof(TrainerPanel), "OnSkillSlotClicked"), HarmonyPrefix]
-        static bool TrainerPanel_OnSkillSlotClicked_Pre(ref TrainerPanel __instance, ref SkillTreeSlotDisplay _slotDisplay)
+        static bool TrainerPanel_OnSkillSlotClicked_Pre(TrainerPanel __instance, ref SkillTreeSlotDisplay _slotDisplay)
         {
             Skill skill = _slotDisplay.FocusedSkillSlot.Skill;
             if (IsLimited(__instance.LocalCharacter, skill))
@@ -298,7 +298,7 @@ namespace ModPack
         }
 
         [HarmonyPatch(typeof(Condition_KnowSkill), "OnCheck"), HarmonyPostfix]
-        static void Condition_KnowSkill_OnCheck_Post(ref Condition_KnowSkill __instance, ref bool __result)
+        static void Condition_KnowSkill_OnCheck_Post(Condition_KnowSkill __instance, ref bool __result)
         {
             Character character = __instance.character.value;
             Skill skill = __instance.skill.value;
