@@ -10,7 +10,7 @@
       
       <Code Language="CSharp">
         <![CDATA[[HarmonyPatch(typeof($CLASS$), "$METHOD$"), HarmonyPrefix]
-static bool $CLASS$_$METHOD$_Pre(ref $CLASS$ __instance, ref $TYPE$[] __state, ref $TYPE$ ___$VAR$)
+static bool $CLASS$_$METHOD$_Pre($CLASS$ __instance, ref $TYPE$[] __state, ref $TYPE$ ___$VAR$)
 {
     #region cache
     __state = new $TYPE$[1];
@@ -24,7 +24,7 @@ static bool $CLASS$_$METHOD$_Pre(ref $CLASS$ __instance, ref $TYPE$[] __state, r
 }
         
 [HarmonyPatch(typeof($CLASS$), "$METHOD$"), HarmonyPostfix]
-static void $CLASS$_$METHOD$_Post(ref $CLASS$ __instance, ref $TYPE$[] __state, ref $TYPE$ ___$VAR$)
+static void $CLASS$_$METHOD$_Post($CLASS$ __instance, ref $TYPE$[] __state, ref $TYPE$ ___$VAR$)
 {
     #region restore
     ___$VAR$ = __state[0];

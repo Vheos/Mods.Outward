@@ -83,7 +83,7 @@ namespace ModPack
 
         // Hooks
         [HarmonyPatch(typeof(Weapon), "ElligibleFaction", new[] { typeof(Character) }), HarmonyPostfix]
-        static void Weapon_ElligibleFaction_Post(ref Weapon __instance, ref bool __result, Character _character)
+        static void Weapon_ElligibleFaction_Post(Weapon __instance, ref bool __result, Character _character)
         {
             #region quit
             if (!_playersFriendlyFireToggle || _character == null)
@@ -94,7 +94,7 @@ namespace ModPack
         }
 
         [HarmonyPatch(typeof(MeleeHitDetector), "ElligibleFaction", new[] { typeof(Character) }), HarmonyPostfix]
-        static void MeleeHitDetector_ElligibleFaction_Post(ref MeleeHitDetector __instance, ref bool __result, Character _character)
+        static void MeleeHitDetector_ElligibleFaction_Post(MeleeHitDetector __instance, ref bool __result, Character _character)
         {
             #region quit
             if (!_playersFriendlyFireToggle || _character == null)
@@ -105,12 +105,12 @@ namespace ModPack
         }
 
         [HarmonyPatch(typeof(Character), "OnReceiveHitCombatEngaged"), HarmonyPrefix]
-        static bool Character_OnReceiveHitCombatEngaged_Pre(ref Character __instance, ref Character _dealerChar)
+        static bool Character_OnReceiveHitCombatEngaged_Pre(Character __instance, ref Character _dealerChar)
         => !_playersFriendlyFireToggle || _dealerChar == null || !_dealerChar.IsPlayer();
 
 
         [HarmonyPatch(typeof(Character), "VitalityHit"), HarmonyPrefix]
-        static bool Character_VitalityHit_Pre(ref Character __instance, Character _dealerChar, ref float _damage)
+        static bool Character_VitalityHit_Pre(Character __instance, Character _dealerChar, ref float _damage)
         {
             if (_dealerChar != null && _dealerChar.IsEnemy()
             || _dealerChar == null && __instance.IsPlayer())
@@ -132,7 +132,7 @@ namespace ModPack
         }
 
         [HarmonyPatch(typeof(Character), "StabilityHit"), HarmonyPrefix]
-        static bool Character_StabilityHit_Pre(ref Character __instance, Character _dealerChar, ref float _knockValue)
+        static bool Character_StabilityHit_Pre(Character __instance, Character _dealerChar, ref float _knockValue)
         {
             if (_dealerChar != null && _dealerChar.IsEnemy()
             || _dealerChar == null && __instance.IsPlayer())

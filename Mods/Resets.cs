@@ -230,7 +230,7 @@ namespace ModPack
 
         // Merchants
         [HarmonyPatch(typeof(MerchantPouch), "RefreshInventory"), HarmonyPrefix]
-        static bool MerchantPouch_RefreshInventory_Pre(ref MerchantPouch __instance, ref double ___m_nextRefreshTime)
+        static bool MerchantPouch_RefreshInventory_Pre(MerchantPouch __instance, ref double ___m_nextRefreshTime)
         {
             #region quit
             if (!_merchantsToggle)

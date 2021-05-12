@@ -13,7 +13,7 @@ namespace ModPack
     {
         #region const
         private const string CANT_CAMP_NOTIFICATION = "You can't camp here!";
-        static private AreaManager.AreaEnum[] OPEN_REGIONS = new[]
+        static private readonly AreaManager.AreaEnum[] OPEN_REGIONS = new[]
         {
             AreaManager.AreaEnum.CierzoOutside,
             AreaManager.AreaEnum.Emercar,
@@ -22,7 +22,7 @@ namespace ModPack
             AreaManager.AreaEnum.AntiqueField,
             AreaManager.AreaEnum.Caldera,
         };
-        static private AreaManager.AreaEnum[] CITIES = new[]
+        static private readonly AreaManager.AreaEnum[] CITIES = new[]
         {
             AreaManager.AreaEnum.CierzoVillage,
             AreaManager.AreaEnum.Berg,
@@ -99,7 +99,7 @@ namespace ModPack
         static private bool IsCampingAllowed(Character character, Vector3 position)
         {
             AreaManager.AreaEnum currentArea = (AreaManager.AreaEnum)AreaManager.Instance.CurrentArea.ID;
-            bool result = false;
+            bool result;
             if (currentArea.IsContainedIn(CITIES))
                 result = _campingSpots.Value.HasFlag(CampingSpots.Cities);
             else if (currentArea.IsContainedIn(OPEN_REGIONS))
@@ -157,11 +157,11 @@ namespace ModPack
         }
 
         [HarmonyPatch(typeof(BasicDeployable), "TryDeploying", new[] { typeof(Character) }), HarmonyPrefix]
-        static bool BasicDeployable_TryDeploying_Pre(ref BasicDeployable __instance, Character _usingCharacter)
+        static bool BasicDeployable_TryDeploying_Pre(BasicDeployable __instance, Character _usingCharacter)
         => !__instance.Item.IsSleepKit || IsCampingAllowed(_usingCharacter, __instance.transform.position);
 
         [HarmonyPatch(typeof(Sleepable), "OnReceiveSleepRequestResult"), HarmonyPrefix]
-        static bool Sleepable_OnReceiveSleepRequestResult_Pre(ref Sleepable __instance, Character _character)
+        static bool Sleepable_OnReceiveSleepRequestResult_Pre(Sleepable __instance, Character _character)
         => __instance.IsInnsBed || IsCampingAllowed(_character, __instance.transform.position);
 
         [HarmonyPatch(typeof(OrientOnTerrain), "IsValid", MethodType.Getter), HarmonyPrefix]

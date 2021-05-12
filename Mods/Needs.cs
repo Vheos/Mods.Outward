@@ -38,7 +38,7 @@ namespace ModPack
             ["Food Waste".ItemID()] = (Character.SpellCastType.DrinkWater, Character.SpellCastType.Eat),
             ["Warm Boozu’s Milk".ItemID()] = (Character.SpellCastType.Potion, Character.SpellCastType.DrinkWater),
         };
-        static private int[] OTHER_DRINK_IDS = new[]
+        static private readonly int[] OTHER_DRINK_IDS = new[]
         {
             "Able Tea".ItemID(),
             "Bitter Spicy Tea".ItemID(),
@@ -51,12 +51,12 @@ namespace ModPack
             "Warm Boozu’s Milk".ItemID(),
             "Gaberry Wine".ItemID(),
         };
-        static private int[] MILK_IDS = new[]
+        static private readonly int[] MILK_IDS = new[]
         {
             "Boozu’s Milk".ItemID(),
             "Warm Boozu’s Milk".ItemID(),
         };
-        static private string[] DOT_STATUS_EFFECTS = new[]
+        static private readonly string[] DOT_STATUS_EFFECTS = new[]
         {
             "Poisoned",
             "Poisoned +",
@@ -516,7 +516,7 @@ namespace ModPack
 
         // Prevent use
         [HarmonyPatch(typeof(Item), "TryUse"), HarmonyPrefix]
-        static bool Item_TryUse_Pre(ref Item __instance, ref bool __result, Character _character)
+        static bool Item_TryUse_Pre(Item __instance, ref bool __result, Character _character)
         {
             if (!_character.IsPlayer() || !__instance.IsIngestible() || CanIngest(_character, __instance))
                 return true;

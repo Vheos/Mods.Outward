@@ -316,7 +316,7 @@ namespace ModPack
         }
 
         [HarmonyPatch(typeof(InteractionActivator), "OnLateInit"), HarmonyPostfix]
-        static void InteractionActivator_OnLateInit_Post(ref InteractionActivator __instance, ref IInteraction ___m_defaultBasicInteraction, ref IInteraction ___m_defaultHoldInteraction)
+        static void InteractionActivator_OnLateInit_Post(InteractionActivator __instance, ref IInteraction ___m_defaultBasicInteraction, ref IInteraction ___m_defaultHoldInteraction)
         {
             SwapBasicAndHoldInteractions(__instance, ref ___m_defaultBasicInteraction, ref ___m_defaultHoldInteraction);
             AddCustomHoldInteractions(__instance, ref ___m_defaultHoldInteraction);
@@ -352,7 +352,7 @@ _overrideIsInCombat = CreateSetting(nameof(_overrideIsInCombat), false);
 _overrideIsInCombat.Format("Override \"InCombat\"");
 
 [HarmonyPatch(typeof(Character), "InCombat", MethodType.Getter), HarmonyPrefix]
-static bool Character_InCombat_Pre(ref Character __instance, ref bool __result)
+static bool Character_InCombat_Pre(Character __instance, ref bool __result)
 {
     __result = _overrideIsInCombat;
     return false;

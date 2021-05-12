@@ -167,7 +167,7 @@ namespace ModPack
         }
 
         [HarmonyPatch(typeof(Weapon), "GetAttackSpeed"), HarmonyPostfix]
-        static void Weapon_GetAttackSpeed_Post(ref Weapon __instance, ref float __result)
+        static void Weapon_GetAttackSpeed_Post(Weapon __instance, ref float __result)
         {
             Character owner = __instance.OwnerCharacter;
             if (_playersToggle && owner.IsPlayer())

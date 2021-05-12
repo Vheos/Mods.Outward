@@ -98,7 +98,7 @@ namespace ModPack
         }
 
         [HarmonyPatch(typeof(TargetingSystem), "TrueRange", MethodType.Getter), HarmonyPrefix]
-        static bool TargetingSystem_TrueRange_Pre(ref TargetingSystem __instance, ref float __result)
+        static bool TargetingSystem_TrueRange_Pre(TargetingSystem __instance, ref float __result)
         {
             Character character = __instance.m_character;
             if (HasRangedEquipment(character))
@@ -125,7 +125,7 @@ namespace ModPack
         }
 
         [HarmonyPatch(typeof(Character), "SetLastUsedSkill"), HarmonyPostfix]
-        static void Character_SetLastUsedSkill_Post(ref Character __instance, ref Skill _skill)
+        static void Character_SetLastUsedSkill_Post(Character __instance, ref Skill _skill)
         {
             #region quit
             if (!_autoTargetActions.Value.HasFlag(AutoTargetActions.CombatSkill) || __instance.TargetingSystem.Locked || _skill.IsNot<AttackSkill>()
@@ -137,7 +137,7 @@ namespace ModPack
         }
 
         [HarmonyPatch(typeof(Character), "BlockInput"), HarmonyPostfix]
-        static void Character_BlockInput_Post(ref Character __instance, ref bool _active)
+        static void Character_BlockInput_Post(Character __instance, ref bool _active)
         {
             #region quit
             if (!_autoTargetActions.Value.HasFlag(AutoTargetActions.Block) || __instance.TargetingSystem.Locked || !_active || HasBow(__instance)

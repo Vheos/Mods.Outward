@@ -268,14 +268,14 @@ namespace ModPack
         => price = isSelling ? _pricesGold.Value.y : _pricesGold.Value.x;
 
         [HarmonyPatch(typeof(Item), "GetBuyValue"), HarmonyPrefix]
-        static bool Item_GetBuyValue_Pre(ref Item __instance, ref int __result, ref Character _player, ref Merchant _merchant)
+        static bool Item_GetBuyValue_Pre(Item __instance, ref int __result, ref Character _player, ref Merchant _merchant)
         {
             __result = GetFinalModifiedPrice(__instance, _player, _merchant, false);
             return false;
         }
 
         [HarmonyPatch(typeof(Item), "GetSellValue"), HarmonyPrefix]
-        static bool Item_GetSellValue_Pre(ref Item __instance, ref int __result, ref Character _player, ref Merchant _merchant)
+        static bool Item_GetSellValue_Pre(Item __instance, ref int __result, ref Character _player, ref Merchant _merchant)
         {
             __result = GetFinalModifiedPrice(__instance, _player, _merchant, true);
             return false;
@@ -283,7 +283,7 @@ namespace ModPack
 
         // Skill prices
         [HarmonyPatch(typeof(TrainerPanel), "OnSkillSlotSelected"), HarmonyPrefix]
-        static bool TrainerPanel_OnSkillSlotSelected_Pre(ref TrainerPanel __instance, SkillTreeSlotDisplay _display)
+        static bool TrainerPanel_OnSkillSlotSelected_Pre(TrainerPanel __instance, SkillTreeSlotDisplay _display)
         {
             #region quit
             if (!_skillCostsToggle)

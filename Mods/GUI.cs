@@ -606,7 +606,7 @@ namespace ModPack
 
         // Sort by weight    
         [HarmonyPatch(typeof(ItemListDisplay), "ByWeight"), HarmonyPrefix]
-        static bool ItemListDisplay_ByWeight_Pre(ref ItemListDisplay __instance, ref int __result, ItemDisplay _item1, ItemDisplay _item2)
+        static bool ItemListDisplay_ByWeight_Pre(ItemListDisplay __instance, ref int __result, ItemDisplay _item1, ItemDisplay _item2)
         {
             float weight1 = _item1.TryAs(out ItemGroupDisplay group1) ? group1.TotalWeight : _item1.m_refItem.Weight;
             float weight2 = _item2.TryAs(out ItemGroupDisplay group2) ? group2.TotalWeight : _item2.m_refItem.Weight;
@@ -675,7 +675,7 @@ namespace ModPack
 
         // Status effect duration
         [HarmonyPatch(typeof(StatusEffectPanel), "GetStatusIcon"), HarmonyPostfix]
-        static void StatusEffectPanel_GetStatusIcon_Post(ref StatusEffectPanel __instance, ref StatusEffectIcon __result)
+        static void StatusEffectPanel_GetStatusIcon_Post(StatusEffectPanel __instance, ref StatusEffectIcon __result)
         {
             PerPlayerSettings settings = _perPlayerSettings[Players.GetLocal(__instance.LocalCharacter).ID];
             #region quit
