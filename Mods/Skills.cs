@@ -173,8 +173,67 @@ namespace ModPack
             }
         }
         #endregion
+        #region enum
+        [Flags]
+        private enum VanillaInput
+        {
+            KaziteSpellblade = 1 << 1,
+            CabalHermit = 1 << 2,
+            WildHunter = 1 << 3,
+            RuneSage = 1 << 4,
+            WarriorMonk = 1 << 5,
+            Philosopher = 1 << 6,
+            RogueEngineer = 1 << 7,
+            Mercenary = 1 << 8,
+            BasicWeaponSkills = 1 << 9,
+            Boons = 1 << 10,
+        }
+        [Flags]
+        private enum TheSoroboreansInput
+        {
+            TheSpeedster = 1 << 1,
+            HexMage = 1 << 2,
+            Hexes = 1 << 3,
+        }
+        [Flags]
+        private enum TheThreeBrothersInput
+        {
+            PrimalRitualist = 1 << 1,
+            AdvancedWeaponSkills = 1 << 2,
+        }
+        [Flags]
+        private enum VanillaOutput
+        {
+            KaziteSpellblade = 1 << 1,
+            CabalHermit = 1 << 2,
+            WildHunter = 1 << 3,
+            RuneSage = 1 << 4,
+            WarriorMonk = 1 << 5,
+            Philosopher = 1 << 6,
+            RogueEngineer = 1 << 7,
+            Mercenary = 1 << 8,
+        }
+        [Flags]
+        private enum TheSoroboreansOutput
+        {
+            TheSpeedster = 1 << 1,
+            HexMage = 1 << 2,
+        }
+        [Flags]
+        private enum TheThreeBrothersOutput
+        {
+            PrimalRitualist = 1 << 1,
+        }
+        #endregion
 
         // Settings
+        static private ModSetting<bool> _randomizerToggle;
+        static private ModSetting<VanillaInput> _vanillaInput;
+        static private ModSetting<TheSoroboreansInput> _theSoroboreansInput;
+        static private ModSetting<TheThreeBrothersInput> _theThreeBrothersInput;
+        static private ModSetting<VanillaOutput> _vanillaOutput;
+        static private ModSetting<TheSoroboreansOutput> _theSoroboreansOutput;
+        static private ModSetting<TheThreeBrothersOutput> _theThreeBrothersOutput;
         static private ModSetting<bool> _daggerToggle, _bowToggle, _runesToggle;
         static private SkillData _daggerSlash, _backstab, _opportunistStab, _serpentsParry;
         static private SkillData _evasionShot, _sniperShot, _piercingShot;
@@ -182,7 +241,22 @@ namespace ModPack
         static private ModSetting<int> _runeSoundEffectVolume, _runicLanternIntensity;
         override protected void Initialize()
         {
-            _daggerToggle = CreateSetting(nameof(_daggerToggle), false);
+            _randomizerToggle = CreateSetting(nameof(_randomizerToggle), false);
+
+            _vanillaInput = CreateSetting(nameof(_vanillaInput), (VanillaInput)~0);
+            _vanillaOutput = CreateSetting(nameof(_vanillaOutput), (VanillaOutput)~0);
+            if (HasDLC(OTWStoreAPI.DLCs.Soroboreans))
+            {
+                _theSoroboreansInput = CreateSetting(nameof(_theSoroboreansInput), (TheSoroboreansInput)~0);
+                _theSoroboreansOutput = CreateSetting(nameof(_theSoroboreansOutput), (TheSoroboreansOutput)~0);
+            }
+            if (HasDLC(OTWStoreAPI.DLCs.DLC2))
+            {
+                _theThreeBrothersInput = CreateSetting(nameof(_theThreeBrothersInput), (TheThreeBrothersInput)~0);
+                _theThreeBrothersOutput = CreateSetting(nameof(_theThreeBrothersOutput), (TheThreeBrothersOutput)~0);
+            }
+
+                _daggerToggle = CreateSetting(nameof(_daggerToggle), false);
             _daggerSlash = new SkillData(this, nameof(_daggerSlash), "Dagger Slash", DEFAULT_VALUES_DAGGER_SLASH);
             _backstab = new SkillData(this, nameof(_backstab), "Backstab", DEFAULT_VALUES_BACKSTAB);
             _opportunistStab = new SkillData(this, nameof(_opportunistStab), "Opportunist Stab", DEFAULT_VALUES_OPPORTUNIST_STAB);
@@ -215,6 +289,22 @@ namespace ModPack
         }
         override protected void SetFormatting()
         {
+            _randomizerToggle.Format("Randomizer");
+            Indent++;
+            {
+                _vanillaInput.Format("Input", _randomizerToggle);
+                if (_theSoroboreansInput != null)
+                    _theSoroboreansInput.Format("", _randomizerToggle);
+                if (_theThreeBrothersInput != null)
+                    _theThreeBrothersInput.Format("", _randomizerToggle);
+                _vanillaOutput.Format("Output", _randomizerToggle);
+                if (_theSoroboreansOutput != null)
+                    _theSoroboreansOutput.Format("", _randomizerToggle);
+                if (_theThreeBrothersOutput != null)
+                    _theThreeBrothersOutput.Format("", _randomizerToggle);
+                Indent--;
+            }
+
             _daggerToggle.Format("Dagger");
             Indent++;
             {
@@ -241,9 +331,9 @@ namespace ModPack
                 _egoth.FormatSettings(_runesToggle);
                 _fal.FormatSettings(_runesToggle);
                 _shim.FormatSettings(_runesToggle);
-                _runeSoundEffectVolume.Format("Runes sound effect volume");
+                _runeSoundEffectVolume.Format("Runes sound effect volume", _runesToggle);
                 _runeSoundEffectVolume.Description = "If the runes are too loud for your ears";
-                _runicLanternIntensity.Format("Runic Lantern intensity");
+                _runicLanternIntensity.Format("Runic Lantern intensity", _runesToggle);
                 _runicLanternIntensity.Description = "If the glowing orb is too bright for your eyes";
                 Indent--;
             }
@@ -252,6 +342,10 @@ namespace ModPack
         => "• Change effects, costs and cooldown of select skills";
         override protected string SectionOverride
         => SECTION_COMBAT;
+
+        // Utility
+        static private bool HasDLC(OTWStoreAPI.DLCs dlc)
+        => StoreManager.Instance.IsDlcInstalled(dlc);
 
         // Hooks
 #pragma warning disable IDE0051 // Remove unused private members
@@ -289,6 +383,8 @@ namespace ModPack
             Global.AudioManager.PlaySoundAtPosition(GlobalAudioManager.Sounds.SFX_SKILL_RuneSpell, __instance.transform, 0f, volume, volume, __instance.MinPitch, __instance.MaxPitch);
             return false;
         }
+
+
     }
 }
 
