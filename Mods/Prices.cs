@@ -89,6 +89,7 @@ namespace ModPack
             _exclusiveSkillCostsTsar = CreateSetting(nameof(_exclusiveSkillCostsTsar), false);
             _exclusiveSkillCostMultiplier = CreateSetting(nameof(_exclusiveSkillCostMultiplier), 10, IntRange(0, 100));
 
+
             _customNonBasicSkillCosts = CreateSetting(nameof(_customNonBasicSkillCosts), false);
             _skillRequirementsByTrainerName = new Dictionary<string, SkillRequirement>()
             {
@@ -169,7 +170,7 @@ namespace ModPack
                 }
 
                 _customNonBasicSkillCosts.Format("[PERSONAL] Custom costs", _skillCostsToggle);
-                _customNonBasicSkillCosts.Description = "Learning breakthrough and advanced skills will require specific items, depending on the skill tree:";
+                _customNonBasicSkillCosts.Description = "Learning breakthrough and advanced skills will require specific items, depending on the trainer:";
                 foreach (var skillRequirementByTrainerName in _skillRequirementsByTrainerName)
                 {
                     string trainer = skillRequirementByTrainerName.Key;
