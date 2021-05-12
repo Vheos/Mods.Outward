@@ -93,7 +93,7 @@ namespace ModPack
         => t.gameObject.GetOrAddComponent<T>();
         /// <summary> Assigns component T to a. Returns whether any component was found. </summary>
         static public bool TryGetComponent<T>(this Component t, out T a) where T : Component
-        => t.TryGetComponent(out a);
+        => t.gameObject.TryGetComponent(out a);
 
         //------------------------------------------------------------------------------------------------------------------------------- Various
 
