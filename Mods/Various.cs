@@ -47,10 +47,6 @@ namespace ModPack
         static private ModSetting<Vector2> _remapBackpackCapacities;
         static private ModSetting<int> _waterskinCapacity;
 
-        static private ModSetting<bool> _markItemsWithLegacyUpgrade;
-        static private ModSetting<bool> _allowDodgeAnimationCancelling;
-        static private ModSetting<bool> _allowPushKickRemoval;
-        static private ModSetting<bool> _allowTargetingPlayers;
         override protected void Initialize()
         {
             _enableCheats = CreateSetting(nameof(_enableCheats), false);
@@ -70,12 +66,6 @@ namespace ModPack
             {
                 Global.CheatsEnabled = _enableCheats;
             });
-
-            // WIP
-            _markItemsWithLegacyUpgrade = CreateSetting(nameof(_markItemsWithLegacyUpgrade), false);
-            _allowDodgeAnimationCancelling = CreateSetting(nameof(_allowDodgeAnimationCancelling), false);
-            _allowPushKickRemoval = CreateSetting(nameof(_allowPushKickRemoval), false);
-            _allowTargetingPlayers = CreateSetting(nameof(_allowTargetingPlayers), false);
         }
         override protected void SetFormatting()
         {
@@ -112,19 +102,6 @@ namespace ModPack
                                                    "(all other backpacks will have their capacities scaled accordingly)";
             _waterskinCapacity.Format("Waterskin capacity");
             _waterskinCapacity.Description = "Have one big waterskin instead of a few small ones so you don't have to swap quickslots";
-
-            _markItemsWithLegacyUpgrade.Format("[WIP] Mark items with legacy upgrades");
-            _markItemsWithLegacyUpgrade.IsAdvanced = true;
-            _allowDodgeAnimationCancelling.Format("[WIP] Allow dodge to cancel actions");
-            _allowDodgeAnimationCancelling.Description = "Cancelling certain animations might lead to glitches";
-            _allowDodgeAnimationCancelling.IsAdvanced = true;
-            _allowPushKickRemoval.Format("[WIP] Allow \"Push Kick\" removal");
-            _allowPushKickRemoval.Description = "For future skill trees mod\n" +
-                                                "Normally, player data won't be saved if they don't have the \"Push Kick\" skill";
-            _allowPushKickRemoval.IsAdvanced = true;
-            _allowTargetingPlayers.Format("[WIP] Allow targeting players");
-            _allowTargetingPlayers.Description = "For future co-op skills mod";
-            _allowTargetingPlayers.IsAdvanced = true;
         }
         override protected string Description
         => "• Mods (small and big) that didn't get their own section yet :)";
@@ -194,35 +171,6 @@ namespace ModPack
 
             __result = __result.Map(PRIMITIVE_SATCHEL_CAPACITY, TRADER_BACKPACK,
                                     _remapBackpackCapacities.Value.x, _remapBackpackCapacities.Value.y).Round();
-        }
-
-        // Mark items with legacy upgrades
-        [HarmonyPatch(typeof(ItemDisplay), "RefreshEnchantedIcon"), HarmonyPrefix]
-        static bool ItemDisplay_RefreshEnchantedIcon_Pre(ItemDisplay __instance)
-        {
-            #region quit
-            if (!_markItemsWithLegacyUpgrade || __instance.m_refItem == null || __instance.m_imgEnchantedIcon == null)
-                return true;
-            #endregion
-
-            // Cache
-            //Image icon = __instance.FindChild<Image>("Icon");
-            //Image border = icon.FindChild<Image>("border");
-            Image indicator = __instance.m_imgEnchantedIcon;
-
-            // Default
-            indicator.GOSetActive(false);
-
-            // Quit
-            if (__instance.m_refItem.LegacyItemID <= 0)
-                return true;
-
-            // Custom
-            indicator.color = Color.red;
-            indicator.rectTransform.pivot = 1f.ToVector2();
-            indicator.rectTransform.localScale = new Vector2(1.5f, 1.5f);
-            indicator.GOSetActive(true);
-            return false;
         }
 
         // Load arrows from inventory
@@ -384,51 +332,6 @@ namespace ModPack
             __instance.HoursToHealthReset = _healEnemiesOnLoad ? 0 : DEFAULT_ENEMY_HEALTH_RESET_HOURS;
             return true;
         }
-
-        // Dodge animation cancelling
-        [HarmonyPatch(typeof(Character), "DodgeInput", new[] { typeof(Vector3) }), HarmonyPrefix]
-        static bool Character_SpellCastAnim_Post(ref int ___m_dodgeAllowedInAction, ref Character.HurtType ___m_hurtType)
-        {
-            #region quit
-            if (!_allowDodgeAnimationCancelling)
-                return true;
-            #endregion
-
-            if (___m_hurtType == Character.HurtType.NONE)
-                ___m_dodgeAllowedInAction = 1;
-            return true;
-        }
-
-        // Push kick removal
-        [HarmonyPatch(typeof(CharacterSave), "IsValid", MethodType.Getter), HarmonyPrefix]
-        static bool CharacterSave_IsValid_Getter_Pre(ref bool __result)
-        {
-            #region quit
-            if (!_allowPushKickRemoval.Value)
-                return true;
-            #endregion
-
-            __result = true;
-            return false;
-        }
-
-        // Target other players
-        [HarmonyPatch(typeof(TargetingSystem), "IsTargetable", new[] { typeof(Character) }), HarmonyPrefix]
-        static bool TargetingSystem_IsTargetable_Pre(TargetingSystem __instance, ref bool __result, ref Character _char)
-        {
-            #region quit
-            if (!_allowTargetingPlayers)
-                return true;
-            #endregion
-
-            if (_char.Faction == Character.Factions.Player && _char != __instance.m_character)
-            {
-                __result = true;
-                return false;
-            }
-            return true;
-        }
-
     }
 }
 /*
