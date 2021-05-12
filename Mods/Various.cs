@@ -131,6 +131,41 @@ namespace ModPack
         override protected string SectionOverride
         => SECTION_VARIOUS;
 
+        // Utility
+        static private bool ShouldArmorSlotBeHidden(EquipmentSlot.EquipmentSlotIDs slot)
+        => slot == EquipmentSlot.EquipmentSlotIDs.Helmet && _armorSlotsToHide.Value.HasFlag(ArmorSlots.Head)
+        || slot == EquipmentSlot.EquipmentSlotIDs.Chest && _armorSlotsToHide.Value.HasFlag(ArmorSlots.Chest)
+        || slot == EquipmentSlot.EquipmentSlotIDs.Foot && _armorSlotsToHide.Value.HasFlag(ArmorSlots.Feet);
+        static private bool HasLearnedArmorTraining(Character character)
+        => character.Inventory.SkillKnowledge.IsItemLearned(ARMOR_TRAINING_ID);
+        static public bool IsAnythingEquipped(EquipmentSlot slot)
+        => slot != null && slot.HasItemEquipped;
+        static public bool IsNotLeftHandUsedBy2H(EquipmentSlot slot)
+        => !(slot.SlotType == EquipmentSlot.EquipmentSlotIDs.LeftHand && slot.EquippedItem.TwoHanded);
+        static private bool TryApplyMultiplicativeStacking(CharacterEquipment equipment, ref float result, Func<EquipmentSlot, float> getStatValue, bool invertedPositivity = false, bool applyArmorTraining = false)
+        {
+            #region quit
+            if (!_multiplicativeStacking)
+                return true;
+            #endregion
+
+            float invCoeff = invertedPositivity ? -1f : +1f;
+            bool canApplyArmorTraining = applyArmorTraining && HasLearnedArmorTraining(equipment.m_character);
+
+            result = 1f;
+            foreach (var slot in equipment.m_equipmentSlots)
+                if (IsAnythingEquipped(slot) && IsNotLeftHandUsedBy2H(slot))
+                {
+                    float armorTrainingCoeff = canApplyArmorTraining && getStatValue(slot) > 0f ? 1f - _armorTrainingPenaltyReduction / 100f : 1f;
+                    result *= 1f + getStatValue(slot) / 100f * invCoeff * armorTrainingCoeff;
+                }
+            result -= 1f;
+            result *= invCoeff;
+            return false;
+        }
+
+        // Hooks
+#pragma warning disable IDE0051 // Remove unused private members
         // Waterskin capacity
         [HarmonyPatch(typeof(WaterContainer), "RefreshDisplay"), HarmonyPrefix]
         static bool WaterContainer_RefreshDisplay_Pre(WaterContainer __instance)
@@ -228,34 +263,6 @@ namespace ModPack
         }
 
         // Multiplicative stacking
-        static private bool HasLearnedArmorTraining(Character character)
-        => character.Inventory.SkillKnowledge.IsItemLearned(ARMOR_TRAINING_ID);
-        static public bool IsAnythingEquipped(EquipmentSlot slot)
-        => slot != null && slot.HasItemEquipped;
-        static public bool IsNotLeftHandUsedBy2H(EquipmentSlot slot)
-        => !(slot.SlotType == EquipmentSlot.EquipmentSlotIDs.LeftHand && slot.EquippedItem.TwoHanded);
-        static private bool TryApplyMultiplicativeStacking(CharacterEquipment equipment, ref float result, Func<EquipmentSlot, float> getStatValue, bool invertedPositivity = false, bool applyArmorTraining = false)
-        {
-            #region quit
-            if (!_multiplicativeStacking)
-                return true;
-            #endregion
-
-            float invCoeff = invertedPositivity ? -1f : +1f;
-            bool canApplyArmorTraining = applyArmorTraining && HasLearnedArmorTraining(equipment.m_character);
-
-            result = 1f;
-            foreach (var slot in equipment.m_equipmentSlots)
-                if (IsAnythingEquipped(slot) && IsNotLeftHandUsedBy2H(slot))
-                {
-                    float armorTrainingCoeff = canApplyArmorTraining && getStatValue(slot) > 0f ? 1f - _armorTrainingPenaltyReduction / 100f : 1f;
-                    result *= 1f + getStatValue(slot) / 100f * invCoeff * armorTrainingCoeff;
-                }
-            result -= 1f;
-            result *= invCoeff;
-            return false;
-        }
-
         [HarmonyPatch(typeof(Stat), "GetModifier"), HarmonyPrefix]
         static bool Stat_GetModifier_Pre(Stat __instance, ref float __result, ref IList<Tag> _tags, ref int baseModifier)
         {
@@ -301,11 +308,6 @@ namespace ModPack
         }
 
         // Hide armor slots
-        static private bool ShouldArmorSlotBeHidden(EquipmentSlot.EquipmentSlotIDs slot)
-        => slot == EquipmentSlot.EquipmentSlotIDs.Helmet && _armorSlotsToHide.Value.HasFlag(ArmorSlots.Head)
-        || slot == EquipmentSlot.EquipmentSlotIDs.Chest && _armorSlotsToHide.Value.HasFlag(ArmorSlots.Chest)
-        || slot == EquipmentSlot.EquipmentSlotIDs.Foot && _armorSlotsToHide.Value.HasFlag(ArmorSlots.Feet);
-
         [HarmonyPatch(typeof(CharacterVisuals), "EquipVisuals"), HarmonyPrefix]
         static bool CharacterVisuals_EquipVisuals_Pre(ref bool[] __state, ref EquipmentSlot.EquipmentSlotIDs _slotID, ref ArmorVisuals _visuals)
         {
@@ -426,6 +428,7 @@ namespace ModPack
             }
             return true;
         }
+
     }
 }
 /*

@@ -75,6 +75,7 @@ namespace ModPack
         => Time.unscaledTime - _lastKeyPressTime;
 
         // Hooks
+#pragma warning disable IDE0051 // Remove unused private members
         [HarmonyPatch(typeof(ControlsInput), "MoveHorizontal"), HarmonyPostfix]
         static void ControlsInput_MoveHorizontal_Post(ref float __result, ref int _playerID)
         {

@@ -131,6 +131,7 @@ namespace ModPack
         }
 
         // Hooks
+#pragma warning disable IDE0051 // Remove unused private members
         [HarmonyPatch(typeof(LocalCharacterControl), "RetrieveComponents"), HarmonyPostfix]
         static void LocalCharacterControl_RetrieveComponents_Post()
         => Recache();

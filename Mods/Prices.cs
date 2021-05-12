@@ -267,6 +267,8 @@ namespace ModPack
         static private void ApplyGoldPrice(ref float price, bool isSelling)
         => price = isSelling ? _pricesGold.Value.y : _pricesGold.Value.x;
 
+        // Hooks
+#pragma warning disable IDE0051 // Remove unused private members
         [HarmonyPatch(typeof(Item), "GetBuyValue"), HarmonyPrefix]
         static bool Item_GetBuyValue_Pre(Item __instance, ref int __result, ref Character _player, ref Merchant _merchant)
         {

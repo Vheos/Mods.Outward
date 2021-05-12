@@ -108,6 +108,7 @@ namespace ModPack
         => SECTION_SURVIVAL;
 
         // Hooks
+#pragma warning disable IDE0051 // Remove unused private members
         [HarmonyPatch(typeof(Character), "UpdateReviveInteraction"), HarmonyPostfix]
         static void Character_UpdateReviveInteraction_Pre(Character __instance)
         {

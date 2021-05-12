@@ -82,6 +82,7 @@ namespace ModPack
         => SECTION_COMBAT;
 
         // Hooks
+#pragma warning disable IDE0051 // Remove unused private members
         [HarmonyPatch(typeof(Weapon), "ElligibleFaction", new[] { typeof(Character) }), HarmonyPostfix]
         static void Weapon_ElligibleFaction_Post(Weapon __instance, ref bool __result, Character _character)
         {

@@ -126,6 +126,7 @@ namespace ModPack
         }
 
         // Hooks
+#pragma warning disable IDE0051 // Remove unused private members
         [HarmonyPatch(typeof(Character), "LateUpdate"), HarmonyPostfix]
         static void Character_LateUpdate_Post(Character __instance)
         {

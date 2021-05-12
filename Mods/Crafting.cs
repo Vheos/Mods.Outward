@@ -189,6 +189,7 @@ namespace ModPack
         => 1 + (result.Quantity - 1f).Mul(_extraResultsMultiplier / 100f).Round();
 
         // Hooks
+#pragma warning disable IDE0051 // Remove unused private members
         [HarmonyPatch(typeof(CraftingMenu), "CraftingDone"), HarmonyPrefix]
         static bool CraftingMenu_CraftingDone_Pre(CraftingMenu __instance, ref List<Item> __state)
         {

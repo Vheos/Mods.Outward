@@ -253,6 +253,8 @@ namespace ModPack
         override protected string SectionOverride
         => SECTION_COMBAT;
 
+        // Hooks
+#pragma warning disable IDE0051 // Remove unused private members
         [HarmonyPatch(typeof(AddStatusEffect), "ActivateLocally"), HarmonyPrefix]
         static bool AddStatusEffect_ActivateLocally_Pre(AddStatusEffect __instance)
         {
@@ -271,7 +273,7 @@ namespace ModPack
             // Execute
             newColor.a = intensity;
             main.startColor = newColor;
-            emission.rateOverTime =  intensity.MapFrom01(2, RUNIC_LANTERN_EMISSION_RATE);
+            emission.rateOverTime = intensity.MapFrom01(2, RUNIC_LANTERN_EMISSION_RATE);
             return true;
         }
 

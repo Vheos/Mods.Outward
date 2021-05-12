@@ -63,8 +63,6 @@ namespace ModPack
                     if (Prefix != null)
                         formattedContent += Prefix;
                     formattedContent += _content;
-                    if (Postfix != null)
-                        formattedContent += Postfix;
 
                     if (Size != DEFAULT_FONT_SIZE)
                         formattedContent = $"<size={Size}>{formattedContent}</size>";
@@ -78,7 +76,6 @@ namespace ModPack
             public int Size
             { get; }
             public string Prefix;
-            public string Postfix;
 
             // Private
             private string _content;
@@ -426,6 +423,8 @@ namespace ModPack
             Utility.Swap(ref item.m_displayedInfos[resistancesIndex], ref item.m_displayedInfos[barrierIndex]);
         }
 
+        // Hooks
+#pragma warning disable IDE0051 // Remove unused private members
         [HarmonyPatch(typeof(ItemDetailsDisplay), "ShowDetails"), HarmonyPrefix]
         static bool ItemDetailsDisplay_ShowDetails_Pre(ItemDetailsDisplay __instance)
         {

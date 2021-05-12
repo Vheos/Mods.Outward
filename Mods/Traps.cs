@@ -81,6 +81,7 @@ namespace ModPack
         => __instance.CurrentVisual.FindChild("TrapVisual").GetComponentInChildren<MeshRenderer>().material;
 
         // Hooks
+#pragma warning disable IDE0051 // Remove unused private members
         [HarmonyPatch(typeof(DeployableTrap), "StartInit"), HarmonyPostfix]
         static void DeployableTrap_StartInit_Post(DeployableTrap __instance)
         {

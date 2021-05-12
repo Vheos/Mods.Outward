@@ -13,24 +13,6 @@ namespace ModPack
     {
         #region const
         private const int FAST_MAINTENANCE_ID = 8205140;
-        static private readonly AreaManager.AreaEnum[] OPEN_REGIONS = new[]
-        {
-            AreaManager.AreaEnum.CierzoOutside,
-            AreaManager.AreaEnum.Emercar,
-            AreaManager.AreaEnum.HallowedMarsh,
-            AreaManager.AreaEnum.Abrassar,
-            AreaManager.AreaEnum.AntiqueField,
-            AreaManager.AreaEnum.Caldera,
-        };
-        static private readonly AreaManager.AreaEnum[] CITIES = new[]
-        {
-            AreaManager.AreaEnum.CierzoVillage,
-            AreaManager.AreaEnum.Berg,
-            AreaManager.AreaEnum.Monsoon,
-            AreaManager.AreaEnum.Levant,
-            AreaManager.AreaEnum.Harmattan,
-            AreaManager.AreaEnum.NewSirocco,
-        };
         #endregion
         #region enum
         private enum MultiRepairBehaviour
@@ -178,6 +160,7 @@ namespace ModPack
         }
 
         // Hooks
+#pragma warning disable IDE0051 // Remove unused private members
         [HarmonyPatch(typeof(Item), "ReduceDurability"), HarmonyPrefix]
         static bool Item_ReduceDurability_Pre(Item __instance, ref float _durabilityLost)
         {
@@ -404,6 +387,5 @@ namespace ModPack
         [HarmonyPatch(typeof(EquipmentStats), "StaminaRegenModifier", MethodType.Getter), HarmonyPostfix]
         static void EquipmentStats_StaminaRegenModifier_Post(EquipmentStats __instance, ref float __result)
         => TryApplyEffectiveness(ref __result, __instance);
-
     }
 }

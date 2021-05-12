@@ -303,6 +303,8 @@ namespace ModPack
         static private Transform GetChestStashTitle(Transform stashPanel)
         => stashPanel.Find("Content/TopPanel/Shop PanelTop/lblShopName");
 
+        // Hooks
+#pragma warning disable IDE0051 // Remove unused private members
         // 16 controller quickslots
         [HarmonyPatch(typeof(ControlsInput), "Sheathe"), HarmonyPostfix]
         static void ControlsInput_Sheathe_Post(ref bool __result, ref int _playerID)

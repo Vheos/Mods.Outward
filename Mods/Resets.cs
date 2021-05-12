@@ -133,6 +133,8 @@ namespace ModPack
             saveDataList.Remove(saveDatasToRemove);
         }
 
+        // Hooks
+#pragma warning disable IDE0051 // Remove unused private members
         // Areas
         [HarmonyPatch(typeof(EnvironmentSave), "ApplyData"), HarmonyPrefix]
         static bool EnvironmentSave_ApplyData_Pre(EnvironmentSave __instance)

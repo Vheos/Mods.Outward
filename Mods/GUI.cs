@@ -143,25 +143,25 @@ namespace ModPack
                 _perPlayerSettings[i] = tmp;
                 string playerPrefix = $"player{i + 1}";
 
-                tmp._toggle = CreateSetting(playerPrefix + nameof(tmp._toggle) , false);
-                tmp._copySettings = CreateSetting(playerPrefix + nameof(tmp._copySettings) , false);
-                tmp._rearrangeHUD = CreateSetting(playerPrefix + nameof(tmp._rearrangeHUD) , false);
-                tmp._startHUDEditor = CreateSetting(playerPrefix + nameof(tmp._startHUDEditor) , false);
-                tmp._hudTransparency = CreateSetting(playerPrefix + nameof(tmp._hudTransparency) , 0, IntRange(0, 100));
-                tmp._fadingStatusEffectIcons = CreateSetting(playerPrefix + nameof(tmp._fadingStatusEffectIcons) , false);
-                tmp._statusIconMaxSize = CreateSetting(playerPrefix + nameof(tmp._statusIconMaxSize) , 120, IntRange(100, 125));
-                tmp._statusIconMinSize = CreateSetting(playerPrefix + nameof(tmp._statusIconMinSize) , 60, IntRange(0, 100));
-                tmp._statusIconMinAlpha = CreateSetting(playerPrefix + nameof(tmp._statusIconMinAlpha) , 50, IntRange(0, 100));
-                tmp._hideQuickslotHints = CreateSetting(playerPrefix + nameof(tmp._hideQuickslotHints) , false);
-                tmp._alternativeManaBarPlacement = CreateSetting(playerPrefix + nameof(tmp._alternativeManaBarPlacement) , false);
+                tmp._toggle = CreateSetting(playerPrefix + nameof(tmp._toggle), false);
+                tmp._copySettings = CreateSetting(playerPrefix + nameof(tmp._copySettings), false);
+                tmp._rearrangeHUD = CreateSetting(playerPrefix + nameof(tmp._rearrangeHUD), false);
+                tmp._startHUDEditor = CreateSetting(playerPrefix + nameof(tmp._startHUDEditor), false);
+                tmp._hudTransparency = CreateSetting(playerPrefix + nameof(tmp._hudTransparency), 0, IntRange(0, 100));
+                tmp._fadingStatusEffectIcons = CreateSetting(playerPrefix + nameof(tmp._fadingStatusEffectIcons), false);
+                tmp._statusIconMaxSize = CreateSetting(playerPrefix + nameof(tmp._statusIconMaxSize), 120, IntRange(100, 125));
+                tmp._statusIconMinSize = CreateSetting(playerPrefix + nameof(tmp._statusIconMinSize), 60, IntRange(0, 100));
+                tmp._statusIconMinAlpha = CreateSetting(playerPrefix + nameof(tmp._statusIconMinAlpha), 50, IntRange(0, 100));
+                tmp._hideQuickslotHints = CreateSetting(playerPrefix + nameof(tmp._hideQuickslotHints), false);
+                tmp._alternativeManaBarPlacement = CreateSetting(playerPrefix + nameof(tmp._alternativeManaBarPlacement), false);
                 foreach (var hudGroup in DATA_BY_HUD_GROUP.Keys.ToArray())
                     tmp._hudOverridesByHUDGroup.Add(hudGroup, CreateSetting($"_hudOverride{hudGroup}{playerPrefix}", Vector3.zero));
-                tmp._shopAndStashWidth = CreateSetting(playerPrefix + nameof(tmp._shopAndStashWidth) , 0, IntRange(0, 100));
-                tmp._swapPendingBuySellPanels = CreateSetting(playerPrefix + nameof(tmp._swapPendingBuySellPanels) , false);
-                tmp._separateBuySellPanels = CreateSetting(playerPrefix + nameof(tmp._separateBuySellPanels) , SeperatePanelsMode.Disabled);
-                tmp._buySellToggle = CreateSetting(playerPrefix + nameof(tmp._buySellToggle) , "");
-                tmp._switchToBuy = CreateSetting(playerPrefix + nameof(tmp._switchToBuy) , "");
-                tmp._switchToSell = CreateSetting(playerPrefix + nameof(tmp._switchToSell) , "");
+                tmp._shopAndStashWidth = CreateSetting(playerPrefix + nameof(tmp._shopAndStashWidth), 0, IntRange(0, 100));
+                tmp._swapPendingBuySellPanels = CreateSetting(playerPrefix + nameof(tmp._swapPendingBuySellPanels), false);
+                tmp._separateBuySellPanels = CreateSetting(playerPrefix + nameof(tmp._separateBuySellPanels), SeperatePanelsMode.Disabled);
+                tmp._buySellToggle = CreateSetting(playerPrefix + nameof(tmp._buySellToggle), "");
+                tmp._switchToBuy = CreateSetting(playerPrefix + nameof(tmp._switchToBuy), "");
+                tmp._switchToSell = CreateSetting(playerPrefix + nameof(tmp._switchToSell), "");
 
                 // Events
                 int id = i;
@@ -560,12 +560,6 @@ namespace ModPack
         => ui.transform.Find("Canvas/GameplayPanels/HUD/QuickSlot/Keyboard");
         static private RectTransform GetStashPanel(CharacterUI ui)
         => ui.transform.Find("Canvas/GameplayPanels/Menus/ModalMenus/Stash - Panel") as RectTransform;
-        static private Transform GetPlayerStashInventoryPanel(Transform stashPanel)
-        => stashPanel.Find("Content/MiddlePanel/PlayerInventory/InventoryContent");
-        static private Transform GetChestStashInventoryPanel(Transform stashPanel)
-        => stashPanel.Find("Content/MiddlePanel/StashInventory/SectionContent/Scroll View/Viewport/Content/ContainerDisplay_Simple");
-        static private Transform GetChestStashTitle(Transform stashPanel)
-        => stashPanel.Find("Content/TopPanel/Shop PanelTop/lblShopName");
         static private RectTransform GetShopPanel(CharacterUI ui)
         => ui.transform.Find("Canvas/GameplayPanels/Menus/ModalMenus/ShopMenu") as RectTransform;
         static private Transform GetPlayerShopInventoryPanel(Transform shopPanel)
@@ -582,6 +576,7 @@ namespace ModPack
         => hudHolder.Find("MainCharacterBars/Mana");
 
         // Hooks
+#pragma warning disable IDE0051 // Remove unused private members
         [HarmonyPatch(typeof(LocalCharacterControl), "RetrieveComponents"), HarmonyPostfix]
         static void LocalCharacterControl_RetrieveComponents_Post(LocalCharacterControl __instance)
         {
@@ -703,5 +698,6 @@ namespace ModPack
             __result.m_icon.SetAlpha(settings.StatusIconAlpha(progress));
             __result.m_icon.rectTransform.localScale = settings.StatusIconScale(progress);
         }
+
     }
 }

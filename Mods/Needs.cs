@@ -506,6 +506,8 @@ namespace ModPack
         static private StatusEffect NeedToLimitingStatusEffect(Need need)
         => _fulfilledDataByNeed[need].StatusEffect;
 
+        // Hooks
+#pragma warning disable IDE0051 // Remove unused private members
         // Initialize
         [HarmonyPatch(typeof(PlayerCharacterStats), "OnStart"), HarmonyPostfix]
         static private void PlayerCharacterStats_OnAwake_Post(PlayerCharacterStats __instance)
