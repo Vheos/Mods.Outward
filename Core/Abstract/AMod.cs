@@ -59,8 +59,6 @@ namespace ModPack
 
             // Various
             typeof(Various),
-            typeof(PistolTweaks),
-            typeof(Debug),
         };
 
         // Privates
@@ -71,7 +69,15 @@ namespace ModPack
         private string SectionName
         => GetType().Name;
         private int ModOrderingOffset
-        => Array.IndexOf(MODS_ORDERING, GetType()).Add(1) * MAX_SETTINGS_PER_MOD;
+        {
+            get
+            {
+                int index = Array.IndexOf(MODS_ORDERING, GetType());
+                if (index < 0)
+                    return int.MaxValue;
+                return index.Add(1).Mul(MAX_SETTINGS_PER_MOD);
+            }
+        }
         virtual protected string SectionOverride
         => "";
         virtual protected string Description
