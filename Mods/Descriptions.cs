@@ -419,7 +419,6 @@ namespace ModPack
             if (resistancesIndex < 0 || barrierIndex < 0 || barrierIndex < resistancesIndex)
                 return;
 
-            Tools.Log($"swapping...");
             Utility.Swap(ref item.m_displayedInfos[resistancesIndex], ref item.m_displayedInfos[barrierIndex]);
         }
 
