@@ -7,13 +7,14 @@ using HarmonyLib;
 using BepInEx;
 
 
+
 namespace ModPack
 {
     [BepInPlugin(GUID, NAME, VERSION)]
     public class Main : BaseUnityPlugin
     {
         // Settings
-        public const bool IS_DEVELOPMENT_VERSION = true;
+        public const bool IS_DEVELOPMENT_VERSION = false;
         public const string GUID = "com.Vheos.ModPack";
         public const string NAME = "Vheos Mod Pack" + (IS_DEVELOPMENT_VERSION ? " [DEVELOPMENT]" : "");
         public const string VERSION = "1.8.0";
@@ -70,6 +71,7 @@ namespace ModPack
         && ItemManager.m_diseaseLoaded;
 
         // Mono
+#pragma warning disable IDE0051 // Remove unused private members
         private void Awake()
         {
             _awakeModTypes = new List<Type>();
@@ -89,5 +91,6 @@ namespace ModPack
             UpdateMods(_updatableMods);
             Tools.TryRedrawConfigWindow();
         }
+
     }
 }
