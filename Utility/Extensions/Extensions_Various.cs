@@ -250,6 +250,11 @@ namespace ModPack
             result = t;
             return t != null;
         }
+        static public bool TryFind(this Transform t, string name, out Transform result)
+        {
+            result = t.Find(name);
+            return t != null;
+        }
         static public bool Is<T>(this object t)
         => t is T;
         static public bool IsNot<T>(this object t)
