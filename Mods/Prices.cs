@@ -49,7 +49,7 @@ namespace ModPack
 
         // Settings
         static private ModSetting<bool> _merchantsToggle;
-        static private ModSetting<float> _pricesCurveArc;
+        static private ModSetting<int> _pricesCurve;
         static private ModSetting<int> _sellModifier;
         static private ModSetting<Vector2> _pricesGold;
         static private ModSetting<bool> _pricesPerTypeToggle;
@@ -65,7 +65,7 @@ namespace ModPack
         override protected void Initialize()
         {
             _merchantsToggle = CreateSetting(nameof(_merchantsToggle), false);
-            _pricesCurveArc = CreateSetting(nameof(_pricesCurveArc), 1f, FloatRange(0.5f, 1f));
+            _pricesCurve = CreateSetting(nameof(_pricesCurve), 100, IntRange(50, 100));
             _sellModifier = CreateSetting(nameof(_sellModifier), DEFAULT_SELL_MODIFIER.Mul(100f).Round(), IntRange(0, 100));
 
             _pricesPerTypeToggle = CreateSetting(nameof(_pricesPerTypeToggle), false);
@@ -116,7 +116,11 @@ namespace ModPack
             _merchantsToggle.Format("Merchants");
             Indent++;
             {
-                _pricesCurveArc.Format("Prices curve arc", _merchantsToggle);
+                _pricesCurve.Format("Prices curve", _merchantsToggle);
+                _pricesCurve.Description = "How quickly the prices increase throughout the game\n" +
+                    "at the minimum valued (50%), all prices will be square-root'ed:\n" +
+                    "• Simple Bow: 13 -> 4\n" +
+                    "• War Bow: 1000 -> 32";
                 _sellModifier.Format("Selling multiplier", _merchantsToggle);
                 _pricesGold.Format("Gold");
                 _pricesPerTypeToggle.Format("Prices per type");
@@ -220,7 +224,7 @@ namespace ModPack
             return 1f + UnityEngine.Random.Range(-_randomizePricesExtent, +_randomizePricesExtent) / 100f;
         }
         static private void ApplyCurve(ref float price)
-        => price = price.Pow(_pricesCurveArc);
+        => price = price.Pow(_pricesCurve / 100f);
         static private void ApplyTypeModifier(ref float price, Item item)
         {
             float modifier = _pricesOther;
