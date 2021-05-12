@@ -12,6 +12,41 @@ namespace ModPack
     public class Skills : AMod, IDelayedInit
     {
         #region const
+        private const string WEAPON_SKILLS_TREE_NAME = "WeaponSkills";
+        private const string BOONS_TREE_NAME = "Boons";
+        private const string HEXES_TREE_NAME = "Hexes";
+        static private readonly (string Name, int[] IDs)[] SIDE_SKILLS =
+        {
+            (WEAPON_SKILLS_TREE_NAME, new[]
+            {
+                "Puncture".SkillID(),
+                "Pommel Counter".SkillID(),
+                "Talus Cleaver".SkillID(),
+                "Execution".SkillID(),
+                "Mace Infusion".SkillID(),
+                "Juggernaut".SkillID(),
+                "Simeon's Gambit".SkillID(),
+                "Moon Swipe".SkillID(),
+                "Prismatic Flurry".SkillID(),
+            }),
+            (BOONS_TREE_NAME, new[]
+            {
+                "Mist".SkillID(),
+                "Warm".SkillID(),
+                "Cool".SkillID(),
+                "Blessed".SkillID(),
+                "Possessed".SkillID(),
+            }),
+            (HEXES_TREE_NAME, new[]
+            {
+                "Haunt Hex".SkillID(),
+                "Scorch Hex".SkillID(),
+                "Chill Hex".SkillID(),
+                "Doom Hex".SkillID(),
+                "Curse Hex".SkillID(),
+            }),
+        };
+
         private const string RUNIC_LANTERN_ID = "Runic Lantern";
         private const float RUNIC_LANTERN_EMISSION_RATE = 20;
         private readonly (Vector3, Vector3, Vector3) DEFAULT_VALUES_DAGGER_SLASH =
@@ -183,23 +218,23 @@ namespace ModPack
             RuneSage = 1 << 4,
             WarriorMonk = 1 << 5,
             Philosopher = 1 << 6,
-            RogueEngineer = 1 << 7,
-            Mercenary = 1 << 8,
-            BasicWeaponSkills = 1 << 9,
+            Mercenary = 1 << 7,
+            RogueEngineer = 1 << 8,
+            WeaponSkills = 1 << 9,
             Boons = 1 << 10,
         }
         [Flags]
         private enum TheSoroboreansInput
         {
-            TheSpeedster = 1 << 1,
-            HexMage = 1 << 2,
-            Hexes = 1 << 3,
+            TheSpeedster = 1 << 11,
+            HexMage = 1 << 12,
+            Hexes = 1 << 13,
         }
         [Flags]
         private enum TheThreeBrothersInput
         {
-            PrimalRitualist = 1 << 1,
-            AdvancedWeaponSkills = 1 << 2,
+            PrimalRitualist = 1 << 14,
+            WeaponMaster = 1 << 15,
         }
         [Flags]
         private enum VanillaOutput
@@ -210,30 +245,34 @@ namespace ModPack
             RuneSage = 1 << 4,
             WarriorMonk = 1 << 5,
             Philosopher = 1 << 6,
-            RogueEngineer = 1 << 7,
-            Mercenary = 1 << 8,
+            Mercenary = 1 << 7,
+            RogueEngineer = 1 << 8,
         }
         [Flags]
         private enum TheSoroboreansOutput
         {
-            TheSpeedster = 1 << 1,
-            HexMage = 1 << 2,
+            TheSpeedster = 1 << 11,
+            HexMage = 1 << 12,
         }
         [Flags]
         private enum TheThreeBrothersOutput
         {
-            PrimalRitualist = 1 << 1,
+            PrimalRitualist = 1 << 14,
         }
         #endregion
 
         // Settings
         static private ModSetting<bool> _randomizerToggle;
+        static private ModSetting<bool> _randomizerRoll;
         static private ModSetting<VanillaInput> _vanillaInput;
         static private ModSetting<TheSoroboreansInput> _theSoroboreansInput;
         static private ModSetting<TheThreeBrothersInput> _theThreeBrothersInput;
         static private ModSetting<VanillaOutput> _vanillaOutput;
         static private ModSetting<TheSoroboreansOutput> _theSoroboreansOutput;
         static private ModSetting<TheThreeBrothersOutput> _theThreeBrothersOutput;
+        static private ModSetting<bool> _advancedRequiresSameTreeBasic;
+        static private ModSetting<bool> _randomizeBreakthroughs;
+
         static private ModSetting<bool> _daggerToggle, _bowToggle, _runesToggle;
         static private SkillData _daggerSlash, _backstab, _opportunistStab, _serpentsParry;
         static private SkillData _evasionShot, _sniperShot, _piercingShot;
@@ -241,8 +280,9 @@ namespace ModPack
         static private ModSetting<int> _runeSoundEffectVolume, _runicLanternIntensity;
         override protected void Initialize()
         {
+            // Randomizer
             _randomizerToggle = CreateSetting(nameof(_randomizerToggle), false);
-
+            _randomizerRoll = CreateSetting(nameof(_randomizerRoll), false);
             _vanillaInput = CreateSetting(nameof(_vanillaInput), (VanillaInput)~0);
             _vanillaOutput = CreateSetting(nameof(_vanillaOutput), (VanillaOutput)~0);
             if (HasDLC(OTWStoreAPI.DLCs.Soroboreans))
@@ -255,8 +295,21 @@ namespace ModPack
                 _theThreeBrothersInput = CreateSetting(nameof(_theThreeBrothersInput), (TheThreeBrothersInput)~0);
                 _theThreeBrothersOutput = CreateSetting(nameof(_theThreeBrothersOutput), (TheThreeBrothersOutput)~0);
             }
+            _randomizerRoll.AddEvent(() =>
+            {
+                if (!_randomizerRoll)
+                    return;
 
-                _daggerToggle = CreateSetting(nameof(_daggerToggle), false);
+                TryCacheSkillTreeHolder();
+                TryCreateSideSkillTrees();
+                Randomize();
+                _randomizerRoll.SetSilently(false);
+            });
+
+            _slotsByInputTree = new Dictionary<SkillSchool, BaseSkillSlot[]>();
+
+            // Editor
+            _daggerToggle = CreateSetting(nameof(_daggerToggle), false);
             _daggerSlash = new SkillData(this, nameof(_daggerSlash), "Dagger Slash", DEFAULT_VALUES_DAGGER_SLASH);
             _backstab = new SkillData(this, nameof(_backstab), "Backstab", DEFAULT_VALUES_BACKSTAB);
             _opportunistStab = new SkillData(this, nameof(_opportunistStab), "Opportunist Stab", DEFAULT_VALUES_OPPORTUNIST_STAB);
@@ -292,16 +345,17 @@ namespace ModPack
             _randomizerToggle.Format("Randomizer");
             Indent++;
             {
-                _vanillaInput.Format("Input", _randomizerToggle);
-                if (_theSoroboreansInput != null)
-                    _theSoroboreansInput.Format("", _randomizerToggle);
-                if (_theThreeBrothersInput != null)
-                    _theThreeBrothersInput.Format("", _randomizerToggle);
-                _vanillaOutput.Format("Output", _randomizerToggle);
-                if (_theSoroboreansOutput != null)
-                    _theSoroboreansOutput.Format("", _randomizerToggle);
-                if (_theThreeBrothersOutput != null)
-                    _theThreeBrothersOutput.Format("", _randomizerToggle);
+                _randomizerRoll.Format("Roll");
+                AModSetting[] inputOutputSettings =
+                {
+                    _vanillaInput, _theSoroboreansInput, _theThreeBrothersInput,
+                    _vanillaOutput, _theSoroboreansOutput, _theThreeBrothersOutput
+                };
+                foreach (var setting in inputOutputSettings)
+                {
+                    setting.Format("", _randomizerToggle);
+                    setting.DisplayResetButton = false;
+                }
                 Indent--;
             }
 
@@ -344,8 +398,114 @@ namespace ModPack
         => SECTION_COMBAT;
 
         // Utility
+        static private SkillTreeHolder _cachedSkillTreeHolder;
+        static private Dictionary<SkillSchool, BaseSkillSlot[]> _slotsByInputTree, _slotsByOutputTree;
+        static private List<SkillSchool> _sideSkillTrees;
         static private bool HasDLC(OTWStoreAPI.DLCs dlc)
         => StoreManager.Instance.IsDlcInstalled(dlc);
+        static private SkillSchool FlagToSkillTree(Enum flag, bool isOutput = false)
+        {
+            SkillTreeHolder skillTreeHolder = isOutput ? SkillTreeHolder.Instance : _cachedSkillTreeHolder;
+            if (!FlagToSkillTreeName(Convert.ToInt32(flag)).TryAssign(out var treeName)
+            || !skillTreeHolder.transform.TryFind(treeName, out var treeTransform)
+            || !treeTransform.TryGetComponent(out SkillSchool tree))
+                return null;
+
+            return tree;
+        }
+        static private string FlagToSkillTreeName(int flag)
+        {
+            switch (flag)
+            {
+                case 1 << 1: return "ChersoneseEto";
+                case 1 << 2: return "ChersoneseHermit";
+                case 1 << 3: return "EmmerkarHunter";
+                case 1 << 4: return "EmmerkarSage";
+                case 1 << 5: return "HallowedMarshWarriorMonk";
+                case 1 << 6: return "HallowedMarshPhilosopher";
+                case 1 << 7: return "AbrassarMercenary";
+                case 1 << 8: return "AbrassarRogue";
+                case 1 << 9: return WEAPON_SKILLS_TREE_NAME;
+                case 1 << 10: return BOONS_TREE_NAME;
+                case 1 << 11: return "HarmattanSpeedster";
+                case 1 << 12: return "HarmattanHexMage";
+                case 1 << 13: return HEXES_TREE_NAME;
+                case 1 << 14: return "CalderaThePrimalRitualist";
+                case 1 << 15: return "CalderaWeaponMaster";
+                default: return null;
+            }
+        }
+
+        static private void TryCacheSkillTreeHolder()
+        {
+            if (_cachedSkillTreeHolder != null)
+                return;
+
+            _cachedSkillTreeHolder = SkillTreeHolder.Instance;
+            GameObject.DontDestroyOnLoad(GameObject.Instantiate<SkillTreeHolder>(SkillTreeHolder.Instance, SkillTreeHolder.Instance.transform.parent));
+            _cachedSkillTreeHolder.gameObject.name += " (cached)";
+        }
+        static private void TryCreateSideSkillTrees()
+        {
+            if (_sideSkillTrees != null)
+                return;
+
+            _sideSkillTrees = new List<SkillSchool>();
+            foreach (var (Name, IDs) in SIDE_SKILLS)
+            {
+                GameObject skillTreeHolder = new GameObject(Name);
+                skillTreeHolder.BecomeChildOf(_cachedSkillTreeHolder);
+                GameObject skillBranchHolder = new GameObject("0");
+                skillBranchHolder.BecomeChildOf(skillTreeHolder);
+
+                foreach (var id in IDs)
+                {
+                    Skill skill = Prefabs.SkillsByID[id];
+                    GameObject skillSlotHolder = new GameObject(skill.Name);
+                    skillSlotHolder.BecomeChildOf(skillBranchHolder);
+                    skillSlotHolder.AddComponent<SkillSlot>().m_skill = skill;
+                }
+
+                skillBranchHolder.AddComponent<SkillBranch>();
+                _sideSkillTrees.Add(skillTreeHolder.AddComponent<SkillSchool>());
+            }
+        }
+        static private void Randomize()
+        {
+            List<SkillSchool> inputTrees = new List<SkillSchool>();
+            foreach (Enum flag in Enum.GetValues(typeof(VanillaInput)))
+                if (_vanillaInput.Value.HasFlag(flag))
+                    inputTrees.Add(FlagToSkillTree(flag));
+            foreach (Enum flag in Enum.GetValues(typeof(TheSoroboreansInput)))
+                if (_theSoroboreansInput.Value.HasFlag(flag))
+                    inputTrees.Add(FlagToSkillTree(flag));
+            foreach (Enum flag in Enum.GetValues(typeof(TheThreeBrothersInput)))
+                if (_theThreeBrothersInput.Value.HasFlag(flag))
+                    inputTrees.Add(FlagToSkillTree(flag));
+
+
+            Tools.Log($"\nINPUTS:");
+            foreach (var tree in inputTrees)
+                Tools.Log($"{tree.Name}");
+
+
+
+            List<SkillSchool> outputTrees = new List<SkillSchool>();
+            foreach (Enum flag in Enum.GetValues(typeof(VanillaOutput)))
+                if (_vanillaOutput.Value.HasFlag(flag))
+                    outputTrees.Add(FlagToSkillTree(flag, true));
+            foreach (Enum flag in Enum.GetValues(typeof(TheSoroboreansOutput)))
+                if (_theSoroboreansOutput.Value.HasFlag(flag))
+                    outputTrees.Add(FlagToSkillTree(flag, true));
+            foreach (Enum flag in Enum.GetValues(typeof(TheThreeBrothersOutput)))
+                if (_theThreeBrothersOutput.Value.HasFlag(flag))
+                    outputTrees.Add(FlagToSkillTree(flag, true));
+
+            Tools.Log($"\nOUTPUTS");
+            foreach (var tree in outputTrees)
+                Tools.Log($"{tree.GetParent().name}\t{tree.name}");
+
+        }
 
         // Hooks
 #pragma warning disable IDE0051 // Remove unused private members
@@ -383,10 +543,21 @@ namespace ModPack
             Global.AudioManager.PlaySoundAtPosition(GlobalAudioManager.Sounds.SFX_SKILL_RuneSpell, __instance.transform, 0f, volume, volume, __instance.MinPitch, __instance.MaxPitch);
             return false;
         }
-
-
     }
 }
+
+/*
+_vanillaOutput.AddEvent(() =>
+{
+    for (int i = 1; i < 8; i++)
+    {
+        int flag = 1 << i;
+        if (_vanillaInput.Value.HasFlag((VanillaInput)flag) == false
+        && _vanillaOutput.Value.HasFlag((VanillaOutput)flag) == true)
+            _vanillaInput.SetSilently(_vanillaInput | (VanillaInput)flag);
+    }
+});
+*/
 
 //foreach (var skill in new[] { Prefabs.GetSkillByName("Opportunist Stab"), Prefabs.GetSkillByName("Serpent's Parry") })
 //    Tools.Log($"{skill.Name}\t{skill.HealthCost}\t{skill.StaminaCost}\t{skill.ManaCost}\t{skill.DurabilityCost}\t{skill.DurabilityCostPercent}\t{skill.Cooldown}");
