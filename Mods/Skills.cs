@@ -97,7 +97,6 @@ namespace ModPack
             new Vector3(0, 0, 8),
             new Vector3(0, 0, 2)
         );
-
         #endregion
         #region class
         private class SkillData
@@ -287,14 +286,15 @@ namespace ModPack
             _vanillaOutput = CreateSetting(nameof(_vanillaOutput), (VanillaOutput)~0);
             if (HasDLC(OTWStoreAPI.DLCs.Soroboreans))
             {
-                _theSoroboreansInput = CreateSetting(nameof(_theSoroboreansInput), (TheSoroboreansInput)~0);
-                _theSoroboreansOutput = CreateSetting(nameof(_theSoroboreansOutput), (TheSoroboreansOutput)~0);
+                _theSoroboreansInput = CreateSetting(nameof(_theSoroboreansInput), (TheSoroboreansInput)0);
+                _theSoroboreansOutput = CreateSetting(nameof(_theSoroboreansOutput), (TheSoroboreansOutput)0);
             }
             if (HasDLC(OTWStoreAPI.DLCs.DLC2))
             {
-                _theThreeBrothersInput = CreateSetting(nameof(_theThreeBrothersInput), (TheThreeBrothersInput)~0);
-                _theThreeBrothersOutput = CreateSetting(nameof(_theThreeBrothersOutput), (TheThreeBrothersOutput)~0);
+                _theThreeBrothersInput = CreateSetting(nameof(_theThreeBrothersInput), (TheThreeBrothersInput)0);
+                _theThreeBrothersOutput = CreateSetting(nameof(_theThreeBrothersOutput), (TheThreeBrothersOutput)0);
             }
+
             _randomizerRoll.AddEvent(() =>
             {
                 if (!_randomizerRoll)
@@ -305,8 +305,6 @@ namespace ModPack
                 Randomize();
                 _randomizerRoll.SetSilently(false);
             });
-
-            _slotsByInputTree = new Dictionary<SkillSchool, BaseSkillSlot[]>();
 
             // Editor
             _daggerToggle = CreateSetting(nameof(_daggerToggle), false);
@@ -353,7 +351,9 @@ namespace ModPack
                 };
                 foreach (var setting in inputOutputSettings)
                 {
-                    setting.Format("", _randomizerToggle);
+                    string text = setting == _vanillaInput ? "Inputs"
+                                                           : setting == _vanillaOutput ? "Outputs" : "";
+                    setting.Format(text, _randomizerToggle);
                     setting.DisplayResetButton = false;
                 }
                 Indent--;
@@ -399,13 +399,12 @@ namespace ModPack
 
         // Utility
         static private SkillTreeHolder _cachedSkillTreeHolder;
-        static private Dictionary<SkillSchool, BaseSkillSlot[]> _slotsByInputTree, _slotsByOutputTree;
         static private List<SkillSchool> _sideSkillTrees;
         static private bool HasDLC(OTWStoreAPI.DLCs dlc)
         => StoreManager.Instance.IsDlcInstalled(dlc);
-        static private SkillSchool FlagToSkillTree(Enum flag, bool isOutput = false)
+        static private SkillSchool FlagToSkillTree(Enum flag, bool fromCached = false)
         {
-            SkillTreeHolder skillTreeHolder = isOutput ? SkillTreeHolder.Instance : _cachedSkillTreeHolder;
+            SkillTreeHolder skillTreeHolder = fromCached ? _cachedSkillTreeHolder : SkillTreeHolder.Instance;
             if (!FlagToSkillTreeName(Convert.ToInt32(flag)).TryAssign(out var treeName)
             || !skillTreeHolder.transform.TryFind(treeName, out var treeTransform)
             || !treeTransform.TryGetComponent(out SkillSchool tree))
@@ -434,6 +433,28 @@ namespace ModPack
                 case 1 << 15: return "CalderaWeaponMaster";
                 default: return null;
             }
+        }
+        static public bool IsBasic(BaseSkillSlot slot)
+        {
+            SkillSchool tree = slot.ParentBranch.ParentTree;
+            return tree.BreakthroughSkill == null || slot.ParentBranch.Index < tree.BreakthroughSkill.ParentBranch.Index;
+        }
+        static public bool IsBreakthrough(BaseSkillSlot slot)
+        => slot.IsBreakthrough;
+        static public bool IsAdvanced(BaseSkillSlot slot)
+        {
+            SkillSchool tree = slot.ParentBranch.ParentTree;
+            return tree.BreakthroughSkill != null && slot.ParentBranch.Index > tree.BreakthroughSkill.ParentBranch.Index;
+        }
+        static public string GetSkillSlotType(BaseSkillSlot slot)
+        {
+            if (IsBasic(slot))
+                return "Basic";
+            else if (IsBreakthrough(slot))
+                return "Breakthrough";
+            else if (IsAdvanced(slot))
+                return "Advanced";
+            return "???";
         }
 
         static private void TryCacheSkillTreeHolder()
@@ -475,36 +496,52 @@ namespace ModPack
             List<SkillSchool> inputTrees = new List<SkillSchool>();
             foreach (Enum flag in Enum.GetValues(typeof(VanillaInput)))
                 if (_vanillaInput.Value.HasFlag(flag))
-                    inputTrees.Add(FlagToSkillTree(flag));
+                    inputTrees.Add(FlagToSkillTree(flag, true));
             foreach (Enum flag in Enum.GetValues(typeof(TheSoroboreansInput)))
                 if (_theSoroboreansInput.Value.HasFlag(flag))
-                    inputTrees.Add(FlagToSkillTree(flag));
+                    inputTrees.Add(FlagToSkillTree(flag, true));
             foreach (Enum flag in Enum.GetValues(typeof(TheThreeBrothersInput)))
                 if (_theThreeBrothersInput.Value.HasFlag(flag))
-                    inputTrees.Add(FlagToSkillTree(flag));
+                    inputTrees.Add(FlagToSkillTree(flag, true));
 
-
-            Tools.Log($"\nINPUTS:");
+            System.Text.StringBuilder stringBuilder = new System.Text.StringBuilder();
+            int basic = 0, breakthrough = 0, advanced = 0;
             foreach (var tree in inputTrees)
-                Tools.Log($"{tree.Name}");
-
-
+            {
+                stringBuilder.AppendLine(tree.name);
+                foreach (var slot in tree.m_skillSlots)
+                {
+                    string slotType = GetSkillSlotType(slot);
+                    switch (slotType)
+                    {
+                        case "Basic": basic++; break;
+                        case "Breakthrough": breakthrough++; break;
+                        case "Advanced": advanced++; break;
+                    }
+                    stringBuilder.AppendLine($"\t{slot.name}\t{slotType}");
+                }
+            }
+            stringBuilder.AppendLine($"Basic: {basic}");
+            stringBuilder.AppendLine($"Breakthrough: {breakthrough}");
+            stringBuilder.AppendLine($"Advanced: {advanced}");
+            Tools.Log(stringBuilder.ToString());
+            /*
 
             List<SkillSchool> outputTrees = new List<SkillSchool>();
             foreach (Enum flag in Enum.GetValues(typeof(VanillaOutput)))
                 if (_vanillaOutput.Value.HasFlag(flag))
-                    outputTrees.Add(FlagToSkillTree(flag, true));
+                    outputTrees.Add(FlagToSkillTree(flag));
             foreach (Enum flag in Enum.GetValues(typeof(TheSoroboreansOutput)))
                 if (_theSoroboreansOutput.Value.HasFlag(flag))
-                    outputTrees.Add(FlagToSkillTree(flag, true));
+                    outputTrees.Add(FlagToSkillTree(flag));
             foreach (Enum flag in Enum.GetValues(typeof(TheThreeBrothersOutput)))
                 if (_theThreeBrothersOutput.Value.HasFlag(flag))
-                    outputTrees.Add(FlagToSkillTree(flag, true));
+                    outputTrees.Add(FlagToSkillTree(flag));
 
             Tools.Log($"\nOUTPUTS");
             foreach (var tree in outputTrees)
                 Tools.Log($"{tree.GetParent().name}\t{tree.name}");
-
+            */
         }
 
         // Hooks
