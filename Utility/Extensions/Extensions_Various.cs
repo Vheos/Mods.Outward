@@ -267,6 +267,16 @@ namespace ModPack
         => Convert.ToInt32(t);
         static public T Random<T>(this IList<T> t)
         => t[UnityEngine.Random.Range(0, t.Count)];
+        static public void Shuffle<T>(this IList<T> t)
+        {
+            for (int i = 0; i < t.Count - 1; ++i)
+            {
+                int j = UnityEngine.Random.Range(i, t.Count);
+                T tmp = t[i];
+                t[i] = t[j];
+                t[j] = tmp;
+            }
+        }
         static public string FormatGameHours(this float t, bool showDays = true, bool showHours = true, bool showMinutes = true, bool showSeconds = true)
         {
             int days = t.Div(24).RoundDown();
@@ -384,6 +394,7 @@ namespace ModPack
                         return i;
             return null;
         }
+
         // GOName
         static public string GOName(this Component t)
         => t.gameObject.name;
