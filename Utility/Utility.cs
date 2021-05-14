@@ -77,6 +77,15 @@ namespace ModPack
                 array[i] = value;
             return array;
         }
+        static public List<List<T>> CreateList2D<T>(int count)
+        {
+            List<List<T>> list2D = new List<List<T>>();
+            for (int i = 0; i < count; i++)
+                list2D.Add(new List<T>());
+            return list2D;
+        }
+        static public T[] GetEnumValues<T>()
+        => (T[])Enum.GetValues(typeof(T));
         static public BindingFlags AllBindingFlags
         => BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static;
         static public void AppendChildrenRecurisvely<T>(Transform root, List<T> components) where T : Component
