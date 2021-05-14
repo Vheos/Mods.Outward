@@ -181,17 +181,26 @@ namespace ModPack
         /// <summary> Destroys this component's object. </summary>
         static public void DestroyObject(this Component t)
         => t.gameObject.Destroy();
+        /// <summary> Destroys this component's object immediately. </summary>
+        static public void DestroyObjectImmediately(this Component t)
+        => t.gameObject.DestroyImmediately();
         /// <summary> Destroys these components. </summary>
-        static public void Destroy(this Component[] t)
+        static public void Destroy<T>(this IList<T> t) where T : Component
         {
             foreach (var component in t)
                 component.Destroy();
         }
         /// <summary> Destroys these components' objects. </summary>
-        static public void DestroyObjects(this Component[] t)
+        static public void DestroyObjects<T>(this IList<T> t) where T : Component
         {
             foreach (var component in t)
                 component.gameObject.Destroy();
+        }
+        /// <summary> Destroys these components' objects immediately. </summary>
+        static public void DestroyObjectsImmediately<T>(this IList<T> t) where T : Component
+        {
+            foreach (var component in t)
+                component.gameObject.DestroyImmediately();
         }
         /// <summary> Destroys all components of type T attached to this object. </summary>
         static public void DestroyAll<T>(this Component t) where T : Component

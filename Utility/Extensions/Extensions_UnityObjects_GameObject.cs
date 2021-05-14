@@ -224,13 +224,13 @@ namespace ModPack
         static public void DestroyImmediately(this GameObject t)
         => Object.DestroyImmediate(t);
         /// <summary> Destroys these objects. </summary>
-        static public void Destroy(this GameObject[] t)
+        static public void Destroy(this IList<GameObject> t)
         {
             foreach (var gameObject in t)
                 gameObject.Destroy();
         }
-        /// <summary> Destroys these objects. </summary>
-        static public void DestroyImmediately(this GameObject[] t)
+        /// <summary> Destroys these objects immediately. </summary>
+        static public void DestroyImmediately(this IList<GameObject> t)
         {
             foreach (var gameObject in t)
                 gameObject.DestroyImmediately();
