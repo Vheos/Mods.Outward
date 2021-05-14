@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using BepInEx.Configuration;
 using HarmonyLib;
+using Random = UnityEngine.Random;
 
 
 
@@ -268,7 +269,7 @@ namespace ModPack
                 return true;
             #endregion
 
-            prefab.Stats.StartingDurability = (prefab.MaxDurability * UnityEngine.Random.Range(_minStartingDurability / 100f, 1f)).Round();
+            prefab.Stats.StartingDurability = (prefab.MaxDurability * Random.Range(_minStartingDurability / 100f, 1f)).Round();
             __state = prefab;
             return true;
         }

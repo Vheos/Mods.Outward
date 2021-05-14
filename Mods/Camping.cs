@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using BepInEx.Configuration;
 using HarmonyLib;
+using Random = UnityEngine.Random;
 
 
 
@@ -141,7 +142,7 @@ namespace ModPack
                 if (fx.GOName().ContainsSubstring("butterfly"))
                 {
                     AmbienceSound ambienceSound = fx.GetComponentInChildren<AmbienceSound>();
-                    if (UnityEngine.Random.value <= _butterfliesSpawnChance / 100f)
+                    if (Random.value <= _butterfliesSpawnChance / 100f)
                     {
                         fx.GOSetActive(true);
                         ambienceSound.MinVolume = ambienceSound.MaxVolume = 1;

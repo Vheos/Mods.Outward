@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using BepInEx.Configuration;
 using HarmonyLib;
+using Random = UnityEngine.Random;
 
 
 
@@ -168,7 +169,7 @@ namespace ModPack
             }
             private void Bump(Item item, float force)
             {
-                Vector2 directionXZ = UnityEngine.Random.insideUnitCircle.normalized;
+                Vector2 directionXZ = Random.insideUnitCircle.normalized;
                 Vector3 direction = new Vector3(directionXZ.x, 1, directionXZ.y);
                 item.GetComponent<Rigidbody>().AddForce(direction * force);
             }

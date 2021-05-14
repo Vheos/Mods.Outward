@@ -5,6 +5,7 @@ using UnityEngine;
 using BepInEx.Configuration;
 using HarmonyLib;
 using UnityEngine.UI;
+using Random = UnityEngine.Random;
 
 
 
@@ -220,9 +221,9 @@ namespace ModPack
             int itemSeed = _randomizePricesPerItem ? item.ItemID : 0;
             int areaSeed = _randomizePricesPerArea ? AreaManager.Instance.CurrentArea.ID : 0;
             int timeSeed = (GameTime / 24f / _randomizePricesPerDays).RoundDown();
-            UnityEngine.Random.InitState(itemSeed + areaSeed + timeSeed);
+            Random.InitState(itemSeed + areaSeed + timeSeed);
 
-            return 1f + UnityEngine.Random.Range(-_randomizePricesExtent, +_randomizePricesExtent) / 100f;
+            return 1f + Random.Range(-_randomizePricesExtent, +_randomizePricesExtent) / 100f;
         }
         static private void ApplyCurve(ref float price)
         => price = price.Pow(_pricesCurve / 100f);
