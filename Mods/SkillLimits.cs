@@ -115,7 +115,7 @@ namespace ModPack
         => "• Set limit on how many skills you can learn\n" +
            "• Decide which skills count towards the limit";
         override protected string SectionOverride
-        => SECTION_SURVIVAL;
+        => SECTION_SKILLS;
 
         // Utility
         static private bool CanLearnMoreLimitedSkills(Character character, SkillTypes skillTypes)

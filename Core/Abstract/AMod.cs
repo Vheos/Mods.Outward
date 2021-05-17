@@ -15,6 +15,7 @@ namespace ModPack
         private const int MAX_SETTINGS_PER_MOD = 1000;
         protected const string SECTION_SURVIVAL = "    \nSURVIVAL & IMMERSION";
         protected const string SECTION_COMBAT = "   \nCOMBAT";
+        protected const string SECTION_SKILLS = "   \nSKILLS";
         protected const string SECTION_UI = "  \nUSER INTERFACE";
         protected const string SECTION_VARIOUS = " \nVARIOUS";
         #endregion
@@ -35,7 +36,6 @@ namespace ModPack
             // Survival & Immersion
             typeof(Needs),
             typeof(Camping),
-            typeof(SkillLimits),
             typeof(Crafting),
             typeof(Durability),
             typeof(Prices),
@@ -48,7 +48,11 @@ namespace ModPack
             typeof(Speed),
             typeof(Targeting),
             typeof(Traps),
-            typeof(Skills),
+            
+            // Skills
+            typeof(SkillEditor),
+            typeof(SkillRandomizer),
+            typeof(SkillLimits),
 
             // UI
             typeof(GUI),

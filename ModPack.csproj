@@ -47,7 +47,6 @@
     </Reference>
     <Reference Include="Assembly-CSharp_publicized">
       <HintPath>..\..\AssemblyPublicizer\Assembly-CSharp_publicized.dll</HintPath>
-      <Private>False</Private>
     </Reference>
     <Reference Include="BepInEx">
       <HintPath>D:\Multiplayer\Outward\BepInEx\core\BepInEx.dll</HintPath>
@@ -104,6 +103,7 @@
     <Compile Include="Mods\Gamepad.cs" />
     <Compile Include="Mods\Prices.cs" />
     <Compile Include="Mods\SkillLimits.cs" />
+    <Compile Include="Mods\SkillRandomizer.cs" />
     <Compile Include="Mods\Targeting.cs" />
     <Compile Include="Mods\GUI.cs" />
     <Compile Include="Mods\KeyboardWalk.cs" />
@@ -117,7 +117,7 @@
     <Compile Include="Mods\Revive.cs" />
     <Compile Include="Mods\Needs.cs" />
     <Compile Include="Mods\Interactions.cs" />
-    <Compile Include="Mods\Skills.cs" />
+    <Compile Include="Mods\SkillEditor.cs" />
     <Compile Include="Mods\Traps.cs" />
     <Compile Include="Mods\Various.cs" />
     <Compile Include="Utility\Extensions\Extensions_Collections_ICollection.cs" />
