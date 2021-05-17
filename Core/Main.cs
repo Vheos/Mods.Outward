@@ -14,7 +14,7 @@ namespace ModPack
     public class Main : BaseUnityPlugin
     {
         // Settings
-        public const bool IS_DEVELOPMENT_VERSION = false;
+        public const bool IS_DEVELOPMENT_VERSION = true;
         public const string GUID = "com.Vheos.ModPack";
         public const string NAME = "Vheos Mod Pack" + (IS_DEVELOPMENT_VERSION ? " [DEVELOPMENT]" : "");
         public const string VERSION = "1.8.0";
@@ -38,9 +38,17 @@ namespace ModPack
         {
             if (Prefabs.IsInitialized || !IsGameInitialized)
                 return;
+     
+            Tools.Log($"Finished waiting ({Tools.ElapsedMilliseconds}ms)");
+            Tools.Log("");
 
+            Tools.Log("Initializing prefabs...");
             Prefabs.Initialize();
+            Tools.Log("Instantiating delayed mods...");
             InstantiateMods(_delayedModTypes);
+            Tools.Log($"Finished DelayedInit ({Tools.ElapsedMilliseconds}ms)");
+            Tools.Log("");
+            Tools.IsStopwatchActive = false;
         }
         private void InstantiateMods(ICollection<Type> modTypes)
         {
@@ -79,11 +87,29 @@ namespace ModPack
             _updatableMods = new List<IUpdatable>();
 
             Tools.Initialize(this, Logger);
+            Tools.IsStopwatchActive = true;
+
+            Tools.Log("Initializing GameInput...");
             GameInput.Initialize();
+            Tools.Log("Initializing Players...");
             Players.Initialize();
 
+            Tools.Log("Categorizing mods by instantiation time...");
             CategorizeModsByInstantiationTime();
+            Tools.Log("Awake:");
+            foreach (var modType in _awakeModTypes)
+                Tools.Log($"\t{modType.Name}");
+            Tools.Log("Delayed:");
+            foreach (var modType in _delayedModTypes)
+                Tools.Log($"\t{modType.Name}");
+
+            Tools.Log("Instantiating awake mods...");
             InstantiateMods(_awakeModTypes);
+
+            Tools.Log($"Finished AwakeInit ({Tools.ElapsedMilliseconds}ms)");
+            Tools.Log("");
+
+            Tools.Log($"Waiting for game initialization...");
         }
         private void Update()
         {
@@ -91,6 +117,5 @@ namespace ModPack
             UpdateMods(_updatableMods);
             Tools.TryRedrawConfigWindow();
         }
-
     }
 }

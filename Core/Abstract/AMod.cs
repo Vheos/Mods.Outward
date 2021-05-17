@@ -13,11 +13,11 @@ namespace ModPack
     {
         #region const
         private const int MAX_SETTINGS_PER_MOD = 1000;
-        protected const string SECTION_SURVIVAL = "    \nSURVIVAL & IMMERSION";
-        protected const string SECTION_COMBAT = "   \nCOMBAT";
-        protected const string SECTION_SKILLS = "   \nSKILLS";
-        protected const string SECTION_UI = "  \nUSER INTERFACE";
-        protected const string SECTION_VARIOUS = " \nVARIOUS";
+        public const string SECTION_SURVIVAL = "     \nSURVIVAL & IMMERSION";
+        public const string SECTION_COMBAT =   "    \nCOMBAT";
+        public const string SECTION_SKILLS =   "   \nSKILLS";
+        public const string SECTION_UI =       "  \nUSER INTERFACE";
+        public const string SECTION_VARIOUS =  " \nVARIOUS";
         #endregion
         #region enum
         [Flags]
@@ -144,14 +144,18 @@ namespace ModPack
                 _isInitialized = true;
                 ResetSettingPosition();
 
+                Tools.Log($"\t[{GetType().Name}] Initializing...");
                 Initialize();
                 Indent++;
+                Tools.Log($"\t[{GetType().Name}] Formatting...");
                 SetFormatting();
                 Indent--;
             }
 
+            Tools.Log($"\t[{GetType().Name}] Patching...");
             _patcher.PatchAll(GetType());
 
+            Tools.Log($"\t[{GetType().Name}] Calling events...");
             foreach (var setting in _settings)
                 setting.CallAllEvents();
             foreach (var onConfigClosed in _onConfigClosedEvents)
@@ -201,6 +205,7 @@ namespace ModPack
 
             ResetSettingPosition(-1);
             CreateMainToggle();
+            Tools.Log($"\t[{GetType().Name}] Main toggle: {_mainToggle.Value}");
 
             if (IsEnabled)
                 OnEnable();

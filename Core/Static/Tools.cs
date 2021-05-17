@@ -15,7 +15,7 @@ namespace ModPack
     static public class Tools
     {
         // Publics
-        static public void Log(object text, LogLevel logLevel = LogLevel.Message)
+        static public void Log(object text, LogLevel logLevel = LogLevel.Debug)
         => _logger.Log(logLevel, text);
         static public ConfigFile ConfigFile
         => _configFile;
@@ -91,8 +91,6 @@ namespace ModPack
             _configFile = pluginComponent.Config;
             _configManager = pluginComponent.GetComponent<ConfigurationManager.ConfigurationManager>();
             _plugin = pluginComponent.Info.Metadata;
-
-            Harmony.CreateAndPatchAll(typeof(Tools));
         }
     }
 }
