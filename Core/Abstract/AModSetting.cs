@@ -67,6 +67,8 @@ namespace ModPack
 
             IsVisible = _visibilityCheck();
         }
+        public void Reset()
+        => _configEntryBase.BoxedValue = _configEntryBase.DefaultValue;
 
         // Attributes
         public string Name
@@ -173,6 +175,7 @@ namespace ModPack
             foreach (var newParentController in controller._visibilityControllers)
                 _visibilityControllers.Add(newParentController);
         }
+
 
         // Constructors
         protected AModSetting()

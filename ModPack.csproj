@@ -47,6 +47,7 @@
     </Reference>
     <Reference Include="Assembly-CSharp_publicized">
       <HintPath>..\..\AssemblyPublicizer\Assembly-CSharp_publicized.dll</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="BepInEx">
       <HintPath>D:\Multiplayer\Outward\BepInEx\core\BepInEx.dll</HintPath>
@@ -96,6 +97,7 @@
     <Compile Include="Core\Static\Players.cs" />
     <Compile Include="Core\Static\Prefabs.cs" />
     <Compile Include="Core\Static\GameInput.cs" />
+    <Compile Include="Core\Static\Presets.cs" />
     <Compile Include="Mods\Crafting.cs" />
     <Compile Include="Mods\Development\WIP.cs" />
     <Compile Include="Mods\Durability.cs" />

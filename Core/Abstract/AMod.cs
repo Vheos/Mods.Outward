@@ -216,14 +216,56 @@ namespace ModPack
         }
         abstract protected void Initialize();
         abstract protected void SetFormatting();
+        virtual public void LoadPreset(Presets.Preset preset)
+        { }
 
         // Utility     
         public bool IsEnabled
-        => _mainToggle.Value.HasFlag(Toggles.Apply);
+        {
+            get => _mainToggle.Value.HasFlag(Toggles.Apply);
+            protected set
+            {
+                if (value)
+                    _mainToggle.Value |= Toggles.Apply;
+                else
+                    _mainToggle.Value &= ~Toggles.Apply;
+            }
+        }
         protected bool IsCollapsed
-        => _mainToggle.Value.HasFlag(Toggles.Collapse);
+        {
+            get => _mainToggle.Value.HasFlag(Toggles.Collapse);
+            set
+            {
+                if (value)
+                    _mainToggle.Value |= Toggles.Collapse;
+                else
+                    _mainToggle.Value &= ~Toggles.Collapse;
+            }
+        }
         protected bool IsHidden
-        => _mainToggle.Value.HasFlag(Toggles.Hide);
+        {
+            get => _mainToggle.Value.HasFlag(Toggles.Hide);
+            set
+            {
+                if (value)
+                    _mainToggle.Value |= Toggles.Hide;
+                else
+                    _mainToggle.Value &= ~Toggles.Hide;
+            }
+        }
+        protected void ForceApply()
+        {
+            IsHidden = false;
+            IsEnabled = true;
+            IsCollapsed = true;
+        }
+        public void ResetSettings(bool disableSelf = false)
+        {
+            foreach (var setting in _settings)
+                setting.Reset();
+            if (disableSelf)
+                IsEnabled = false;
+        }
         protected void ResetSettingPosition(int offset = 0)
         => AModSetting.NextPosition = ModOrderingOffset + offset;
         protected int Indent

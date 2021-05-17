@@ -23,6 +23,7 @@ namespace ModPack
         private List<Type> _awakeModTypes;
         private List<Type> _delayedModTypes;
         private List<IUpdatable> _updatableMods;
+        private List<AMod> _mods;
         private void CategorizeModsByInstantiationTime(Type[] whitelist = null, Type[] blacklist = null)
         {
             foreach (var modType in Utility.GetDerivedTypes<AMod>())
@@ -46,6 +47,10 @@ namespace ModPack
             Prefabs.Initialize();
             Tools.Log("Instantiating delayed mods...");
             InstantiateMods(_delayedModTypes);
+
+            Tools.Log("Initializing Presets...");
+            Presets.Initialize(_mods);
+
             Tools.Log($"Finished DelayedInit ({Tools.ElapsedMilliseconds}ms)");
             Tools.Log("");
             Tools.IsStopwatchActive = false;
@@ -58,6 +63,7 @@ namespace ModPack
         private void InstantiateMod(Type modType)
         {
             AMod newMod = (AMod)Activator.CreateInstance(modType);
+            _mods.Add(newMod);
             if (modType.IsAssignableTo<IUpdatable>())
                 _updatableMods.Add(newMod as IUpdatable);
         }
@@ -85,6 +91,7 @@ namespace ModPack
             _awakeModTypes = new List<Type>();
             _delayedModTypes = new List<Type>();
             _updatableMods = new List<IUpdatable>();
+            _mods = new List<AMod>();
 
             Tools.Initialize(this, Logger);
             Tools.IsStopwatchActive = true;
