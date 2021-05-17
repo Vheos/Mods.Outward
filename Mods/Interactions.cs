@@ -41,8 +41,7 @@ namespace ModPack
             Loot = 1 << 1,
             Travel = 1 << 2,
             Warp = 1 << 3,
-            Talk = 1 << 4,
-            Revive = 1 << 5,
+            PullLever = 1 << 4,
         }
         #endregion
         #region interaction
@@ -224,8 +223,7 @@ namespace ModPack
             _disallowedInCombat.Description = "Loot   -   opening chests, backpacks, corpses, etc.\n" +
                                               "Travel   -   move to another area with loading screen\n" +
                                               "Warp   -   enter door, climb rope or teleport without loading screen\n" +
-                                              "Talk   -   talk to NPCs\n" +
-                                              "Revive   -   revive other players";
+                                              "Pull levers   -   open gates, ride elevators, etc.";
         }
         override protected string Description
         => "• Instant \"Hold\" interactions\n" +
@@ -293,20 +291,6 @@ namespace ModPack
                 oldInteraction.Destroy();
             }
         }
-        static private bool TryDisallowInteractionInCombat(InteractionBase interaction, InteractionsInCombat interactionType)
-        {
-            Character character = interaction.LastCharacter;
-
-            #region quit
-            if (!_disallowedInCombat.Value.HasFlag(interactionType)
-            || character == null || !character.InCombat)
-                return true;
-            #endregion
-
-            character.CharacterUI.ShowInfoNotification(DISALLOW_IN_COMBAT_NOTIFICATION);
-            interaction.m_activating = false;
-            return false;
-        }
 
         // Hooks
 #pragma warning disable IDE0051 // Remove unused private members
@@ -326,25 +310,23 @@ namespace ModPack
         }
 
         // Disallow interactions in combat
-        [HarmonyPatch(typeof(InteractionOpenContainer), "OnActivate"), HarmonyPrefix]
-        static bool InteractionOpenContainer_OnActivate_Pre(InteractionOpenContainer __instance)
-        => TryDisallowInteractionInCombat(__instance, InteractionsInCombat.Loot);
+        [HarmonyPatch(typeof(InteractionTriggerBase), "TryActivateBasicAction", new[] { typeof(Character), typeof(int) }), HarmonyPrefix]
+        static bool InteractionTriggerBase_TryActivate_Pre(InteractionTriggerBase __instance, ref Character _character)
+        {
+            InteractionsInCombat flags = _disallowedInCombat.Value;
+            #region quit
+            if (_character == null || !_character.InCombat || !__instance.CurrentTriggerManager.TryAs<InteractionActivator>(out var interactionActivator)
+            || (interactionActivator.BasicInteraction.IsNot<InteractionOpenContainer>() || !flags.HasFlag(InteractionsInCombat.Loot))
+            && (interactionActivator.BasicInteraction.IsNot<InteractionSwitchArea>() || !flags.HasFlag(InteractionsInCombat.Travel))
+            && (interactionActivator.BasicInteraction.IsNot<InteractionWarp>() || !flags.HasFlag(InteractionsInCombat.Warp))
+            && (interactionActivator.BasicInteraction.IsNot<InteractionToggleContraption>() || !flags.HasFlag(InteractionsInCombat.PullLever))
+            && (interactionActivator.BasicInteraction.IsNot<InteractionRevive>() || !flags.HasFlag(InteractionsInCombat.PullLever)))
+                return true;
+            #endregion
 
-        [HarmonyPatch(typeof(InteractionSwitchArea), "OnActivate"), HarmonyPrefix]
-        static bool InteractionSwitchArea_OnActivate_Pre(InteractionSwitchArea __instance)
-        => TryDisallowInteractionInCombat(__instance, InteractionsInCombat.Travel);
-
-        [HarmonyPatch(typeof(InteractionWarp), "OnActivate"), HarmonyPrefix]
-        static bool InteractionWarp_OnActivate_Pre(InteractionWarp __instance)
-        => TryDisallowInteractionInCombat(__instance, InteractionsInCombat.Warp);
-
-        [HarmonyPatch(typeof(NPCInteraction), "OnActivate"), HarmonyPrefix]
-        static bool NPCInteraction_OnActivate_Pre(NPCInteraction __instance)
-        => TryDisallowInteractionInCombat(__instance, InteractionsInCombat.Talk);
-
-        [HarmonyPatch(typeof(InteractionRevive), "OnActivate"), HarmonyPrefix]
-        static bool InteractionRevive_OnActivate_Pre(InteractionOpenContainer __instance)
-        => TryDisallowInteractionInCombat(__instance, InteractionsInCombat.Revive);
+            _character.CharacterUI.ShowInfoNotification(DISALLOW_IN_COMBAT_NOTIFICATION);
+            return false;
+        }
     }
 }
 
