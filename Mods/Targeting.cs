@@ -117,7 +117,7 @@ namespace ModPack
         static void Character_AttackInput_Post(Character __instance)
         {
             #region quit
-            if (!__instance.TryAs(out LocalCharacterControl localCharacterControl) || __instance.TargetingSystem.Locked
+            if (!__instance.CharacterControl.TryAs(out LocalCharacterControl localCharacterControl) || __instance.TargetingSystem.Locked
             || !_autoTargetActions.Value.HasFlag(AutoTargetActions.Attack))
                 return;
             #endregion
@@ -129,7 +129,7 @@ namespace ModPack
         static void Character_SetLastUsedSkill_Post(Character __instance, ref Skill _skill)
         {
             #region quit
-            if (!__instance.TryAs(out LocalCharacterControl localCharacterControl) || __instance.TargetingSystem.Locked
+            if (!__instance.CharacterControl.TryAs(out LocalCharacterControl localCharacterControl) || __instance.TargetingSystem.Locked
             || !_autoTargetActions.Value.HasFlag(AutoTargetActions.CombatSkill))
                 return;
             #endregion
@@ -141,7 +141,7 @@ namespace ModPack
         static void Character_BlockInput_Post(Character __instance, ref bool _active)
         {
             #region quit
-            if (!__instance.TryAs(out LocalCharacterControl localCharacterControl) || __instance.TargetingSystem.Locked
+            if (!__instance.CharacterControl.TryAs(out LocalCharacterControl localCharacterControl) || __instance.TargetingSystem.Locked
             || !_autoTargetActions.Value.HasFlag(AutoTargetActions.Block))
                 return;
             #endregion
@@ -153,7 +153,7 @@ namespace ModPack
         static void Character_DodgeInput_Post(Character __instance)
         {
             #region quit
-            if (!__instance.TryAs(out LocalCharacterControl localCharacterControl) || __instance.TargetingSystem.Locked
+            if (!__instance.CharacterControl.TryAs(out LocalCharacterControl localCharacterControl) || __instance.TargetingSystem.Locked
             || !_autoTargetActions.Value.HasFlag(AutoTargetActions.Dodge))
                 return;
             #endregion
