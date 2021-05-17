@@ -403,7 +403,7 @@ namespace ModPack
                     _randomRandomizeSeed.Format("Randomize seed", _randomToggle);
                     Indent--;
                 }
-                _randomEqualizerTypes.Format("Try to equalize");
+                _randomEqualizerTypes.Format("Try to equalize", _randomToggle);
                 _randomAdvancedRequiresBasic.Format("Pair advanced skills with basic", _randomToggle);
                 _randomRandomizeBreakthrough.Format("Randomize breakthrough skills", _randomToggle);
                 Indent++;
@@ -480,7 +480,7 @@ namespace ModPack
         }
         static private void CopyCachedSkillTreeHolder()
         {
-            SkillTreeHolder newSkillTreeHolder = GameObject.Instantiate<SkillTreeHolder>(_cachedSkillTreeHolder, _cachedSkillTreeHolder.transform.parent);
+            SkillTreeHolder newSkillTreeHolder = GameObject.Instantiate(_cachedSkillTreeHolder, _cachedSkillTreeHolder.transform.parent);
             newSkillTreeHolder.name = "Skill Trees";
             GameObject.DontDestroyOnLoad(newSkillTreeHolder);
         }
@@ -513,20 +513,20 @@ namespace ModPack
             if (_cachedSkillTreeHolder == null)
                 return;
 
-            // Destroy real SkillTreeHolder
-            SkillTreeHolder.Instance.DestroyObject();
-
-            // Safely destroy side skill trees
+            // Destroy side skill trees
             foreach (var sideSkillTree in _sideSkillTrees)
             {
                 sideSkillTree.Unparent();
                 _sideSkillTrees.DestroyObjects();
-            }        
+            }
+
+            // Destroy real SkillTreeHolder
+            SkillTreeHolder.Instance.DestroyObject();
+
 
             // Copy and destroy cached SkillTreeHolder
             CopyCachedSkillTreeHolder();
             _cachedSkillTreeHolder.DestroyObject();
-      
         }
         static private List<SkillSchool> GetInputSkillTrees()
         {
@@ -627,10 +627,8 @@ namespace ModPack
                     equalizersByType[EqualizerTypes.Trees] = new SlotList2D(outputSlotLists);
                     foreach (var inputSlot in inputSlotList)
                     {
-                        SlotLevel slotLevel = GetSlotLevel(inputSlot, true);
-
                         // skip breakthrough slots if the setting isn't enabled
-                        if (slotLevel == SlotLevel.Breakthrough && !_randomRandomizeBreakthrough)
+                        if (GetSlotLevel(inputSlot, true) == SlotLevel.Breakthrough && !_randomRandomizeBreakthrough)
                             continue;
 
                         // reset empty equalizers and find intersection
@@ -643,7 +641,7 @@ namespace ModPack
                         }
 
                         // pair advanced slots with basic if the setting is enabled
-                        if (slotLevel == SlotLevel.Advanced && _randomAdvancedRequiresBasic)
+                        if (GetSlotLevel(inputSlot, true) == SlotLevel.Advanced && _randomAdvancedRequiresBasic)
                         {
                             SlotList2D allowedLists = new SlotList2D();
                             foreach (var outputSlotList in outputSlotLists)
@@ -689,9 +687,13 @@ namespace ModPack
                 SlotList randomOutputSlotList = outputSlotLists.Random();
                 foreach (var outputSlot in randomOutputSlotList)
                 {
-                    outputSlot.BecomeChildOf(skillBranchHolder);
-                    outputSlot.m_columnIndex = column++;
-                    if (column > 4)
+                    BaseSkillSlot newSlot = GameObject.Instantiate(outputSlot, skillBranchHolder.transform);
+                    newSlot.m_columnIndex = column++;
+                    newSlot.RequiredSkillSlot = null;
+                    newSlot.IsBreakthrough = GetSlotLevel(outputSlot) == SlotLevel.Breakthrough;
+                    newSlot.RequiresBreakthrough = GetSlotLevel(outputSlot) == SlotLevel.Advanced;
+
+                    if (column > 4 || outputSlot == randomOutputSlotList.Last())
                     {
                         skillBranchHolder.BecomeChildOf(outputTree);
                         skillBranchHolder.AddComponent<SkillBranch>();
@@ -699,9 +701,12 @@ namespace ModPack
                         column = 0;
                     }
                 }
+
                 outputTree.Start();
                 outputSlotLists.Remove(randomOutputSlotList);
             }
+
+            // Diagnostics
             Tools.Log($"");
             Tools.Log($"Execution time: {Tools.ElapsedMilliseconds}ms");
             Tools.IsStopwatchActive = false;
