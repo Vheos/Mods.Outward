@@ -13,7 +13,7 @@ using SlotList3D = System.Collections.Generic.List<System.Collections.Generic.Li
 
 namespace ModPack
 {
-    public class SkillRandomizer : AMod, IDelayedInit
+    public class SkillRandomizer : AMod, IDelayedInit, IDevelopmentOnly
     {
         #region const
         private const string WEAPON_SKILLS_TREE_NAME = "WeaponSkills";
