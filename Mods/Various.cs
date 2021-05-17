@@ -46,7 +46,6 @@ namespace ModPack
         static private ModSetting<bool> _loadArrowsFromInventory;
         static private ModSetting<Vector2> _remapBackpackCapacities;
         static private ModSetting<int> _waterskinCapacity;
-
         override protected void Initialize()
         {
             _enableCheats = CreateSetting(nameof(_enableCheats), false);
@@ -95,7 +94,7 @@ namespace ModPack
                 Indent--;
             }
             _loadArrowsFromInventory.Format("Load arrows from inventory");
-            _loadArrowsFromInventory.Description = "Whenever you shoot your bow, the missing arrow is automatically replace with one from backpack or pouch (in that order).";
+            _loadArrowsFromInventory.Description = "Whenever you shoot your bow, the lost arrow is instantly replaced with one from your backpack or pouch (in that order).";
             _remapBackpackCapacities.Format("Remap backpack capacities");
             _remapBackpackCapacities.Description = "X   -   Primitive Satchel's capacity\n" +
                                                    "Y   -   Trader Backpack's capacity\n" +

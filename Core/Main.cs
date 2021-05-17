@@ -14,10 +14,10 @@ namespace ModPack
     public class Main : BaseUnityPlugin
     {
         // Settings
-        public const bool IS_DEVELOPMENT_VERSION = true;
+        public const bool IS_DEVELOPMENT_VERSION = false;
         public const string GUID = "com.Vheos.ModPack";
         public const string NAME = "Vheos Mod Pack" + (IS_DEVELOPMENT_VERSION ? " [DEVELOPMENT]" : "");
-        public const string VERSION = "1.8.0";
+        public const string VERSION = "1.8.1";
 
         // Utility
         private List<Type> _awakeModTypes;
@@ -38,7 +38,7 @@ namespace ModPack
         {
             if (Prefabs.IsInitialized || !IsGameInitialized)
                 return;
-     
+
             Tools.Log($"Finished waiting ({Tools.ElapsedMilliseconds}ms)");
             Tools.Log("");
 

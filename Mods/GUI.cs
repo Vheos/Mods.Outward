@@ -281,7 +281,6 @@ namespace ModPack
                         tmp._switchToSell.Format("Switch to sell panel", tmp._separateBuySellPanels, SeperatePanelsMode.TwoButtons);
                         Indent--;
                     }
-
                     Indent--;
                 }
             }

@@ -124,8 +124,8 @@ namespace ModPack
                     "• Simple Bow: 13 -> 4\n" +
                     "• War Bow: 1000 -> 32";
                 _sellModifier.Format("Selling multiplier", _merchantsToggle);
-                _pricesGold.Format("Gold");
-                _pricesPerTypeToggle.Format("Prices per type");
+                _pricesGold.Format("Gold", _merchantsToggle);
+                _pricesPerTypeToggle.Format("Prices per type", _merchantsToggle);
                 Indent++;
                 {
                     _pricesWeapons.Format("Weapons", _pricesPerTypeToggle);

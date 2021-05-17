@@ -14,10 +14,10 @@ namespace ModPack
         #region const
         private const int MAX_SETTINGS_PER_MOD = 1000;
         public const string SECTION_SURVIVAL = "     \nSURVIVAL & IMMERSION";
-        public const string SECTION_COMBAT =   "    \nCOMBAT";
-        public const string SECTION_SKILLS =   "   \nSKILLS";
-        public const string SECTION_UI =       "  \nUSER INTERFACE";
-        public const string SECTION_VARIOUS =  " \nVARIOUS";
+        public const string SECTION_COMBAT = "    \nCOMBAT";
+        public const string SECTION_SKILLS = "   \nSKILLS";
+        public const string SECTION_UI = "  \nUSER INTERFACE";
+        public const string SECTION_VARIOUS = " \nVARIOUS";
         #endregion
         #region enum
         [Flags]

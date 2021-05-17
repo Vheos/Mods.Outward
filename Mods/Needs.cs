@@ -152,7 +152,7 @@ namespace ModPack
                 tmp._toggle = CreateSetting(needPrefix + nameof(tmp._toggle), false);
                 tmp._thresholds = CreateSetting(needPrefix + nameof(tmp._thresholds), data.Thresholds);
                 tmp._depletionRate = CreateSetting(needPrefix + nameof(tmp._depletionRate), new Vector2(100f, data.DepletionRate));
-                tmp._fulfilledLimit = CreateSetting(needPrefix + nameof(tmp._fulfilledLimit), 120, IntRange(100, 200));
+                tmp._fulfilledLimit = CreateSetting(needPrefix + nameof(tmp._fulfilledLimit), 100, IntRange(100, 200));
 
                 int defaultValue = data.Need == Need.Sleep ? 115 : 33;
                 AcceptableValueRange<int> range = data.Need == Need.Sleep ? IntRange(100, 200) : IntRange(0, 100);
@@ -218,7 +218,11 @@ namespace ModPack
                         if (data.Need == Need.Sleep)
                         {
                             _sleepNegativeEffect.Format("mana / min", tmp._fulfilledLimit, () => tmp._fulfilledLimit > 100);
-                            _sleepNegativeEffectIsPercent.Format("is % of max mana");
+                            Indent++;
+                            {
+                                _sleepNegativeEffectIsPercent.Format("is % of max mana", tmp._fulfilledLimit, () => tmp._fulfilledLimit > 100);
+                            }
+                            Indent--;
                         }
                         Indent--;
                     }

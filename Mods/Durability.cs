@@ -46,7 +46,6 @@ namespace ModPack
         static private ModSetting<RepairPercentReference> _repairPercentReference;
         static private ModSetting<MultiRepairBehaviour> _multiRepairBehaviour;
         static private ModSetting<int> _fastMaintenanceMultiplier;
-
         static private ModSetting<bool> _effectivenessAffectsAllStats, _effectivenessAffectsPenalties;
         static private ModSetting<bool> _linearEffectiveness;
         static private ModSetting<int> _minNonBrokenEffectiveness, _brokenEffectiveness;
@@ -110,7 +109,7 @@ namespace ModPack
                                                         "( * currently all except damage bonuses)";
             Indent++;
             {
-                _effectivenessAffectsPenalties.Format("affect penalties");
+                _effectivenessAffectsPenalties.Format("affect penalties", _effectivenessAffectsAllStats);
                 _effectivenessAffectsPenalties.Description = "Stat penalties (like negative movement speed on heavy armors) will also decrease with durability";
                 Indent--;
             }
