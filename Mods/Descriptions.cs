@@ -19,7 +19,7 @@ namespace ModPack
         static private readonly Vector2 BAR_PIVOT = new Vector2(0f, 1f);
         private const float DURABILITY_MAX_MAX = 777f;    // Duty (unique halberd)
         private const float FRESHNESS_LIFESPAN_MAX = 104f;   // Travel Ration
-        private const int SIZE_MIN = 0;
+        private const float BAR_SCALING_CURVE = 0.8f;
         private const int DEFAULT_FONT_SIZE = 19;
         private const int WATER_ITEMS_FIRST_ID = 5600000;
 
@@ -494,13 +494,13 @@ namespace ModPack
             {
                 float decayRate = item.PerishScript.m_baseDepletionRate;
                 float decayTime = 100f / (decayRate * 24f);
-                rawSize = (decayTime / FRESHNESS_LIFESPAN_MAX).Sqrt();
+                rawSize = decayTime / FRESHNESS_LIFESPAN_MAX;
             }
             else if (_durabilityTiedToMax && barSize == _durabilityBarSize)
-                rawSize = (item.MaxDurability / DURABILITY_MAX_MAX).Sqrt();
+                rawSize = item.MaxDurability / DURABILITY_MAX_MAX;
 
             if (!rawSize.IsNaN())
-                barSize.Value = rawSize.MapFrom01(SIZE_MIN, 100f).Round();
+                barSize.Value = rawSize.Pow(BAR_SCALING_CURVE).MapFrom01(0, 100f).Round();
 
             // Assign
             float sizeOffset = barSize / 100f * BAR_MAX_SIZE.x - 1f;
