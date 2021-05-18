@@ -116,6 +116,25 @@ namespace ModPack
            "• Decide which skills count towards the limit";
         override protected string SectionOverride
         => SECTION_SKILLS;
+        override public void LoadPreset(Presets.Preset preset)
+        {
+            switch (preset)
+            {
+                case Presets.Preset.Vheos_CoopSurvival:
+                    ForceApply();
+                    _separateLimits.Value = true;
+                    {
+                        _passiveSkillsLimit.Value = 5;
+                        _activeSkillsLimit.Value = 15;
+                    }
+                    _limitedSkillTypes.Value = (LimitedSkillTypes)~0;
+                    _freePostBreakthroughBasicSkills.Value = true;
+                    break;
+
+                case Presets.Preset.IggyTheMad_TrueHardcore:
+                    break;
+            }
+        }
 
         // Utility
         static private bool CanLearnMoreLimitedSkills(Character character, SkillTypes skillTypes)

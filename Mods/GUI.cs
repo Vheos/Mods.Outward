@@ -155,7 +155,7 @@ namespace ModPack
                 tmp._hideQuickslotHints = CreateSetting(playerPrefix + nameof(tmp._hideQuickslotHints), false);
                 tmp._alternativeManaBarPlacement = CreateSetting(playerPrefix + nameof(tmp._alternativeManaBarPlacement), false);
                 foreach (var hudGroup in DATA_BY_HUD_GROUP.Keys.ToArray())
-                    tmp._hudOverridesByHUDGroup.Add(hudGroup, CreateSetting($"_hudOverride{hudGroup}{playerPrefix}", Vector3.zero));
+                    tmp._hudOverridesByHUDGroup.Add(hudGroup, CreateSetting($"{playerPrefix}_hudOverride{hudGroup}", Vector3.zero));
                 tmp._shopAndStashWidth = CreateSetting(playerPrefix + nameof(tmp._shopAndStashWidth), 0, IntRange(0, 100));
                 tmp._swapPendingBuySellPanels = CreateSetting(playerPrefix + nameof(tmp._swapPendingBuySellPanels), false);
                 tmp._separateBuySellPanels = CreateSetting(playerPrefix + nameof(tmp._separateBuySellPanels), SeperatePanelsMode.Disabled);
@@ -290,6 +290,34 @@ namespace ModPack
            "• Vertical splitscreen (with shop tweaks)";
         override protected string SectionOverride
         => SECTION_UI;
+        override public void LoadPreset(Presets.Preset preset)
+        {
+            switch (preset)
+            {
+                case Presets.Preset.Vheos_PreferredUI:
+                    ForceApply();
+                    foreach (var settings in _perPlayerSettings)
+                    {
+                        settings._toggle.Value = true;
+                        {
+                            settings._rearrangeHUD.Value = true;
+                            settings._hudTransparency.Value = 25;
+                            settings._fadingStatusEffectIcons.Value = true;
+                            {
+                                settings._statusIconMaxSize.Value = 120;
+                                settings._statusIconMinSize.Value = 60;
+                                settings._statusIconMinAlpha.Value = 50;
+                            }
+                            settings._hideQuickslotHints.Value = true;
+                            settings._alternativeManaBarPlacement.Value = true;
+                            settings._shopAndStashWidth.Value = 80;
+                            settings._separateBuySellPanels.Value = SeperatePanelsMode.Disabled;
+                            settings._swapPendingBuySellPanels.Value = true;
+                        }
+                    }
+                    break;
+            }
+        }
         public void OnUpdate()
         {
             foreach (var player in Players.Local)

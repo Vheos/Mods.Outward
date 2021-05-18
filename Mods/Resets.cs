@@ -121,6 +121,39 @@ namespace ModPack
            "• Merchant restocks";
         override protected string SectionOverride
         => SECTION_SURVIVAL;
+        override public void LoadPreset(Presets.Preset preset)
+        {
+            switch (preset)
+            {
+                case Presets.Preset.Vheos_CoopSurvival:
+                    ForceApply();
+                    _areasToggle.Value = true;
+                    {
+                        _areasMode.Value = ResetMode.Timer;
+                        _areasTimer.Value = 4;
+                        _areasTimerSinceReset.Value = 14;
+                        _areasResetLayers.Value = AreasResetLayers.Enemies;
+                    }
+                    _gatherablesToggle.Value = true;
+                    {
+                        _gatheringMode.Value = ResetMode.Timer;
+                        _gatheringTimer.Value = 7;
+                        _miningMode.Value = ResetMode.Timer;
+                        _miningTimer.Value = 11;
+                        _fishingMode.Value = ResetMode.Timer;
+                        _fishingTimer.Value = 4;
+                    }
+                    _merchantsToggle.Value = true;
+                    {
+                        _merchantsMode.Value = ResetMode.Timer;
+                        _merchantsTimer.Value = 84;
+                    }
+                    break;
+
+                case Presets.Preset.IggyTheMad_TrueHardcore:
+                    break;
+            }
+        }
 
         // Utility
         static private void RemovePouchItemsFromSaveData(List<BasicSaveData> saveDataList)

@@ -37,6 +37,17 @@ namespace ModPack
            "• Better stash navigation";
         override protected string SectionOverride
         => SECTION_UI;
+        override public void LoadPreset(Presets.Preset preset)
+        {
+            switch (preset)
+            {
+                case Presets.Preset.Vheos_PreferredUI:
+                    ForceApply();
+                    _extraGamepadQuickslots.Value = true;
+                    _betterStashNavigation.Value = true;
+                    break;
+            }
+        }
         public void OnUpdate()
         {
             #region quit

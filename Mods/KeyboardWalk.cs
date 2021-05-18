@@ -47,6 +47,15 @@ namespace ModPack
            "(can be held or toggled)";
         override protected string SectionOverride
         => SECTION_UI;
+        override public void LoadPreset(Presets.Preset preset)
+        {
+            switch (preset)
+            {
+                case Presets.Preset.Vheos_PreferredUI:
+                    IsHidden = true;
+                    break;
+            }
+        }
         public void OnUpdate()
         {
             if (_key.Value.ToKeyCode().Pressed())

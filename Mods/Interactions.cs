@@ -44,7 +44,7 @@ namespace ModPack
             PullLever = 1 << 4,
         }
         #endregion
-        #region interaction
+        #region game subclasses
         // Interactions
         public abstract class InteractionFromGround : ItemInteraction
         {
@@ -232,6 +232,23 @@ namespace ModPack
            "• Disallow certain interactions while in combat";
         override protected string SectionOverride
         => SECTION_SURVIVAL;
+        override public void LoadPreset(Presets.Preset preset)
+        {
+            switch (preset)
+            {
+                case Presets.Preset.Vheos_CoopSurvival:
+                    ForceApply();
+                    _groundInteractions.Value = GroundInteractions.All;
+                    _singleHoldsToPresses.Value = true;
+                    _holdInteractionsDuration.Value = 0.8f;
+                    _takeAnimations.Value = true;
+                    _disallowedInCombat.Value = (InteractionsInCombat)~0;
+                    break;
+
+                case Presets.Preset.IggyTheMad_TrueHardcore:
+                    break;
+            }
+        }
 
         // Utility
         static private void SwapBasicAndHoldInteractions(InteractionActivator activator, ref IInteraction vanillaBasic, ref IInteraction vanillaHold)

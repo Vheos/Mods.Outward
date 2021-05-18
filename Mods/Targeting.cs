@@ -71,6 +71,24 @@ namespace ModPack
            "• Tilt targeting camera";
         override protected string SectionOverride
         => SECTION_COMBAT;
+        override public void LoadPreset(Presets.Preset preset)
+        {
+            switch (preset)
+            {
+                case Presets.Preset.Vheos_CoopSurvival:
+                    ForceApply();
+                    _meleeDistance.Value = 20;
+                    _rangedDistance.Value = 30;
+                    _huntersEyeDistance.Value = 45;
+                    _rangedEquipmentTypes.Value = (RangedTypes)~0;
+                    _autoTargetActions.Value = AutoTargetActions.Attack | AutoTargetActions.CombatSkill;
+                    _targetingPitchOffset.Value = 0.2f;
+                    break;
+
+                case Presets.Preset.IggyTheMad_TrueHardcore:
+                    break;
+            }
+        }
 
         // Utility
         static private bool HasHuntersEye(Character character)

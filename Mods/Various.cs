@@ -106,6 +106,28 @@ namespace ModPack
         => "• Mods (small and big) that didn't get their own section yet :)";
         override protected string SectionOverride
         => SECTION_VARIOUS;
+        override public void LoadPreset(Presets.Preset preset)
+        {
+            switch (preset)
+            {
+                case Presets.Preset.Vheos_CoopSurvival:
+                    ForceApply();
+                    _skipStartupVideos.Value = true;
+                    _removeCoopScaling.Value = true;
+                    _removeDodgeInvulnerability.Value = true;
+                    _healEnemiesOnLoad.Value = true;
+                    _multiplicativeStacking.Value = true;
+                    _armorTrainingPenaltyReduction.Value = 50;
+                    _applyArmorTrainingToManaCost.Value = true;
+                    _loadArrowsFromInventory.Value = true;
+                    _remapBackpackCapacities.Value = new Vector2(20, 60);
+                    _waterskinCapacity.Value = 9;
+                    break;
+
+                case Presets.Preset.IggyTheMad_TrueHardcore:
+                    break;
+            }
+        }
 
         // Utility
         static private bool ShouldArmorSlotBeHidden(EquipmentSlot.EquipmentSlotIDs slot)

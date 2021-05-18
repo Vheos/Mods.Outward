@@ -216,6 +216,30 @@ namespace ModPack
         "(automatic scaling, thickness)";
         override protected string SectionOverride
         => SECTION_UI;
+        override public void LoadPreset(Presets.Preset preset)
+        {
+            switch (preset)
+            {
+                case Presets.Preset.Vheos_PreferredUI:
+                    ForceApply();
+                    _details.Value = Details.All;
+                    _equipmentToggle.Value = true;
+                    {
+                        _displayRelativeAttackSpeed.Value = true;
+                        _normalizeImpactDisplay.Value = true;
+                        _moveBarrierBelowProtection.Value = true;
+                        _hideNumericalDurability.Value = true;
+                    }
+                    _barsToggle.Value = true;
+                    {
+                        _durabilityTiedToMax.Value = true;
+                        _freshnessTiedToLifespan.Value = true;
+                        _barThickness.Value = 60;
+                    }
+                    _addBackgrounds.Value = true;
+                    break;
+            }
+        }
 
         // Utility
         static private Sprite _impactIcon;

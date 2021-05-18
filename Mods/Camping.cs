@@ -94,6 +94,22 @@ namespace ModPack
            "• Customize repairing mechanic";
         override protected string SectionOverride
         => SECTION_SURVIVAL;
+        override public void LoadPreset(Presets.Preset preset)
+        {
+            switch (preset)
+            {
+                case Presets.Preset.Vheos_CoopSurvival:
+                    ForceApply();
+                    _campingSpots.Value = CampingSpots.Butterflies | CampingSpots.Dungeons;
+                    _butterfliesSpawnChance.Value = 50;
+                    _butterfliesRadius.Value = 5;
+                    _campingActivities.Value = CampingActivities.Sleep | CampingActivities.Repair;
+                    break;
+
+                case Presets.Preset.IggyTheMad_TrueHardcore:
+                    break;
+            }
+        }
 
         // Utility
         static private List<SphereCollider> _safeZoneColliders;

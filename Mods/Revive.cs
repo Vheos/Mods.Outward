@@ -106,6 +106,43 @@ namespace ModPack
            "(vitals, max vitals, needs, corruption)";
         override protected string SectionOverride
         => SECTION_SURVIVAL;
+        override public void LoadPreset(Presets.Preset preset)
+        {
+            switch (preset)
+            {
+                case Presets.Preset.Vheos_CoopSurvival:
+                    ForceApply();
+                    _interactionToggle.Value = true;
+                    {
+                        _interactionDuration.Value = 5;
+                        _interactionDistance.Value = 3;
+                        _interactionPrioritize.Value = true;
+                    }
+                    _maxVitalsToggle.Value = true;
+                    {
+                        _maxHealthLost.Value = -10;
+                        _maxStaminaLost.Value = -10;
+                        _maxManaLost.Value = -10;
+                    }
+                    _vitalsToggle.Value = true;
+                    {
+                        _newHealth.Value = 50;
+                        _newStamina.Value = 0;
+                        _manaLost.Value = -50;
+                    }
+                    _needsToggle.Value = true;
+                    {
+                        _foodLost.Value = -10;
+                        _drinkLost.Value = -10;
+                        _sleepLost.Value = -10;
+                        _corruptionGained.Value = 3;
+                    }
+                    break;
+
+                case Presets.Preset.IggyTheMad_TrueHardcore:
+                    break;
+            }
+        }
 
         // Hooks
 #pragma warning disable IDE0051 // Remove unused private members

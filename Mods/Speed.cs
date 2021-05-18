@@ -16,11 +16,11 @@ namespace ModPack
         #endregion
 
         // Config
-        static private ModSetting<bool> _gameToggle, _playersToggle, _npcsToggle;
+        static private ModSetting<bool> _gameToggle, _playersToggle, _enemiesToggle;
         static private ModSetting<int> _defaultGameSpeed, _speedHackMultiplier;
         static private ModSetting<string> _speedHackKey;
         static private ModSetting<int> _playersAnimationSpeed, _playersMovementSpeed, _playersAttackSpeed;
-        static private ModSetting<int> _npcsAnimationSpeed, _npcMovementSpeed, _npcAttackSpeed;
+        static private ModSetting<int> _enemiesAnimationSpeed, _enemiesMovementSpeed, _enemiesAttackSpeed;
         override protected void Initialize()
         {
             _gameToggle = CreateSetting(nameof(_gameToggle), false);
@@ -33,10 +33,10 @@ namespace ModPack
             _playersMovementSpeed = CreateSetting(nameof(_playersMovementSpeed), 100, IntRange(0, 200));
             _playersAttackSpeed = CreateSetting(nameof(_playersAttackSpeed), 100, IntRange(0, 200));
 
-            _npcsToggle = CreateSetting(nameof(_npcsToggle), false);
-            _npcsAnimationSpeed = CreateSetting(nameof(_npcsAnimationSpeed), 100, IntRange(0, 200));
-            _npcMovementSpeed = CreateSetting(nameof(_npcMovementSpeed), 100, IntRange(0, 200));
-            _npcAttackSpeed = CreateSetting(nameof(_npcAttackSpeed), 100, IntRange(0, 200));
+            _enemiesToggle = CreateSetting(nameof(_enemiesToggle), false);
+            _enemiesAnimationSpeed = CreateSetting(nameof(_enemiesAnimationSpeed), 100, IntRange(0, 200));
+            _enemiesMovementSpeed = CreateSetting(nameof(_enemiesMovementSpeed), 100, IntRange(0, 200));
+            _enemiesAttackSpeed = CreateSetting(nameof(_enemiesAttackSpeed), 100, IntRange(0, 200));
 
             AddEventOnConfigClosed(UpdateDefaultGameSpeed);
         }
@@ -67,14 +67,14 @@ namespace ModPack
                 Indent--;
             }
 
-            _npcsToggle.Format("NPCs");
-            _npcsToggle.Description = "Set multipliers (%) NPCs' speeds";
+            _enemiesToggle.Format("NPCs");
+            _enemiesToggle.Description = "Set multipliers (%) NPCs' speeds";
             Indent++;
             {
-                _npcsAnimationSpeed.Format("All animations", _npcsToggle);
-                _npcsAnimationSpeed.Description = _playersAnimationSpeed.Description;
-                _npcMovementSpeed.Format("Movement", _npcsToggle);
-                _npcAttackSpeed.Format("Attack", _npcsToggle);
+                _enemiesAnimationSpeed.Format("All animations", _enemiesToggle);
+                _enemiesAnimationSpeed.Description = _playersAnimationSpeed.Description;
+                _enemiesMovementSpeed.Format("Movement", _enemiesToggle);
+                _enemiesAttackSpeed.Format("Attack", _enemiesToggle);
                 Indent--;
             }
 
@@ -87,7 +87,30 @@ namespace ModPack
            "• Toggle speedhack with a hotkey";
         override protected string SectionOverride
         => SECTION_COMBAT;
+        override public void LoadPreset(Presets.Preset preset)
+        {
+            switch (preset)
+            {
+                case Presets.Preset.Vheos_CoopSurvival:
+                    ForceApply();
+                    _gameToggle.Value = true;
+                    {
+                        _defaultGameSpeed.Value = 90;
+                        _speedHackMultiplier.Value = 300;
+                    }
+                    _playersToggle.Value = true;
+                    _playersMovementSpeed.Value = 90;
+                    _enemiesToggle.Value = true;
+                    {
+                        _enemiesAnimationSpeed.Value = 90;
+                        _enemiesMovementSpeed.Value = 125;
+                    }
+                    break;
 
+                case Presets.Preset.IggyTheMad_TrueHardcore:
+                    break;
+            }
+        }
         public void OnUpdate()
         {
             if (IsEnabled)
@@ -117,54 +140,39 @@ namespace ModPack
                 Time.timeScale = defaultSpeed;
             Time.fixedDeltaTime = FIXED_TIME_DELTA * Time.timeScale;
         }
-        static private void UpdateAnimationSpeed(Character character)
+        static private bool TryUpdateAnimationSpeed(Character character)
         {
+            #region quit
+            if (!_playersToggle && !_enemiesToggle
+            || character.Stunned || character.IsPetrified)
+                return true;
+            #endregion
+
             if (_playersToggle && character.IsPlayer())
                 character.Animator.speed = _playersAnimationSpeed / 100f;
-            else if (_npcsToggle && !character.IsPlayer())
-                character.Animator.speed = _npcsAnimationSpeed / 100f;
+            else if (_enemiesToggle && character.IsEnemy())
+                character.Animator.speed = _enemiesAnimationSpeed / 100f;
+            return true;
         }
 
         // Hooks
 #pragma warning disable IDE0051 // Remove unused private members
         [HarmonyPatch(typeof(Character), "LateUpdate"), HarmonyPostfix]
         static void Character_LateUpdate_Post(Character __instance)
-        {
-            #region quit
-            if (!_playersToggle && !_npcsToggle)
-                return;
-            #endregion
-            #region quit2
-            if (__instance.Stunned || __instance.IsPetrified)
-                return;
-            #endregion
-
-            UpdateAnimationSpeed(__instance);
-        }
+        => TryUpdateAnimationSpeed(__instance);
 
         [HarmonyPatch(typeof(Character), "TempSlowDown"), HarmonyPrefix]
         static bool Character_TempSlowDown_Pre(Character __instance)
-        {
-            #region quit
-            if (!_playersToggle && !_npcsToggle)
-                return true;
-            #endregion
-            #region quit2
-            if (__instance.Stunned || __instance.IsPetrified)
-                return true;
-            #endregion
-
-            UpdateAnimationSpeed(__instance);
-            return true;
-        }
+        => TryUpdateAnimationSpeed(__instance);
 
         [HarmonyPatch(typeof(CharacterStats), "MovementSpeed", MethodType.Getter), HarmonyPostfix]
-        static void CharacterStats_MovementSpeed_Getter_Post(ref float __result, Character ___m_character)
+        static void CharacterStats_MovementSpeed_Getter_Post(CharacterStats __instance, ref float __result)
         {
-            if (_playersToggle && ___m_character.IsPlayer())
+            Character character = __instance.m_character;
+            if (_playersToggle && character.IsPlayer())
                 __result *= _playersMovementSpeed / 100f;
-            else if (_npcsToggle && !___m_character.IsPlayer())
-                __result *= _npcMovementSpeed / 100f;
+            else if (_enemiesToggle && character.IsEnemy())
+                __result *= _enemiesMovementSpeed / 100f;
         }
 
         [HarmonyPatch(typeof(Weapon), "GetAttackSpeed"), HarmonyPostfix]
@@ -173,8 +181,8 @@ namespace ModPack
             Character owner = __instance.OwnerCharacter;
             if (_playersToggle && owner.IsPlayer())
                 __result *= _playersAttackSpeed / 100f;
-            else if (_npcsToggle && !owner.IsPlayer())
-                __result *= _npcAttackSpeed / 100f;
+            else if (_enemiesToggle && owner.IsEnemy())
+                __result *= _enemiesAttackSpeed / 100f;
         }
     }
 }

@@ -189,6 +189,47 @@ namespace ModPack
            "• Set price for learning mutually exclusive skills";
         override protected string SectionOverride
         => SECTION_SURVIVAL;
+        override public void LoadPreset(Presets.Preset preset)
+        {
+            switch (preset)
+            {
+                case Presets.Preset.Vheos_CoopSurvival:
+                    ForceApply();
+                    _merchantsToggle.Value = true;
+                    {
+                        _pricesCurve.Value = 90;
+                        _sellModifier.Value = 20;
+                        _pricesGold.Value = new Vector2(100, 90);
+                        _pricesPerTypeToggle.Value = true;
+                        {
+                            _pricesWeapons.Value = 50;
+                            _pricesArmors.Value = 50;
+                            _pricesIngestibles.Value = 100;
+                            _pricesRecipes.Value = 50;
+                            _pricesOther.Value = 100;
+                        }
+                        _randomizePricesExtent.Value = 20;
+                        {
+                            _randomizePricesPerDays.Value = 7;
+                            _randomizePricesPerArea.Value = true;
+                            _randomizePricesPerItem.Value = true;
+                        }
+                    }
+                    _skillCostsToggle.Value = true;
+                    {
+                        _skillBasic.Value = 10;
+                        _skillBreakthrough.Value = 0;
+                        _skillAdvanced.Value = 0;
+                        _learnMutuallyExclusiveSkills.Value = true;
+                        _exclusiveSkillCostsTsar.Value = true;
+                        _customNonBasicSkillCosts.Value = true;
+                    }
+                    break;
+
+                case Presets.Preset.IggyTheMad_TrueHardcore:
+                    break;
+            }
+        }
 
         // Utility
         static private Dictionary<string, SkillRequirement> _skillRequirementsByTrainerName;

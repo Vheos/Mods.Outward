@@ -60,6 +60,23 @@ namespace ModPack
            "• Change trigger size for each trap";
         override protected string SectionOverride
         => SECTION_COMBAT;
+        override public void LoadPreset(Presets.Preset preset)
+        {
+            switch (preset)
+            {
+                case Presets.Preset.Vheos_CoopSurvival:
+                    ForceApply();
+                    _trapsArmDelay.Value = 3;
+                    _trapsFriendlyFire.Value = true;
+                    _wireTrapDepth.Value = 0.2f;
+                    _pressureTrapRadius.Value = 0.6f;
+                    _runicTrapRadius.Value = 0.8f;
+                    break;
+
+                case Presets.Preset.IggyTheMad_TrueHardcore:
+                    break;
+            }
+        }
 
         // Utility
         static private void ResetColor(DeployableTrap __instance)

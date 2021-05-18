@@ -275,6 +275,45 @@ namespace ModPack
            "• Override drink values and sleep buffs duration";
         override protected string SectionOverride
         => SECTION_SURVIVAL;
+        override public void LoadPreset(Presets.Preset preset)
+        {
+            switch (preset)
+            {
+                case Presets.Preset.Vheos_CoopSurvival:
+                    ForceApply();
+                    foreach (var data in NEEDS_DATA)
+                    {
+                        NeedSettings needSetting = _settingsByNeed[data.Need];
+                        needSetting._toggle.Value = true;
+                        {
+                            needSetting._thresholds.Value = new Vector2(100 / 3f, 200 / 3f);
+                            needSetting._fulfilledLimit.Value = 120;
+                            needSetting._fulfilledEffectValue.Value = data.Need == Need.Sleep ? 115 : 33;
+                            int depletionRate = data.Need == Need.Food ? 30
+                                              : data.Need == Need.Drink ? 15
+                                              : 45;
+                            needSetting._depletionRate.Value = new Vector2(100, depletionRate);
+                        }
+                    };
+                    {
+                        _drinkValuesPotions.Value = 10;
+                        _drinkValuesOther.Value = 20;
+                    }
+                    {
+                        _sleepNegativeEffect.Value = -12;
+                        _sleepNegativeEffectIsPercent.Value = true;
+                        _sleepBuffsDuration.Value = 0;
+                    }
+                    _allowCuresWhileOverlimited.Value = true;
+                    _allowOnlyDOTCures.Value = true;
+                    _dontRestoreFoodDrinkOnSleep.Value = true;
+                    _dontRestoreNeedsOnTravel.Value = true;
+                    break;
+
+                case Presets.Preset.IggyTheMad_TrueHardcore:
+                    break;
+            }
+        }
 
         // Utility
         static private bool _isInitialized;

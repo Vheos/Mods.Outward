@@ -135,6 +135,35 @@ namespace ModPack
            "• Randomize starting durability of spawned items";
         override protected string SectionOverride
         => SECTION_SURVIVAL;
+        override public void LoadPreset(Presets.Preset preset)
+        {
+            switch (preset)
+            {
+                case Presets.Preset.Vheos_CoopSurvival:
+                    ForceApply();
+                    _lossMultipliers.Value = true;
+                    {
+                        _lossWeapons.Value = 50;
+                        _lossArmors.Value = 50;
+                        _lossLights.Value = 200;
+                        _lossIngestibles.Value = 100;
+                    }
+                    _campingRepairToggle.Value = false;
+                    _effectivenessAffectsAllStats.Value = true;
+                    _effectivenessAffectsPenalties.Value = true;
+                    _linearEffectiveness.Value = true;
+                    {
+                        _minNonBrokenEffectiveness.Value = 50;
+                        _brokenEffectiveness.Value = 25;
+                    }
+                    _smithRepairsOnlyEquipped.Value = true;
+                    _minStartingDurability.Value = 67;
+                    break;
+
+                case Presets.Preset.IggyTheMad_TrueHardcore:
+                    break;
+            }
+        }
 
         // Utility
         static private float CalculateDurabilityGain(Item item, float flat, float percent)

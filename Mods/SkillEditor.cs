@@ -71,8 +71,8 @@ namespace ModPack
         private class SkillData
         {
             // Settings
-            private ModSetting<bool> _toggle;
-            private ModSetting<Vector3> _effects, _vitalCosts, _otherCosts;
+            public ModSetting<bool> _toggle;
+            public ModSetting<Vector3> _effects, _vitalCosts, _otherCosts;
             public void CreateSettings(string skillSettingName, Skill prefab, Vector3 effects, Vector3 vitalCosts, Vector3 otherCosts)
             {
                 _toggle = _mod.CreateSetting(skillSettingName + nameof(_toggle), false);
@@ -255,6 +255,65 @@ namespace ModPack
         => "• Change effects, costs and cooldown of select skills";
         override protected string SectionOverride
         => SECTION_SKILLS;
+        override public void LoadPreset(Presets.Preset preset)
+        {
+            switch (preset)
+            {
+                case Presets.Preset.Vheos_CoopSurvival:
+                    ForceApply();
+                    _daggerToggle.Value = true;
+                    {
+                        _daggerSlash._toggle.Value = true;
+                        {
+                            _daggerSlash._vitalCosts.Value = new Vector3(0, 3, 0);
+                            _daggerSlash._otherCosts.Value = new Vector3(0, 0, 1.5f);
+                        }
+                        _backstab._toggle.Value = true;
+                        {
+                            _backstab._effects.Value = new Vector3(0.5f, 3.0f, 0);
+                            _backstab._vitalCosts.Value = new Vector3(0, 9, 0);
+                            _backstab._otherCosts.Value = new Vector3(0, 0, 30);
+                        }
+                    }
+                    _bowToggle.Value = true;
+                    {
+                        _evasionShot._toggle.Value = true;
+                        {
+                            _evasionShot._vitalCosts.Value = new Vector3(0, 10, 0);
+                            _evasionShot._otherCosts.Value = new Vector3(0, 0, 20);
+                        }
+                    }
+                    _runesToggle.Value = true;
+                    {
+                        _dez._toggle.Value = true;
+                        {
+                            _dez._vitalCosts.Value = new Vector3(0, 0, 9);
+                            _dez._otherCosts.Value = new Vector3(0, 0, 0);
+                        }
+                        _egoth._toggle.Value = true;
+                        {
+                            _egoth._vitalCosts.Value = new Vector3(3, 0, 6);
+                            _egoth._otherCosts.Value = new Vector3(0, 0, 0);
+                        }
+                        _fal._toggle.Value = true;
+                        {
+                            _fal._vitalCosts.Value = new Vector3(3, 4.5f, 3);
+                            _fal._otherCosts.Value = new Vector3(0, 0, 0);
+                        }
+                        _shim._toggle.Value = true;
+                        {
+                            _shim._vitalCosts.Value = new Vector3(0, 4.5f, 6);
+                            _shim._otherCosts.Value = new Vector3(0, 0, 0);
+                        }
+                    }
+                    _runicLanternIntensity.Value = 10;
+                    _runeSoundEffectVolume.Value = 50;
+                    break;
+
+                case Presets.Preset.IggyTheMad_TrueHardcore:
+                    break;
+            }
+        }
 
         // Hooks
 #pragma warning disable IDE0051 // Remove unused private members

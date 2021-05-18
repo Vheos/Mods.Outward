@@ -135,6 +135,24 @@ namespace ModPack
            "• Randomize starting durability of spawned items";
         override protected string SectionOverride
         => SECTION_SURVIVAL;
+        override public void LoadPreset(Presets.Preset preset)
+        {
+            switch (preset)
+            {
+                case Presets.Preset.Vheos_CoopSurvival:
+                    ForceApply();
+                    _preserveDurability.Value = true;
+                    _restoreMissingDurability.Value = 50;
+                    _limitedManualCrafting.Value = true;
+                    _limitedManulCraftingExceptions.Value = (CraftingExceptions)~0;
+                    _autoLearnCrystalPowderRecipe.Value = true;
+                    _extraResultsMultiplier.Value = 50;
+                    break;
+
+                case Presets.Preset.IggyTheMad_TrueHardcore:
+                    break;
+            }
+        }
 
         // Utility
         static private Recipe _crystalPowderRecipe;

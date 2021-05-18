@@ -80,6 +80,38 @@ namespace ModPack
            "• Enable friendly fire between players";
         override protected string SectionOverride
         => SECTION_COMBAT;
+        override public void LoadPreset(Presets.Preset preset)
+        {
+            switch (preset)
+            {
+                case Presets.Preset.Vheos_CoopSurvival:
+                    ForceApply();
+                    _playersToggle.Value = true;
+                    {
+                        _playersHealthDamage.Value = 40;
+                        _playersStabilityDamage.Value = 40;
+                        _playersFriendlyFireToggle.Value = true;
+                        {
+                            _playersFriendlyFireHealthDamage.Value = 100;
+                            _playersFriendlyFireStabilityDamage.Value = 100;
+                        }
+                    }
+                    _enemiesToggle.Value = true;
+                    {
+                        _enemiesHealthDamage.Value = 100;
+                        _enemiesStabilityDamage.Value = 150;
+                        _enemiesFriendlyFireToggle.Value = true;
+                        {
+                            _enemiesFriendlyFireHealthDamage.Value = 20;
+                            _enemiesFriendlyFireStabilityDamage.Value = 20;
+                        }
+                    }
+                    break;
+
+                case Presets.Preset.IggyTheMad_TrueHardcore:
+                    break;
+            }
+        }
 
         // Hooks
 #pragma warning disable IDE0051 // Remove unused private members
