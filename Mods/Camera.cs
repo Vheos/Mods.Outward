@@ -209,20 +209,23 @@ namespace ModPack
                     ForceApply();
                     foreach(var settings in _perPlayerSettings)
                     {
-                        settings._zoomControlAmount.Value = 0;
-                        settings._zoomControlSpeed.Value = 0.25f;
-                        settings._gamepadInputs.Value = GamepadInputs.LeftQS | GamepadInputs.RightQS;
-                        settings._offsetToggle.Value = true;
+                        settings._toggle.Value = true;
                         {
-                            settings._offsetMin.Value = new Vector3(0, 4, -12);
-                            settings._offsetAvg.Value = new Vector3(0, 1, -4);
-                            settings._offsetMax.Value = new Vector3(0.75f, 0.75f, -2);
-                        }
-                        settings._variousToggle.Value = true;
-                        {
-                            settings._variousMin.Value = new Vector3(60, 2, 1);
-                            settings._variousAvg.Value = new Vector3(50, 6, 1);
-                            settings._variousMax.Value = new Vector3(40, 18, 0.8f);
+                            settings._zoomControlAmount.Value = 0;
+                            settings._zoomControlSpeed.Value = 0.25f;
+                            settings._gamepadInputs.Value = GamepadInputs.LeftQS | GamepadInputs.RightQS;
+                            settings._offsetToggle.Value = true;
+                            {
+                                settings._offsetMin.Value = new Vector3(0, 4, -12);
+                                settings._offsetAvg.Value = new Vector3(0, 1, -4);
+                                settings._offsetMax.Value = new Vector3(0.75f, 0.75f, -2);
+                            }
+                            settings._variousToggle.Value = true;
+                            {
+                                settings._variousMin.Value = new Vector3(60, 2, 1);
+                                settings._variousAvg.Value = new Vector3(50, 6, 1);
+                                settings._variousMax.Value = new Vector3(40, 18, 0.8f);
+                            }
                         }
                     }
                     break;
