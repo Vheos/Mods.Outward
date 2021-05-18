@@ -20,7 +20,8 @@ namespace ModPack
             None = 0,
             ResetToDefaults = 1,
             Vheos_CoopSurvival = 2,
-            IggyTheMad_TrueHardcore = 3,
+            Vheos_PreferredUI = 3,
+            IggyTheMad_TrueHardcore = 11,
         }
         #endregion
 
@@ -33,13 +34,10 @@ namespace ModPack
             foreach (var preset in Utility.GetEnumValues<Preset>())
                 names.Add(PresetToName(preset));
 
-            _presetToLoad = new ModSetting<string>("", nameof(_presetToLoad), PresetToName(Preset.None), new AcceptableValueList<string>(names.ToArray()))
-            {
-                SectionOverride = AMod.SECTION_VARIOUS,
-                DisplayResetButton = false,
-            };
+            _presetToLoad = new ModSetting<string>("", nameof(_presetToLoad), PresetToName(Preset.None), new AcceptableValueList<string>(names.ToArray()));
             _presetToLoad.Format("Load preset");
-            _presetToLoad.Ordering = int.MaxValue;
+            _presetToLoad.IsAdvanced = true;
+            _presetToLoad.DisplayResetButton = false;
 
             _presetToLoad.AddEvent(LoadChosenPreset);
         }
@@ -62,6 +60,7 @@ namespace ModPack
                 case Preset.None: return "-";
                 case Preset.ResetToDefaults: return "Reset to defaults";
                 case Preset.Vheos_CoopSurvival: return "Vheos's Co-op Survival";
+                case Preset.Vheos_PreferredUI: return "Vheos's Preferred UI";
                 case Preset.IggyTheMad_TrueHardcore: return "IggyTheMad's True Hardcore";
                 default: return null;
             }

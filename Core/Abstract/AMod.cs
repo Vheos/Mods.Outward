@@ -13,24 +13,11 @@ namespace ModPack
     {
         #region const
         private const int MAX_SETTINGS_PER_MOD = 1000;
-        public const string SECTION_SURVIVAL = "     \nSURVIVAL & IMMERSION";
-        public const string SECTION_COMBAT = "    \nCOMBAT";
-        public const string SECTION_SKILLS = "   \nSKILLS";
-        public const string SECTION_UI = "  \nUSER INTERFACE";
-        public const string SECTION_VARIOUS = " \nVARIOUS";
-        #endregion
-        #region enum
-        [Flags]
-        protected enum Toggles
-        {
-            None = 0,
-            Apply = 1 << 1,
-            Collapse = 1 << 2,
-            Hide = 1 << 3,
-        }
-        #endregion
-
-        // Order
+        public const string SECTION_SURVIVAL = "    \nSURVIVAL & IMMERSION";
+        public const string SECTION_COMBAT = "   \nCOMBAT";
+        public const string SECTION_SKILLS = "  \nSKILLS";
+        public const string SECTION_UI = " \nUSER INTERFACE";
+        public const string SECTION_VARIOUS = "\nVARIOUS";
         static private readonly Type[] MODS_ORDERING = new[]
         {
             // Survival & Immersion
@@ -64,6 +51,17 @@ namespace ModPack
             // Various
             typeof(Various),
         };
+        #endregion
+        #region enum
+        [Flags]
+        protected enum Toggles
+        {
+            None = 0,
+            Apply = 1 << 1,
+            Collapse = 1 << 2,
+            Hide = 1 << 3,
+        }
+        #endregion
 
         // Privates
         private readonly Harmony _patcher;
@@ -259,12 +257,17 @@ namespace ModPack
             IsEnabled = true;
             IsCollapsed = true;
         }
-        public void ResetSettings(bool disableSelf = false)
+        public void ResetSettings(bool resetMainToggle = false)
         {
             foreach (var setting in _settings)
                 setting.Reset();
-            if (disableSelf)
+
+            if (resetMainToggle)
+            {
                 IsEnabled = false;
+                IsCollapsed = false;
+                IsHidden = false;
+            }
         }
         protected void ResetSettingPosition(int offset = 0)
         => AModSetting.NextPosition = ModOrderingOffset + offset;
