@@ -34,7 +34,7 @@ namespace ModPack
             DeployKit = 1 << 5,
         }
         [Flags]
-        private enum InteractionsInCombat
+        private enum DisallowedInCombat
         {
             None = 0,
 
@@ -195,7 +195,7 @@ namespace ModPack
         static private ModSetting<bool> _singleHoldsToPresses;
         static private ModSetting<bool> _takeAnimations;
         static private ModSetting<GroundInteractions> _groundInteractions;
-        static private ModSetting<InteractionsInCombat> _disallowedInCombat;
+        static private ModSetting<DisallowedInCombat> _disallowedInCombat;
         override protected void Initialize()
         {
             _groundInteractions = CreateSetting(nameof(_groundInteractions), GroundInteractions.None);
@@ -203,7 +203,7 @@ namespace ModPack
             _holdInteractionsDuration = CreateSetting(nameof(_holdInteractionsDuration), GameInput.HOLD_THRESHOLD + GameInput.HOLD_DURATION, FloatRange(0.1f + GameInput.HOLD_THRESHOLD, 5f));
             _takeAnimations = CreateSetting(nameof(_takeAnimations), false);
             _swapWaterInteractions = CreateSetting(nameof(_swapWaterInteractions), false);
-            _disallowedInCombat = CreateSetting(nameof(_disallowedInCombat), InteractionsInCombat.None);
+            _disallowedInCombat = CreateSetting(nameof(_disallowedInCombat), DisallowedInCombat.None);
         }
         override protected void SetFormatting()
         {
@@ -242,7 +242,7 @@ namespace ModPack
                     _singleHoldsToPresses.Value = true;
                     _holdInteractionsDuration.Value = 0.8f;
                     _takeAnimations.Value = true;
-                    _disallowedInCombat.Value = (InteractionsInCombat)~0;
+                    _disallowedInCombat.Value = (DisallowedInCombat)~0;
                     break;
 
                 case Presets.Preset.IggyTheMad_TrueHardcore:
@@ -330,14 +330,16 @@ namespace ModPack
         [HarmonyPatch(typeof(InteractionTriggerBase), "TryActivateBasicAction", new[] { typeof(Character), typeof(int) }), HarmonyPrefix]
         static bool InteractionTriggerBase_TryActivate_Pre(InteractionTriggerBase __instance, ref Character _character)
         {
-            InteractionsInCombat flags = _disallowedInCombat.Value;
+            DisallowedInCombat flags = _disallowedInCombat.Value;
             #region quit
-            if (_character == null || !_character.InCombat || !__instance.CurrentTriggerManager.TryAs<InteractionActivator>(out var interactionActivator)
-            || (interactionActivator.BasicInteraction.IsNot<InteractionOpenContainer>() || !flags.HasFlag(InteractionsInCombat.Loot))
-            && (interactionActivator.BasicInteraction.IsNot<InteractionSwitchArea>() || !flags.HasFlag(InteractionsInCombat.Travel))
-            && (interactionActivator.BasicInteraction.IsNot<InteractionWarp>() || !flags.HasFlag(InteractionsInCombat.Warp))
-            && (interactionActivator.BasicInteraction.IsNot<InteractionToggleContraption>() || !flags.HasFlag(InteractionsInCombat.PullLever))
-            && (interactionActivator.BasicInteraction.IsNot<InteractionRevive>() || !flags.HasFlag(InteractionsInCombat.PullLever)))
+            if (_character == null || !_character.InCombat
+            || !__instance.CurrentTriggerManager.TryAs<InteractionActivator>(out var activator)
+            || !activator.BasicInteraction.TryAssign(out var interaction)
+            || (interaction.IsNot<InteractionOpenContainer>() || !flags.HasFlag(DisallowedInCombat.Loot))
+            && (interaction.IsNot<InteractionSwitchArea>() || !flags.HasFlag(DisallowedInCombat.Travel))
+            && (interaction.IsNot<InteractionWarp>() || !flags.HasFlag(DisallowedInCombat.Warp))
+            && (interaction.IsNot<InteractionToggleContraption>() || !flags.HasFlag(DisallowedInCombat.PullLever))
+            && (interaction.IsNot<InteractionRevive>() || !flags.HasFlag(DisallowedInCombat.PullLever)))
                 return true;
             #endregion
 
