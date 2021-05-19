@@ -56,8 +56,8 @@ namespace ModPack
             if (System.IO.File.Exists(filePath))
             {
                 byte[] byteData = System.IO.File.ReadAllBytes(filePath);
-                Texture2D texture = new Texture2D(0, 0);
-                ImageConversion.LoadImage(texture, byteData);
+                Texture2D texture = new Texture2D(0, 0, TextureFormat.RGBA32, false);
+                texture.LoadImage(byteData, true);
                 Rect textureRect = new Rect(0, 0, texture.width, texture.height);
                 Sprite newSprite = Sprite.Create(texture, textureRect, Vector2.zero, 1, 0, SpriteMeshType.FullRect);
                 return newSprite;
@@ -158,6 +158,18 @@ namespace ModPack
             foreach (var list in lists.Skip(1))
                 hashSet.IntersectWith(list);
             return hashSet.ToList();
+        }
+        static public void TryAddLanternSlot(this Bag bag)
+        {
+            #region quit
+            if (bag.HasLanternSlot)
+                return;
+            #endregion
+
+            Bag adventurerBackpack = Prefabs.ItemsByID["5300000"] as Bag;
+            GameObject lanternHolder = adventurerBackpack.LoadedVisual.FindChild("LanternSlotAnchor");
+            GameObject newLanternHolder = GameObject.Instantiate(lanternHolder, bag.LoadedVisual.transform);
+            GameObject.DontDestroyOnLoad(newLanternHolder);
         }
     }
 }
