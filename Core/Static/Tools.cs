@@ -15,8 +15,8 @@ namespace ModPack
     static public class Tools
     {
         // Publics
-        static public void Log(object text, LogLevel logLevel = LogLevel.Debug)
-        => _logger.Log(logLevel, text);
+        static public void Log(object text)
+        => _logger.Log(Main.IS_DEVELOPMENT_VERSION ? LogLevel.Message : LogLevel.Debug, text);
         static public ConfigFile ConfigFile
         => _configFile;
         static public void SetDirtyConfigWindow()
