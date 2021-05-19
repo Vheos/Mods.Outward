@@ -69,7 +69,7 @@ namespace ModPack
         static public GameObject GetParent(this Component t)
         => t.gameObject.GetParent();
         /// <summary> Returns an array of this object's children. </summary>
-        static public GameObject[] GetChildren(this Component t)
+        static public IEnumerable<GameObject> GetChildren(this Component t)
         => t.gameObject.GetChildren();
         /// <summary> Returns all of this object's ancestors. </summary>
         static public List<GameObject> GetAncestors(this Component t)

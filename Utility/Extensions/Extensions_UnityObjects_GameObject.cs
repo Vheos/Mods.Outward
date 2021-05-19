@@ -83,12 +83,10 @@ namespace ModPack
             return null;
         }
         /// <summary> Returns an array of this object's children. </summary>
-        static public GameObject[] GetChildren(this GameObject t)
+        static public IEnumerable<GameObject> GetChildren(this GameObject t)
         {
-            GameObject[] children = new GameObject[t.transform.childCount];
-            for (int i = 0; i < children.Length; i++)
-                children[i] = t.transform.GetChild(i).gameObject;
-            return children;
+            for (int i = 0; i < t.transform.childCount; i++)
+                yield return t.transform.GetChild(i).gameObject;
         }
         /// <summary> Returns all of this object's ancestors. </summary>
         static public List<GameObject> GetAncestors(this GameObject t)
@@ -224,13 +222,13 @@ namespace ModPack
         static public void DestroyImmediately(this GameObject t)
         => Object.DestroyImmediate(t);
         /// <summary> Destroys these objects. </summary>
-        static public void Destroy(this IList<GameObject> t)
+        static public void Destroy(this IEnumerable<GameObject> t)
         {
             foreach (var gameObject in t)
                 gameObject.Destroy();
         }
         /// <summary> Destroys these objects immediately. </summary>
-        static public void DestroyImmediately(this IList<GameObject> t)
+        static public void DestroyImmediately(this IEnumerable<GameObject> t)
         {
             foreach (var gameObject in t)
                 gameObject.DestroyImmediately();
