@@ -110,6 +110,7 @@ namespace ModPack
         };
         static public readonly Dictionary<string, int> SkillIDsByName = new Dictionary<string, int>
         {
+            // Weapon skills
             ["Puncture"] = 8100290,
             ["Pommel Counter"] = 8100362,
             ["Talus Cleaver"] = 8100380,
@@ -119,31 +120,41 @@ namespace ModPack
             ["Simeon's Gambit"] = 8100340,
             ["Moon Swipe"] = 8100320,
             ["Prismatic Flurry"] = 8201040,
-            ["Flamethrower"] = 8100090,
+            // Boons
             ["Mist"] = 8200170,
             ["Warm"] = 8200130,
             ["Cool"] = 8200140,
             ["Blessed"] = 8200180,
             ["Possessed"] = 8200190,
+            // Hexes
             ["Haunt Hex"] = 8201024,
             ["Scorch Hex"] = 8201020,
             ["Chill Hex"] = 8201021,
             ["Doom Hex"] = 8201022,
             ["Curse Hex"] = 8201023,
-
+            // Daggers
             ["Dagger Slash"] = 8100072,
             ["Backstab"] = 8100070,
             ["Opportunist Stab"] = 8100071,
             ["Serpent's Parry"] = 8100261,
-
+            // Bow
             ["Evasion Shot"] = 8100100,
             ["Sniper Shot"] = 8100101,
             ["Piercing Shot"] = 8100102,
-
+            ["Strafing Run"] = 8100580,
+            // Runes
             ["Dez"] = 8100210,
             ["Shim"] = 8100220,
             ["Egoth"] = 8100230,
             ["Fal"] = 8100240,
+            // Mana
+            ["Spark"] = 8200040,
+            ["Flamethrower"] = 8100090,
+            // Innate
+            ["Push Kick"] = 8100120,
+            ["Throw Lantern"] = 8100010,
+            ["Dagger Slash"] = 8100072,
+            ["Fire/Reload"] = 8200600,
         };
         #endregion
 

@@ -24,6 +24,7 @@ namespace ModPack
         };
         static private readonly int[] SIDE_SKILL_IDS =
         {
+            // Weapon skills
             "Puncture".SkillID(),
             "Pommel Counter".SkillID(),
             "Talus Cleaver".SkillID(),
@@ -33,17 +34,20 @@ namespace ModPack
             "Simeon's Gambit".SkillID(),
             "Moon Swipe".SkillID(),
             "Prismatic Flurry".SkillID(),
-            "Flamethrower".SkillID(),
+            // Boons
             "Mist".SkillID(),
             "Warm".SkillID(),
             "Cool".SkillID(),
             "Blessed".SkillID(),
             "Possessed".SkillID(),
+            // Hexes
             "Haunt Hex".SkillID(),
             "Scorch Hex".SkillID(),
             "Chill Hex".SkillID(),
             "Doom Hex".SkillID(),
             "Curse Hex".SkillID(),
+            // Mana
+            "Flamethrower".SkillID(),
         };
         static private Color ICON_COLOR = new Color(1f, 1f, 1f, 1 / 3f);
         static private Color BORDER_COLOR = new Color(1 / 3f, 0f, 1f, 1f);
