@@ -5,9 +5,6 @@ using UnityEngine;
 using BepInEx.Configuration;
 using HarmonyLib;
 using Random = UnityEngine.Random;
-using SlotList = System.Collections.Generic.List<BaseSkillSlot>;
-using SlotList2D = System.Collections.Generic.List<System.Collections.Generic.List<BaseSkillSlot>>;
-using SlotList3D = System.Collections.Generic.List<System.Collections.Generic.List<System.Collections.Generic.List<BaseSkillSlot>>>;
 
 
 
@@ -16,9 +13,12 @@ namespace ModPack
     public class SkillRandomizer : AMod, IDelayedInit, IDevelopmentOnly
     {
         #region const
+        private const string ICONS_FOLDER = @"Skills\";
         private const string WEAPON_SKILLS_TREE_NAME = "WeaponSkills";
         private const string BOONS_TREE_NAME = "Boons";
         private const string HEXES_TREE_NAME = "Hexes";
+        private const string MANA_TREE_NAME = "Mana";
+        private const string INNATE_TREE_NAME = "Innate";
         static private readonly (string Name, int[] IDs)[] SIDE_SKILLS =
         {
             (WEAPON_SKILLS_TREE_NAME, new[]
@@ -32,6 +32,7 @@ namespace ModPack
                 "Simeon's Gambit".SkillID(),
                 "Moon Swipe".SkillID(),
                 "Prismatic Flurry".SkillID(),
+                "Flamethrower".SkillID(),
             }),
             (BOONS_TREE_NAME, new[]
             {
@@ -49,6 +50,45 @@ namespace ModPack
                 "Doom Hex".SkillID(),
                 "Curse Hex".SkillID(),
             }),
+        };
+        private static readonly string[] MISSING_ICON_SKILL_NAMES =
+        {
+            // Weapon skills
+            "Talus Cleaver",
+            "Prismatic Flurry",
+            "Mace Infusion",
+            "Simeon's Gambit",
+            // Non-tree boons
+            "Warm",
+            "Cool",
+            "Blessed",
+            "Possessed",
+            "Mist",
+            // Non-tree hexes
+            "Scorch Hex",
+            "Chill Hex",
+            "Doom Hex",
+            "Curse Hex",
+            "Haunt Hex",
+        };
+        static private readonly (int Column, int Row)[] SLOT_POSITIONS =
+        {
+            (2, 2),
+            (1, 2),
+            (3, 2),
+            (2, 1),
+            (1, 1),
+            (3, 1),
+            (0, 2),
+            (4, 2),
+            (0, 1),
+            (4, 1),
+
+            (0, 0),
+            (1, 0),
+            (2, 0),
+            (3, 0),
+            (4, 0),
         };
         #endregion
         #region enum
@@ -140,7 +180,7 @@ namespace ModPack
         override protected void Initialize()
         {
             _execute = CreateSetting(nameof(_execute), false);
-            _seed = CreateSetting(nameof(_seed), 0, IntRange(-int.MaxValue, +int.MaxValue));
+            _seed = CreateSetting(nameof(_seed), 0);
             _randomizeSeed = CreateSetting(nameof(_randomizeSeed), false);
             _equalizedTraits = CreateSetting(nameof(_equalizedTraits), (EqualizedTraits)~0);
             _treatBreakthroughAsAdvanced = CreateSetting(nameof(_treatBreakthroughAsAdvanced), true);
@@ -163,6 +203,7 @@ namespace ModPack
             // Initialize trees
             CacheSkillTreeHolder();
             CreateSideSkillTrees();
+            LoadMissingSkillIcons();
 
             // Events
             _execute.AddEvent(() =>
@@ -205,12 +246,13 @@ namespace ModPack
                 _theThreeBrothersOutput
             };
             foreach (var setting in inputOutputSettings)
-            {
-                string name = setting == _vanillaInput ? "Input skill trees"
-                                                       : setting == _vanillaOutput ? "Output skill trees" : "";
-                setting.Format(name);
-                setting.DisplayResetButton = false;
-            }
+                if (setting != null)
+                {
+                    string name = setting == _vanillaInput ? "Input skill trees"
+                                                           : setting == _vanillaOutput ? "Output skill trees" : "";
+                    setting.Format(name);
+                    setting.DisplayResetButton = false;
+                }
         }
         override protected string Description
         => "• Randomize skills taught by trainers";
@@ -256,31 +298,42 @@ namespace ModPack
                 _sideSkillTrees.Add(skillTree);
             }
         }
+        static private void LoadMissingSkillIcons()
+        {
+            foreach (var name in MISSING_ICON_SKILL_NAMES)
+            {
+                int id = Prefabs.SkillIDsByName[name];
+                Prefabs.SkillsByID[id].SkillTreeIcon = Utility.CreateSpriteFromFile(Utility.PluginFolderPath + ICONS_FOLDER + name.Replace('/', '_') + ".PNG");
+            }
+        }
         //
         static private IEnumerable<SkillSchool> GetInputSkillTrees()
         {
             foreach (Enum flag in Enum.GetValues(typeof(VanillaInput)))
                 if (_vanillaInput.Value.HasFlag(flag))
                     yield return FlagToSkillTree(flag, true);
-            foreach (Enum flag in Enum.GetValues(typeof(TheSoroboreansInput)))
-                if (_theSoroboreansInput.Value.HasFlag(flag))
-                    yield return FlagToSkillTree(flag, true);
-            foreach (Enum flag in Enum.GetValues(typeof(TheThreeBrothersInput)))
-                if (_theThreeBrothersInput.Value.HasFlag(flag))
-                    yield return FlagToSkillTree(flag, true);
-
+            if (_theSoroboreansInput != null)
+                foreach (Enum flag in Enum.GetValues(typeof(TheSoroboreansInput)))
+                    if (_theSoroboreansInput.Value.HasFlag(flag))
+                        yield return FlagToSkillTree(flag, true);
+            if (_theThreeBrothersInput != null)
+                foreach (Enum flag in Enum.GetValues(typeof(TheThreeBrothersInput)))
+                    if (_theThreeBrothersInput.Value.HasFlag(flag))
+                        yield return FlagToSkillTree(flag, true);
         }
         static private IEnumerable<SkillSchool> GetOutputSkillTrees()
         {
             foreach (Enum flag in Enum.GetValues(typeof(VanillaOutput)))
                 if (_vanillaOutput.Value.HasFlag(flag))
                     yield return FlagToSkillTree(flag);
-            foreach (Enum flag in Enum.GetValues(typeof(TheSoroboreansOutput)))
-                if (_theSoroboreansOutput.Value.HasFlag(flag))
-                    yield return FlagToSkillTree(flag);
-            foreach (Enum flag in Enum.GetValues(typeof(TheThreeBrothersOutput)))
-                if (_theThreeBrothersOutput.Value.HasFlag(flag))
-                    yield return FlagToSkillTree(flag);
+            if (_theSoroboreansOutput != null)
+                foreach (Enum flag in Enum.GetValues(typeof(TheSoroboreansOutput)))
+                    if (_theSoroboreansOutput.Value.HasFlag(flag))
+                        yield return FlagToSkillTree(flag);
+            if (_theThreeBrothersOutput != null)
+                foreach (Enum flag in Enum.GetValues(typeof(TheThreeBrothersOutput)))
+                    if (_theThreeBrothersOutput.Value.HasFlag(flag))
+                        yield return FlagToSkillTree(flag);
         }
         static private IEnumerable<Trait<BaseSkillSlot>> GetTraits(IEnumerable<SkillSchool> trees)
         {
@@ -309,11 +362,11 @@ namespace ModPack
                     if (_treatBreakthroughAsAdvanced || GetSlotLevel(slot) != SlotLevel.Breakthrough)
                         yield return slot;
         }
-        static private void ResetSkillTrees(List<SkillSchool> trees)
+        static private void ResetSkillTrees(IEnumerable<SkillSchool> trees)
         {
             foreach (var tree in trees)
             {
-                tree.GetChildren().DestroyImmediately();
+                tree.GetChildren().ToArray().DestroyImmediately();
                 tree.m_skillSlots.Clear();
                 tree.m_branches.Clear();
                 tree.m_breakthroughSkillIndex = -1;
@@ -321,37 +374,103 @@ namespace ModPack
         }
         static private void RandomizeSeed()
         => _seed.Value = Random.value.MapFrom01(-1f, +1f).Mul(int.MaxValue).Round();
-
         static private void RandomizeSkills()
         {
             // Quit
-            IEnumerable<SkillSchool> outputTrees = GetOutputSkillTrees();
-            if (!outputTrees.Any())
+            List<SkillSchool> outputTrees = GetOutputSkillTrees().ToList();
+            if (outputTrees.IsEmpty())
                 return;
 
-            // Initialize random generator, input/output lists and equalizers
-            Random.InitState(_seed);
+            // Initialize
             IEnumerable<SkillSchool> intputTrees = GetInputSkillTrees();
-            TraitEqualizer<BaseSkillSlot> equalizer = new TraitEqualizer<BaseSkillSlot>(outputTrees.Count(), GetTraits(intputTrees).ToArray());
+            TraitEqualizer<BaseSkillSlot> equalizer = new TraitEqualizer<BaseSkillSlot>(outputTrees.Count, GetTraits(intputTrees).ToArray());
+
+            // Execute
+            Random.InitState(_seed);
             foreach (var slot in GetSlotsFromTrees(intputTrees))
                 equalizer.Add(slot);
 
-            Tools.Log($"");
-            Tools.Log($"TRAITS");
-            foreach (var trait in equalizer.Traits)
-                Tools.Log($"\t{trait.Name}");
-
-            int counter = 0;
-            foreach (var tree in equalizer.Results)
+            CopyEqualizedSlotsToOutputTrees(equalizer.Results, outputTrees);
+        }
+        static private void CopyEqualizedSlotsToOutputTrees(IEnumerable<IEnumerable<BaseSkillSlot>> equalizedTrees, IList<SkillSchool> outputTrees)
+        {
+            // Output
+            ResetSkillTrees(outputTrees);
+            foreach (var equalizedTree in equalizedTrees)
             {
-                Tools.Log($"");
-                Tools.Log($"TREE #{counter++}");
+                // Choose a random output
+                SkillSchool randomOutputTree = outputTrees.Random();
 
-                List<BaseSkillSlot> sortedList = tree.ToList();
-                sortedList.Sort((a, b) => GetSlotLevel(a).CompareTo(GetSlotLevel(b)));
-                foreach (var slot in sortedList)
-                    Tools.Log($"\t{GetSlotLevel(slot)} / {slot.ParentBranch.ParentTree.Name} / {slot.name}");
+                // Add breakthrough
+                List<BaseSkillSlot> randomizedSlots = equalizedTree.ToList();
+                BaseSkillSlot randomAdvancedSlot = randomizedSlots.Where(slot => GetSlotLevel(slot) == SlotLevel.Advanced).ToArray().Random();
+                BaseSkillSlot breakthroughSlot = CopySlot(randomAdvancedSlot);
+                breakthroughSlot.IsBreakthrough = true;
+                AddSlotToTree(breakthroughSlot, randomOutputTree, 2, 3);
+                randomizedSlots.Remove(randomAdvancedSlot);
+
+                // Copy slots
+                var outputAdvancedSlots = new List<BaseSkillSlot>();
+                int basicIndex = 0, advancedIndex = 0;
+                foreach (var slot in randomizedSlots)
+                {
+                    // Cache
+                    bool isAdvanced = GetSlotLevel(slot) == SlotLevel.Advanced;
+                    ref int index = ref (isAdvanced ? ref advancedIndex : ref basicIndex);
+
+                    // Ignore skills
+                    if (!SLOT_POSITIONS.IsIndexValid(index))
+                        continue;
+
+                    // Initialize slot
+                    BaseSkillSlot newSlot = CopySlot(slot);
+                    (int Column, int Row) = SLOT_POSITIONS[index++];
+                    if (isAdvanced)
+                    {
+                        outputAdvancedSlots.Add(newSlot);
+                        Row = 6 - Row;
+                        Column = 4 - Column;
+                    }
+
+                    // Add slot
+                    AddSlotToTree(newSlot, randomOutputTree, Column, Row);
+                }
+
+                // Initialize branches and tree
+                foreach (var branchHolder in randomOutputTree.GetChildren())
+                    branchHolder.AddComponent<SkillBranch>();
+                randomOutputTree.Start();
+
+                // Override RequiresBreakthrough and m_breakthroughSkillIndex
+                foreach (var slot in outputAdvancedSlots)
+                {
+                    slot.RequiresBreakthrough = true;
+                    if (slot.TryAs(out SkillSlotFork fork))
+                        foreach (var forkSlot in fork.SkillsToChooseFrom)
+                            forkSlot.RequiresBreakthrough = true;
+                }
+                randomOutputTree.m_breakthroughSkillIndex = randomOutputTree.m_skillSlots.IndexOf(breakthroughSlot);
+
+                // remove current tree from outputs
+                outputTrees.Remove(randomOutputTree);
             }
+        }
+        static private BaseSkillSlot CopySlot(BaseSkillSlot slot)
+        {
+            BaseSkillSlot newSlot = GameObject.Instantiate(slot);
+            newSlot.RequiredSkillSlot = null;
+            return newSlot;
+        }
+        static private void AddSlotToTree(BaseSkillSlot slot, SkillSchool tree, int column, int row)
+        {
+            slot.m_columnIndex = column;
+            string rowName = row.ToString();
+            if (!tree.FindChild(rowName).TryAssign(out var branchHolder))
+            {
+                branchHolder = new GameObject(rowName);
+                branchHolder.BecomeChildOf(tree);
+            }
+            slot.BecomeChildOf(branchHolder);
         }
         //
         static private bool HasDLC(OTWStoreAPI.DLCs dlc)
@@ -388,14 +507,6 @@ namespace ModPack
                 default: return null;
             }
         }
-        static public bool ContainsBasicSkillFromTree(SlotList slots, SkillSchool tree)
-        {
-            foreach (var slot in slots)
-                if (GetSlotLevel(slot) == SlotLevel.Basic && slot.ParentBranch.ParentTree.name == tree.name)
-                    return true;
-            return false;
-        }
-
         static private SlotType GetSlotType(BaseSkillSlot slot)
         {
             switch (slot)
@@ -431,6 +542,52 @@ namespace ModPack
         => slot.ParentBranch.ParentTree;
     }
 }
+
+/*
+ *             /*
+            (MANA_TREE_NAME, new[]
+            {
+                "Spark".SkillID(),
+                "Flamethrower".SkillID(),
+            }),
+            (INNATE_TREE_NAME, new[]
+            {
+                "Push Kick".SkillID(),
+                "Throw Lantern".SkillID(),
+                "Dagger Slash".SkillID(),
+                "Fire/Reload".SkillID(),
+            }),
+            */
+
+/*
+ *             // Log
+            Tools.Log($"");
+            Tools.Log($"TRAITS");
+            foreach (var trait in equalizer.Traits)
+                Tools.Log($"\t{trait.Name}");
+
+            int counter = 0;
+            foreach (var tree in equalizer.Results)
+            {
+                Tools.Log($"");
+                Tools.Log($"TREE #{counter++}");
+
+                List<BaseSkillSlot> sortedList = tree.ToList();
+                sortedList.Sort((a, b) => GetSlotLevel(a).CompareTo(GetSlotLevel(b)));
+                foreach (var slot in sortedList)
+                    Tools.Log($"\t{GetSlotLevel(slot)} / {slot.ParentBranch.ParentTree.Name} / {slot.name}");
+            }
+*/
+
+/*
+static public bool ContainsBasicSkillFromTree(SlotList slots, SkillSchool tree)
+{
+    foreach (var slot in slots)
+        if (GetSlotLevel(slot) == SlotLevel.Basic && slot.ParentBranch.ParentTree.name == tree.name)
+            return true;
+    return false;
+}
+*/
 
 /*
 static private void TryReset()
