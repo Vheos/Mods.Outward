@@ -105,7 +105,6 @@
     <Compile Include="Mods\Gamepad.cs" />
     <Compile Include="Mods\Prices.cs" />
     <Compile Include="Mods\SkillLimits.cs" />
-    <Compile Include="Mods\Development\SkillRandomizerOLD.cs" />
     <Compile Include="Mods\SkillRandomizer.cs" />
     <Compile Include="Mods\Targeting.cs" />
     <Compile Include="Mods\GUI.cs" />
