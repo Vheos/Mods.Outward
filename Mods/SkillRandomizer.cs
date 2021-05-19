@@ -65,11 +65,12 @@ namespace ModPack
             Mixed = 3,
         }
         [Flags]
-        private enum EqualizerTypes
+        private enum EqualizedTraits
         {
-            Slots = 1 << 1,
-            Trees = 1 << 2,
+            Count = 1 << 1,
+            Types = 1 << 2,
             Levels = 1 << 3,
+            Trees = 1 << 4,
         }
         [Flags]
         private enum VanillaInput
@@ -124,32 +125,28 @@ namespace ModPack
         #endregion
 
         // Settings
-        static private ModSetting<bool> _randomToggle;
-        static private ModSetting<bool> _randomExecute;
-        static private ModSetting<bool> _randomRandomizeSeed;
-        static private ModSetting<int> _randomSeed;
+        static private ModSetting<bool> _execute;
+        static private ModSetting<bool> _randomizeSeed;
+        static private ModSetting<int> _seed;
         static private ModSetting<VanillaInput> _vanillaInput;
         static private ModSetting<TheSoroboreansInput> _theSoroboreansInput;
         static private ModSetting<TheThreeBrothersInput> _theThreeBrothersInput;
         static private ModSetting<VanillaOutput> _vanillaOutput;
         static private ModSetting<TheSoroboreansOutput> _theSoroboreansOutput;
         static private ModSetting<TheThreeBrothersOutput> _theThreeBrothersOutput;
-        static private ModSetting<EqualizerTypes> _randomEqualizerTypes;
-        static private ModSetting<bool> _randomAdvancedRequiresBasic;
-        static private ModSetting<bool> _randomRandomizeBreakthrough;
-        static private ModSetting<bool> _randomTreatBreakthroughAsAdvanced;
+        static private ModSetting<EqualizedTraits> _equalizedTraits;
+        static private ModSetting<bool> _treatBreakthroughAsAdvanced;
+        static private ModSetting<bool> _treatWeaponMasterAsAdvanced;
         override protected void Initialize()
         {
-            _randomToggle = CreateSetting(nameof(_randomToggle), false);
-            _randomExecute = CreateSetting(nameof(_randomExecute), false);
-            _randomSeed = CreateSetting(nameof(_randomSeed), 0, IntRange(-int.MaxValue, +int.MaxValue));
-            _randomRandomizeSeed = CreateSetting(nameof(_randomRandomizeSeed), false);
-            _randomEqualizerTypes = CreateSetting(nameof(_randomEqualizerTypes), (EqualizerTypes)~0);
-            _randomAdvancedRequiresBasic = CreateSetting(nameof(_randomAdvancedRequiresBasic), true);
-            _randomRandomizeBreakthrough = CreateSetting(nameof(_randomRandomizeBreakthrough), true);
-            _randomTreatBreakthroughAsAdvanced = CreateSetting(nameof(_randomTreatBreakthroughAsAdvanced), true);
+            _execute = CreateSetting(nameof(_execute), false);
+            _seed = CreateSetting(nameof(_seed), 0, IntRange(-int.MaxValue, +int.MaxValue));
+            _randomizeSeed = CreateSetting(nameof(_randomizeSeed), false);
+            _equalizedTraits = CreateSetting(nameof(_equalizedTraits), (EqualizedTraits)~0);
+            _treatBreakthroughAsAdvanced = CreateSetting(nameof(_treatBreakthroughAsAdvanced), true);
+            _treatWeaponMasterAsAdvanced = CreateSetting(nameof(_treatWeaponMasterAsAdvanced), true);
 
-            // inputs/outputs
+            // Inputs/outputs
             _vanillaInput = CreateSetting(nameof(_vanillaInput), (VanillaInput)~0);
             _vanillaOutput = CreateSetting(nameof(_vanillaOutput), (VanillaOutput)~0);
             if (HasDLC(OTWStoreAPI.DLCs.Soroboreans))
@@ -163,71 +160,56 @@ namespace ModPack
                 _theThreeBrothersOutput = CreateSetting(nameof(_theThreeBrothersOutput), (TheThreeBrothersOutput)~0);
             }
 
+            // Initialize trees
+            CacheSkillTreeHolder();
+            CreateSideSkillTrees();
+
             // Events
-            _randomToggle.AddEvent(() =>
+            _execute.AddEvent(() =>
             {
-                if (_randomToggle)
-                {
-                    CacheSkillTreeHolder();
-                    CreateSideSkillTrees();
-                }
-                else
-                    TryReset();
-            });
-            _randomExecute.AddEvent(() =>
-            {
-                if (!_randomExecute)
+                if (!_execute)
                     return;
 
                 RandomizeSkills();
-                _randomExecute.SetSilently(false);
+                _execute.SetSilently(false);
             });
-            _randomRandomizeSeed.AddEvent(() =>
+            _randomizeSeed.AddEvent(() =>
             {
-                if (!_randomRandomizeSeed)
+                if (!_randomizeSeed)
                     return;
 
                 RandomizeSeed();
-                _randomRandomizeSeed.SetSilently(false);
+                _randomizeSeed.SetSilently(false);
             });
         }
         override protected void SetFormatting()
         {
-            _randomToggle.Format("Randomizer");
+            _execute.Format("Execute");
+            _seed.Format("Seed");
             Indent++;
             {
-                _randomExecute.Format("Execute", _randomToggle);
-                _randomSeed.Format("Seed", _randomToggle);
-                Indent++;
-                {
-                    _randomRandomizeSeed.Format("Randomize seed", _randomToggle);
-                    Indent--;
-                }
-                _randomEqualizerTypes.Format("Try to equalize", _randomToggle);
-                _randomAdvancedRequiresBasic.Format("Pair advanced skills with basic", _randomToggle);
-                _randomRandomizeBreakthrough.Format("Randomize breakthrough skills", _randomToggle);
-                Indent++;
-                {
-                    _randomTreatBreakthroughAsAdvanced.Format("Treat as advanced", _randomRandomizeBreakthrough);
-                    Indent--;
-                }
-                AModSetting[] inputOutputSettings =
-                {
-                    _vanillaInput,
-                    _theSoroboreansInput,
-                    _theThreeBrothersInput,
-                    _vanillaOutput,
-                    _theSoroboreansOutput,
-                    _theThreeBrothersOutput
-                };
-                foreach (var setting in inputOutputSettings)
-                {
-                    string name = setting == _vanillaInput ? "Input skill trees"
-                                                           : setting == _vanillaOutput ? "Output skill trees" : "";
-                    setting.Format(name, _randomToggle);
-                    setting.DisplayResetButton = false;
-                }
+                _randomizeSeed.Format("Randomize seed");
                 Indent--;
+            }
+            _equalizedTraits.Format("Try to equalize");
+            _treatBreakthroughAsAdvanced.Format("Treat breakthrough as advanced");
+            _treatBreakthroughAsAdvanced.Description = "Breakthrough skills will be treated as advanced skills";
+            _treatWeaponMasterAsAdvanced.Format("Treat weapon master as advanced");
+            AModSetting[] inputOutputSettings =
+            {
+                _vanillaInput,
+                _theSoroboreansInput,
+                _theThreeBrothersInput,
+                _vanillaOutput,
+                _theSoroboreansOutput,
+                _theThreeBrothersOutput
+            };
+            foreach (var setting in inputOutputSettings)
+            {
+                string name = setting == _vanillaInput ? "Input skill trees"
+                                                       : setting == _vanillaOutput ? "Output skill trees" : "";
+                setting.Format(name);
+                setting.DisplayResetButton = false;
             }
         }
         override protected string Description
@@ -274,79 +256,58 @@ namespace ModPack
                 _sideSkillTrees.Add(skillTree);
             }
         }
-        static private void TryReset()
+        //
+        static private IEnumerable<SkillSchool> GetInputSkillTrees()
         {
-            if (_cachedSkillTreeHolder == null)
-                return;
-
-            // Destroy side skill trees
-            foreach (var sideSkillTree in _sideSkillTrees)
-            {
-                sideSkillTree.Unparent();
-                _sideSkillTrees.DestroyObjects();
-            }
-
-            // Destroy real SkillTreeHolder
-            SkillTreeHolder.Instance.DestroyObject();
-
-
-            // Copy and destroy cached SkillTreeHolder
-            CopyCachedSkillTreeHolder();
-            _cachedSkillTreeHolder.DestroyObject();
-        }
-        static private List<SkillSchool> GetInputSkillTrees()
-        {
-            List<SkillSchool> trees = new List<SkillSchool>();
             foreach (Enum flag in Enum.GetValues(typeof(VanillaInput)))
                 if (_vanillaInput.Value.HasFlag(flag))
-                    trees.Add(FlagToSkillTree(flag, true));
+                    yield return FlagToSkillTree(flag, true);
             foreach (Enum flag in Enum.GetValues(typeof(TheSoroboreansInput)))
                 if (_theSoroboreansInput.Value.HasFlag(flag))
-                    trees.Add(FlagToSkillTree(flag, true));
+                    yield return FlagToSkillTree(flag, true);
             foreach (Enum flag in Enum.GetValues(typeof(TheThreeBrothersInput)))
                 if (_theThreeBrothersInput.Value.HasFlag(flag))
-                    trees.Add(FlagToSkillTree(flag, true));
-            return trees;
+                    yield return FlagToSkillTree(flag, true);
+
         }
-        static private List<SkillSchool> GetOutputSkillTrees()
+        static private IEnumerable<SkillSchool> GetOutputSkillTrees()
         {
-            List<SkillSchool> trees = new List<SkillSchool>();
             foreach (Enum flag in Enum.GetValues(typeof(VanillaOutput)))
                 if (_vanillaOutput.Value.HasFlag(flag))
-                    trees.Add(FlagToSkillTree(flag));
+                    yield return FlagToSkillTree(flag);
             foreach (Enum flag in Enum.GetValues(typeof(TheSoroboreansOutput)))
                 if (_theSoroboreansOutput.Value.HasFlag(flag))
-                    trees.Add(FlagToSkillTree(flag));
+                    yield return FlagToSkillTree(flag);
             foreach (Enum flag in Enum.GetValues(typeof(TheThreeBrothersOutput)))
                 if (_theThreeBrothersOutput.Value.HasFlag(flag))
-                    trees.Add(FlagToSkillTree(flag));
-            return trees;
+                    yield return FlagToSkillTree(flag);
         }
-        static private SlotList3D GetSlotListsByTreeAndByType(List<SkillSchool> trees, bool shuffleSlotLists = false, bool shuffleTrees = false, bool shuffleTypes = false)
+        static private IEnumerable<Trait<BaseSkillSlot>> GetTraits(IEnumerable<SkillSchool> trees)
         {
-            SlotList3D slotListsByTreeAndByType = new SlotList3D();
-            foreach (var skillType in new[] { SlotLevel.Basic, SlotLevel.Breakthrough, SlotLevel.Advanced })
+            EqualizedTraits traits = _equalizedTraits.Value;
+            if (traits.HasFlag(EqualizedTraits.Count))
+                yield return new Trait<BaseSkillSlot>("Count", slot => true);
+            if (traits.HasFlag(EqualizedTraits.Types))
             {
-                SlotList2D slotListsByTree = new SlotList2D();
-                foreach (var tree in trees)
-                {
-                    SlotList slotList = new SlotList();
-                    foreach (var slot in tree.m_skillSlots)
-                    {
-                        if (GetSlotLevel(slot, true) == skillType)
-                            slotList.Add(slot);
-                    }
-                    if (shuffleSlotLists)
-                        slotList.Shuffle();
-                    slotListsByTree.Add(slotList);
-                }
-                if (shuffleTrees)
-                    slotListsByTree.Shuffle();
-                slotListsByTreeAndByType.Add(slotListsByTree);
+                yield return new Trait<BaseSkillSlot>("Passive", slot => GetSlotType(slot) == SlotType.Passive);
+                yield return new Trait<BaseSkillSlot>("Active", slot => GetSlotType(slot) == SlotType.Active);
             }
-            if (shuffleTypes)
-                slotListsByTreeAndByType.Shuffle();
-            return slotListsByTreeAndByType;
+            if (traits.HasFlag(EqualizedTraits.Levels))
+            {
+                yield return new Trait<BaseSkillSlot>("Basic", slot => GetSlotLevel(slot) == SlotLevel.Basic);
+                yield return new Trait<BaseSkillSlot>("Advanced", slot => GetSlotLevel(slot) == SlotLevel.Advanced);
+            }
+            if (traits.HasFlag(EqualizedTraits.Trees))
+                foreach (var tree in trees)
+                    yield return new Trait<BaseSkillSlot>(tree.Name, slot => GetSlotTree(slot) == tree);
+
+        }
+        static private IEnumerable<BaseSkillSlot> GetSlotsFromTrees(IEnumerable<SkillSchool> trees)
+        {
+            foreach (var tree in trees)
+                foreach (var slot in tree.m_skillSlots)
+                    if (_treatBreakthroughAsAdvanced || GetSlotLevel(slot) != SlotLevel.Breakthrough)
+                        yield return slot;
         }
         static private void ResetSkillTrees(List<SkillSchool> trees)
         {
@@ -359,130 +320,45 @@ namespace ModPack
             }
         }
         static private void RandomizeSeed()
-        => _randomSeed.Value = Random.value.MapFrom01(-1f, +1f).Mul(int.MaxValue).Round();
+        => _seed.Value = Random.value.MapFrom01(-1f, +1f).Mul(int.MaxValue).Round();
+
         static private void RandomizeSkills()
         {
             // Quit
-            List<SkillSchool> outputTrees = GetOutputSkillTrees();
-            if (outputTrees.IsEmpty())
+            IEnumerable<SkillSchool> outputTrees = GetOutputSkillTrees();
+            if (!outputTrees.Any())
                 return;
 
-            Tools.IsStopwatchActive = true;
-
             // Initialize random generator, input/output lists and equalizers
-            Random.InitState(_randomSeed);
-            SlotList3D inputSlotListsByTreeAndByType = GetSlotListsByTreeAndByType(GetInputSkillTrees(), true);
-            SlotList2D outputSlotLists = Utility.CreateList2D<BaseSkillSlot>(outputTrees.Count);
-            var equalizersByType = new Dictionary<EqualizerTypes, SlotList2D>
-            {
-                [EqualizerTypes.Slots] = new SlotList2D(),
-                [EqualizerTypes.Trees] = new SlotList2D(),
-                [EqualizerTypes.Levels] = new SlotList2D(),
-            };
-            List<EqualizerTypes> activeEqualizerTypes = new List<EqualizerTypes>();
-            foreach (var type in Utility.GetEnumValues<EqualizerTypes>())
-                if (_randomEqualizerTypes.Value.HasFlag(type))
-                    activeEqualizerTypes.Add(type);
+            Random.InitState(_seed);
+            IEnumerable<SkillSchool> intputTrees = GetInputSkillTrees();
+            TraitEqualizer<BaseSkillSlot> equalizer = new TraitEqualizer<BaseSkillSlot>(outputTrees.Count(), GetTraits(intputTrees).ToArray());
+            foreach (var slot in GetSlotsFromTrees(intputTrees))
+                equalizer.Add(slot);
 
-            // Randomization logic
-            foreach (var inputSlotListsByTree in inputSlotListsByTreeAndByType)
-            {
-                equalizersByType[EqualizerTypes.Levels] = new SlotList2D(outputSlotLists);
-                foreach (var inputSlotList in inputSlotListsByTree)
-                {
-                    equalizersByType[EqualizerTypes.Trees] = new SlotList2D(outputSlotLists);
-                    foreach (var inputSlot in inputSlotList)
-                    {
-                        // skip breakthrough slots if the setting isn't enabled
-                        if (GetSlotLevel(inputSlot, true) == SlotLevel.Breakthrough && !_randomRandomizeBreakthrough)
-                            continue;
-
-                        // reset empty equalizers and find intersection
-                        IEnumerable<SlotList> intersection = new SlotList2D(outputSlotLists);
-                        foreach (var type in activeEqualizerTypes)
-                        {
-                            if (equalizersByType[type].IsEmpty())
-                                equalizersByType[type] = new SlotList2D(outputSlotLists);
-                            intersection = intersection.Intersect(equalizersByType[type]);
-                        }
-
-                        // pair advanced slots with basic if the setting is enabled
-                        if (GetSlotLevel(inputSlot, true) == SlotLevel.Advanced && _randomAdvancedRequiresBasic)
-                        {
-                            SlotList2D allowedLists = new SlotList2D();
-                            foreach (var outputSlotList in outputSlotLists)
-                                if (ContainsBasicSkillFromTree(outputSlotList, inputSlot.ParentBranch.ParentTree))
-                                {
-                                    allowedLists.Add(outputSlotList);
-                                    continue;
-                                }
-
-                            // if no intersection found, override equalization
-                            intersection = intersection.Intersect(allowedLists);
-                            if (!intersection.Any())
-                                intersection = allowedLists;
-                        }
-
-                        // add slot & remove lists from equalizers
-                        SlotList randomOutputSlotList = intersection.ToArray().Random();
-                        randomOutputSlotList.Add(inputSlot);
-                        foreach (var equalizerType in activeEqualizerTypes)
-                            equalizersByType[equalizerType].Remove(randomOutputSlotList);
-                    }
-                }
-            }
-
-            // Log
-            int counter = 0;
-            foreach (var tree in outputSlotLists)
-                if (!tree.IsEmpty())
-                {
-                    Tools.Log($"");
-                    Tools.Log($"TREE #{counter++}");
-                    foreach (var slot in tree)
-                        Tools.Log($"\t{GetSlotLevel(slot)} / {slot.ParentBranch.ParentTree.Name} / {slot.name}");
-                }
-
-            // Output
-            ResetSkillTrees(outputTrees);
-
-            foreach (var outputTree in outputTrees)
-            {
-                int row = 0, column = 0;
-                GameObject skillBranchHolder = new GameObject(row++.ToString());
-                SlotList randomOutputSlotList = outputSlotLists.Random();
-                foreach (var outputSlot in randomOutputSlotList)
-                {
-                    BaseSkillSlot newSlot = GameObject.Instantiate(outputSlot, skillBranchHolder.transform);
-                    newSlot.m_columnIndex = column++;
-                    newSlot.RequiredSkillSlot = null;
-                    newSlot.IsBreakthrough = GetSlotLevel(outputSlot) == SlotLevel.Breakthrough;
-                    newSlot.RequiresBreakthrough = GetSlotLevel(outputSlot) == SlotLevel.Advanced;
-
-                    if (column > 4 || outputSlot == randomOutputSlotList.Last())
-                    {
-                        skillBranchHolder.BecomeChildOf(outputTree);
-                        skillBranchHolder.AddComponent<SkillBranch>();
-                        skillBranchHolder = new GameObject(row++.ToString());
-                        column = 0;
-                    }
-                }
-
-                outputTree.Start();
-                outputSlotLists.Remove(randomOutputSlotList);
-            }
-
-            // Diagnostics
             Tools.Log($"");
-            Tools.Log($"Execution time: {Tools.ElapsedMilliseconds}ms");
-            Tools.IsStopwatchActive = false;
+            Tools.Log($"TRAITS");
+            foreach (var trait in equalizer.Traits)
+                Tools.Log($"\t{trait.Name}");
+
+            int counter = 0;
+            foreach (var tree in equalizer.Results)
+            {
+                Tools.Log($"");
+                Tools.Log($"TREE #{counter++}");
+
+                List<BaseSkillSlot> sortedList = tree.ToList();
+                sortedList.Sort((a, b) => GetSlotLevel(a).CompareTo(GetSlotLevel(b)));
+                foreach (var slot in sortedList)
+                    Tools.Log($"\t{GetSlotLevel(slot)} / {slot.ParentBranch.ParentTree.Name} / {slot.name}");
+            }
         }
         //
         static private bool HasDLC(OTWStoreAPI.DLCs dlc)
 => StoreManager.Instance.IsDlcInstalled(dlc);
-        static private SkillSchool FlagToSkillTree(Enum flag, bool fromCached = false)
+        static private SkillSchool FlagToSkillTree(Enum flag, bool fromCache = false)
         {
-            SkillTreeHolder skillTreeHolder = fromCached ? _cachedSkillTreeHolder : SkillTreeHolder.Instance;
+            SkillTreeHolder skillTreeHolder = fromCache ? _cachedSkillTreeHolder : SkillTreeHolder.Instance;
             if (!FlagToSkillTreeName(Convert.ToInt32(flag)).TryAssign(out var treeName)
             || !skillTreeHolder.transform.TryFind(treeName, out var treeTransform)
             || !treeTransform.TryGetComponent(out SkillSchool tree))
@@ -519,20 +395,7 @@ namespace ModPack
                     return true;
             return false;
         }
-        static private SlotLevel GetSlotLevel(BaseSkillSlot slot, bool respectBreakthroughAsAdvanced = false)
-        {
-            if (!slot.ParentBranch.ParentTree.BreakthroughSkill.TryAssign(out var breakthroughSlot))
-                return SlotLevel.Basic;
 
-            bool treatAsAdvanced = respectBreakthroughAsAdvanced && _randomTreatBreakthroughAsAdvanced;
-            switch (slot.ParentBranch.Index.CompareTo(breakthroughSlot.ParentBranch.Index))
-            {
-                case -1: return SlotLevel.Basic;
-                case 0: return treatAsAdvanced ? SlotLevel.Advanced : SlotLevel.Breakthrough;
-                case +1: return SlotLevel.Advanced;
-                default: return 0;
-            }
-        }
         static private SlotType GetSlotType(BaseSkillSlot slot)
         {
             switch (slot)
@@ -547,5 +410,46 @@ namespace ModPack
                 default: return 0;
             }
         }
+        static private SlotLevel GetSlotLevel(BaseSkillSlot slot)
+        {
+            if (_treatWeaponMasterAsAdvanced
+            && GetSlotTree(slot) == FlagToSkillTree(TheThreeBrothersInput.WeaponMaster, true))
+                return SlotLevel.Advanced;
+
+            if (!slot.ParentBranch.ParentTree.BreakthroughSkill.TryAssign(out var breakthroughSlot))
+                return SlotLevel.Basic;
+
+            switch (slot.ParentBranch.Index.CompareTo(breakthroughSlot.ParentBranch.Index))
+            {
+                case -1: return SlotLevel.Basic;
+                case 0: return _treatBreakthroughAsAdvanced ? SlotLevel.Advanced : SlotLevel.Breakthrough;
+                case +1: return SlotLevel.Advanced;
+                default: return 0;
+            }
+        }
+        static private SkillSchool GetSlotTree(BaseSkillSlot slot)
+        => slot.ParentBranch.ParentTree;
     }
 }
+
+/*
+static private void TryReset()
+{
+    if (_cachedSkillTreeHolder == null)
+        return;
+
+    // Destroy side skill trees
+    foreach (var sideSkillTree in _sideSkillTrees)
+    {
+        sideSkillTree.Unparent();
+        _sideSkillTrees.DestroyObjects();
+    }
+
+    // Destroy real SkillTreeHolder
+    SkillTreeHolder.Instance.DestroyObject();
+
+    // Copy and destroy cached SkillTreeHolder
+    CopyCachedSkillTreeHolder();
+    _cachedSkillTreeHolder.DestroyObject();
+}
+*/
