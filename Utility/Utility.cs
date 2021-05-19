@@ -149,5 +149,15 @@ namespace ModPack
             finalAction?.Invoke();
 
         }
+        static public List<T> Intersect<T>(IEnumerable<IEnumerable<T>> lists)
+        {
+            if (lists == null || !lists.Any())
+                return new List<T>();
+
+            HashSet<T> hashSet = new HashSet<T>(lists.First());
+            foreach (var list in lists.Skip(1))
+                hashSet.IntersectWith(list);
+            return hashSet.ToList();
+        }
     }
 }
