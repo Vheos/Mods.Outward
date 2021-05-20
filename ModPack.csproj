@@ -146,6 +146,7 @@
   <ItemGroup>
     <None Include="Utility\Snippets\log.snippet" />
     <None Include="Utility\Snippets\postfix.snippet" />
+    <None Include="Utility\Snippets\prefixsafe.snippet" />
     <None Include="Utility\Snippets\tempstate.snippet" />
     <None Include="Utility\Snippets\prefix.snippet" />
   </ItemGroup>
