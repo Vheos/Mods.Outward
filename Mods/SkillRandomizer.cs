@@ -19,6 +19,7 @@ namespace ModPack
         private const string HEXES_TREE_NAME = "Hexes";
         private const string MANA_TREE_NAME = "Mana";
         private const string INNATE_TREE_NAME = "Innate";
+        private const float REROLL_DELAY = 0.1f;
         static private readonly Vector2 DEFAULT_SLOT_DISPLAY_SIZE = new Vector2(128, 54);
         static private readonly Vector2 DEFAULT_TREE_LOCAL_POSITION = new Vector2(0, -24);
         static private readonly (string Name, int[] IDs)[] SIDE_SKILLS =
@@ -34,7 +35,7 @@ namespace ModPack
                 "Simeon's Gambit".SkillID(),
                 "Moon Swipe".SkillID(),
                 "Prismatic Flurry".SkillID(),
-                "Flamethrower".SkillID(),
+                "Flamethrower".SkillID(), // Mana
             }),
             (BOONS_TREE_NAME, new[]
             {
@@ -71,7 +72,10 @@ namespace ModPack
             "Chill Hex",
             "Doom Hex",
             "Curse Hex",
-            "Haunt Hex",        };
+            "Haunt Hex",
+            // Mana
+            "Flamethrower",
+        };
         static private readonly (int Column, int Row)[] SLOT_POSITIONS =
         {
             (2, 2),
@@ -111,7 +115,8 @@ namespace ModPack
             Count = 1 << 1,
             Types = 1 << 2,
             Levels = 1 << 3,
-            Trees = 1 << 4,
+            VanillaTrees = 1 << 4,
+            Choices = 1 << 5,
         }
         [Flags]
         private enum VanillaInput
@@ -186,7 +191,7 @@ namespace ModPack
             _rerollOnGameStart = CreateSetting(nameof(_rerollOnGameStart), false);
             _seed = CreateSetting(nameof(_seed), 0);
             _seedRandomize = CreateSetting(nameof(_seedRandomize), false);
-            _equalizedTraits = CreateSetting(nameof(_equalizedTraits), (EqualizedTraits)~0);
+            _equalizedTraits = CreateSetting(nameof(_equalizedTraits), EqualizedTraits.Count | EqualizedTraits.Types | EqualizedTraits.Levels);
             _randomizeBreakthroughSkills = CreateSetting(nameof(_randomizeBreakthroughSkills), false);
             _preferPassiveBreakthroughs = CreateSetting(nameof(_preferPassiveBreakthroughs), false);
             _treatWeaponMasterAsAdvanced = CreateSetting(nameof(_treatWeaponMasterAsAdvanced), false);
@@ -222,8 +227,10 @@ namespace ModPack
             {
                 if (!_reroll)
                     return;
-
-                RandomizeSkills();
+                Tools.PluginComponent.ExecuteAtTheEndOfFrame
+                (
+                    () => Tools.PluginComponent.ExecuteOnceAfterDelay(REROLL_DELAY, RandomizeSkills)
+                );
                 _reroll.SetSilently(false);
             });
             _seedRandomize.AddEvent(() =>
@@ -237,7 +244,7 @@ namespace ModPack
 
             // Reroll on game start
             if (_rerollOnGameStart)
-                Tools.PluginComponent.ExecuteOnceAfterDelay(1f, RandomizeSkills);
+                _reroll.Value = true;
         }
         override protected void SetFormatting()
         {
@@ -284,6 +291,7 @@ namespace ModPack
                                            "Types - passive and active skills\n" +
                                            "Levels - basic and advanced skills\n" +
                                            "Trees - skills from each original tree\n" +
+                                           "Choices - choices between 2 mutually exclusive skills\n" +
                                            "\n" +
                                            "For example, if you choose to equalize skill types, every tree might 3-4 passives skills and 7-8 active skills. " +
                                            "Otherwise, some trees might get zero passives, and others mostly passives. " +
@@ -331,12 +339,13 @@ namespace ModPack
                     _vanillaOutput.Value = (VanillaOutput)~0;
                     _theSoroboreansOutput.Value = 0;
                     _theThreeBrothersOutput.Value = 0;
+                    _equalizedTraits.Value = (EqualizedTraits)~0;
                     _randomizeBreakthroughSkills.Value = true;
                     _preferPassiveBreakthroughs.Value = true;
                     _treatWeaponMasterAsAdvanced.Value = true;
                     _affectOnlyChosenOutputTrees.Value = false;
                     _rerollOnGameStart.Value = true;
-                    Tools.PluginComponent.ExecuteOnceAfterDelay(1f, RandomizeSkills);
+                    _reroll.Value = true;
                     break;
 
                 case Presets.Preset.IggyTheMad_TrueHardcore:
@@ -442,24 +451,25 @@ namespace ModPack
                 yield return new Trait<BaseSkillSlot>("Count", slot => true);
             if (traits.HasFlag(EqualizedTraits.Types))
             {
-                yield return new Trait<BaseSkillSlot>("Passive", slot => GetSlotType(slot) == SlotType.Passive);
-                yield return new Trait<BaseSkillSlot>("Active", slot => GetSlotType(slot) == SlotType.Active);
+                yield return new Trait<BaseSkillSlot>("Passive", slot => GetType(slot) == SlotType.Passive);
+                yield return new Trait<BaseSkillSlot>("Active", slot => GetType(slot) == SlotType.Active);
             }
             if (traits.HasFlag(EqualizedTraits.Levels))
             {
-                yield return new Trait<BaseSkillSlot>("Basic", slot => GetSlotLevel(slot) == SlotLevel.Basic);
-                yield return new Trait<BaseSkillSlot>("Advanced", slot => GetSlotLevel(slot) == SlotLevel.Advanced);
+                yield return new Trait<BaseSkillSlot>("Basic", slot => GetLevel(slot) == SlotLevel.Basic);
+                yield return new Trait<BaseSkillSlot>("Advanced", slot => GetLevel(slot) == SlotLevel.Advanced);
             }
-            if (traits.HasFlag(EqualizedTraits.Trees))
+            if (traits.HasFlag(EqualizedTraits.VanillaTrees))
                 foreach (var tree in trees)
-                    yield return new Trait<BaseSkillSlot>(tree.Name, slot => GetSlotTree(slot) == tree);
-
+                    yield return new Trait<BaseSkillSlot>(tree.Name, slot => GetVanillaTree(slot) == tree);
+            if (traits.HasFlag(EqualizedTraits.Choices))
+                yield return new Trait<BaseSkillSlot>("Choice", slot => IsChoice(slot));
         }
         static private IEnumerable<BaseSkillSlot> GetSlotsFromTrees(IEnumerable<SkillSchool> trees)
         {
             foreach (var tree in trees)
                 foreach (var slot in tree.m_skillSlots)
-                    if (_randomizeBreakthroughSkills || GetSlotLevel(slot) != SlotLevel.Breakthrough)
+                    if (_randomizeBreakthroughSkills || GetLevel(slot) != SlotLevel.Breakthrough)
                         yield return slot;
         }
         static private void ResetSkillTrees(IEnumerable<SkillSchool> trees)
@@ -517,19 +527,22 @@ namespace ModPack
                 if (_randomizeBreakthroughSkills)
                 {
                     // Prefer passive
-                    IEnumerable<BaseSkillSlot> potentialBreakthroughs = randomizedSlots.Where(slot => GetSlotLevel(slot) == SlotLevel.Advanced);
-                    if (_preferPassiveBreakthroughs)
+                    IEnumerable<BaseSkillSlot> potentialBreakthroughs = randomizedSlots.Where(slot => GetLevel(slot) == SlotLevel.Advanced);
+                    if (potentialBreakthroughs.Any())
                     {
-                        IEnumerable<BaseSkillSlot> passiveBreakthroughs = potentialBreakthroughs.Where(slot => GetSlotType(slot) == SlotType.Passive);
-                        if (passiveBreakthroughs.Any())
-                            potentialBreakthroughs = passiveBreakthroughs;
+                        if (_preferPassiveBreakthroughs)
+                        {
+                            IEnumerable<BaseSkillSlot> passiveBreakthroughs = potentialBreakthroughs.Where(slot => GetType(slot) == SlotType.Passive);
+                            if (passiveBreakthroughs.Any())
+                                potentialBreakthroughs = passiveBreakthroughs;
+                        }
+                        // Randomize
+                        BaseSkillSlot randomAdvancedSlot = potentialBreakthroughs.ToArray().Random();
+                        breakthroughSlot = CopySlot(randomAdvancedSlot);
+                        breakthroughSlot.IsBreakthrough = true;
+                        AddSlotToTree(breakthroughSlot, randomOutputTree, 2, 3);
+                        randomizedSlots.Remove(randomAdvancedSlot);
                     }
-                    // Randomize
-                    BaseSkillSlot randomAdvancedSlot = potentialBreakthroughs.ToArray().Random();
-                    breakthroughSlot = CopySlot(randomAdvancedSlot);
-                    breakthroughSlot.IsBreakthrough = true;
-                    AddSlotToTree(breakthroughSlot, randomOutputTree, 2, 3);
-                    randomizedSlots.Remove(randomAdvancedSlot);
                 }
 
                 // Copy slots
@@ -538,7 +551,7 @@ namespace ModPack
                 foreach (var slot in randomizedSlots)
                 {
                     // Cache
-                    bool isAdvanced = GetSlotLevel(slot) == SlotLevel.Advanced;
+                    bool isAdvanced = GetLevel(slot) == SlotLevel.Advanced;
                     ref int index = ref (isAdvanced ? ref advancedIndex : ref basicIndex);
 
                     // Ignore skills
@@ -573,7 +586,7 @@ namespace ModPack
                         foreach (var forkSlot in fork.SkillsToChooseFrom)
                             forkSlot.RequiresBreakthrough = true;
                 }
-                randomOutputTree.m_breakthroughSkillIndex = randomOutputTree.m_skillSlots.IndexOf(breakthroughSlot);
+                randomOutputTree.m_breakthroughSkillIndex = breakthroughSlot != null ? randomOutputTree.m_skillSlots.IndexOf(breakthroughSlot) : -1;
 
                 // remove current tree from outputs
                 outputTrees.Remove(randomOutputTree);
@@ -631,7 +644,7 @@ namespace ModPack
                 default: return null;
             }
         }
-        static private SlotType GetSlotType(BaseSkillSlot slot)
+        static private SlotType GetType(BaseSkillSlot slot)
         {
             switch (slot)
             {
@@ -645,10 +658,10 @@ namespace ModPack
                 default: return 0;
             }
         }
-        static private SlotLevel GetSlotLevel(BaseSkillSlot slot)
+        static private SlotLevel GetLevel(BaseSkillSlot slot)
         {
             if (_treatWeaponMasterAsAdvanced
-            && GetSlotTree(slot) == FlagToSkillTree(TheThreeBrothersInput.WeaponMaster, true))
+            && GetVanillaTree(slot) == FlagToSkillTree(TheThreeBrothersInput.WeaponMaster, true))
                 return SlotLevel.Advanced;
 
             if (!slot.ParentBranch.ParentTree.BreakthroughSkill.TryAssign(out var breakthroughSlot))
@@ -662,8 +675,10 @@ namespace ModPack
                 default: return 0;
             }
         }
-        static private SkillSchool GetSlotTree(BaseSkillSlot slot)
+        static private SkillSchool GetVanillaTree(BaseSkillSlot slot)
         => slot.ParentBranch.ParentTree;
+        static private bool IsChoice(BaseSkillSlot slot)
+        => slot is SkillSlotFork;
 
         // Hooks
 #pragma warning disable IDE0051 // Remove unused private members
@@ -673,7 +688,7 @@ namespace ModPack
             int basicCount = 0, advancedCount = 0;
             foreach (var slotDisplay in __instance.m_slotList)
                 if (slotDisplay.GOActive())
-                    switch (GetSlotLevel(slotDisplay.m_cachedBaseSlot))
+                    switch (GetLevel(slotDisplay.m_cachedBaseSlot))
                     {
                         case SlotLevel.Basic: basicCount++; break;
                         case SlotLevel.Advanced: advancedCount++; break;
