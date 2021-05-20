@@ -10,7 +10,7 @@ using Random = UnityEngine.Random;
 
 namespace ModPack
 {
-    public class SkillRandomizer : AMod, IDelayedInit, IDevelopmentOnly
+    public class SkillTreeRandomizer : AMod, IDelayedInit, IDevelopmentOnly
     {
         #region const
         private const string ICONS_FOLDER = @"Skills\";
@@ -327,6 +327,8 @@ namespace ModPack
         => "• Randomize skills taught by trainers";
         override protected string SectionOverride
         => SECTION_SKILLS;
+        override protected string ModName
+        => "Tree Randomizer";
         override public void LoadPreset(Presets.Preset preset)
         {
             switch (preset)
@@ -611,7 +613,7 @@ namespace ModPack
         }
         //
         static private bool HasDLC(OTWStoreAPI.DLCs dlc)
-=> StoreManager.Instance.IsDlcInstalled(dlc);
+        => StoreManager.Instance.IsDlcInstalled(dlc);
         static private SkillSchool FlagToSkillTree(Enum flag, bool fromCache = false)
         {
             SkillTreeHolder skillTreeHolder = fromCache ? _cachedSkillTreeHolder : SkillTreeHolder.Instance;
