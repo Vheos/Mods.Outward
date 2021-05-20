@@ -67,6 +67,8 @@ namespace ModPack
         private readonly Harmony _patcher;
         private readonly List<AModSetting> _settings;
         private readonly List<Action> _onConfigClosedEvents;
+        private readonly List<Action> _onEnabledEvents;
+        private readonly List<Action> _onDisabledEvents;
         private bool _isInitialized;
         private string SectionName
         => GetType().Name;
@@ -154,6 +156,8 @@ namespace ModPack
             _patcher.PatchAll(GetType());
 
             Tools.Log($"\t[{GetType().Name}] Calling events...");
+            foreach (var onEnabled in _onEnabledEvents)
+                onEnabled.Invoke();
             foreach (var setting in _settings)
                 setting.CallAllEvents();
             foreach (var onConfigClosed in _onConfigClosedEvents)
@@ -163,9 +167,14 @@ namespace ModPack
         }
         private void OnDisable()
         {
+            foreach (var onDisabled in _onDisabledEvents)
+                onDisabled.Invoke();
+
             _patcher.UnpatchSelf();
-            OnCollapse();
-            ResetCollapseSilently();
+            if (!IsCollapsed)
+                OnCollapse();
+            else
+                ResetCollapseSilently();         
         }
         private void OnCollapse()
         {
@@ -180,8 +189,11 @@ namespace ModPack
         private void OnHide()
         {
             _mainToggle.IsAdvanced = true;
-            OnDisable();
-            ResetApplySilently();
+            if (IsEnabled)
+            {
+                OnDisable();
+                ResetApplySilently();
+            }
         }
         private void OnUnhide()
         {
@@ -200,6 +212,8 @@ namespace ModPack
             _patcher = new Harmony(GetType().Name);
             _settings = new List<AModSetting>();
             _onConfigClosedEvents = new List<Action>();
+            _onEnabledEvents = new List<Action>();
+            _onDisabledEvents = new List<Action>();
 
             ResetSettingPosition(-1);
             CreateMainToggle();
@@ -294,6 +308,10 @@ namespace ModPack
                     action();
             });
         }
+        protected void AddEventOnEnabled(Action action)
+        => _onEnabledEvents.Add(action);
+        protected void AddEventOnDisabled(Action action)
+        => _onDisabledEvents.Add(action);
         protected ModSetting<T> CreateSetting<T>(string name, T defaultValue = default, AcceptableValueBase acceptableValues = null)
         {
             ModSetting<T> newSetting = new ModSetting<T>(SectionName, name, defaultValue, acceptableValues)
