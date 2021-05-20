@@ -159,17 +159,5 @@ namespace ModPack
                 hashSet.IntersectWith(list);
             return hashSet.ToList();
         }
-        static public void TryAddLanternSlot(this Bag bag)
-        {
-            #region quit
-            if (bag.HasLanternSlot)
-                return;
-            #endregion
-
-            Bag adventurerBackpack = Prefabs.ItemsByID["5300000"] as Bag;
-            GameObject lanternHolder = adventurerBackpack.LoadedVisual.FindChild("LanternSlotAnchor");
-            GameObject newLanternHolder = GameObject.Instantiate(lanternHolder, bag.LoadedVisual.transform);
-            GameObject.DontDestroyOnLoad(newLanternHolder);
-        }
     }
 }
