@@ -120,6 +120,8 @@ namespace ModPack
            "• Decide which skills count towards the limit";
         override protected string SectionOverride
         => SECTION_SKILLS;
+        override protected string ModName
+        => "Limits";
         override public void LoadPreset(Presets.Preset preset)
         {
             switch (preset)
@@ -131,7 +133,7 @@ namespace ModPack
                         _passiveSkillsLimit.Value = 5;
                         _activeSkillsLimit.Value = 15;
                     }
-                    _limitedSkillTypes.Value = (LimitedSkillTypes)~0;
+                    _limitedSkillTypes.Value = LimitedSkillTypes.Basic | LimitedSkillTypes.Advanced;
                     _freePostBreakthroughBasicSkills.Value = true;
                     break;
 

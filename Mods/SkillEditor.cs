@@ -255,6 +255,8 @@ namespace ModPack
         => "• Change effects, costs and cooldown of select skills";
         override protected string SectionOverride
         => SECTION_SKILLS;
+        override protected string ModName
+        => "Editor";
         override public void LoadPreset(Presets.Preset preset)
         {
             switch (preset)
