@@ -18,7 +18,10 @@ namespace ModPack
         static public void Log(object text)
         => _logger.Log(Main.IS_DEVELOPMENT_VERSION ? LogLevel.Message : LogLevel.Debug, text);
         static public ConfigFile ConfigFile
-        => _configFile;
+        { get; private set; }
+        static public BaseUnityPlugin PluginComponent
+        { get; private set; }
+
         static public void SetDirtyConfigWindow()
         => _isConfigWindowDirty = true;
         static public void TryRedrawConfigWindow()
@@ -78,19 +81,17 @@ namespace ModPack
         // Privates
         static private Stopwatch _stopwatch;
         static private ManualLogSource _logger;
-        static private ConfigFile _configFile;
         static private ConfigurationManager.ConfigurationManager _configManager;
         static private bool _isConfigWindowDirty;
-        static private BepInPlugin _plugin;
 
         // Initializers
         static public void Initialize(BaseUnityPlugin pluginComponent, ManualLogSource logger)
         {
             _stopwatch = new Stopwatch();
             _logger = logger;
-            _configFile = pluginComponent.Config;
-            _configManager = pluginComponent.GetComponent<ConfigurationManager.ConfigurationManager>();
-            _plugin = pluginComponent.Info.Metadata;
+            PluginComponent = pluginComponent;
+            ConfigFile = PluginComponent.Config;
+            _configManager = PluginComponent.GetComponent<ConfigurationManager.ConfigurationManager>();
         }
     }
 }
