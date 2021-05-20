@@ -115,8 +115,8 @@ namespace ModPack
             Count = 1 << 1,
             Types = 1 << 2,
             Levels = 1 << 3,
-            VanillaTrees = 1 << 4,
-            Choices = 1 << 5,
+            Choices = 1 << 4,
+            VanillaTrees = 1 << 5,
         }
         [Flags]
         private enum VanillaInput
@@ -290,8 +290,8 @@ namespace ModPack
                                            "Count - skill slots\n" +
                                            "Types - passive and active skills\n" +
                                            "Levels - basic and advanced skills\n" +
-                                           "Trees - skills from each original tree\n" +
                                            "Choices - choices between 2 mutually exclusive skills\n" +
+                                           "Trees - skills from each original tree\n" +
                                            "\n" +
                                            "For example, if you choose to equalize skill types, every tree might 3-4 passives skills and 7-8 active skills. " +
                                            "Otherwise, some trees might get zero passives, and others mostly passives. " +
@@ -461,11 +461,11 @@ namespace ModPack
                 yield return new Trait<BaseSkillSlot>("Basic", slot => GetLevel(slot) == SlotLevel.Basic);
                 yield return new Trait<BaseSkillSlot>("Advanced", slot => GetLevel(slot) == SlotLevel.Advanced);
             }
+            if (traits.HasFlag(EqualizedTraits.Choices))
+                yield return new Trait<BaseSkillSlot>("Choice", slot => IsChoice(slot));
             if (traits.HasFlag(EqualizedTraits.VanillaTrees))
                 foreach (var tree in trees)
                     yield return new Trait<BaseSkillSlot>(tree.Name, slot => GetVanillaTree(slot) == tree);
-            if (traits.HasFlag(EqualizedTraits.Choices))
-                yield return new Trait<BaseSkillSlot>("Choice", slot => IsChoice(slot));
         }
         static private IEnumerable<BaseSkillSlot> GetSlotsFromTrees(IEnumerable<SkillSchool> trees)
         {
@@ -506,6 +506,9 @@ namespace ModPack
             Random.InitState(_seed);
             foreach (var slot in GetSlotsFromTrees(intputTrees))
                 equalizer.Add(slot);
+
+            // Print results
+            Tools.Log(equalizer.GetResultsAsString("Skill tree randomzier results:"));
 
             // Reset
             if (_affectOnlyChosenOutputTrees)

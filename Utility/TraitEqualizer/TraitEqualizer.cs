@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-
+using System.Text;
 
 namespace ModPack
 {
@@ -40,6 +40,37 @@ namespace ModPack
                 foreach (var trait in _traits)
                     yield return trait;
             }
+        }
+        public string GetResultsAsString(string header = null)
+        {
+            StringBuilder builder = new StringBuilder();
+            if (header != null)
+                builder.AppendLine(header);
+
+            // Headers
+            builder.Append("List".PadRight(20));
+            int counter = 0;
+            foreach (var traitList in _lists)
+                builder.Append($"{(char)(65 + counter++),-3} ");
+            builder.AppendLine();
+
+            // Separator
+            builder.AppendLine(new string('-', 20 + 4 * _lists.Length));
+
+            // Traits
+            foreach (var trait in _traits)
+            {
+                builder.Append($"{trait.Name,-20}");
+                foreach (var list in _lists)
+                {
+                    int count = list.TraitCount(trait);
+                    string text = count == 0 ? "" : count.ToString();
+                    builder.Append($"{text,-3} ");
+                }
+                builder.AppendLine();
+            }
+
+            return builder.ToString();
         }
 
         // Privates
