@@ -38,8 +38,8 @@ namespace ModPack
             
             // Skills
             typeof(SkillEditor),
-            typeof(SkillRandomizer),
             typeof(SkillLimits),
+            typeof(SkillTreeRandomizer),
 
             // UI
             typeof(GUI),
@@ -86,6 +86,8 @@ namespace ModPack
         => "";
         virtual protected string Description
         => "";
+        virtual protected string ModName
+        => null;
 
         // Toggles
         private ModSetting<Toggles> _mainToggle;
@@ -98,7 +100,7 @@ namespace ModPack
                 DisplayResetButton = false,
                 Description = Description,
             };
-            _mainToggle.Format(SectionName.SplitCamelCase());
+            _mainToggle.Format(ModName ?? SectionName.SplitCamelCase());
             _mainToggle.AddEvent(OnTogglesChanged);
             _previousMainToggle = _mainToggle;
         }
@@ -174,7 +176,7 @@ namespace ModPack
             if (!IsCollapsed)
                 OnCollapse();
             else
-                ResetCollapseSilently();         
+                ResetCollapseSilently();
         }
         private void OnCollapse()
         {
