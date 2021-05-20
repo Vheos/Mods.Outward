@@ -457,6 +457,8 @@ namespace ModPack
             t.size = size;
         }
 
+        static public Coroutine ExecuteAtTheEndOfFrame(this MonoBehaviour monoBehaviour, Action action)
+        => monoBehaviour.StartCoroutine(Utility.CoroutineWaitUntilEndOfFrame(action));
         static public Coroutine ExecuteOnceAfterDelay(this MonoBehaviour monoBehaviour, float delay, Action action)
         => monoBehaviour.StartCoroutine(Utility.CoroutineWaitForSeconds(delay, action));
         static public Coroutine ExecuteOnceWhen(this MonoBehaviour monoBehaviour, Func<bool> test, Action action)

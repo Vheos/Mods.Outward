@@ -119,6 +119,11 @@ namespace ModPack
                 return Color.Lerp(a, b, t * 2);
             return Color.Lerp(b, c, t * 2 - 1);
         }
+        static public IEnumerator CoroutineWaitUntilEndOfFrame(Action action)
+        {
+            yield return new WaitForEndOfFrame();
+            action();
+        }
         static public IEnumerator CoroutineWaitForSeconds(float delay, Action action)
         {
             yield return new WaitForSeconds(delay);
