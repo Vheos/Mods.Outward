@@ -20,6 +20,7 @@ namespace ModPack
         private const string MANA_TREE_NAME = "Mana";
         private const string INNATE_TREE_NAME = "Innate";
         private const float REROLL_DELAY = 0.1f;
+        private const string REROLL_STATS_FILE_NAME = "SkillTreeRandomizerStats.txt";
         static private readonly Vector2 DEFAULT_SLOT_DISPLAY_SIZE = new Vector2(128, 54);
         static private readonly Vector2 DEFAULT_TREE_LOCAL_POSITION = new Vector2(0, -24);
         static private readonly (string Name, int[] IDs)[] SIDE_SKILLS =
@@ -171,9 +172,7 @@ namespace ModPack
         #endregion
 
         // Settings
-        static private ModSetting<bool> _reroll, _rerollOnGameStart;
-        static private ModSetting<bool> _seedRandomize;
-        static private ModSetting<int> _seed;
+        static private ModSetting<bool> _reroll, _rerollOnGameStart, _rerollLogResults;
         static private ModSetting<VanillaInput> _vanillaInput;
         static private ModSetting<TheSoroboreansInput> _theSoroboreansInput;
         static private ModSetting<TheThreeBrothersInput> _theThreeBrothersInput;
@@ -181,14 +180,16 @@ namespace ModPack
         static private ModSetting<TheSoroboreansOutput> _theSoroboreansOutput;
         static private ModSetting<TheThreeBrothersOutput> _theThreeBrothersOutput;
         static private ModSetting<EqualizedTraits> _equalizedTraits;
-        static private ModSetting<bool> _randomizeBreakthroughSkills;
-        static private ModSetting<bool> _preferPassiveBreakthroughs;
+        static private ModSetting<bool> _randomizeBreakthroughSkills, _preferPassiveBreakthroughs;
         static private ModSetting<bool> _treatWeaponMasterAsAdvanced;
         static private ModSetting<bool> _affectOnlyChosenOutputTrees;
+        static private ModSetting<int> _seed;
+        static private ModSetting<bool> _seedRandomize;
         override protected void Initialize()
         {
             _reroll = CreateSetting(nameof(_reroll), false);
             _rerollOnGameStart = CreateSetting(nameof(_rerollOnGameStart), false);
+            _rerollLogResults = CreateSetting(nameof(_rerollLogResults), false);
             _seed = CreateSetting(nameof(_seed), 0);
             _seedRandomize = CreateSetting(nameof(_seedRandomize), false);
             _equalizedTraits = CreateSetting(nameof(_equalizedTraits), EqualizedTraits.Count | EqualizedTraits.Types | EqualizedTraits.Levels);
@@ -253,7 +254,14 @@ namespace ModPack
             Indent++;
             {
                 _rerollOnGameStart.Format("on game start");
+                _rerollOnGameStart.Description = "Automatically randomize skill trees when you start the game\n" +
+                                                 "(as long as you don't change the seed, you will always generate the same trees)";
                 _rerollOnGameStart.DisplayResetButton = false;
+                _rerollLogResults.Format("log stats");
+                _rerollLogResults.Description = "Create a file (in the \"Vheos\" folder) with statistics about each tree, without spoiling trainers/skills' names. " +
+                                                "Use it to double-check if there aren't any broken/unwanted trees, " +
+                                                "like a tree with only post-breakthrough skills, only passives, or only 1 skill";
+                _rerollLogResults.DisplayResetButton = false;
                 Indent--;
             }
 
@@ -272,7 +280,7 @@ namespace ModPack
                 {
                     setting.Format("Input skill trees");
                     setting.Description = "All skills from these trees will be gathered into one big list. " +
-                                         "Then, randomly selected skills will create new trees, which will override vanilla trees chosen below";
+                                          "Then, randomly selected skills will create new trees, which will override vanilla trees chosen below";
                 }
                 else if (setting == _vanillaOutput)
                 {
@@ -290,16 +298,16 @@ namespace ModPack
                                            "Count - skill slots\n" +
                                            "Types - passive and active skills\n" +
                                            "Levels - basic and advanced skills\n" +
-                                           "Choices - choices between 2 mutually exclusive skills\n" +
+                                           "Choices - slots with 2 mutually exclusive skills\n" +
                                            "Trees - skills from each original tree\n" +
                                            "\n" +
-                                           "For example, if you choose to equalize skill types, every tree might 3-4 passives skills and 7-8 active skills. " +
+                                           "For example, if you choose to equalize skill types, every tree might have 3-4 passives skills and 7-8 active skills. " +
                                            "Otherwise, some trees might get zero passives, and others mostly passives. " +
                                            "Likewise, if you choose NOT to equalize skill count, some trees might have 3 skills, while others 10\n" +
                                            "(note: the more traits the algorithm is trying to equalize, the less accurate it will be overall)";
             _affectOnlyChosenOutputTrees.Format("Affect only chosen output trees");
             _affectOnlyChosenOutputTrees.Description = "Output trees which you haven't chosen will keep their current skills\n" +
-                                                       "(vanilla, if you've never rerolled them)";
+                                                       "Otherwise, they will become empty (zero skills)";
             _randomizeBreakthroughSkills.Format("Randomize breakthroughs");
             _randomizeBreakthroughSkills.Description = "Breakthroughs will be randomized along with advanced skills\n" +
                                                        "Every tree will get a new breakthrough - chosen at random from all assigned advanced skills";
@@ -508,7 +516,8 @@ namespace ModPack
                 equalizer.Add(slot);
 
             // Print results
-            Tools.Log(equalizer.GetResultsAsString("Skill tree randomzier results:"));
+            if (_rerollLogResults)
+                LogResultsToFile(equalizer.GetResultsAsString());
 
             // Reset
             if (_affectOnlyChosenOutputTrees)
@@ -519,6 +528,8 @@ namespace ModPack
             // Copy
             CopyEqualizedSlotsToOutputTrees(equalizer.Results, outputTrees);
         }
+        static private void LogResultsToFile(string results)
+        => System.IO.File.WriteAllText(Utility.PluginFolderPath + REROLL_STATS_FILE_NAME, results);
         static private void CopyEqualizedSlotsToOutputTrees(IEnumerable<IEnumerable<BaseSkillSlot>> equalizedTrees, IList<SkillSchool> outputTrees)
         {
             foreach (var equalizedTree in equalizedTrees)
