@@ -17,6 +17,7 @@ namespace ModPack
             // Fields
             public SplitPlayer Split;
             public Character Character;
+            public PlayerCharacterStats Stats;
             public CharacterCamera Camera;
             public CharacterUI UI;
             public PlayerSystem System;
@@ -104,6 +105,7 @@ namespace ModPack
                 {
                     Split = splitPlayer,
                     Character = character,
+                    Stats = character.PlayerStats,
                     Camera = character.CharacterCamera,
                     UI = character.CharacterUI,
                     System = playerSystem,
