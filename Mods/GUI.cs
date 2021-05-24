@@ -243,7 +243,7 @@ namespace ModPack
                         tmp._startHUDEditor.Description = "Pause the game and start rearranging HUD elements:\n" +
                                                           "Left mouse button - move\n" +
                                                           "Right muse button - scale\n" +
-                                                          "Enter - save settings";
+                                                          "Open ConfigManager - save settings";
                         Indent--;
                     }
                     tmp._hudTransparency.Format("HUD transparency", tmp._toggle);
@@ -301,7 +301,7 @@ namespace ModPack
                         settings._toggle.Value = true;
                         {
                             settings._rearrangeHUD.Value = true;
-                            settings._hudTransparency.Value = 25;
+                            settings._hudTransparency.Value = 20;
                             settings._fadingStatusEffectIcons.Value = true;
                             {
                                 settings._statusIconMaxSize.Value = 120;
@@ -345,12 +345,7 @@ namespace ModPack
 
                 // HUD Editor
                 if (settings._startHUDEditor)
-                    if (KeyCode.Return.Pressed())
-                    {
-                        SetHUDEditor(player, false);
-                        continue;
-                    }
-                    else if (_hudEditFocus.Transform == null)
+                    if (_hudEditFocus.Transform == null)
                     {
                         if (KeyCode.Mouse0.Pressed())
                             HandleHUDHits(player, Tool.Move);
