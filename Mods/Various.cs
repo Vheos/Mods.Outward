@@ -17,6 +17,19 @@ namespace ModPack
     public class Various : AMod
     {
         #region const
+        static private readonly Dictionary<TemperatureSteps, Vector2> DEFAULT_TEMPERATURE_DATA_BY_ENUM = new Dictionary<TemperatureSteps, Vector2>
+        {
+            [TemperatureSteps.Coldest] = new Vector2(-45, -1),
+            [TemperatureSteps.VeryCold] = new Vector2(-30, 14),
+            [TemperatureSteps.Cold] = new Vector2(-20, 26),
+            [TemperatureSteps.Fresh] = new Vector2(-14, 38),
+            [TemperatureSteps.Neutral] = new Vector2(0, 50),
+            [TemperatureSteps.Warm] = new Vector2(14, 62),
+            [TemperatureSteps.Hot] = new Vector2(20, 80),
+            [TemperatureSteps.VeryHot] = new Vector2(28, 92),
+            [TemperatureSteps.Hottest] = new Vector2(40, 101),
+        };
+        private const string INNS_QUEST_FAMILY_NAME = "Inns";
         private const float DEFAULT_ENEMY_HEALTH_RESET_HOURS = 24f;   // Character.HoursToHealthReset
         private const int ARMOR_TRAINING_ID = 8205220;
         private const int PRIMITIVE_SATCHEL_CAPACITY = 25;
@@ -46,6 +59,10 @@ namespace ModPack
         static private ModSetting<bool> _loadArrowsFromInventory;
         static private ModSetting<Vector2> _remapBackpackCapacities;
         static private ModSetting<int> _waterskinCapacity;
+        static private ModSetting<int> _innRentDuration;
+        static private ModSetting<float> _baseStaminaRegen;
+        static private ModSetting<bool> _temperatureToggle;
+        static private Dictionary<TemperatureSteps, ModSetting<Vector2>> _temperatureDataByEnum;
         override protected void Initialize()
         {
             _enableCheats = CreateSetting(nameof(_enableCheats), false);
@@ -60,11 +77,29 @@ namespace ModPack
             _loadArrowsFromInventory = CreateSetting(nameof(_loadArrowsFromInventory), false);
             _remapBackpackCapacities = CreateSetting(nameof(_remapBackpackCapacities), new Vector2(PRIMITIVE_SATCHEL_CAPACITY, TRADER_BACKPACK));
             _waterskinCapacity = CreateSetting(nameof(_waterskinCapacity), 5, IntRange(1, 18));
+            _innRentDuration = CreateSetting(nameof(_innRentDuration), 12, IntRange(1, 168));
+            _baseStaminaRegen = CreateSetting(nameof(_baseStaminaRegen), 2.4f, FloatRange(0, 10));
+            _temperatureToggle = CreateSetting(nameof(_temperatureToggle), false);
+            _temperatureDataByEnum = new Dictionary<TemperatureSteps, ModSetting<Vector2>>();
+            foreach (var step in Utility.GetEnumValues<TemperatureSteps>())
+                if (step != TemperatureSteps.Count)
+                    _temperatureDataByEnum.Add(step, CreateSetting(nameof(_temperatureDataByEnum) + step, DEFAULT_TEMPERATURE_DATA_BY_ENUM[step]));
+
+            foreach (var questFamily in QuestEventDictionary.m_sections)
+                if (questFamily.Name == INNS_QUEST_FAMILY_NAME)
+                {
+                    _innRentQuestFamily = questFamily;
+                    break;
+                }
 
             AddEventOnConfigClosed(() =>
             {
                 Global.CheatsEnabled = _enableCheats;
+                foreach (var player in Players.Local)
+                    UpdateBaseStaminaRegen(player.Stats);
+                TryUpdateTemperatureData();
             });
+
         }
         override protected void SetFormatting()
         {
@@ -101,6 +136,27 @@ namespace ModPack
                                                    "(all other backpacks will have their capacities scaled accordingly)";
             _waterskinCapacity.Format("Waterskin capacity");
             _waterskinCapacity.Description = "Have one big waterskin instead of a few small ones so you don't have to swap quickslots";
+            _innRentDuration.Format("Inn rent duration");
+            _innRentDuration.Description = "Pay the rent once, sleep for up to a week (in hours)";
+            _baseStaminaRegen.Format("Base stamina regen");
+            _temperatureToggle.Format("Temperature");
+            _temperatureToggle.Description = "Change each environmental temperature level's value and cap:\n" +
+                                             "X   -   value; how much cold/hot weather defense you need to nullify this temperature level\n" +
+                                             "Y   -   cap; min/max player temperature at this environmental temperature level\n" +
+                                             "\n" +
+                                             "Player temperatures cheatsheet:\n" +
+                                             "Very cold   -   25\n" +
+                                             "Cold   -   40\n" +
+                                             "Neutral   -   50\n" +
+                                             "Hot   -   60\n" +
+                                             "Very Hot   -   75)";
+            Indent++;
+            {
+                foreach (var step in Utility.GetEnumValues<TemperatureSteps>())
+                    if (step != TemperatureSteps.Count)
+                        _temperatureDataByEnum[step].Format(step.ToString(), _temperatureToggle);
+                Indent--;
+            }
         }
         override protected string Description
         => "• Mods (small and big) that didn't get their own section yet :)";
@@ -130,6 +186,7 @@ namespace ModPack
         }
 
         // Utility
+        static private QuestEventFamily _innRentQuestFamily;
         static private bool ShouldArmorSlotBeHidden(EquipmentSlot.EquipmentSlotIDs slot)
         => slot == EquipmentSlot.EquipmentSlotIDs.Helmet && _armorSlotsToHide.Value.HasFlag(ArmorSlots.Head)
         || slot == EquipmentSlot.EquipmentSlotIDs.Chest && _armorSlotsToHide.Value.HasFlag(ArmorSlots.Chest)
@@ -161,9 +218,45 @@ namespace ModPack
             result *= invCoeff;
             return false;
         }
+        static private void UpdateBaseStaminaRegen(CharacterStats characterStats)
+        => characterStats.m_staminaRegen.BaseValue = _baseStaminaRegen;
+        static private void TryUpdateTemperatureData()
+        {
+            #region quit
+            if (!_temperatureToggle)
+                return;
+            #endregion
+
+            if (EnvironmentConditions.Instance.TryAssign(out var environmentConditions))
+                foreach (var step in Utility.GetEnumValues<TemperatureSteps>())
+                    if (step != TemperatureSteps.Count)
+                    {
+                        environmentConditions.BodyTemperatureImpactPerStep[step] = _temperatureDataByEnum[step].Value.x;
+                        environmentConditions.TemperatureCaps[step] = _temperatureDataByEnum[step].Value.y;
+                    }
+        }
 
         // Hooks
 #pragma warning disable IDE0051 // Remove unused private members
+        // Temperature data
+        [HarmonyPatch(typeof(EnvironmentConditions), "Start"), HarmonyPostfix]
+        static void EnvironmentConditions_Start_Post(EnvironmentConditions __instance)
+        => TryUpdateTemperatureData();
+
+        // Stamina regen
+        [HarmonyPatch(typeof(PlayerCharacterStats), "OnStart"), HarmonyPostfix]
+        static void PlayerCharacterStats_OnStart_Post(PlayerCharacterStats __instance)
+        => UpdateBaseStaminaRegen(__instance);
+
+        // Inn rent duration
+        [HarmonyPatch(typeof(QuestEventData), "HasExpired"), HarmonyPrefix]
+        static bool QuestEventData_HasExpired_Pre(QuestEventData __instance, ref int _gameHourAllowed)
+        {
+            if (__instance.m_signature.ParentSection == _innRentQuestFamily)
+                _gameHourAllowed = _innRentDuration;
+            return true;
+        }
+
         // Waterskin capacity
         [HarmonyPatch(typeof(WaterContainer), "RefreshDisplay"), HarmonyPrefix]
         static bool WaterContainer_RefreshDisplay_Pre(WaterContainer __instance)
