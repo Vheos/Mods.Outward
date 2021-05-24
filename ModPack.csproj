@@ -57,7 +57,9 @@
       <HintPath>D:\Multiplayer\Outward\BepInEx\plugins\ConfigurationManager.dll</HintPath>
       <Private>False</Private>
     </Reference>
-    <Reference Include="System" />
+    <Reference Include="System">
+      <Private>False</Private>
+    </Reference>
     <Reference Include="UnityEngine">
       <HintPath>D:\Multiplayer\Outward\Outward_Data\Managed\UnityEngine.dll</HintPath>
       <Private>False</Private>
@@ -103,7 +105,8 @@
     <Compile Include="Mods\Durability.cs" />
     <Compile Include="Mods\Camping.cs" />
     <Compile Include="Mods\Gamepad.cs" />
-    <Compile Include="Mods\Prices.cs" />
+    <Compile Include="Mods\SkillPrices.cs" />
+    <Compile Include="Mods\Merchants.cs" />
     <Compile Include="Mods\SkillLimits.cs" />
     <Compile Include="Mods\SkillTreeRandomizer.cs" />
     <Compile Include="Mods\Targeting.cs" />

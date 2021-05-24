@@ -25,7 +25,7 @@ namespace ModPack
             typeof(Camping),
             typeof(Crafting),
             typeof(Durability),
-            typeof(Prices),
+            typeof(Merchants),
             typeof(Resets),
             typeof(Interactions),
             typeof(Revive),
@@ -38,6 +38,7 @@ namespace ModPack
             
             // Skills
             typeof(SkillEditor),
+            typeof(SkillPrices),
             typeof(SkillLimits),
             typeof(SkillTreeRandomizer),
 
