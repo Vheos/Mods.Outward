@@ -170,7 +170,7 @@ namespace ModPack
         => skillTree.BreakthroughSkill != null && skillTree.BreakthroughSkill.HasSkill(character);
         static private bool IsPostBreakthrough(Character character, Skill skill)
         => TryGetSkillTree(skill, out SkillSchool tree) && HasBreakthroughInTree(character, tree);
-        static public bool IsBasic(Skill skill)
+        static private bool IsBasic(Skill skill)
         {
             if (TryGetSkillTree(skill, out SkillSchool tree))
                 if (tree.BreakthroughSkill == null)
@@ -181,10 +181,10 @@ namespace ModPack
                             return slot.ParentBranch.Index < tree.BreakthroughSkill.ParentBranch.Index;
             return false;
         }
-        static public bool IsBreakthrough(Skill skill)
+        static private bool IsBreakthrough(Skill skill)
         => TryGetSkillTree(skill, out SkillSchool tree)
         && tree.BreakthroughSkill != null && tree.BreakthroughSkill.Contains(skill);
-        static public bool IsAdvanced(Skill skill)
+        static private bool IsAdvanced(Skill skill)
         {
             if (TryGetSkillTree(skill, out SkillSchool tree) && tree.BreakthroughSkill != null)
                 foreach (var slot in tree.SkillSlots)
@@ -192,7 +192,7 @@ namespace ModPack
                         return slot.ParentBranch.Index > tree.BreakthroughSkill.ParentBranch.Index;
             return false;
         }
-        static public bool IsSide(Skill skill)
+        static private bool IsSide(Skill skill)
         => skill.ItemID.IsContainedIn(SIDE_SKILL_IDS);
         static private bool TryGetSkillTree(Skill skill, out SkillSchool skillTree)
         {
