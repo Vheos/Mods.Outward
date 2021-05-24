@@ -61,7 +61,7 @@ namespace ModPack
                 case Preset.ResetToDefaults: return "Reset to defaults";
                 case Preset.Vheos_CoopSurvival: return "Vheos's Co-op Survival";
                 case Preset.Vheos_PreferredUI: return "Vheos's Preferred UI";
-                case Preset.IggyTheMad_TrueHardcore: return "IggyTheMad's True Hardcore";
+                case Preset.IggyTheMad_TrueHardcore: return "(future preset)"; //"IggyTheMad's True Hardcore";
                 default: return null;
             }
         }

@@ -178,6 +178,18 @@ namespace ModPack
                     _loadArrowsFromInventory.Value = true;
                     _remapBackpackCapacities.Value = new Vector2(20, 60);
                     _waterskinCapacity.Value = 9;
+                    _temperatureToggle.Value = true;
+                    {
+                        _temperatureDataByEnum[TemperatureSteps.Coldest].Value = new Vector2(-60, 50 - (50 + 1));
+                        _temperatureDataByEnum[TemperatureSteps.VeryCold].Value = new Vector2(-45, 50 - (50 - 1));
+                        _temperatureDataByEnum[TemperatureSteps.Cold].Value = new Vector2(-30, 50 - (25 + 1));
+                        _temperatureDataByEnum[TemperatureSteps.Fresh].Value = new Vector2(-15, 50 - (10 + 1));
+                        _temperatureDataByEnum[TemperatureSteps.Neutral].Value = new Vector2(0, 50);
+                        _temperatureDataByEnum[TemperatureSteps.Warm].Value = new Vector2(+15, 50 + (10 + 1));
+                        _temperatureDataByEnum[TemperatureSteps.Hot].Value = new Vector2(+30, 50 + (25 + 1));
+                        _temperatureDataByEnum[TemperatureSteps.VeryHot].Value = new Vector2(+45, 50 + (50 - 1));
+                        _temperatureDataByEnum[TemperatureSteps.Hottest].Value = new Vector2(+60, 50 + (50 + 1));
+                    }
                     break;
 
                 case Presets.Preset.IggyTheMad_TrueHardcore:

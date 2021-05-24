@@ -54,6 +54,7 @@ namespace ModPack
             Repair = 1 << 3,
         }
         #endregion
+
         // Setting
         static private ModSetting<CampingSpots> _campingSpots;
         static private ModSetting<int> _butterfliesSpawnChance;

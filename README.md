@@ -2,7 +2,7 @@
 - Download and install the latest [BepInEx](https://github.com/BepInEx/BepInEx/releases/latest/) and [ConfigurationManager](https://github.com/BepInEx/BepInEx.ConfigurationManager/releases/latest)
 - Download this mod from [GitHub](https://github.com/Vheos777/OutwardMods/releases), [Thunderstore](https://outward.thunderstore.io/package/Vheos/VheosModPack/) or [Nexus](https://www.nexusmods.com/outward/mods/203?tab=files)
 - Move the unzipped `Vheos` folder to `Outward\BepInEx\plugins\`
-- Press `F5` in game to open the `Configuration Manager`
+- Press `F1` in game to open the `Configuration Manager` window
 - Enjoy <3
 
 # FAQ:
@@ -21,7 +21,7 @@
 
 # Contact:
 Write a comment on the [Nexus mod page](https://www.nexusmods.com/outward/mods/203?tab=posts),  
-write in the `#vheos-mod-pack` channel, in the [Outward Modding Community](https://discord.gg/zKyfGmy7TR) Discord server,  
+write a message in the `#vheos-mod-pack` channel, in the [Outward Modding Community](https://discord.gg/zKyfGmy7TR) Discord server,  
 tag me in the `#outward-modding` channel, in the official [Outward](https://discord.com/invite/outward) Discord server  
 or send me a DM on Discord (`Vheos#5865`) :)
 
@@ -34,13 +34,20 @@ Love you all <3
 **Coming soon!**  
 In the meantime, you can check out the [Nexus mod page](https://www.nexusmods.com/outward/mods/203) :)
 
-
-
 # Changelog:
+- **1.9.0**
+    - in `Various`: added `Inn rent duration`, `Base stamina regen` and `Temperature` settings
+    - added `Tree Randomizer` mod (`Skills` section)
+    - added a global advanced setting to `Reset to defaults` and `Load preset` (for now, only my personal presets)
+    - split `Prices` mod into `Merchants` and `Prices` (`Skills` section)
+    - renamed `Skill Editor` to `Editor`
+    - renamed `Skill Limits` to `Limits`
+    - bugfix: `Prices -> Learn mutually exclusive skills` was multiplying the price every time the skill was highlighted
 - **1.8.1**
-    - renamed `Skills` mod to `Skill Editor` 
-    - create a new section called `Skills` and moved relevant mods
-    - added debug logging to track down user-submitted bugs easier
-    - bugfix: auto-targeting didn't work at all
+    - in `Interactions -> Disallowed in combat`: added `PullLevers`, removed `Talk` and `Revive`
+    - renamed `Skills` mod to `Skill Editor`
+    - created a new section called `Skills` and moved relevant mods
+    - added debug logging to help track down user-submitted bugs
+    - bugfix: `Targeting -> Auto-target actions` didn't work at all
 - **1.8.0**
     - Thunderstore release \o/

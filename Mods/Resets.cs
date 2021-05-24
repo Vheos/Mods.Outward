@@ -15,7 +15,7 @@ namespace ModPack
 {
     public class Resets : AMod
     {
-        #region constants
+        #region const
         private const float AREAS_RESET_HOURS = 168f;   // Area.m_resetTime
         private const float MERCHANTS_RESET_HOURS = 72f;   // MerchantPouch.InventoryRefreshRate
         private const float SIDEQUESTS_RESET_HOURS = int.MaxValue;   // ???
@@ -25,7 +25,7 @@ namespace ModPack
         private const int MINING_PICK_ID = 2120050;   //
         private const float TIME_UNIT = 24f;   // Day = TIME_UNIT
         #endregion
-        #region enums
+        #region enum
         private enum ResetMode
         {
             Always = 1,
@@ -144,10 +144,7 @@ namespace ModPack
                         _fishingTimer.Value = 4;
                     }
                     _merchantsToggle.Value = true;
-                    {
-                        _merchantsMode.Value = ResetMode.Timer;
-                        _merchantsTimer.Value = 84;
-                    }
+                    _merchantsMode.Value = ResetMode.Never;
                     break;
 
                 case Presets.Preset.IggyTheMad_TrueHardcore:

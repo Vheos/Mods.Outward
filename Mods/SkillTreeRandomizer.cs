@@ -346,10 +346,10 @@ namespace ModPack
                     _vanillaInput.Value = (VanillaInput)~0;
                     _theSoroboreansInput.Value = (TheSoroboreansInput)~0;
                     _theThreeBrothersInput.Value = (TheThreeBrothersInput)~0;
-                    _vanillaOutput.Value = (VanillaOutput)~0;
+                    _vanillaOutput.Value = (VanillaOutput)~0 & ~VanillaOutput.KaziteSpellblade;
                     _theSoroboreansOutput.Value = 0;
                     _theThreeBrothersOutput.Value = 0;
-                    _equalizedTraits.Value = (EqualizedTraits)~0;
+                    _equalizedTraits.Value = (EqualizedTraits)~0 & ~EqualizedTraits.Choices;
                     _randomizeBreakthroughSkills.Value = true;
                     _preferPassiveBreakthroughs.Value = true;
                     _treatWeaponMasterAsAdvanced.Value = true;

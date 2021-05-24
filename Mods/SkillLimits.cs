@@ -107,7 +107,8 @@ namespace ModPack
             _limitedSkillTypes.Description = "Decide which skill types count towards limit:\n" +
                                              "Basic - below breakthrough in a skill tree\n" +
                                              "Advanced - above breakthrough in a skill tree\n" +
-                                             "Side - not in any skill tree (weapon skills, boons, hexes)";
+                                             "Side - not found in any vanilla skill tree\n" +
+                                             "(weapon skills, boons, hexes and Flamethrower)";
             Indent++;
             {
                 _freePostBreakthroughBasicSkills.Format("Basic skills are free post-break", _limitedSkillTypes, LimitedSkillTypes.Basic);

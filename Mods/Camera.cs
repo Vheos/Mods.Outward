@@ -207,7 +207,7 @@ namespace ModPack
             {
                 case Presets.Preset.Vheos_PreferredUI:
                     ForceApply();
-                    foreach(var settings in _perPlayerSettings)
+                    foreach (var settings in _perPlayerSettings)
                     {
                         settings._toggle.Value = true;
                         {
@@ -258,7 +258,6 @@ namespace ModPack
                 }
             }
         }
-
 
         // Utility            
         static private void UpdateCameraSettings(Players.Data player)
