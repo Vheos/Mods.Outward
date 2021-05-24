@@ -49,9 +49,9 @@ namespace ModPack
         {
             _pricesCurve.Format("Prices curve");
             _pricesCurve.Description = "How quickly the prices increase throughout the game\n" +
-                "at the minimum valued (50%), all prices will be square-root'ed:\n" +
-                "• Simple Bow: 13 -> 4\n" +
-                "• War Bow: 1000 -> 32";
+                                       "at the minimum valued (50%), all prices will be square-root'ed:\n" +
+                                       "• Simple Bow: 13 -> 4\n" +
+                                       "• War Bow: 1000 -> 32";
             _sellModifier.Format("Selling multiplier");
             _randomizePricesExtent.Format("Randomize prices");
             _randomizePricesExtent.Description = "Prices will range from [100% - X%] to [100% + X%]\n" +
@@ -66,7 +66,7 @@ namespace ModPack
                 _randomizePricesPerItem.Description = "Every item will have its own randomized price";
                 Indent--;
             }
-            _pricesPerTypeToggle.Format("Prices per type");
+            _pricesPerTypeToggle.Format("Prices by item type");
             Indent++;
             {
                 _pricesWeapons.Format("Weapons", _pricesPerTypeToggle);

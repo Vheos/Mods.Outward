@@ -90,8 +90,7 @@ namespace ModPack
         }
         override protected void SetFormatting()
         {
-            _pricesToggle.Format("Prices");
-            _pricesToggle.Description = "Override the trainer skills' prices based on their level (basic, breakthrough and advanged)";
+            _pricesToggle.Format("Prices by skill level");
             Indent++;
             {
                 _priceBasic.Format("Basic", _pricesToggle);
