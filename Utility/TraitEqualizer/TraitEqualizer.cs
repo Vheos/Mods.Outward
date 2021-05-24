@@ -41,11 +41,9 @@ namespace ModPack
                     yield return trait;
             }
         }
-        public string GetResultsAsString(string header = null)
+        public string GetResultsAsString()
         {
             StringBuilder builder = new StringBuilder();
-            if (header != null)
-                builder.AppendLine(header);
 
             // Headers
             builder.Append("List".PadRight(20));
