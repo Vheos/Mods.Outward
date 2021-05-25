@@ -97,8 +97,8 @@ namespace ModPack
                     _pricesGold.Value = new Vector2(100, 90);
                     _pricesPerTypeToggle.Value = true;
                     {
-                        _pricesWeapons.Value = 50;
-                        _pricesArmors.Value = 50;
+                        _pricesWeapons.Value = 67;
+                        _pricesArmors.Value = 67;
                         _pricesIngestibles.Value = 100;
                         _pricesRecipes.Value = 50;
                         _pricesOther.Value = 100;
