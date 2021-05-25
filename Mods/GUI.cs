@@ -125,11 +125,13 @@ namespace ModPack
         // Setting
         static private PerPlayerSettings[] _perPlayerSettings;
         static private ModSetting<bool> _verticalSplitscreen;
+        static private ModSetting<int> _textScale;
         override protected void Initialize()
         {
             _verticalSplitscreen = CreateSetting(nameof(_verticalSplitscreen), false);
             AddEventOnConfigClosed(() => UpdateSplitscreenMode());
             AddEventOnConfigClosed(() => UpdateShopAndStashPanelsWidths());
+            _textScale = CreateSetting(nameof(_textScale), 100, IntRange(50, 150));
 
             _allHUDComponentTypes = new Type[DATA_BY_HUD_GROUP.Count];
             var hudData = DATA_BY_HUD_GROUP.Values.ToArray();
@@ -219,12 +221,17 @@ namespace ModPack
                         UpdatePendingBuySellPanels(player);
                 });
             }
+
+            // Scale text
+            TryScaleText();
         }
         override protected void SetFormatting()
         {
             _verticalSplitscreen.Format("Vertical splitscreen");
             _verticalSplitscreen.Description = "For monitors that are more wide than tall";
-
+            _textScale.Format("Text scale");
+            _textScale.Description = "Scale all game text by this value\n" +
+                                     "(in %, requires game restart)";
             for (int i = 0; i < 2; i++)
             {
                 PerPlayerSettings tmp = _perPlayerSettings[i];
@@ -476,6 +483,19 @@ namespace ModPack
             {
                 image.SetAlpha(1f);
                 image.rectTransform.localScale = Vector2.one;
+            }
+        }
+        static private void TryScaleText()
+        {
+            #region quit
+            if (_textScale == 100)
+                return;
+            #endregion
+
+            foreach (var text in Resources.FindObjectsOfTypeAll<Text>())
+            {
+                text.fontSize = (text.fontSize * _textScale / 100f).Round();
+                text.verticalOverflow = VerticalWrapMode.Overflow;
             }
         }
         // HUD editor      
