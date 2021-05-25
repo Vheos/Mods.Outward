@@ -244,13 +244,13 @@ namespace ModPack
                 _highlightsIntensity.Format("Intensity", _highlightsToggle);
                 _highlightsIntensity.Description = "Brightness and size of the highlights";
                 _highlightsDistance.Format("Distance", _highlightsToggle);
-                _highlightsIntensity.Description = "From how far away should the highlights be visible";
+                _highlightsDistance.Description = "From how far away should the highlights be visible";
                 _highlightsColored.Format("Color per type", _highlightsToggle);
-                _highlightsIntensity.Description = "Changes the highlights' color based on the interaction type:\n" +
+                _highlightsColored.Description = "Changes the highlights' color based on the interaction type:\n" +
                                                    "Equipment   -   orange\n" +
                                                    "Consumable   -   green\n" +
                                                    "Other items   -   cyan\n" +
-                                                   "Other interactions   -   purple";
+                                                   "Containers and levers   -   purple";
                 Indent--;
             }
 
@@ -412,8 +412,10 @@ namespace ModPack
                     if (itemHighlight.Item.TryAssign(out var item))
                         if (item is Equipment)
                             newColor = HIGHLIGHT_COLOR_EQUIP;
+                        else if (item is ItemContainer)
+                            newColor = HIGHLIGHT_COLOR_INTERACTION;
                         else if (item.IsIngestible())
-                            newColor = HIGHLIGHT_COLOR_INGESTIBLE;
+                            newColor = HIGHLIGHT_COLOR_INGESTIBLE;                
                 }
             }
 
