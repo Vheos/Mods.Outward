@@ -19,6 +19,12 @@ namespace ModPack
         public const float UNPACK_BUMP_FORCE = 60f;
         public const float UNPACK_USE_DELAY = 0.1f;
         public const string DISALLOW_IN_COMBAT_NOTIFICATION = "Can't while in combat!";
+        private const int HIGHLIGHT_MAX_PARTICLES = 6;
+        private const int HIGHLIGHT_UPDATE_DURATION = 6;
+        static private readonly Color HIGHLIGHT_COLOR_EQUIP = new Color(1f, 0.125f, 0.063f, 1f);
+        static private readonly Color HIGHLIGHT_COLOR_INGESTIBLE = new Color(0.435f, 1f, 0.125f, 0.75f);
+        static private readonly Color HIGHLIGHT_COLOR_OTHER_ITEM = new Color(0.125f, 0.871f, 1f, 0.5f);
+        static private readonly Color HIGHLIGHT_COLOR_INTERACTION = new Color(0.686f, 0.125f, 1f, 0.75f);
         #endregion
         #region enum
         [Flags]
@@ -194,6 +200,9 @@ namespace ModPack
         static private ModSetting<bool> _swapWaterInteractions;
         static private ModSetting<bool> _singleHoldsToPresses;
         static private ModSetting<bool> _takeAnimations;
+        static private ModSetting<bool> _highlightsToggle;
+        static private ModSetting<int> _highlightsIntensity, _highlightsDistance;
+        static private ModSetting<bool> _highlightsColored;
         static private ModSetting<GroundInteractions> _groundInteractions;
         static private ModSetting<DisallowedInCombat> _disallowedInCombat;
         override protected void Initialize()
@@ -204,6 +213,10 @@ namespace ModPack
             _takeAnimations = CreateSetting(nameof(_takeAnimations), false);
             _swapWaterInteractions = CreateSetting(nameof(_swapWaterInteractions), false);
             _disallowedInCombat = CreateSetting(nameof(_disallowedInCombat), DisallowedInCombat.None);
+            _highlightsToggle = CreateSetting(nameof(_highlightsToggle), false);
+            _highlightsIntensity = CreateSetting(nameof(_highlightsIntensity), 100, IntRange(0, 200));
+            _highlightsDistance = CreateSetting(nameof(_highlightsDistance), 30, IntRange(0, 50));
+            _highlightsColored = CreateSetting(nameof(_highlightsColored), false);
         }
         override protected void SetFormatting()
         {
@@ -224,6 +237,23 @@ namespace ModPack
                                               "Travel   -   move to another area with loading screen\n" +
                                               "Warp   -   enter door, climb rope or teleport without loading screen\n" +
                                               "Pull levers   -   open gates, ride elevators, etc.";
+            _highlightsToggle.Format("Highlights");
+            _highlightsToggle.Description = "Change settings of the glowing orbs that highlight most interactive objects";
+            Indent++;
+            {
+                _highlightsIntensity.Format("Intensity", _highlightsToggle);
+                _highlightsIntensity.Description = "Brightness and size of the highlights";
+                _highlightsDistance.Format("Distance", _highlightsToggle);
+                _highlightsIntensity.Description = "From how far away should the highlights be visible";
+                _highlightsColored.Format("Color per type", _highlightsToggle);
+                _highlightsIntensity.Description = "Changes the highlights' color based on the interaction type:\n" +
+                                                   "Equipment   -   orange\n" +
+                                                   "Consumable   -   green\n" +
+                                                   "Other items   -   cyan\n" +
+                                                   "Other interactions   -   purple";
+                Indent--;
+            }
+
         }
         override protected string Description
         => "• Instant \"Hold\" interactions\n" +
@@ -243,6 +273,12 @@ namespace ModPack
                     _holdInteractionsDuration.Value = 0.8f;
                     _takeAnimations.Value = true;
                     _disallowedInCombat.Value = (DisallowedInCombat)~0;
+                    _highlightsToggle.Value = true;
+                    {
+                        _highlightsIntensity.Value = 75;
+                        _highlightsDistance.Value = 50;
+                        _highlightsColored.Value = true;
+                    }
                     break;
 
                 case Presets.Preset.IggyTheMad_TrueHardcore:
@@ -344,6 +380,66 @@ namespace ModPack
             #endregion
 
             _character.CharacterUI.ShowInfoNotification(DISALLOW_IN_COMBAT_NOTIFICATION);
+            return false;
+        }
+
+        // Highlights
+        [HarmonyPatch(typeof(InteractionHighlight), "Update"), HarmonyPrefix]
+        static bool InteractionHighlight_Update_Pre(InteractionHighlight __instance)
+        {
+            #region quit
+            if (!_highlightsToggle
+            || !__instance.m_renderer.TryAs(out ParticleSystemRenderer renderer)
+            || !renderer.GetComponent<ParticleSystem>().TryAssign(out var particleSystem))
+                return true;
+            #endregion
+
+            if (Time.renderedFrameCount % HIGHLIGHT_UPDATE_DURATION != 0 || renderer.enabled == __instance.ShouldShowHighlight())
+                return false;
+
+            // Cache
+            ParticleSystem.MainModule main = particleSystem.main;
+            float intensity = _highlightsIntensity / 100f;
+            Color newColor = Color.white;
+
+            // Choose color
+            if (_highlightsColored)
+            {
+                newColor = HIGHLIGHT_COLOR_INTERACTION;
+                if (__instance.TryAs(out ItemHighlight itemHighlight))
+                {
+                    newColor = HIGHLIGHT_COLOR_OTHER_ITEM;
+                    if (itemHighlight.Item.TryAssign(out var item))
+                        if (item is Equipment)
+                            newColor = HIGHLIGHT_COLOR_EQUIP;
+                        else if (item.IsIngestible())
+                            newColor = HIGHLIGHT_COLOR_INGESTIBLE;
+                }
+            }
+
+            // Apply intensity
+            if (intensity <= 1)
+            {
+                newColor.a *= intensity;
+                main.maxParticles = intensity.MapFrom01(1, HIGHLIGHT_MAX_PARTICLES).Round();
+                particleSystem.transform.localScale = Vector3.one;
+            }
+            else
+            {
+                intensity -= 1;
+                main.maxParticles = intensity.MapFrom01(1, 4).Mul(HIGHLIGHT_MAX_PARTICLES).Round();
+                particleSystem.transform.localScale = intensity.MapFrom01(1, 1.5f).ToVector3();
+            }
+
+            // Apply color
+            main.startColor = newColor;
+
+            // Apply distance
+            if (particleSystem.GetComponent<DisableParticlesWhenFar>().TryAssign(out var disableParticlesWhenFar))
+                disableParticlesWhenFar.m_sqrDist = _highlightsDistance.Value.Pow(2);
+
+            // Finalize
+            renderer.enabled = !renderer.enabled;
             return false;
         }
     }
