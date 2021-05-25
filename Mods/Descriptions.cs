@@ -18,11 +18,11 @@ namespace ModPack
         static private readonly Vector2 BAR_MAX_SIZE = new Vector2(2.75f, 2.50f);
         static private readonly Vector2 BAR_PIVOT = new Vector2(0f, 1f);
         private const float DURABILITY_MAX_MAX = 777f;    // Duty (unique halberd)
+        private const float DURABILITY_BAR_SCALING_CURVE = 0.75f;
         private const float FRESHNESS_LIFESPAN_MAX = 104f;   // Travel Ration
-        private const float BAR_SCALING_CURVE = 0.8f;
+        private const float FRESHNESS_BAR_SCALING_CURVE = 2 / 3f;
         private const int DEFAULT_FONT_SIZE = 19;
         private const int WATER_ITEMS_FIRST_ID = 5600000;
-
         static private Color HEALTH_COLOR = new Color(0.765f, 0.522f, 0.525f, 1f);
         static private Color STAMINA_COLOR = new Color(0.827f, 0.757f, 0.584f, 1f);
         static private Color MANA_COLOR = new Color(0.529f, 0.702f, 0.816f, 1f);
@@ -486,21 +486,23 @@ namespace ModPack
 
             // Cache
             RectTransform rectTransform = durabilityHolder.GetComponent<RectTransform>();
-            ModSetting<int> barSize = item.IsPerishable && item.IsNot<Equipment>() ? _freshnessBarSize : _durabilityBarSize;
+            bool isFood = item.m_perishScript != null && item.IsNot<Equipment>();
+            ModSetting<int> barSize = isFood ? _freshnessBarSize : _durabilityBarSize;
+            float curve = isFood ? FRESHNESS_BAR_SCALING_CURVE : DURABILITY_BAR_SCALING_CURVE;
 
             // Calculate automated values
             float rawSize = float.NaN;
-            if (_freshnessTiedToLifespan && barSize == _freshnessBarSize)
+            if (_freshnessTiedToLifespan && isFood)
             {
                 float decayRate = item.PerishScript.m_baseDepletionRate;
                 float decayTime = 100f / (decayRate * 24f);
                 rawSize = decayTime / FRESHNESS_LIFESPAN_MAX;
             }
-            else if (_durabilityTiedToMax && barSize == _durabilityBarSize)
+            else if (_durabilityTiedToMax && !isFood)
                 rawSize = item.MaxDurability / DURABILITY_MAX_MAX;
 
             if (!rawSize.IsNaN())
-                barSize.Value = rawSize.Pow(BAR_SCALING_CURVE).MapFrom01(0, 100f).Round();
+                barSize.Value = rawSize.Pow(curve).MapFrom01(0, 100f).Round();
 
             // Assign
             float sizeOffset = barSize / 100f * BAR_MAX_SIZE.x - 1f;
