@@ -1,5 +1,5 @@
 # How to:
-- Download and install the latest [BepInEx](https://github.com/BepInEx/BepInEx/releases/latest/) and ConfigurationManager (either [Official](https://github.com/BepInEx/BepInEx.ConfigurationManager/releases/latest) or the [Outward fork](https://github.com/Mefino/BepInEx.ConfigurationManager/releases/latest) + [SideLoader](https://github.com/sinai-dev/Outward-SideLoader/releases/latest))
+- Install the latest [BepInEx](https://github.com/BepInEx/BepInEx/releases/latest/) and **ConfigurationManager** ([official release](https://github.com/BepInEx/BepInEx.ConfigurationManager/releases/latest) **OR** [Outward fork](https://github.com/Mefino/BepInEx.ConfigurationManager/releases/latest) + [SideLoader](https://github.com/sinai-dev/Outward-SideLoader/releases/latest))
 - Download this mod from [GitHub](https://github.com/Vheos777/OutwardMods/releases), [Thunderstore](https://outward.thunderstore.io/package/Vheos/VheosModPack/) or [Nexus](https://www.nexusmods.com/outward/mods/203?tab=files)
 - Move the unzipped `Vheos` folder to `Outward\BepInEx\plugins\`
 - Press `F1` in game to open the `Configuration Manager` window
@@ -11,7 +11,7 @@
 - **How to unhide a mod?**
     - tick the `Advanced Settings` checkbox at the top of the `Configuration Manager` window and you will see all hidden mods :)
 - **Will mod ___ work online?**
-    - It should, but I haven't tested ANY of these mods online, so I can't guarantee :P
+    - it should, but I haven't tested ANY of these mods online, so I can't guarantee :P
 - **Will mod ___ break my save file?**
     - it shouldn't, but it's a good habit to backup your save files before trying out new stuff :)
 - **I change some settings but nothing happens! Why?**
