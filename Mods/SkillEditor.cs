@@ -331,8 +331,8 @@ namespace ModPack
             ParticleSystem particleSystem = __instance.Status.FXPrefab.GetFirstComponentsInHierarchy<ParticleSystem>();
             ParticleSystem.MainModule main = particleSystem.main;
             ParticleSystem.EmissionModule emission = particleSystem.emission;
-            float intensity = _runicLanternIntensity / 100f;
             Color newColor = main.startColor.color;
+            float intensity = _runicLanternIntensity / 100f;
 
             // Execute
             newColor.a = intensity;

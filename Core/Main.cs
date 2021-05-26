@@ -17,7 +17,7 @@ namespace ModPack
         public const bool IS_DEVELOPMENT_VERSION = false;
         public const string GUID = "com.Vheos.ModPack";
         public const string NAME = "Vheos Mod Pack" + (IS_DEVELOPMENT_VERSION ? " [DEVELOPMENT]" : "");
-        public const string VERSION = "1.9.0";
+        public const string VERSION = "1.10.0";
 
         // Utility
         private List<Type> _awakeModTypes;
@@ -78,11 +78,7 @@ namespace ModPack
                 updatableMod.OnUpdate();
         }
         private bool IsGameInitialized
-        => SplitScreenManager.Instance != null
-        && ResourcesPrefabManager.Instance.Loaded
-        && ItemManager.m_prefabLoaded
-        && ItemManager.m_recipeLoaded
-        && ItemManager.m_diseaseLoaded;
+        => ResourcesPrefabManager.Instance.Loaded && UIUtilities.m_instance != null;
 
         // Mono
 #pragma warning disable IDE0051 // Remove unused private members

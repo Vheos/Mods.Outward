@@ -21,9 +21,9 @@
 
 # Contact:
 Write a comment on the [Nexus mod page](https://www.nexusmods.com/outward/mods/203?tab=posts),  
-write a message in the `#vheos-mod-pack` channel, in the [Outward Modding Community](https://discord.gg/zKyfGmy7TR) Discord server,  
-tag me in the `#outward-modding` channel, in the official [Outward](https://discord.com/invite/outward) Discord server  
-or send me a DM on Discord (`Vheos#5865`) :)
+write a message in [Outward Modding Community](https://discord.gg/zKyfGmy7TR) -> `#vheos-mod-pack`
+tag me in [Outward](https://discord.com/invite/outward) -> `#outward-modding`
+or send me a DM on Discord - `Vheos#5865` :)
 
 # Credits:
 `Sinai`, `raphendyr`, `ehaugw`, `SpicerXD`, `IggyTheMad`, `Tau37`  
@@ -35,6 +35,12 @@ Love you all <3
 In the meantime, you can check out the [Nexus mod page](https://www.nexusmods.com/outward/mods/203) :)
 
 # Changelog:
+- **1.10.0**
+    - in `Various`: added `Inn stashes` setting and `Enable cheats` hotkey
+    - in `GUI`: added `Text scale` setting
+    - in `Interactions`: added `Highlights` settings
+    - bugfix: `Craftign -> Preserve durability ratios` produced broken results when all ingredients were indestructible
+    - bugfix: `Descriptions -> Freshness bar` settings didn't work for foods in shops
 - **1.9.0**
     - in `Various`: added `Inn rent duration`, `Base stamina regen` and `Temperature` settings
     - added `Tree Randomizer` mod (`Skills` section)

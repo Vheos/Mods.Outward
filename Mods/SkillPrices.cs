@@ -51,7 +51,7 @@ namespace ModPack
 
         // Settings       
         static private ModSetting<bool> _pricesToggle;
-        static private ModSetting<int> _priceBasic, _pricesBreakthrough, _pricesAdvanced;
+        static private ModSetting<int> _pricesBasic, _pricesBreakthrough, _pricesAdvanced;
         static private ModSetting<bool> _learnMutuallyExclusiveSkills;
         static private ModSetting<bool> _exclusiveSkillCostsTsar;
         static private ModSetting<int> _exclusiveSkillCostMultiplier;
@@ -59,7 +59,7 @@ namespace ModPack
         override protected void Initialize()
         {
             _pricesToggle = CreateSetting(nameof(_pricesToggle), false);
-            _priceBasic = CreateSetting(nameof(_priceBasic), 50, IntRange(0, 1000));
+            _pricesBasic = CreateSetting(nameof(_pricesBasic), 50, IntRange(0, 1000));
             _pricesBreakthrough = CreateSetting(nameof(_pricesBreakthrough), 50, IntRange(0, 1000));
             _pricesAdvanced = CreateSetting(nameof(_pricesAdvanced), 600, IntRange(0, 1000));
             _learnMutuallyExclusiveSkills = CreateSetting(nameof(_learnMutuallyExclusiveSkills), false);
@@ -93,8 +93,8 @@ namespace ModPack
             _pricesToggle.Format("Prices by skill level");
             Indent++;
             {
-                _priceBasic.Format("Basic", _pricesToggle);
-                _priceBasic.Description = "below breakthrough in a skill tree";
+                _pricesBasic.Format("Basic", _pricesToggle);
+                _pricesBasic.Description = "below breakthrough in a skill tree";
                 _pricesBreakthrough.Format("Breakthrough", _pricesToggle);
                 _pricesAdvanced.Format("Advanced", _pricesToggle);
                 _pricesAdvanced.Description = "above breakthrough in a skill tree";
@@ -133,6 +133,16 @@ namespace ModPack
             switch (preset)
             {
                 case Presets.Preset.Vheos_CoopSurvival:
+                    ForceApply();
+                    _pricesToggle.Value = true;
+                    {
+                        _pricesBasic.Value = 0;
+                        _pricesBreakthrough.Value = 0;
+                        _pricesAdvanced.Value = 0;
+                    }
+                    _learnMutuallyExclusiveSkills.Value = true;
+                    _exclusiveSkillCostsTsar.Value = true;
+                    _customNonBasicSkillCosts.Value = false;
                     break;
 
                 case Presets.Preset.IggyTheMad_TrueHardcore:
@@ -185,7 +195,7 @@ namespace ModPack
             // Price
             switch (GetLevel(slot))
             {
-                case SlotLevel.Basic: slot.m_requiredMoney = _priceBasic; break;
+                case SlotLevel.Basic: slot.m_requiredMoney = _pricesBasic; break;
                 case SlotLevel.Breakthrough: slot.m_requiredMoney = _pricesBreakthrough; break;
                 case SlotLevel.Advanced: slot.m_requiredMoney = _pricesAdvanced; break;
                 default: break;

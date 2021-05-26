@@ -247,10 +247,10 @@ namespace ModPack
                 _highlightsDistance.Description = "From how far away should the highlights be visible";
                 _highlightsColored.Format("Color per type", _highlightsToggle);
                 _highlightsColored.Description = "Changes the highlights' color based on the interaction type:\n" +
-                                                   "Equipment   -   orange\n" +
-                                                   "Consumable   -   green\n" +
-                                                   "Other items   -   cyan\n" +
-                                                   "Containers and levers   -   purple";
+                                                 "Equipment   -   orange\n" +
+                                                 "Consumable   -   green\n" +
+                                                 "Other items   -   cyan\n" +
+                                                 "Containers and levers   -   purple";
                 Indent--;
             }
 
@@ -415,7 +415,7 @@ namespace ModPack
                         else if (item is ItemContainer)
                             newColor = HIGHLIGHT_COLOR_INTERACTION;
                         else if (item.IsIngestible())
-                            newColor = HIGHLIGHT_COLOR_INGESTIBLE;                
+                            newColor = HIGHLIGHT_COLOR_INGESTIBLE;
                 }
             }
 

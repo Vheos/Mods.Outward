@@ -80,7 +80,7 @@ namespace ModPack
             Indent++;
             {
                 _lossWeapons.Format("Weapons", _lossMultipliers);
-                _lossWeapons.Description = "Inclueds shields";
+                _lossWeapons.Description = "Includes shields";
                 _lossArmors.Format("Armors", _lossMultipliers);
                 _lossLights.Format("Lights", _lossMultipliers);
                 _lossLights.Description = "Torches and lanterns";
@@ -145,10 +145,16 @@ namespace ModPack
                     {
                         _lossWeapons.Value = 50;
                         _lossArmors.Value = 50;
-                        _lossLights.Value = 200;
+                        _lossLights.Value = 150;
                         _lossIngestibles.Value = 100;
                     }
-                    _campingRepairToggle.Value = false;
+                    _campingRepairToggle.Value = true;
+                    {
+                        _repairDurabilityPerHour.Value = 0;
+                        _repairDurabilityPercentPerHour.Value = 0;
+                        _repairPercentReference.Value = RepairPercentReference.OfMaxDurability;
+                        _multiRepairBehaviour.Value = MultiRepairBehaviour.UseFixedValueForAllItems;
+                    }
                     _effectivenessAffectsAllStats.Value = true;
                     _effectivenessAffectsPenalties.Value = true;
                     _linearEffectiveness.Value = true;
