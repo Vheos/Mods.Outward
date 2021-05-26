@@ -14,7 +14,7 @@ using UnityEngine.UI;
  */
 namespace ModPack
 {
-    public class Various : AMod
+    public class Various : AMod, IUpdatable
     {
         #region const
         static private readonly Dictionary<TemperatureSteps, Vector2> DEFAULT_TEMPERATURE_DATA_BY_ENUM = new Dictionary<TemperatureSteps, Vector2>
@@ -48,6 +48,7 @@ namespace ModPack
 
         // Settings
         static private ModSetting<bool> _enableCheats;
+        static private ModSetting<string> _enableCheatsHotkey;
         static private ModSetting<bool> _skipStartupVideos;
         static private ModSetting<ArmorSlots> _armorSlotsToHide;
         static private ModSetting<bool> _removeCoopScaling;
@@ -66,6 +67,7 @@ namespace ModPack
         override protected void Initialize()
         {
             _enableCheats = CreateSetting(nameof(_enableCheats), false);
+            _enableCheatsHotkey = CreateSetting(nameof(_enableCheatsHotkey), "");
             _skipStartupVideos = CreateSetting(nameof(_skipStartupVideos), false);
             _armorSlotsToHide = CreateSetting(nameof(_armorSlotsToHide), ArmorSlots.None);
             _removeCoopScaling = CreateSetting(nameof(_removeCoopScaling), false);
@@ -92,18 +94,22 @@ namespace ModPack
                     break;
                 }
 
+            _enableCheats.AddEvent(() => Global.CheatsEnabled = _enableCheats);
             AddEventOnConfigClosed(() =>
             {
-                Global.CheatsEnabled = _enableCheats;
                 foreach (var player in Players.Local)
                     UpdateBaseStaminaRegen(player.Stats);
                 TryUpdateTemperatureData();
             });
-
         }
         override protected void SetFormatting()
         {
             _enableCheats.Format("Enable cheats");
+            Indent++;
+            {
+                _enableCheatsHotkey.Format("Hotkey");
+                Indent--;
+            }
             _enableCheats.Description = "aka Debug Mode";
             _skipStartupVideos.Format("Skip startup videos");
             _skipStartupVideos.Description = "Saves ~3 seconds each time you launch the game";
@@ -168,6 +174,8 @@ namespace ModPack
             {
                 case Presets.Preset.Vheos_CoopSurvival:
                     ForceApply();
+                    _enableCheats.Value = false;
+                    _enableCheatsHotkey.Value = KeyCode.Keypad0.ToString();
                     _skipStartupVideos.Value = true;
                     _removeCoopScaling.Value = true;
                     _removeDodgeInvulnerability.Value = true;
@@ -196,6 +204,11 @@ namespace ModPack
                 case Presets.Preset.IggyTheMad_TrueHardcore:
                     break;
             }
+        }
+        public void OnUpdate()
+        {
+            if (_enableCheatsHotkey.Value.ToKeyCode().Pressed())
+                _enableCheats.Value = !_enableCheats;
         }
 
         // Utility
