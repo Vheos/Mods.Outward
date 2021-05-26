@@ -17,6 +17,20 @@ namespace ModPack
     public class Various : AMod, IUpdatable
     {
         #region const
+        static private readonly Dictionary<AreaManager.AreaEnum, (string UID, Vector3[] Positions)> INN_STASH_POSITIONS_BY_CITY = new Dictionary<AreaManager.AreaEnum, (string, Vector3[])>
+        {
+            [AreaManager.AreaEnum.CierzoVillage] = ("ImqRiGAT80aE2WtUHfdcMw", new[] { new Vector3(-367.850f, -1488.250f, 596.277f),
+                                                                                      new Vector3(-373.539f, -1488.250f, 583.187f) }),
+            [AreaManager.AreaEnum.Berg] = ("ImqRiGAT80aE2WtUHfdcMw", new[] { new Vector3(-386.620f, -1493.132f, 773.86f),
+                                                                             new Vector3(-372.410f, -1493.132f, 773.86f) }),
+            [AreaManager.AreaEnum.Monsoon] = ("ImqRiGAT80aE2WtUHfdcMw", new[] { new Vector3(-371.628f, -1493.410f, 569.910f) }),
+            [AreaManager.AreaEnum.Levant] = ("ZbPXNsPvlUeQVJRks3zBzg", new[] { new Vector3(-369.280f, -1502.535f, 592.850f),
+                                                                               new Vector3(-380.530f, -1502.535f, 593.080f) }),
+            [AreaManager.AreaEnum.Harmattan] = ("ImqRiGAT80aE2WtUHfdcMw", new[] { new Vector3(-178.672f, -1515.915f, 597.934f),
+                                                                                  new Vector3(-182.373f, -1515.915f, 606.291f),
+                                                                                  new Vector3(-383.484f, -1504.820f, 583.343f),
+                                                                                  new Vector3(-392.681f, -1504.820f, 586.551f)}),
+        };
         static private readonly Dictionary<TemperatureSteps, Vector2> DEFAULT_TEMPERATURE_DATA_BY_ENUM = new Dictionary<TemperatureSteps, Vector2>
         {
             [TemperatureSteps.Coldest] = new Vector2(-45, -1),
@@ -61,6 +75,7 @@ namespace ModPack
         static private ModSetting<Vector2> _remapBackpackCapacities;
         static private ModSetting<int> _waterskinCapacity;
         static private ModSetting<int> _innRentDuration;
+        static private ModSetting<bool> _innStashes;
         static private ModSetting<float> _baseStaminaRegen;
         static private ModSetting<bool> _temperatureToggle;
         static private Dictionary<TemperatureSteps, ModSetting<Vector2>> _temperatureDataByEnum;
@@ -80,6 +95,7 @@ namespace ModPack
             _remapBackpackCapacities = CreateSetting(nameof(_remapBackpackCapacities), new Vector2(PRIMITIVE_SATCHEL_CAPACITY, TRADER_BACKPACK));
             _waterskinCapacity = CreateSetting(nameof(_waterskinCapacity), 5, IntRange(1, 18));
             _innRentDuration = CreateSetting(nameof(_innRentDuration), 12, IntRange(1, 168));
+            _innStashes = CreateSetting(nameof(_innStashes), false);
             _baseStaminaRegen = CreateSetting(nameof(_baseStaminaRegen), 2.4f, FloatRange(0, 10));
             _temperatureToggle = CreateSetting(nameof(_temperatureToggle), false);
             _temperatureDataByEnum = new Dictionary<TemperatureSteps, ModSetting<Vector2>>();
@@ -144,6 +160,9 @@ namespace ModPack
             _waterskinCapacity.Description = "Have one big waterskin instead of a few small ones so you don't have to swap quickslots";
             _innRentDuration.Format("Inn rent duration");
             _innRentDuration.Description = "Pay the rent once, sleep for up to a week (in hours)";
+            _innStashes.Format("Inn stashes");
+            _innStashes.Description = "Each inn room will have a stash, linked with the player's house stash\n" +
+                                      "(exceptions: the first rooms in Monsoon's inn and Harmattan's Victorious Light inn)";
             _baseStaminaRegen.Format("Base stamina regen");
             _temperatureToggle.Format("Temperature");
             _temperatureToggle.Description = "Change each environmental temperature level's value and cap:\n" +
@@ -186,7 +205,8 @@ namespace ModPack
                     _loadArrowsFromInventory.Value = true;
                     _remapBackpackCapacities.Value = new Vector2(20, 60);
                     _waterskinCapacity.Value = 9;
-                    _innRentDuration.Value = 60;
+                    _innRentDuration.Value = 120;
+                    _innStashes.Value = true;
                     _temperatureToggle.Value = true;
                     {
                         _temperatureDataByEnum[TemperatureSteps.Coldest].Value = new Vector2(-50, 50 - (50 + 1));
@@ -264,6 +284,58 @@ namespace ModPack
 
         // Hooks
 #pragma warning disable IDE0051 // Remove unused private members
+        // InnStash
+        [HarmonyPatch(typeof(NetworkLevelLoader), "UnPauseGameplay"), HarmonyPostfix]
+        static void NetworkLevelLoader_UnPauseGameplay_Post(NetworkLevelLoader __instance, string _identifier)
+        {
+            AreaManager.AreaEnum areaEnum = (AreaManager.AreaEnum)AreaManager.Instance.CurrentArea.ID;
+            #region quit
+            if (!_innStashes || _identifier != "Loading" || !INN_STASH_POSITIONS_BY_CITY.ContainsKey(areaEnum))
+                return;
+            #endregion
+
+            // Cache
+            (string UID, Vector3[] Positions) = INN_STASH_POSITIONS_BY_CITY[areaEnum];
+            TreasureChest stash = (TreasureChest)ItemManager.Instance.GetItem(UID);
+            stash.GOSetActive(true);
+
+            int counter = 0;
+            foreach (var position in Positions)
+            {
+                // Interactions
+                Transform newInteractionHolder = GameObject.Instantiate(stash.InteractionHolder.transform);
+                newInteractionHolder.name = $"InnStash{counter} - Interaction";
+                newInteractionHolder.ResetLocalTransform();
+                newInteractionHolder.position = position;
+                InteractionActivator activator = newInteractionHolder.GetFirstComponentsInHierarchy<InteractionActivator>();
+                activator.UID += $"_InnStash{counter}";
+                InteractionOpenChest openChest = newInteractionHolder.GetFirstComponentsInHierarchy<InteractionOpenChest>();
+                openChest.m_container = stash;
+                openChest.m_item = stash;
+                openChest.StartInit();
+
+                // Highlight
+                Transform newHighlightHolder = GameObject.Instantiate(stash.CurrentVisual.ItemHighlightTrans);
+                newHighlightHolder.name = $"InnStash{counter} - Highlight";
+                newHighlightHolder.ResetLocalTransform();
+                newHighlightHolder.BecomeChildOf(newInteractionHolder);
+                newHighlightHolder.GetFirstComponentsInHierarchy<InteractionHighlight>().enabled = true;
+                counter++;
+            }
+        }
+
+        [HarmonyPatch(typeof(InteractionOpenChest), "OnActivate"), HarmonyPrefix]
+        static bool InteractionOpenChest_OnActivate_Pre(InteractionOpenChest __instance)
+        {
+            #region quit
+            if (!_innStashes || !__instance.m_chest.TryAssign(out var chest))
+                return true;
+            #endregion
+
+            chest.GOSetActive(true);
+            return true;
+        }
+
         // Temperature data
         [HarmonyPatch(typeof(EnvironmentConditions), "Start"), HarmonyPostfix]
         static void EnvironmentConditions_Start_Post(EnvironmentConditions __instance)
