@@ -180,16 +180,17 @@ namespace ModPack
             // Choose recipe index
             int selectorIndex = craftingMenu.m_lastRecipeIndex;
             int recipeIndex = selectorIndex >= 0 ? craftingMenu.m_complexeRecipes[selectorIndex].Key : craftingMenu.m_lastFreeRecipeIndex;
-            if (recipeIndex < 0)
-                return null;
+            List<Item> desctructibleResults = new List<Item>();
 
             // Execute
-            List<Item> desctructibleResults = new List<Item>();
-            Recipe recipe = craftingMenu.m_allRecipes[recipeIndex];
-            foreach (var result in recipe.Results)
-                if (result.RefItem.TryAssign(out var item)
-                && item.MaxDurability > 0)
-                    desctructibleResults.TryAddUnique(item);
+            if (recipeIndex >= 0)
+            {
+                Recipe recipe = craftingMenu.m_allRecipes[recipeIndex];
+                foreach (var result in recipe.Results)
+                    if (result.RefItem.TryAssign(out var item)
+                    && item.MaxDurability > 0)
+                        desctructibleResults.TryAddUnique(item);
+            }
             return desctructibleResults;
         }
         static private void SetSingleIngredientCrafting(CraftingMenu __instance, bool enabled = true)
@@ -211,22 +212,23 @@ namespace ModPack
         [HarmonyPatch(typeof(CraftingMenu), "CraftingDone"), HarmonyPrefix]
         static bool CraftingMenu_CraftingDone_Pre(CraftingMenu __instance, ref List<Item> __state)
         {
+            List<Item> ingredients = GetDestructibleIngredients(__instance);
+            List<Item> results = GetDestructibleResults(__instance);
             #region quit
-            if (!_preserveDurability || !GetDestructibleResults(__instance).TryAssign(out var destructibleResults))
+            if (!_preserveDurability || ingredients.IsEmpty() || ingredients.IsEmpty())
                 return true;
             #endregion
 
             float averageRatio = 0;
-            List<Item> destructibleIngredients = GetDestructibleIngredients(__instance);
-            foreach (var item in destructibleIngredients)
+            foreach (var item in ingredients)
                 averageRatio += item.DurabilityRatio;
-            averageRatio /= destructibleIngredients.Count;
+            averageRatio /= ingredients.Count;
 
-            foreach (var item in destructibleResults)
+            foreach (var item in results)
                 if (item.Stats.TryAssign(out var stats))
                     stats.StartingDurability = (stats.MaxDurability * averageRatio.Lerp(1f, _restoreMissingDurability / 100f)).Round();
 
-            __state = destructibleResults;
+            __state = results;
             return true;
         }
 
