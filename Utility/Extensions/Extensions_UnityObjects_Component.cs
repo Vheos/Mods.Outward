@@ -165,7 +165,9 @@ namespace ModPack
         /// <summary> Copies a's rigidbody. </summary>
         static public void CopyRigidbodyFrom(this Component t, Component a, bool copyMassAndTensors = false)
         => t.gameObject.CopyRigidbodyFrom(a.gameObject, copyMassAndTensors);
-
+        /// <summary> Resets a's local position, rotation and scale. </summary>
+        static public void ResetLocalTransform(this Component t)
+        => t.gameObject.ResetLocalTransform();
         /// <summary> Adds a BoxCollider component to this object. </summary>
         static public BoxCollider AddBoxCollider(this Component t, Bounds a, bool isTrigger = false)
         => t.gameObject.AddBoxCollider(a, isTrigger);
