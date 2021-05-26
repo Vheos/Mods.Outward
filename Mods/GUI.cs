@@ -303,6 +303,8 @@ namespace ModPack
             {
                 case Presets.Preset.Vheos_PreferredUI:
                     ForceApply();
+                    _verticalSplitscreen.Value = true;
+                    _textScale.Value = 110;
                     foreach (var settings in _perPlayerSettings)
                     {
                         settings._toggle.Value = true;
@@ -493,10 +495,11 @@ namespace ModPack
             #endregion
 
             foreach (var text in Resources.FindObjectsOfTypeAll<Text>())
-            {
-                text.fontSize = (text.fontSize * _textScale / 100f).Round();
-                text.verticalOverflow = VerticalWrapMode.Overflow;
-            }
+                if (text.transform.root.name != "ExplorerCanvas")
+                {
+                    text.fontSize = (text.fontSize * _textScale / 100f).Round();
+                    text.verticalOverflow = VerticalWrapMode.Overflow;
+                }
         }
         // HUD editor      
         static private void SetHUDEditor(Players.Data player, bool state)
