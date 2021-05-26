@@ -248,12 +248,12 @@ namespace ModPack
         static public bool TryAssign<T>(this T t, out T result) where T : class
         {
             result = t;
-            return t != null;
+            return result != null;
         }
         static public bool TryFind(this Transform t, string name, out Transform result)
         {
             result = t.Find(name);
-            return t != null;
+            return result != null;
         }
         static public bool Is<T>(this object t)
         => t is T;
@@ -286,7 +286,7 @@ namespace ModPack
             return (showDays ? days.ToString("D2") + "d " : "") +
                    (showHours ? hours.ToString("D2") + "h " : "") +
                    (showMinutes ? minutes.ToString("D2") + "m " : "") +
-                   (showSeconds ? seconds.ToString("D2") + "s " : "");
+                   (showSeconds ? seconds.ToString("D2") + "s" : "");
         }
         static public string FormatGameHours(this double t, bool showDays = true, bool showHours = true, bool showMinutes = true, bool showSeconds = true)
         => ((float)t).FormatGameHours(showDays, showHours, showMinutes, showSeconds);
@@ -295,7 +295,7 @@ namespace ModPack
             int minutes = t.Div(60).RoundDown();
             int seconds = t.Mod(60).Round();
             return (showMinutes ? minutes.ToString() + "m " : "") +
-                   (showSeconds ? seconds.ToString() + "s " : "");
+                   (showSeconds ? seconds.ToString() + "s" : "");
         }
         static public bool HasFlagsAttribute(this Enum enumeration)
         => enumeration.GetType().IsDefined(typeof(FlagsAttribute), false);
