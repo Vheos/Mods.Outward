@@ -17,6 +17,12 @@ namespace ModPack
     public class Various : AMod, IUpdatable
     {
         #region const
+        private const string FLINT_AND_STEEL_BREAK_NOTIFICATION = "Flint and Steel broke!";
+        private const string INNS_QUEST_FAMILY_NAME = "Inns";
+        private const float DEFAULT_ENEMY_HEALTH_RESET_HOURS = 24f;   // Character.HoursToHealthReset
+        private const int ARMOR_TRAINING_ID = 8205220;
+        private const int PRIMITIVE_SATCHEL_CAPACITY = 25;
+        private const int TRADER_BACKPACK = 100;
         static private readonly Dictionary<AreaManager.AreaEnum, (string UID, Vector3[] Positions)> INN_STASH_POSITIONS_BY_CITY = new Dictionary<AreaManager.AreaEnum, (string, Vector3[])>
         {
             [AreaManager.AreaEnum.CierzoVillage] = ("ImqRiGAT80aE2WtUHfdcMw", new[] { new Vector3(-367.850f, -1488.250f, 596.277f),
@@ -43,11 +49,6 @@ namespace ModPack
             [TemperatureSteps.VeryHot] = new Vector2(28, 92),
             [TemperatureSteps.Hottest] = new Vector2(40, 101),
         };
-        private const string INNS_QUEST_FAMILY_NAME = "Inns";
-        private const float DEFAULT_ENEMY_HEALTH_RESET_HOURS = 24f;   // Character.HoursToHealthReset
-        private const int ARMOR_TRAINING_ID = 8205220;
-        private const int PRIMITIVE_SATCHEL_CAPACITY = 25;
-        private const int TRADER_BACKPACK = 100;
         #endregion
         #region enum
         [Flags]
@@ -78,6 +79,7 @@ namespace ModPack
         static private ModSetting<bool> _innStashes;
         static private ModSetting<float> _baseStaminaRegen;
         static private ModSetting<bool> _temperatureToggle;
+        static private ModSetting<int> _chanceToBreakFlintAndSteel;
         static private Dictionary<TemperatureSteps, ModSetting<Vector2>> _temperatureDataByEnum;
         override protected void Initialize()
         {
@@ -99,6 +101,7 @@ namespace ModPack
             _baseStaminaRegen = CreateSetting(nameof(_baseStaminaRegen), 2.4f, FloatRange(0, 10));
             _temperatureToggle = CreateSetting(nameof(_temperatureToggle), false);
             _temperatureDataByEnum = new Dictionary<TemperatureSteps, ModSetting<Vector2>>();
+            _chanceToBreakFlintAndSteel = CreateSetting(nameof(_chanceToBreakFlintAndSteel), 0, IntRange(0, 100));
             foreach (var step in Utility.GetEnumValues<TemperatureSteps>())
                 if (step != TemperatureSteps.Count)
                     _temperatureDataByEnum.Add(step, CreateSetting(nameof(_temperatureDataByEnum) + step, DEFAULT_TEMPERATURE_DATA_BY_ENUM[step]));
@@ -164,6 +167,8 @@ namespace ModPack
             _innStashes.Description = "Each inn room will have a stash, linked with the player's house stash\n" +
                                       "(exceptions: the first rooms in Monsoon's inn and Harmattan's Victorious Light inn)";
             _baseStaminaRegen.Format("Base stamina regen");
+            _chanceToBreakFlintAndSteel.Format("Chance to break \"Flint and Steel\"");
+            _chanceToBreakFlintAndSteel.Description = "Each time you use Flint and Steel, there's a X% chance it will break";
             _temperatureToggle.Format("Temperature");
             _temperatureToggle.Description = "Change each environmental temperature level's value and cap:\n" +
                                              "X   -   value; how much cold/hot weather defense you need to nullify this temperature level\n" +
@@ -284,6 +289,19 @@ namespace ModPack
 
         // Hooks
 #pragma warning disable IDE0051 // Remove unused private members
+        // Chance to break Flint and Steel
+        [HarmonyPatch(typeof(Item), "OnUse"), HarmonyPostfix]
+        static void Item_OnUse_Post(Item __instance)
+        {
+            #region quit
+            if (__instance.ItemID != "Flint and Steel".ItemID()
+            || UnityEngine.Random.value >= _chanceToBreakFlintAndSteel / 100f)
+                return;
+            #endregion
+
+            __instance.RemoveQuantity(1);
+            __instance.m_ownerCharacter.CharacterUI.ShowInfoNotification(FLINT_AND_STEEL_BREAK_NOTIFICATION);
+        }
         // InnStash
         [HarmonyPatch(typeof(NetworkLevelLoader), "UnPauseGameplay"), HarmonyPostfix]
         static void NetworkLevelLoader_UnPauseGameplay_Post(NetworkLevelLoader __instance, string _identifier)

@@ -107,6 +107,8 @@ namespace ModPack
             ["De-powered Bludgeon"] = 2120270,
             ["Unusual Knuckles"] = 2160230,
             ["Strange Rusted Sword"] = 2000151,
+
+            ["Flint and Steel"] = 5600010,
         };
         static public readonly Dictionary<string, int> SkillIDsByName = new Dictionary<string, int>
         {
