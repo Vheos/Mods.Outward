@@ -5,6 +5,7 @@ using UnityEngine;
 using BepInEx.Configuration;
 using HarmonyLib;
 using UnityEngine.UI;
+using System.Collections;
 
 
 
@@ -59,6 +60,14 @@ namespace ModPack
             Chest = 1 << 2,
             Feet = 1 << 3,
         }
+        private enum TitleScreen
+        {
+            Vanilla = 1,
+            TheSoroboreans = 2,
+            TheThreeBrothers = 3,
+            Default = 4,
+            Random = 5,
+        }
         #endregion
 
         // Settings
@@ -78,8 +87,12 @@ namespace ModPack
         static private ModSetting<int> _innRentDuration;
         static private ModSetting<bool> _innStashes;
         static private ModSetting<float> _baseStaminaRegen;
-        static private ModSetting<bool> _temperatureToggle;
         static private ModSetting<int> _chanceToBreakFlintAndSteel;
+        static private ModSetting<bool> _moreGatheringTools;
+        static private ModSetting<Vector2> _gatheringDurabilityCost;
+        static private ModSetting<TitleScreen> _titleScreenOverride;
+        static private ModSetting<bool> _titleScreenHideCharacters;
+        static private ModSetting<bool> _temperatureToggle;
         static private Dictionary<TemperatureSteps, ModSetting<Vector2>> _temperatureDataByEnum;
         override protected void Initialize()
         {
@@ -99,9 +112,13 @@ namespace ModPack
             _innRentDuration = CreateSetting(nameof(_innRentDuration), 12, IntRange(1, 168));
             _innStashes = CreateSetting(nameof(_innStashes), false);
             _baseStaminaRegen = CreateSetting(nameof(_baseStaminaRegen), 2.4f, FloatRange(0, 10));
+            _chanceToBreakFlintAndSteel = CreateSetting(nameof(_chanceToBreakFlintAndSteel), 0, IntRange(0, 100));
+            _moreGatheringTools = CreateSetting(nameof(_moreGatheringTools), false);
+            _gatheringDurabilityCost = CreateSetting(nameof(_gatheringDurabilityCost), new Vector2(0f, 5f));
+            _titleScreenOverride = CreateSetting(nameof(_titleScreenOverride), TitleScreen.Default);
+            _titleScreenHideCharacters = CreateSetting(nameof(_titleScreenHideCharacters), false);
             _temperatureToggle = CreateSetting(nameof(_temperatureToggle), false);
             _temperatureDataByEnum = new Dictionary<TemperatureSteps, ModSetting<Vector2>>();
-            _chanceToBreakFlintAndSteel = CreateSetting(nameof(_chanceToBreakFlintAndSteel), 0, IntRange(0, 100));
             foreach (var step in Utility.GetEnumValues<TemperatureSteps>())
                 if (step != TemperatureSteps.Count)
                     _temperatureDataByEnum.Add(step, CreateSetting(nameof(_temperatureDataByEnum) + step, DEFAULT_TEMPERATURE_DATA_BY_ENUM[step]));
@@ -169,6 +186,23 @@ namespace ModPack
             _baseStaminaRegen.Format("Base stamina regen");
             _chanceToBreakFlintAndSteel.Format("Chance to break \"Flint and Steel\"");
             _chanceToBreakFlintAndSteel.Description = "Each time you use Flint and Steel, there's a X% chance it will break";
+            _moreGatheringTools.Format("More gathering tools");
+            _moreGatheringTools.Description = "Any Spear can fish and any 2-Handed Mace can mine\n" +
+                                              "The tool is searched for in your bag, then pouch, then equipment\n" +
+                                              "If there is more than 1 valid tool, the cheapest one is chosen first";
+            _gatheringDurabilityCost.Format("Gathering durability cost");
+            _gatheringDurabilityCost.Description = "X   -   flat amount\n" +
+                                                   "Y   -   percent of max";
+            _titleScreenOverride.Format("Override title screen");
+            _titleScreenOverride.Description = "If you think you could use a change of scenery :)\n" +
+                                               "(requires game restart)";
+            Indent++;
+            {
+                _titleScreenHideCharacters.Format("Hide characters");
+                _titleScreenHideCharacters.Description = "If you think the character are ruining the view :)\n" +
+                                                         "(requires game restart)"; ;
+                Indent--;
+            }
             _temperatureToggle.Format("Temperature");
             _temperatureToggle.Description = "Change each environmental temperature level's value and cap:\n" +
                                              "X   -   value; how much cold/hot weather defense you need to nullify this temperature level\n" +
@@ -212,6 +246,9 @@ namespace ModPack
                     _waterskinCapacity.Value = 9;
                     _innRentDuration.Value = 120;
                     _innStashes.Value = true;
+                    _chanceToBreakFlintAndSteel.Value = 25;
+                    _moreGatheringTools.Value = true;
+                    _gatheringDurabilityCost.Value = new Vector2(15, 3);
                     _temperatureToggle.Value = true;
                     {
                         _temperatureDataByEnum[TemperatureSteps.Coldest].Value = new Vector2(-50, 50 - (50 + 1));
@@ -289,6 +326,92 @@ namespace ModPack
 
         // Hooks
 #pragma warning disable IDE0051 // Remove unused private members
+        // Override title screen
+        [HarmonyPatch(typeof(TitleScreenLoader), "LoadTitleScreen", new[] { typeof(OTWStoreAPI.DLCs) }), HarmonyPrefix]
+        static bool TitleScreenLoader_LoadTitleScreen_Pre(TitleScreenLoader __instance, ref OTWStoreAPI.DLCs _dlc)
+        {
+            switch (_titleScreenOverride.Value)
+            {
+                case TitleScreen.Vanilla: _dlc = OTWStoreAPI.DLCs.None; break;
+                case TitleScreen.TheSoroboreans: _dlc = OTWStoreAPI.DLCs.Soroboreans; break;
+                case TitleScreen.TheThreeBrothers: _dlc = OTWStoreAPI.DLCs.DLC2; break;
+                case TitleScreen.Random: new[] { OTWStoreAPI.DLCs.None, OTWStoreAPI.DLCs.Soroboreans, OTWStoreAPI.DLCs.DLC2 }.Random(); break;
+            }
+            return true;
+        }
+
+        [HarmonyPatch(typeof(TitleScreenLoader), "LoadTitleScreenCoroutine"), HarmonyPostfix]
+        static IEnumerator TitleScreenLoader_LoadTitleScreenCoroutine_Post(IEnumerator original, TitleScreenLoader __instance)
+        {
+            while (original.MoveNext())
+                yield return original.Current;
+
+            if (_titleScreenHideCharacters)
+                foreach (var characterVisuals in __instance.transform.GetAllComponentsInHierarchy<CharacterVisuals>())
+                    characterVisuals.GOSetActive(false);
+        }
+
+        // More gathering tools
+        [HarmonyPatch(typeof(GatherableInteraction), "GetValidItem"), HarmonyPrefix]
+        static bool GatherableInteraction_GetValidItem_Pre(GatherableInteraction __instance, ref Item __result, Character _character)
+        {
+            #region quit
+            if (!_moreGatheringTools || !__instance.Gatherable.RequiredItem.TryAssign(out var requiredItem)
+            || requiredItem.ItemID != "Mining Pick".ItemID() && requiredItem.ItemID != "Fishing Harpoon".ItemID())
+                return true;
+            #endregion
+
+            // Cache
+            Weapon.WeaponType requiredType = requiredItem.ItemID == "Fishing Harpoon".ItemID() ? Weapon.WeaponType.Spear_2H : Weapon.WeaponType.Mace_2H;
+            List<Item> potentialTools = new List<Item>();
+
+            // Search bag & pouch
+            List<ItemContainer> containers = new List<ItemContainer>();
+            if (_character.Inventory.EquippedBag.TryAssign(out var bag))
+                containers.Add(bag.m_container);
+            if (_character.Inventory.Pouch.TryAssign(out var pouch))
+                containers.Add(pouch);
+
+            foreach (var container in containers)
+                if (potentialTools.IsEmpty())
+                    foreach (var item in container.GetContainedItems())
+                        if (item.TryAs(out Weapon weapon) && weapon.Type == requiredType && weapon.DurabilityRatio > 0)
+                            potentialTools.Add(item);
+
+            // Search equipment
+            if (potentialTools.IsEmpty()
+            && _character.Inventory.Equipment.m_equipmentSlots[(int)EquipmentSlot.EquipmentSlotIDs.RightHand].EquippedItem.TryAs(out Weapon mainWeapon)
+            && mainWeapon.Type == requiredType && mainWeapon.DurabilityRatio > 0)
+                potentialTools.Add(mainWeapon);
+
+            // Choose tool
+            Item chosenTool = null;
+            if (potentialTools.IsNotEmpty())
+            {
+                int minValue = potentialTools.Min(tool => tool.RawCurrentValue);
+                chosenTool = potentialTools.First(tool => tool.RawCurrentValue == minValue);
+            }
+
+            // Finalize
+            __instance.m_validItem = chosenTool;
+            __instance.m_isCurrentWeapon = chosenTool != null && chosenTool.IsEquipped;
+            __result = chosenTool;
+            return false;
+        }
+
+        // Gathering durability cost
+        [HarmonyPatch(typeof(GatherableInteraction), "CharSpellTakeItem"), HarmonyPrefix]
+        static bool GatherableInteraction_CharSpellTakeItem_Pre(GatherableInteraction __instance)
+        {
+            #region quit
+            if (!__instance.m_validItem.TryAssign(out var item))
+                return true;
+            #endregion
+
+            item.ReduceDurability(_gatheringDurabilityCost.Value.x + (_gatheringDurabilityCost.Value.y - 5) / 100f * item.MaxDurability);
+            return true;
+        }
+
         // Chance to break Flint and Steel
         [HarmonyPatch(typeof(Item), "OnUse"), HarmonyPostfix]
         static void Item_OnUse_Post(Item __instance)
@@ -302,18 +425,19 @@ namespace ModPack
             __instance.RemoveQuantity(1);
             __instance.m_ownerCharacter.CharacterUI.ShowInfoNotification(FLINT_AND_STEEL_BREAK_NOTIFICATION);
         }
+
         // InnStash
         [HarmonyPatch(typeof(NetworkLevelLoader), "UnPauseGameplay"), HarmonyPostfix]
         static void NetworkLevelLoader_UnPauseGameplay_Post(NetworkLevelLoader __instance, string _identifier)
         {
-            AreaManager.AreaEnum areaEnum = (AreaManager.AreaEnum)AreaManager.Instance.CurrentArea.ID;
             #region quit
-            if (!_innStashes || _identifier != "Loading" || !INN_STASH_POSITIONS_BY_CITY.ContainsKey(areaEnum))
+            if (!_innStashes || _identifier != "Loading" || !AreaManager.Instance.CurrentArea.TryAssign(out var currentArea)
+            || !INN_STASH_POSITIONS_BY_CITY.ContainsKey(currentArea.ID.As<AreaManager.AreaEnum>()))
                 return;
             #endregion
 
             // Cache
-            (string UID, Vector3[] Positions) = INN_STASH_POSITIONS_BY_CITY[areaEnum];
+            (string UID, Vector3[] Positions) = INN_STASH_POSITIONS_BY_CITY[currentArea.ID.As<AreaManager.AreaEnum>()];
             TreasureChest stash = (TreasureChest)ItemManager.Instance.GetItem(UID);
             stash.GOSetActive(true);
 
