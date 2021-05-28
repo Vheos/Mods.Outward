@@ -60,13 +60,18 @@ namespace ModPack
             Chest = 1 << 2,
             Feet = 1 << 3,
         }
-        private enum TitleScreen
+        [Flags]
+        private enum TitleScreens
         {
-            Vanilla = 1,
-            TheSoroboreans = 2,
-            TheThreeBrothers = 3,
-            Default = 4,
-            Random = 5,
+            Vanilla = 1 << 1,
+            TheSoroboreans = 1 << 2,
+            TheThreeBrothers = 1 << 3,
+        }
+        private enum TitleScreenCharacterVisibility
+        {
+            Enable = 1,
+            Disable = 2,
+            Randomize = 3,
         }
         #endregion
 
@@ -90,8 +95,8 @@ namespace ModPack
         static private ModSetting<int> _chanceToBreakFlintAndSteel;
         static private ModSetting<bool> _moreGatheringTools;
         static private ModSetting<Vector2> _gatheringDurabilityCost;
-        static private ModSetting<TitleScreen> _titleScreenOverride;
-        static private ModSetting<bool> _titleScreenHideCharacters;
+        static private ModSetting<TitleScreens> _titleScreenRandomize;
+        static private ModSetting<TitleScreenCharacterVisibility> _titleScreenHideCharacters;
         static private ModSetting<bool> _temperatureToggle;
         static private Dictionary<TemperatureSteps, ModSetting<Vector2>> _temperatureDataByEnum;
         override protected void Initialize()
@@ -115,8 +120,8 @@ namespace ModPack
             _chanceToBreakFlintAndSteel = CreateSetting(nameof(_chanceToBreakFlintAndSteel), 0, IntRange(0, 100));
             _moreGatheringTools = CreateSetting(nameof(_moreGatheringTools), false);
             _gatheringDurabilityCost = CreateSetting(nameof(_gatheringDurabilityCost), new Vector2(0f, 5f));
-            _titleScreenOverride = CreateSetting(nameof(_titleScreenOverride), TitleScreen.Default);
-            _titleScreenHideCharacters = CreateSetting(nameof(_titleScreenHideCharacters), false);
+            _titleScreenRandomize = CreateSetting(nameof(_titleScreenRandomize), (TitleScreens)0);
+            _titleScreenHideCharacters = CreateSetting(nameof(_titleScreenHideCharacters), TitleScreenCharacterVisibility.Enable);
             _temperatureToggle = CreateSetting(nameof(_temperatureToggle), false);
             _temperatureDataByEnum = new Dictionary<TemperatureSteps, ModSetting<Vector2>>();
             foreach (var step in Utility.GetEnumValues<TemperatureSteps>())
@@ -190,17 +195,16 @@ namespace ModPack
             _moreGatheringTools.Description = "Any Spear can fish and any 2-Handed Mace can mine\n" +
                                               "The tool is searched for in your bag, then pouch, then equipment\n" +
                                               "If there is more than 1 valid tool, the cheapest one is chosen first";
-            _gatheringDurabilityCost.Format("Gathering durability cost");
+            _gatheringDurabilityCost.Format("Gathering tools durability cost");
             _gatheringDurabilityCost.Description = "X   -   flat amount\n" +
                                                    "Y   -   percent of max";
-            _titleScreenOverride.Format("Override title screen");
-            _titleScreenOverride.Description = "If you think you could use a change of scenery :)\n" +
-                                               "(requires game restart)";
+            _titleScreenRandomize.Format("Randomize title screen");
+            _titleScreenRandomize.Description = "Every time you start the game, one of the chosen title screens will be loaded at random (untick all for default)";
             Indent++;
             {
-                _titleScreenHideCharacters.Format("Hide characters");
+                _titleScreenHideCharacters.Format("Characters");
                 _titleScreenHideCharacters.Description = "If you think the character are ruining the view :)\n" +
-                                                         "(requires game restart)"; ;
+                                                         "(requires game restart)";
                 Indent--;
             }
             _temperatureToggle.Format("Temperature");
@@ -330,13 +334,22 @@ namespace ModPack
         [HarmonyPatch(typeof(TitleScreenLoader), "LoadTitleScreen", new[] { typeof(OTWStoreAPI.DLCs) }), HarmonyPrefix]
         static bool TitleScreenLoader_LoadTitleScreen_Pre(TitleScreenLoader __instance, ref OTWStoreAPI.DLCs _dlc)
         {
-            switch (_titleScreenOverride.Value)
-            {
-                case TitleScreen.Vanilla: _dlc = OTWStoreAPI.DLCs.None; break;
-                case TitleScreen.TheSoroboreans: _dlc = OTWStoreAPI.DLCs.Soroboreans; break;
-                case TitleScreen.TheThreeBrothers: _dlc = OTWStoreAPI.DLCs.DLC2; break;
-                case TitleScreen.Random: new[] { OTWStoreAPI.DLCs.None, OTWStoreAPI.DLCs.Soroboreans, OTWStoreAPI.DLCs.DLC2 }.Random(); break;
-            }
+            #region quit
+            if (_titleScreenRandomize.Value == 0)
+                return true;
+            #endregion
+
+            var DLCs = new List<OTWStoreAPI.DLCs>();
+            foreach (var flag in Utility.GetEnumValues<TitleScreens>())
+                if (_titleScreenRandomize.Value.HasFlag(flag))
+                    switch (flag)
+                    {
+                        case TitleScreens.Vanilla: DLCs.Add(OTWStoreAPI.DLCs.None); break;
+                        case TitleScreens.TheSoroboreans: DLCs.Add(OTWStoreAPI.DLCs.Soroboreans); break;
+                        case TitleScreens.TheThreeBrothers: DLCs.Add(OTWStoreAPI.DLCs.DLC2); break;
+                    }
+
+            _dlc = DLCs.Random();
             return true;
         }
 
@@ -346,9 +359,20 @@ namespace ModPack
             while (original.MoveNext())
                 yield return original.Current;
 
-            if (_titleScreenHideCharacters)
-                foreach (var characterVisuals in __instance.transform.GetAllComponentsInHierarchy<CharacterVisuals>())
-                    characterVisuals.GOSetActive(false);
+            #region quit
+            if (_titleScreenHideCharacters.Value == TitleScreenCharacterVisibility.Enable)
+                yield break;
+            #endregion
+
+            bool state = true;
+            switch (_titleScreenHideCharacters.Value)
+            {
+                case TitleScreenCharacterVisibility.Disable: state = false; break;
+                case TitleScreenCharacterVisibility.Randomize: state = System.DateTime.Now.Ticks % 2 == 0; break;
+            }
+
+            foreach (var characterVisuals in __instance.transform.GetAllComponentsInHierarchy<CharacterVisuals>())
+                characterVisuals.GOSetActive(state);
         }
 
         // More gathering tools
