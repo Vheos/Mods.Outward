@@ -137,10 +137,17 @@ namespace ModPack
             ["Doom Hex"] = 8201022,
             ["Curse Hex"] = 8201023,
             // Daggers
-            ["Dagger Slash"] = 8100072,
             ["Backstab"] = 8100070,
             ["Opportunist Stab"] = 8100071,
             ["Serpent's Parry"] = 8100261,
+            // Pistols
+            ["Shatter Bullet"] = 8200603,
+            ["Frost Bullet"] = 8200601,
+            ["Blood Bullet"] = 8200602,
+            // Chakram
+            ["Chakram Pierce"] = 8100250,
+            ["Chakram Arc"] = 8100252,
+            ["Chakram Dance"] = 8100251,
             // Bow
             ["Evasion Shot"] = 8100100,
             ["Sniper Shot"] = 8100101,
