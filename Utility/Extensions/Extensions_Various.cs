@@ -250,6 +250,16 @@ namespace ModPack
             result = t;
             return result != null;
         }
+        static public bool TryAssign<TKey, TValue>(this IDictionary<TKey, TValue> t, TKey key, out TValue result)
+        {
+            if (t.ContainsKey(key))
+            {
+                result = t[key];
+                return true;
+            }
+            result = default;
+            return false;
+        }
         static public bool TryFind(this Transform t, string name, out Transform result)
         {
             result = t.Find(name);
