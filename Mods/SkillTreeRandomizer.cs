@@ -357,9 +357,6 @@ namespace ModPack
                     _rerollOnGameStart.Value = true;
                     _reroll.Value = true;
                     break;
-
-                case Presets.Preset.IggyTheMad_TrueHardcore:
-                    break;
             }
         }
 

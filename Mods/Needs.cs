@@ -304,9 +304,6 @@ namespace ModPack
                     _allowOnlyDOTCures.Value = true;
                     _dontRestoreNeedsOnTravel.Value = true;
                     break;
-
-                case Presets.Preset.IggyTheMad_TrueHardcore:
-                    break;
             }
         }
 

@@ -107,9 +107,6 @@ namespace ModPack
                         }
                     }
                     break;
-
-                case Presets.Preset.IggyTheMad_TrueHardcore:
-                    break;
             }
         }
 

@@ -71,9 +71,6 @@ namespace ModPack
                     _moreGatheringTools.Value = true;
                     _gatheringDurabilityCost.Value = new Vector2(15, 3);
                     break;
-
-                case Presets.Preset.IggyTheMad_TrueHardcore:
-                    break;
             }
         }
 

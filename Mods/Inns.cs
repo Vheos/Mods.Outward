@@ -64,9 +64,6 @@ namespace ModPack
                     _stashes.Value = true;
                     _dontRestoreFoodDrinkOnSleep.Value = true;
                     break;
-
-                case Presets.Preset.IggyTheMad_TrueHardcore:
-                    break;
             }
         }
 

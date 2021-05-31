@@ -311,9 +311,6 @@ namespace ModPack
                     _runicLanternIntensity.Value = 10;
                     _runeSoundEffectVolume.Value = 50;
                     break;
-
-                case Presets.Preset.IggyTheMad_TrueHardcore:
-                    break;
             }
         }
 

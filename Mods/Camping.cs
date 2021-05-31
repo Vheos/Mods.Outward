@@ -106,9 +106,6 @@ namespace ModPack
                     _butterfliesRadius.Value = 5;
                     _campingActivities.Value = CampingActivities.Sleep | CampingActivities.Repair;
                     break;
-
-                case Presets.Preset.IggyTheMad_TrueHardcore:
-                    break;
             }
         }
 

@@ -165,9 +165,6 @@ namespace ModPack
                     _smithRepairsOnlyEquipped.Value = true;
                     _minStartingDurability.Value = 67;
                     break;
-
-                case Presets.Preset.IggyTheMad_TrueHardcore:
-                    break;
             }
         }
 

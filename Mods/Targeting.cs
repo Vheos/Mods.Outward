@@ -84,9 +84,6 @@ namespace ModPack
                     _autoTargetActions.Value = AutoTargetActions.Attack | AutoTargetActions.CombatSkill;
                     _targetingPitchOffset.Value = 0.2f;
                     break;
-
-                case Presets.Preset.IggyTheMad_TrueHardcore:
-                    break;
             }
         }
 

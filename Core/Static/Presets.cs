@@ -21,7 +21,8 @@ namespace ModPack
             ResetToDefaults = 1,
             Vheos_CoopSurvival = 2,
             Vheos_PreferredUI = 3,
-            IggyTheMad_TrueHardcore = 11,
+            IggyTheMad = 11,
+            ehaugw = 12,
         }
         #endregion
 
@@ -61,7 +62,8 @@ namespace ModPack
                 case Preset.ResetToDefaults: return "Reset to defaults";
                 case Preset.Vheos_CoopSurvival: return "Vheos's Co-op Survival";
                 case Preset.Vheos_PreferredUI: return "Vheos's Preferred UI";
-                case Preset.IggyTheMad_TrueHardcore: return "(future preset)"; //"IggyTheMad's True Hardcore";
+                case Preset.IggyTheMad: return "(future preset)";
+                case Preset.ehaugw: return "(future preset)";
                 default: return null;
             }
         }

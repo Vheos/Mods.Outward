@@ -146,9 +146,6 @@ namespace ModPack
                     _merchantsToggle.Value = true;
                     _merchantsMode.Value = ResetMode.Never;
                     break;
-
-                case Presets.Preset.IggyTheMad_TrueHardcore:
-                    break;
             }
         }
 

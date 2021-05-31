@@ -148,9 +148,6 @@ namespace ModPack
                     _autoLearnCrystalPowderRecipe.Value = true;
                     _extraResultsMultiplier.Value = 50;
                     break;
-
-                case Presets.Preset.IggyTheMad_TrueHardcore:
-                    break;
             }
         }
 

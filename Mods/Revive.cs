@@ -138,9 +138,6 @@ namespace ModPack
                         _corruptionGained.Value = 3;
                     }
                     break;
-
-                case Presets.Preset.IggyTheMad_TrueHardcore:
-                    break;
             }
         }
 

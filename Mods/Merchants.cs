@@ -110,9 +110,6 @@ namespace ModPack
                         _randomizePricesPerItem.Value = true;
                     }
                     break;
-
-                case Presets.Preset.IggyTheMad_TrueHardcore:
-                    break;
             }
         }
 

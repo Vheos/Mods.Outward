@@ -107,9 +107,6 @@ namespace ModPack
                         _enemiesMovementSpeed.Value = 125;
                     }
                     break;
-
-                case Presets.Preset.IggyTheMad_TrueHardcore:
-                    break;
             }
         }
         public void OnUpdate()

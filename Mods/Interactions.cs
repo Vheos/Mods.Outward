@@ -280,9 +280,6 @@ namespace ModPack
                         _highlightsColored.Value = true;
                     }
                     break;
-
-                case Presets.Preset.IggyTheMad_TrueHardcore:
-                    break;
             }
         }
 

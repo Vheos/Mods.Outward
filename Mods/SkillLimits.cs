@@ -137,9 +137,6 @@ namespace ModPack
                     _limitedSkillTypes.Value = LimitedSkillTypes.Basic | LimitedSkillTypes.Advanced;
                     _freePostBreakthroughBasicSkills.Value = true;
                     break;
-
-                case Presets.Preset.IggyTheMad_TrueHardcore:
-                    break;
             }
         }
 

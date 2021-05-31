@@ -144,9 +144,6 @@ namespace ModPack
                     _exclusiveSkillCostsTsar.Value = true;
                     _customNonBasicSkillCosts.Value = false;
                     break;
-
-                case Presets.Preset.IggyTheMad_TrueHardcore:
-                    break;
             }
         }
 

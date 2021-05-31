@@ -72,9 +72,6 @@ namespace ModPack
                     _pressureTrapRadius.Value = 0.6f;
                     _runicTrapRadius.Value = 0.8f;
                     break;
-
-                case Presets.Preset.IggyTheMad_TrueHardcore:
-                    break;
             }
         }
 
