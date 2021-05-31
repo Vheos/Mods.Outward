@@ -1,0 +1,343 @@
+﻿using System;
+using System.Linq;
+using System.Collections.Generic;
+using UnityEngine;
+using BepInEx.Configuration;
+using HarmonyLib;
+
+
+
+namespace ModPack
+{
+    public class Quickslots : AMod
+    {
+        #region const
+        static private readonly Dictionary<SkillContext, Dictionary<Weapon.WeaponType, int>> SKILL_CONTEXT_GROUPS = new Dictionary<SkillContext, Dictionary<Weapon.WeaponType, int>>
+        {
+            [SkillContext.Innate] = new Dictionary<Weapon.WeaponType, int>
+            {
+                [Weapon.WeaponType.Dagger_OH] = "Dagger Slash".SkillID(),
+                [Weapon.WeaponType.Pistol_OH] = "Fire/Reload".SkillID(),
+            },
+
+            [SkillContext.BasicA] = new Dictionary<Weapon.WeaponType, int>
+            {
+                [Weapon.WeaponType.Dagger_OH] = "Backstab".SkillID(),
+                [Weapon.WeaponType.Pistol_OH] = "Shatter Bullet".SkillID(),
+                [Weapon.WeaponType.Chakram_OH] = "Chakram Pierce".SkillID(),
+            },
+
+            [SkillContext.BasicB] = new Dictionary<Weapon.WeaponType, int>
+            {
+                [Weapon.WeaponType.Dagger_OH] = "Opportunist Stab".SkillID(),
+                [Weapon.WeaponType.Pistol_OH] = "Frost Bullet".SkillID(),
+                [Weapon.WeaponType.Chakram_OH] = "Chakram Arc".SkillID(),
+            },
+
+            [SkillContext.Advanced] = new Dictionary<Weapon.WeaponType, int>
+            {
+                [Weapon.WeaponType.Dagger_OH] = "Serpent's Parry".SkillID(),
+                [Weapon.WeaponType.Pistol_OH] = "Blood Bullet".SkillID(),
+                [Weapon.WeaponType.Chakram_OH] = "Chakram Dance".SkillID(),
+            },
+        };
+        #endregion
+        #region enum
+        private enum SkillContext
+        {
+            Innate = 1,
+            BasicA = 2,
+            BasicB = 3,
+            Advanced = 4,
+            Weapon = 5,
+            WeaponMaster = 6,
+        }
+        #endregion
+
+        // Setting
+        static private ModSetting<bool> _contextualSkillQuickslots;
+        static private ModSetting<bool> _replaceQuickslotsOnEquip;
+        static private ModSetting<bool> _assingByUsingFreeQuickslot;
+        static private ModSetting<bool> _extraGamepadQuickslots;
+        override protected void Initialize()
+        {
+            _contextualSkillQuickslots = CreateSetting(nameof(_contextualSkillQuickslots), false);
+            _replaceQuickslotsOnEquip = CreateSetting(nameof(_replaceQuickslotsOnEquip), false);
+            _assingByUsingFreeQuickslot = CreateSetting(nameof(_assingByUsingFreeQuickslot), false);
+            _extraGamepadQuickslots = CreateSetting(nameof(_extraGamepadQuickslots), false);
+
+            _skillContextsByID = new Dictionary<int, SkillContext>();
+            foreach (var group in SKILL_CONTEXT_GROUPS)
+                foreach (var skillByType in group.Value)
+                    _skillContextsByID.Add(skillByType.Value, group.Key);
+        }
+        override protected void SetFormatting()
+        {
+            _contextualSkillQuickslots.Format("Contextual skills");
+            _contextualSkillQuickslots.Description = "When switching a weapon, skills that required the previous weapons type will be replaced by skills that require the new one." +
+                                                     "This allows for using the same set of quickslots for various skills, depending on the weapon you're currently using.";
+            _replaceQuickslotsOnEquip.Format("Replace quickslots on equip");
+            _replaceQuickslotsOnEquip.Description = "When switching a weapon, if it's assigned to any quickslot, it will be replaced by the new weapon." +
+                                                    "This allows for toggling between 2 weapons with just one quickslot.";
+            _assingByUsingFreeQuickslot.Format("Assign by using free quickslot");
+            _assingByUsingFreeQuickslot.Description = "When you use a free (empty) quickslot, your mainhand or offhand weapon will get assigned to it " +
+                                                      "(if it's not assigned to any quickslot yet)";
+            _extraGamepadQuickslots.Format("16 gamepad quickslots");
+            _extraGamepadQuickslots.Description = "Allows you to use the d-pad with LT/RT for 8 extra quickslots\n" +
+                                                  "(requires default d-pad keybinds AND game restart)";
+        }
+        override protected string Description
+        => "• Contextual skills\n" +
+           "• Toggle between 2 weapons with 1 quickslot\n" +
+           "• 16 gamepad quickslots";
+        override protected string SectionOverride
+        => SECTION_COMBAT;
+        override public void LoadPreset(Presets.Preset preset)
+        {
+            switch (preset)
+            {
+                case Presets.Preset.Vheos_PreferredUI:
+                    ForceApply();
+                    _contextualSkillQuickslots.Value = true;
+                    _replaceQuickslotsOnEquip.Value = true;
+                    _assingByUsingFreeQuickslot.Value = true;
+                    _extraGamepadQuickslots.Value = true;
+                    break;
+            }
+        }
+
+        // Utility
+        static private Dictionary<int, SkillContext> _skillContextsByID;
+        static private bool HasItemAssignedToAnyQuickslot(Character character, Item item)
+        {
+            foreach (var quickslot in character.QuickSlotMngr.m_quickSlots)
+                if (quickslot.ActiveItem == item)
+                    return true;
+            return false;
+        }
+        static private Item GetLearnedSkillByID(Character character, int id)
+        => character.Inventory.SkillKnowledge.GetLearnedItems().First(skill => skill.ItemID == id);
+        static private void TryOverrideVanillaQuickslotInput(ref bool input, int playerID)
+        {
+            #region quit
+            if (!_extraGamepadQuickslots)
+                return;
+            #endregion
+
+            input &= !ControlsInput.QuickSlotToggle1(playerID) && !ControlsInput.QuickSlotToggle2(playerID);
+        }
+        static private void TryHandleCustomQuickslotInput(Character character)
+        {
+            #region quit
+            if (!_extraGamepadQuickslots)
+                return;
+            #endregion
+
+            if (character == null || character.QuickSlotMngr == null || character.CharacterUI.IsMenuFocused)
+                return;
+
+            int playerID = character.OwnerPlayerSys.PlayerID;
+            if (!ControlsInput.QuickSlotToggle1(playerID) && !ControlsInput.QuickSlotToggle2(playerID))
+                return;
+
+            int quickslotID = -1;
+            if (GameInput.Pressed(playerID, ControlsInput.GameplayActions.Sheathe))
+                quickslotID = 8;
+            else if (GameInput.Pressed(playerID, ControlsInput.MenuActions.ToggleMapMenu))
+                quickslotID = 9;
+            else if (GameInput.Pressed(playerID, ControlsInput.GameplayActions.ToggleLights))
+                quickslotID = 10;
+            else if (GameInput.Pressed(playerID, ControlsInput.GameplayActions.HandleBag))
+                quickslotID = 11;
+
+            if (quickslotID < 0)
+                return;
+
+            if (ControlsInput.QuickSlotToggle1(playerID))
+                quickslotID += 4;
+
+            character.QuickSlotMngr.QuickSlotInput(quickslotID);
+        }
+        static private void SetupQuickslots(Transform quickslotsHolder)
+        {
+            Transform quickslotTemplate = quickslotsHolder.Find("1");
+            for (int i = quickslotsHolder.childCount; i < 16; i++)
+                GameObject.Instantiate(quickslotTemplate, quickslotsHolder);
+
+            QuickSlot[] quickslots = quickslotsHolder.GetComponentsInChildren<QuickSlot>();
+            for (int i = 0; i < quickslots.Length; i++)
+            {
+                quickslots[i].GOSetName((i + 1).ToString());
+                quickslots[i].ItemQuickSlot = false;
+            }
+        }
+        static private void SetupQuickslotPanels(CharacterUI ui)
+        {
+            // Cache
+            Transform menuPanelsHolder = GetMenuPanelsHolder(ui);
+            Transform gamePanelsHolder = GetGamePanelsHolder(ui);
+            Component[] menuSlotsLT = menuPanelsHolder.Find("LT/QuickSlots").GetComponentsInChildren<EditorQuickSlotDisplayPlacer>();
+            Component[] menuSlotsRT = menuPanelsHolder.Find("RT/QuickSlots").GetComponentsInChildren<EditorQuickSlotDisplayPlacer>();
+            Component[] gameSlotsLT = gamePanelsHolder.Find("LT/QuickSlots").GetComponentsInChildren<EditorQuickSlotDisplayPlacer>();
+            Component[] gameSlotsRT = gamePanelsHolder.Find("RT/QuickSlots").GetComponentsInChildren<EditorQuickSlotDisplayPlacer>();
+            // Copy game 
+            for (int i = 0; i < menuSlotsLT.Length; i++)
+                menuSlotsLT[i].transform.localPosition = gameSlotsLT[i].transform.localPosition;
+            for (int i = 0; i < menuSlotsRT.Length; i++)
+                menuSlotsRT[i].transform.localPosition = gameSlotsRT[i].transform.localPosition;
+
+            gamePanelsHolder.Find("imgLT").localPosition = new Vector3(-195f, +170f);
+            gamePanelsHolder.Find("imgRT").localPosition = new Vector3(-155f, +170f);
+
+            menuPanelsHolder.Find("LT").localPosition = new Vector3(-90f, +50f);
+            menuPanelsHolder.Find("RT").localPosition = new Vector3(+340f, -100f);
+            menuPanelsHolder.Find("LT/imgLT").localPosition = new Vector3(-125f, 125f);
+            menuPanelsHolder.Find("RT/imgRT").localPosition = new Vector3(-125f, 125f);
+            menuPanelsHolder.Find("LeftDecoration").gameObject.SetActive(false);
+            menuPanelsHolder.Find("RightDecoration").gameObject.SetActive(false);
+
+            DuplicateQuickslotsInPanel(gamePanelsHolder.Find("LT"), +8, new Vector3(-250f, 0f));
+            DuplicateQuickslotsInPanel(gamePanelsHolder.Find("RT"), +8, new Vector3(-250f, 0f));
+            DuplicateQuickslotsInPanel(menuPanelsHolder.Find("LT"), +8, new Vector3(-250f, 0f));
+            DuplicateQuickslotsInPanel(menuPanelsHolder.Find("RT"), +8, new Vector3(-250f, 0f));
+        }
+        static private void DuplicateQuickslotsInPanel(Transform panelHolder, int idOffset, Vector3 posOffset)
+        {
+            Transform quickslotsHolder = panelHolder.Find("QuickSlots");
+            foreach (var editorPlacer in quickslotsHolder.GetComponentsInChildren<EditorQuickSlotDisplayPlacer>())
+            {
+                // Instantiate
+                editorPlacer.IsTemplate = true;
+                Transform newSlot = GameObject.Instantiate(editorPlacer.transform);
+                editorPlacer.IsTemplate = false;
+                // Setup
+                newSlot.SetParent(quickslotsHolder);
+                newSlot.localPosition = editorPlacer.transform.localPosition + posOffset;
+                EditorQuickSlotDisplayPlacer newEditorPlacer = newSlot.GetComponent<EditorQuickSlotDisplayPlacer>();
+                newEditorPlacer.RefSlotID += idOffset;
+                newEditorPlacer.IsTemplate = false;
+            }
+        }
+
+        // Find
+        static private Transform GetGamePanelsHolder(CharacterUI ui)
+        => ui.transform.Find("Canvas/GameplayPanels/HUD/QuickSlot/Controller/LT-RT");
+        static private Transform GetMenuPanelsHolder(CharacterUI ui)
+        => ui.transform.Find("Canvas/GameplayPanels/Menus/CharacterMenus/MainPanel/Content/MiddlePanel/QuickSlotPanel/PanelSwitcher/Controller/LT-RT");
+
+        // Hooks
+#pragma warning disable IDE0051 // Remove unused private members
+        [HarmonyPatch(typeof(Item), "PerformEquip"), HarmonyPrefix]
+        static bool Item_PerformEquip_Pre2(Item __instance, EquipmentSlot _slot)
+        {
+            Character character = _slot.Character;
+            if (!_contextualSkillQuickslots || !character.IsPlayer())
+                return true;
+
+            if (__instance.TryAs(out Weapon weapon) && (!_slot.EquippedItem.TryAs(out Weapon previousWeapon) || weapon.Type != previousWeapon.Type))
+                foreach (var quickslot in character.QuickSlotMngr.m_quickSlots)
+                    if (quickslot.ActiveItem.TryAs(out Skill quickslotSkill)
+                    && _skillContextsByID.TryAssign(quickslotSkill.ItemID, out var context)
+                    && SKILL_CONTEXT_GROUPS.TryAssign(context, out var contextSkillGroup)
+                    && contextSkillGroup.TryAssign(weapon.Type, out var newContextSkillID)
+                    && GetLearnedSkillByID(character, newContextSkillID).TryAssign(out var newContextSkill))
+                        quickslot.SetQuickSlot(newContextSkill);
+
+            return true;
+        }
+
+        [HarmonyPatch(typeof(Item), "PerformEquip"), HarmonyPrefix]
+        static bool Item_PerformEquip_Pre(Item __instance, EquipmentSlot _slot)
+        {
+            Character character = _slot.Character;
+            if (!_replaceQuickslotsOnEquip || !character.IsPlayer())
+                return true;
+
+            // If equipping a 2h weapon, also check offhand
+            Item previousItem = _slot.EquippedItem;
+            if (__instance.TryAs(out Weapon weapon) && weapon.TwoHanded)
+            {
+                EquipmentSlot[] slots = character.Inventory.Equipment.EquipmentSlots;
+                if (!slots[(int)EquipmentSlot.EquipmentSlotIDs.RightHand].EquippedItem.TryAssign(out var rightHandWeapon)
+                || HasItemAssignedToAnyQuickslot(character, rightHandWeapon))
+                    previousItem = slots[(int)EquipmentSlot.EquipmentSlotIDs.LeftHand].EquippedItem;
+            }
+
+            if (previousItem == null || HasItemAssignedToAnyQuickslot(character, previousItem))
+                return true;
+
+            foreach (var quickslot in _slot.Character.QuickSlotMngr.m_quickSlots)
+                if (quickslot.ActiveItem == __instance)
+                {
+                    quickslot.SetQuickSlot(previousItem, true);
+                    break;
+                }
+
+            return true;
+        }
+
+        [HarmonyPatch(typeof(QuickSlot), "Activate"), HarmonyPostfix]
+        static void QuickSlot_Activate_Post(QuickSlot __instance)
+        {
+            #region quit
+            if (!_assingByUsingFreeQuickslot || __instance.ActiveItem != null)
+                return;
+            #endregion
+
+            Character character = __instance.OwnerCharacter;
+            EquipmentSlot[] slots = character.Inventory.Equipment.EquipmentSlots;
+            foreach (var slotID in new[] { EquipmentSlot.EquipmentSlotIDs.RightHand, EquipmentSlot.EquipmentSlotIDs.LeftHand })
+                if (slots[(int)slotID].EquippedItem.TryAssign(out var item) && !HasItemAssignedToAnyQuickslot(character, item))
+                {
+                    __instance.SetQuickSlot(item);
+                    break;
+                }
+        }
+
+        // 16 controller quickslots
+        [HarmonyPatch(typeof(ControlsInput), "Sheathe"), HarmonyPostfix]
+        static void ControlsInput_Sheathe_Post(ref bool __result, ref int _playerID)
+        => TryOverrideVanillaQuickslotInput(ref __result, _playerID);
+
+        [HarmonyPatch(typeof(ControlsInput), "ToggleMap"), HarmonyPostfix]
+        static void ControlsInput_ToggleMap_Post(ref bool __result, ref int _playerID)
+        => TryOverrideVanillaQuickslotInput(ref __result, _playerID);
+
+        [HarmonyPatch(typeof(ControlsInput), "ToggleLights"), HarmonyPostfix]
+        static void ControlsInput_ToggleLights_Post(ref bool __result, ref int _playerID)
+        => TryOverrideVanillaQuickslotInput(ref __result, _playerID);
+
+        [HarmonyPatch(typeof(ControlsInput), "HandleBackpack"), HarmonyPostfix]
+        static void ControlsInput_HandleBackpack_Post(ref bool __result, ref int _playerID)
+        => TryOverrideVanillaQuickslotInput(ref __result, _playerID);
+
+        [HarmonyPatch(typeof(LocalCharacterControl), "UpdateQuickSlots"), HarmonyPostfix]
+        static void LocalCharacterControl_UpdateQuickSlots_Pre(ref Character ___m_character)
+        => TryHandleCustomQuickslotInput(___m_character);
+
+        [HarmonyPatch(typeof(SplitScreenManager), "Awake"), HarmonyPostfix]
+        static void SplitScreenManager_Awake_Post(SplitScreenManager __instance)
+        {
+            #region quit
+            if (!_extraGamepadQuickslots)
+                return;
+            #endregion
+
+            CharacterUI charUIPrefab = __instance.m_charUIPrefab;
+            GameObject.DontDestroyOnLoad(charUIPrefab);
+            SetupQuickslotPanels(charUIPrefab);
+        }
+
+        [HarmonyPatch(typeof(CharacterQuickSlotManager), "Awake"), HarmonyPrefix]
+        static bool CharacterQuickSlotManager_Awake_Pre(CharacterQuickSlotManager __instance)
+        {
+            #region quit
+            if (!_extraGamepadQuickslots)
+                return true;
+            #endregion
+
+            SetupQuickslots(__instance.transform.Find("QuickSlots"));
+            return true;
+        }
+    }
+}

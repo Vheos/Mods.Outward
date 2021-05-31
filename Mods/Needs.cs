@@ -138,7 +138,6 @@ namespace ModPack
         static private ModSetting<int> _drinkValuesPotions, _drinkValuesOther;
         static private ModSetting<bool> _allowCuresWhileOverlimited;
         static private ModSetting<bool> _allowOnlyDOTCures;
-        static private ModSetting<bool> _dontRestoreFoodDrinkOnSleep;
         static private ModSetting<bool> _dontRestoreNeedsOnTravel;
         override protected void Initialize()
         {
@@ -166,7 +165,6 @@ namespace ModPack
             _sleepBuffsDuration = CreateSetting(nameof(_sleepBuffsDuration), 40, IntRange(0, 100));
             _allowCuresWhileOverlimited = CreateSetting(nameof(_allowCuresWhileOverlimited), false);
             _allowOnlyDOTCures = CreateSetting(nameof(_allowOnlyDOTCures), false);
-            _dontRestoreFoodDrinkOnSleep = CreateSetting(nameof(_dontRestoreFoodDrinkOnSleep), false);
             _dontRestoreNeedsOnTravel = CreateSetting(nameof(_dontRestoreNeedsOnTravel), false);
 
             // Events
@@ -261,8 +259,6 @@ namespace ModPack
                 _allowOnlyDOTCures.Description = "Same as above, but limited to curing status effects that damage you over time";
                 Indent--;
             }
-            _dontRestoreFoodDrinkOnSleep.Format("Don't restore food/drink when sleeping");
-            _dontRestoreFoodDrinkOnSleep.Description = "Sleeping in beds will only stop the depletion of food and drink, not restore them";
             _dontRestoreNeedsOnTravel.Format("Don't restore needs when travelling");
             _dontRestoreNeedsOnTravel.Description = "Normally, travelling restores 100% needs and resets temperature\n" +
                                                     "but mages may prefer to have control over their sleep level :)";
@@ -306,7 +302,6 @@ namespace ModPack
                     }
                     _allowCuresWhileOverlimited.Value = true;
                     _allowOnlyDOTCures.Value = true;
-                    _dontRestoreFoodDrinkOnSleep.Value = true;
                     _dontRestoreNeedsOnTravel.Value = true;
                     break;
 
@@ -659,15 +654,6 @@ namespace ModPack
             ___m_sleep = value.ClampMax(MaxNeedValue(Need.Sleep));
             return false;
         }
-
-        // Don't restore food/drink when sleeping
-        [HarmonyPatch(typeof(CharacterResting), "GetFoodRestored"), HarmonyPrefix]
-        static bool CharacterResting_GetFoodRestored_Pre(CharacterResting __instance)
-        => !_dontRestoreFoodDrinkOnSleep;
-
-        [HarmonyPatch(typeof(CharacterResting), "GetDrinkRestored"), HarmonyPrefix]
-        static bool CharacterResting_GetDrinkRestored_Pre(CharacterResting __instance)
-        => !_dontRestoreFoodDrinkOnSleep;
 
         // Don't restore needs when travelling
         [HarmonyPatch(typeof(FastTravelMenu), "OnConfirmFastTravel"), HarmonyPrefix]

@@ -14,18 +14,13 @@ namespace ModPack
     public class Gamepad : AMod, IUpdatable
     {
         // Setting
-        static private ModSetting<bool> _extraGamepadQuickslots;
         public ModSetting<bool> _betterStashNavigation;
         override protected void Initialize()
         {
             _betterStashNavigation = CreateSetting(nameof(_betterStashNavigation), false);
-            _extraGamepadQuickslots = CreateSetting(nameof(_extraGamepadQuickslots), false);
         }
         override protected void SetFormatting()
         {
-            _extraGamepadQuickslots.Format("16 quickslots");
-            _extraGamepadQuickslots.Description = "Allows you to use the d-pad with LT/RT for 8 extra quickslots\n" +
-                                                     "(requires default d-pad keybinds AND game restart)";
             _betterStashNavigation.Format("Better stash navigation");
             _betterStashNavigation.Description = "LB = switch to (or scroll down in) the player's bag\n" +
                                                               "RB = switch to (or scroll downn in) the chest contents\n" +
@@ -33,8 +28,7 @@ namespace ModPack
                                                               "RT = find currently focused item in the other panel";
         }
         override protected string Description
-        => "• 16 quickslots\n" +
-           "• Better stash navigation";
+        => "• Better stash navigation";
         override protected string SectionOverride
         => SECTION_UI;
         override public void LoadPreset(Presets.Preset preset)
@@ -43,7 +37,6 @@ namespace ModPack
             {
                 case Presets.Preset.Vheos_PreferredUI:
                     ForceApply();
-                    _extraGamepadQuickslots.Value = true;
                     _betterStashNavigation.Value = true;
                     break;
             }
@@ -69,107 +62,6 @@ namespace ModPack
         }
 
         // Utility
-        static private void TryOverrideVanillaQuickslotInput(ref bool input, int playerID)
-        {
-            #region quit
-            if (!_extraGamepadQuickslots)
-                return;
-            #endregion
-
-            input &= !ControlsInput.QuickSlotToggle1(playerID) && !ControlsInput.QuickSlotToggle2(playerID);
-        }
-        static private void TryHandleCustomQuickslotInput(Character character)
-        {
-            #region quit
-            if (!_extraGamepadQuickslots)
-                return;
-            #endregion
-
-            if (character == null || character.QuickSlotMngr == null || character.CharacterUI.IsMenuFocused)
-                return;
-
-            int playerID = character.OwnerPlayerSys.PlayerID;
-            if (!ControlsInput.QuickSlotToggle1(playerID) && !ControlsInput.QuickSlotToggle2(playerID))
-                return;
-
-            int quickslotID = -1;
-            if (GameInput.Pressed(playerID, ControlsInput.GameplayActions.Sheathe))
-                quickslotID = 8;
-            else if (GameInput.Pressed(playerID, ControlsInput.MenuActions.ToggleMapMenu))
-                quickslotID = 9;
-            else if (GameInput.Pressed(playerID, ControlsInput.GameplayActions.ToggleLights))
-                quickslotID = 10;
-            else if (GameInput.Pressed(playerID, ControlsInput.GameplayActions.HandleBag))
-                quickslotID = 11;
-
-            if (quickslotID < 0)
-                return;
-
-            if (ControlsInput.QuickSlotToggle1(playerID))
-                quickslotID += 4;
-
-            character.QuickSlotMngr.QuickSlotInput(quickslotID);
-        }
-        static private void SetupQuickslots(Transform quickslotsHolder)
-        {
-            Transform quickslotTemplate = quickslotsHolder.Find("1");
-            for (int i = quickslotsHolder.childCount; i < 16; i++)
-                GameObject.Instantiate(quickslotTemplate, quickslotsHolder);
-
-            QuickSlot[] quickslots = quickslotsHolder.GetComponentsInChildren<QuickSlot>();
-            for (int i = 0; i < quickslots.Length; i++)
-            {
-                quickslots[i].GOSetName((i + 1).ToString());
-                quickslots[i].ItemQuickSlot = false;
-            }
-        }
-        static private void SetupQuickslotPanels(CharacterUI ui)
-        {
-            // Cache
-            Transform menuPanelsHolder = GetMenuPanelsHolder(ui);
-            Transform gamePanelsHolder = GetGamePanelsHolder(ui);
-            Component[] menuSlotsLT = menuPanelsHolder.Find("LT/QuickSlots").GetComponentsInChildren<EditorQuickSlotDisplayPlacer>();
-            Component[] menuSlotsRT = menuPanelsHolder.Find("RT/QuickSlots").GetComponentsInChildren<EditorQuickSlotDisplayPlacer>();
-            Component[] gameSlotsLT = gamePanelsHolder.Find("LT/QuickSlots").GetComponentsInChildren<EditorQuickSlotDisplayPlacer>();
-            Component[] gameSlotsRT = gamePanelsHolder.Find("RT/QuickSlots").GetComponentsInChildren<EditorQuickSlotDisplayPlacer>();
-            // Copy game 
-            for (int i = 0; i < menuSlotsLT.Length; i++)
-                menuSlotsLT[i].transform.localPosition = gameSlotsLT[i].transform.localPosition;
-            for (int i = 0; i < menuSlotsRT.Length; i++)
-                menuSlotsRT[i].transform.localPosition = gameSlotsRT[i].transform.localPosition;
-
-            gamePanelsHolder.Find("imgLT").localPosition = new Vector3(-195f, +170f);
-            gamePanelsHolder.Find("imgRT").localPosition = new Vector3(-155f, +170f);
-
-            menuPanelsHolder.Find("LT").localPosition = new Vector3(-90f, +50f);
-            menuPanelsHolder.Find("RT").localPosition = new Vector3(+340f, -100f);
-            menuPanelsHolder.Find("LT/imgLT").localPosition = new Vector3(-125f, 125f);
-            menuPanelsHolder.Find("RT/imgRT").localPosition = new Vector3(-125f, 125f);
-            menuPanelsHolder.Find("LeftDecoration").gameObject.SetActive(false);
-            menuPanelsHolder.Find("RightDecoration").gameObject.SetActive(false);
-
-            DuplicateQuickslotsInPanel(gamePanelsHolder.Find("LT"), +8, new Vector3(-250f, 0f));
-            DuplicateQuickslotsInPanel(gamePanelsHolder.Find("RT"), +8, new Vector3(-250f, 0f));
-            DuplicateQuickslotsInPanel(menuPanelsHolder.Find("LT"), +8, new Vector3(-250f, 0f));
-            DuplicateQuickslotsInPanel(menuPanelsHolder.Find("RT"), +8, new Vector3(-250f, 0f));
-        }
-        static private void DuplicateQuickslotsInPanel(Transform panelHolder, int idOffset, Vector3 posOffset)
-        {
-            Transform quickslotsHolder = panelHolder.Find("QuickSlots");
-            foreach (var editorPlacer in quickslotsHolder.GetComponentsInChildren<EditorQuickSlotDisplayPlacer>())
-            {
-                // Instantiate
-                editorPlacer.IsTemplate = true;
-                Transform newSlot = GameObject.Instantiate(editorPlacer.transform);
-                editorPlacer.IsTemplate = false;
-                // Setup
-                newSlot.SetParent(quickslotsHolder);
-                newSlot.localPosition = editorPlacer.transform.localPosition + posOffset;
-                EditorQuickSlotDisplayPlacer newEditorPlacer = newSlot.GetComponent<EditorQuickSlotDisplayPlacer>();
-                newEditorPlacer.RefSlotID += idOffset;
-                newEditorPlacer.IsTemplate = false;
-            }
-        }
         static private void SwitchToInventory(Players.Data player)
         {
             if (EventSystem.current.GetCurrentSelectedGameObject(player.ID).TryGetComponent(out ItemDisplay currentItem)
@@ -316,53 +208,6 @@ namespace ModPack
 
         // Hooks
 #pragma warning disable IDE0051 // Remove unused private members
-        // 16 controller quickslots
-        [HarmonyPatch(typeof(ControlsInput), "Sheathe"), HarmonyPostfix]
-        static void ControlsInput_Sheathe_Post(ref bool __result, ref int _playerID)
-        => TryOverrideVanillaQuickslotInput(ref __result, _playerID);
-
-        [HarmonyPatch(typeof(ControlsInput), "ToggleMap"), HarmonyPostfix]
-        static void ControlsInput_ToggleMap_Post(ref bool __result, ref int _playerID)
-        => TryOverrideVanillaQuickslotInput(ref __result, _playerID);
-
-        [HarmonyPatch(typeof(ControlsInput), "ToggleLights"), HarmonyPostfix]
-        static void ControlsInput_ToggleLights_Post(ref bool __result, ref int _playerID)
-        => TryOverrideVanillaQuickslotInput(ref __result, _playerID);
-
-        [HarmonyPatch(typeof(ControlsInput), "HandleBackpack"), HarmonyPostfix]
-        static void ControlsInput_HandleBackpack_Post(ref bool __result, ref int _playerID)
-        => TryOverrideVanillaQuickslotInput(ref __result, _playerID);
-
-        [HarmonyPatch(typeof(LocalCharacterControl), "UpdateQuickSlots"), HarmonyPostfix]
-        static void LocalCharacterControl_UpdateQuickSlots_Pre(ref Character ___m_character)
-        => TryHandleCustomQuickslotInput(___m_character);
-
-        [HarmonyPatch(typeof(SplitScreenManager), "Awake"), HarmonyPostfix]
-        static void SplitScreenManager_Awake_Post(SplitScreenManager __instance)
-        {
-            #region quit
-            if (!_extraGamepadQuickslots)
-                return;
-            #endregion
-
-            CharacterUI charUIPrefab = __instance.m_charUIPrefab;
-            GameObject.DontDestroyOnLoad(charUIPrefab);
-            SetupQuickslotPanels(charUIPrefab);
-        }
-
-        [HarmonyPatch(typeof(CharacterQuickSlotManager), "Awake"), HarmonyPrefix]
-        static bool CharacterQuickSlotManager_Awake_Pre(CharacterQuickSlotManager __instance)
-        {
-            #region quit
-            if (!_extraGamepadQuickslots)
-                return true;
-            #endregion
-
-            SetupQuickslots(__instance.transform.Find("QuickSlots"));
-            return true;
-        }
-
-        // Better stash navigation
         [HarmonyPatch(typeof(StashPanel), "Show"), HarmonyPostfix]
         static void StashPanel_Show_Post(StashPanel __instance)
         => UpdateStashName(Players.GetLocal(__instance));

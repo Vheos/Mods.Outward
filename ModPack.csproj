@@ -105,9 +105,11 @@
     <Compile Include="Core\Static\GameInput.cs" />
     <Compile Include="Core\Static\Presets.cs" />
     <Compile Include="Mods\Crafting.cs" />
+    <Compile Include="Mods\Inns.cs" />
     <Compile Include="Mods\Development\WIP.cs" />
     <Compile Include="Mods\Durability.cs" />
     <Compile Include="Mods\Camping.cs" />
+    <Compile Include="Mods\Quickslots.cs" />
     <Compile Include="Mods\Gamepad.cs" />
     <Compile Include="Mods\SkillPrices.cs" />
     <Compile Include="Mods\Merchants.cs" />
@@ -128,6 +130,7 @@
     <Compile Include="Mods\Interactions.cs" />
     <Compile Include="Mods\SkillEditor.cs" />
     <Compile Include="Mods\Traps.cs" />
+    <Compile Include="Mods\SurvivalTools.cs" />
     <Compile Include="Mods\Various.cs" />
     <Compile Include="Utility\Extensions\Extensions_Collections_ICollection.cs" />
     <Compile Include="Utility\Extensions\Extensions_Collections_IList.cs" />

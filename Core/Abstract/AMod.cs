@@ -26,6 +26,8 @@ namespace ModPack
             typeof(Crafting),
             typeof(Durability),
             typeof(Merchants),
+            typeof(Inns),
+            typeof(SurvivalTools),
             typeof(Resets),
             typeof(Interactions),
             typeof(Revive),
@@ -35,7 +37,8 @@ namespace ModPack
             typeof(Speed),
             typeof(Targeting),
             typeof(Traps),
-            
+            typeof(Quickslots),
+
             // Skills
             typeof(SkillEditor),
             typeof(SkillPrices),

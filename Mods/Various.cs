@@ -18,26 +18,8 @@ namespace ModPack
     public class Various : AMod, IUpdatable
     {
         #region const
-        private const string FLINT_AND_STEEL_BREAK_NOTIFICATION = "Flint and Steel broke!";
-        private const string INNS_QUEST_FAMILY_NAME = "Inns";
         private const float DEFAULT_ENEMY_HEALTH_RESET_HOURS = 24f;   // Character.HoursToHealthReset
         private const int ARMOR_TRAINING_ID = 8205220;
-        private const int PRIMITIVE_SATCHEL_CAPACITY = 25;
-        private const int TRADER_BACKPACK = 100;
-        static private readonly Dictionary<AreaManager.AreaEnum, (string UID, Vector3[] Positions)> INN_STASH_POSITIONS_BY_CITY = new Dictionary<AreaManager.AreaEnum, (string, Vector3[])>
-        {
-            [AreaManager.AreaEnum.CierzoVillage] = ("ImqRiGAT80aE2WtUHfdcMw", new[] { new Vector3(-367.850f, -1488.250f, 596.277f),
-                                                                                      new Vector3(-373.539f, -1488.250f, 583.187f) }),
-            [AreaManager.AreaEnum.Berg] = ("ImqRiGAT80aE2WtUHfdcMw", new[] { new Vector3(-386.620f, -1493.132f, 773.86f),
-                                                                             new Vector3(-372.410f, -1493.132f, 773.86f) }),
-            [AreaManager.AreaEnum.Monsoon] = ("ImqRiGAT80aE2WtUHfdcMw", new[] { new Vector3(-371.628f, -1493.410f, 569.910f) }),
-            [AreaManager.AreaEnum.Levant] = ("ZbPXNsPvlUeQVJRks3zBzg", new[] { new Vector3(-369.280f, -1502.535f, 592.850f),
-                                                                               new Vector3(-380.530f, -1502.535f, 593.080f) }),
-            [AreaManager.AreaEnum.Harmattan] = ("ImqRiGAT80aE2WtUHfdcMw", new[] { new Vector3(-178.672f, -1515.915f, 597.934f),
-                                                                                  new Vector3(-182.373f, -1515.915f, 606.291f),
-                                                                                  new Vector3(-383.484f, -1504.820f, 583.343f),
-                                                                                  new Vector3(-392.681f, -1504.820f, 586.551f)}),
-        };
         static private readonly Dictionary<TemperatureSteps, Vector2> DEFAULT_TEMPERATURE_DATA_BY_ENUM = new Dictionary<TemperatureSteps, Vector2>
         {
             [TemperatureSteps.Coldest] = new Vector2(-45, -1),
@@ -87,14 +69,7 @@ namespace ModPack
         static private ModSetting<int> _armorTrainingPenaltyReduction;
         static private ModSetting<bool> _applyArmorTrainingToManaCost;
         static private ModSetting<bool> _loadArrowsFromInventory;
-        static private ModSetting<Vector2> _remapBackpackCapacities;
-        static private ModSetting<int> _waterskinCapacity;
-        static private ModSetting<int> _innRentDuration;
-        static private ModSetting<bool> _innStashes;
         static private ModSetting<float> _baseStaminaRegen;
-        static private ModSetting<int> _chanceToBreakFlintAndSteel;
-        static private ModSetting<bool> _moreGatheringTools;
-        static private ModSetting<Vector2> _gatheringDurabilityCost;
         static private ModSetting<TitleScreens> _titleScreenRandomize;
         static private ModSetting<TitleScreenCharacterVisibility> _titleScreenHideCharacters;
         static private ModSetting<bool> _temperatureToggle;
@@ -112,14 +87,7 @@ namespace ModPack
             _armorTrainingPenaltyReduction = CreateSetting(nameof(_armorTrainingPenaltyReduction), 50, IntRange(0, 100));
             _applyArmorTrainingToManaCost = CreateSetting(nameof(_applyArmorTrainingToManaCost), false);
             _loadArrowsFromInventory = CreateSetting(nameof(_loadArrowsFromInventory), false);
-            _remapBackpackCapacities = CreateSetting(nameof(_remapBackpackCapacities), new Vector2(PRIMITIVE_SATCHEL_CAPACITY, TRADER_BACKPACK));
-            _waterskinCapacity = CreateSetting(nameof(_waterskinCapacity), 5, IntRange(1, 18));
-            _innRentDuration = CreateSetting(nameof(_innRentDuration), 12, IntRange(1, 168));
-            _innStashes = CreateSetting(nameof(_innStashes), false);
             _baseStaminaRegen = CreateSetting(nameof(_baseStaminaRegen), 2.4f, FloatRange(0, 10));
-            _chanceToBreakFlintAndSteel = CreateSetting(nameof(_chanceToBreakFlintAndSteel), 0, IntRange(0, 100));
-            _moreGatheringTools = CreateSetting(nameof(_moreGatheringTools), false);
-            _gatheringDurabilityCost = CreateSetting(nameof(_gatheringDurabilityCost), new Vector2(0f, 5f));
             _titleScreenRandomize = CreateSetting(nameof(_titleScreenRandomize), (TitleScreens)0);
             _titleScreenHideCharacters = CreateSetting(nameof(_titleScreenHideCharacters), TitleScreenCharacterVisibility.Enable);
             _temperatureToggle = CreateSetting(nameof(_temperatureToggle), false);
@@ -127,13 +95,6 @@ namespace ModPack
             foreach (var step in Utility.GetEnumValues<TemperatureSteps>())
                 if (step != TemperatureSteps.Count)
                     _temperatureDataByEnum.Add(step, CreateSetting(nameof(_temperatureDataByEnum) + step, DEFAULT_TEMPERATURE_DATA_BY_ENUM[step]));
-
-            foreach (var questFamily in QuestEventDictionary.m_sections)
-                if (questFamily.Name == INNS_QUEST_FAMILY_NAME)
-                {
-                    _innRentQuestFamily = questFamily;
-                    break;
-                }
 
             _enableCheats.AddEvent(() => Global.CheatsEnabled = _enableCheats);
             AddEventOnConfigClosed(() =>
@@ -177,27 +138,7 @@ namespace ModPack
             }
             _loadArrowsFromInventory.Format("Load arrows from inventory");
             _loadArrowsFromInventory.Description = "Whenever you shoot your bow, the lost arrow is instantly replaced with one from your backpack or pouch (in that order).";
-            _remapBackpackCapacities.Format("Remap backpack capacities");
-            _remapBackpackCapacities.Description = "X   -   Primitive Satchel's capacity\n" +
-                                                   "Y   -   Trader Backpack's capacity\n" +
-                                                   "(all other backpacks will have their capacities scaled accordingly)";
-            _waterskinCapacity.Format("Waterskin capacity");
-            _waterskinCapacity.Description = "Have one big waterskin instead of a few small ones so you don't have to swap quickslots";
-            _innRentDuration.Format("Inn rent duration");
-            _innRentDuration.Description = "Pay the rent once, sleep for up to a week (in hours)";
-            _innStashes.Format("Inn stashes");
-            _innStashes.Description = "Each inn room will have a stash, linked with the player's house stash\n" +
-                                      "(exceptions: the first rooms in Monsoon's inn and Harmattan's Victorious Light inn)";
             _baseStaminaRegen.Format("Base stamina regen");
-            _chanceToBreakFlintAndSteel.Format("Chance to break \"Flint and Steel\"");
-            _chanceToBreakFlintAndSteel.Description = "Each time you use Flint and Steel, there's a X% chance it will break";
-            _moreGatheringTools.Format("More gathering tools");
-            _moreGatheringTools.Description = "Any Spear can fish and any 2-Handed Mace can mine\n" +
-                                              "The tool is searched for in your bag, then pouch, then equipment\n" +
-                                              "If there is more than 1 valid tool, the cheapest one is chosen first";
-            _gatheringDurabilityCost.Format("Gathering tools durability cost");
-            _gatheringDurabilityCost.Description = "X   -   flat amount\n" +
-                                                   "Y   -   percent of max";
             _titleScreenRandomize.Format("Randomize title screen");
             _titleScreenRandomize.Description = "Every time you start the game, one of the chosen title screens will be loaded at random (untick all for default)";
             Indent++;
@@ -246,13 +187,6 @@ namespace ModPack
                     _armorTrainingPenaltyReduction.Value = 50;
                     _applyArmorTrainingToManaCost.Value = true;
                     _loadArrowsFromInventory.Value = true;
-                    _remapBackpackCapacities.Value = new Vector2(20, 60);
-                    _waterskinCapacity.Value = 9;
-                    _innRentDuration.Value = 120;
-                    _innStashes.Value = true;
-                    _chanceToBreakFlintAndSteel.Value = 25;
-                    _moreGatheringTools.Value = true;
-                    _gatheringDurabilityCost.Value = new Vector2(15, 3);
                     _temperatureToggle.Value = true;
                     {
                         _temperatureDataByEnum[TemperatureSteps.Coldest].Value = new Vector2(-50, 50 - (50 + 1));
@@ -278,7 +212,6 @@ namespace ModPack
         }
 
         // Utility
-        static private QuestEventFamily _innRentQuestFamily;
         static private bool ShouldArmorSlotBeHidden(EquipmentSlot.EquipmentSlotIDs slot)
         => slot == EquipmentSlot.EquipmentSlotIDs.Helmet && _armorSlotsToHide.Value.HasFlag(ArmorSlots.Head)
         || slot == EquipmentSlot.EquipmentSlotIDs.Chest && _armorSlotsToHide.Value.HasFlag(ArmorSlots.Chest)
@@ -375,133 +308,6 @@ namespace ModPack
                 characterVisuals.GOSetActive(state);
         }
 
-        // More gathering tools
-        [HarmonyPatch(typeof(GatherableInteraction), "GetValidItem"), HarmonyPrefix]
-        static bool GatherableInteraction_GetValidItem_Pre(GatherableInteraction __instance, ref Item __result, Character _character)
-        {
-            #region quit
-            if (!_moreGatheringTools || !__instance.Gatherable.RequiredItem.TryAssign(out var requiredItem)
-            || requiredItem.ItemID != "Mining Pick".ItemID() && requiredItem.ItemID != "Fishing Harpoon".ItemID())
-                return true;
-            #endregion
-
-            // Cache
-            Weapon.WeaponType requiredType = requiredItem.ItemID == "Fishing Harpoon".ItemID() ? Weapon.WeaponType.Spear_2H : Weapon.WeaponType.Mace_2H;
-            List<Item> potentialTools = new List<Item>();
-
-            // Search bag & pouch
-            List<ItemContainer> containers = new List<ItemContainer>();
-            if (_character.Inventory.EquippedBag.TryAssign(out var bag))
-                containers.Add(bag.m_container);
-            if (_character.Inventory.Pouch.TryAssign(out var pouch))
-                containers.Add(pouch);
-
-            foreach (var container in containers)
-                if (potentialTools.IsEmpty())
-                    foreach (var item in container.GetContainedItems())
-                        if (item.TryAs(out Weapon weapon) && weapon.Type == requiredType && weapon.DurabilityRatio > 0)
-                            potentialTools.Add(item);
-
-            // Search equipment
-            if (potentialTools.IsEmpty()
-            && _character.Inventory.Equipment.m_equipmentSlots[(int)EquipmentSlot.EquipmentSlotIDs.RightHand].EquippedItem.TryAs(out Weapon mainWeapon)
-            && mainWeapon.Type == requiredType && mainWeapon.DurabilityRatio > 0)
-                potentialTools.Add(mainWeapon);
-
-            // Choose tool
-            Item chosenTool = null;
-            if (potentialTools.IsNotEmpty())
-            {
-                int minValue = potentialTools.Min(tool => tool.RawCurrentValue);
-                chosenTool = potentialTools.First(tool => tool.RawCurrentValue == minValue);
-            }
-
-            // Finalize
-            __instance.m_validItem = chosenTool;
-            __instance.m_isCurrentWeapon = chosenTool != null && chosenTool.IsEquipped;
-            __result = chosenTool;
-            return false;
-        }
-
-        // Gathering durability cost
-        [HarmonyPatch(typeof(GatherableInteraction), "CharSpellTakeItem"), HarmonyPrefix]
-        static bool GatherableInteraction_CharSpellTakeItem_Pre(GatherableInteraction __instance)
-        {
-            #region quit
-            if (!__instance.m_validItem.TryAssign(out var item))
-                return true;
-            #endregion
-
-            item.ReduceDurability(_gatheringDurabilityCost.Value.x + (_gatheringDurabilityCost.Value.y - 5) / 100f * item.MaxDurability);
-            return true;
-        }
-
-        // Chance to break Flint and Steel
-        [HarmonyPatch(typeof(Item), "OnUse"), HarmonyPostfix]
-        static void Item_OnUse_Post(Item __instance)
-        {
-            #region quit
-            if (__instance.ItemID != "Flint and Steel".ItemID()
-            || UnityEngine.Random.value >= _chanceToBreakFlintAndSteel / 100f)
-                return;
-            #endregion
-
-            __instance.RemoveQuantity(1);
-            __instance.m_ownerCharacter.CharacterUI.ShowInfoNotification(FLINT_AND_STEEL_BREAK_NOTIFICATION);
-        }
-
-        // InnStash
-        [HarmonyPatch(typeof(NetworkLevelLoader), "UnPauseGameplay"), HarmonyPostfix]
-        static void NetworkLevelLoader_UnPauseGameplay_Post(NetworkLevelLoader __instance, string _identifier)
-        {
-            #region quit
-            if (!_innStashes || _identifier != "Loading" || !AreaManager.Instance.CurrentArea.TryAssign(out var currentArea)
-            || !INN_STASH_POSITIONS_BY_CITY.ContainsKey(currentArea.ID.As<AreaManager.AreaEnum>()))
-                return;
-            #endregion
-
-            // Cache
-            (string UID, Vector3[] Positions) = INN_STASH_POSITIONS_BY_CITY[currentArea.ID.As<AreaManager.AreaEnum>()];
-            TreasureChest stash = (TreasureChest)ItemManager.Instance.GetItem(UID);
-            stash.GOSetActive(true);
-
-            int counter = 0;
-            foreach (var position in Positions)
-            {
-                // Interactions
-                Transform newInteractionHolder = GameObject.Instantiate(stash.InteractionHolder.transform);
-                newInteractionHolder.name = $"InnStash{counter} - Interaction";
-                newInteractionHolder.ResetLocalTransform();
-                newInteractionHolder.position = position;
-                InteractionActivator activator = newInteractionHolder.GetFirstComponentsInHierarchy<InteractionActivator>();
-                activator.UID += $"_InnStash{counter}";
-                InteractionOpenChest openChest = newInteractionHolder.GetFirstComponentsInHierarchy<InteractionOpenChest>();
-                openChest.m_container = stash;
-                openChest.m_item = stash;
-                openChest.StartInit();
-
-                // Highlight
-                Transform newHighlightHolder = GameObject.Instantiate(stash.CurrentVisual.ItemHighlightTrans);
-                newHighlightHolder.name = $"InnStash{counter} - Highlight";
-                newHighlightHolder.ResetLocalTransform();
-                newHighlightHolder.BecomeChildOf(newInteractionHolder);
-                newHighlightHolder.GetFirstComponentsInHierarchy<InteractionHighlight>().enabled = true;
-                counter++;
-            }
-        }
-
-        [HarmonyPatch(typeof(InteractionOpenChest), "OnActivate"), HarmonyPrefix]
-        static bool InteractionOpenChest_OnActivate_Pre(InteractionOpenChest __instance)
-        {
-            #region quit
-            if (!_innStashes || !__instance.m_chest.TryAssign(out var chest))
-                return true;
-            #endregion
-
-            chest.GOSetActive(true);
-            return true;
-        }
-
         // Temperature data
         [HarmonyPatch(typeof(EnvironmentConditions), "Start"), HarmonyPostfix]
         static void EnvironmentConditions_Start_Post(EnvironmentConditions __instance)
@@ -511,45 +317,6 @@ namespace ModPack
         [HarmonyPatch(typeof(PlayerCharacterStats), "OnStart"), HarmonyPostfix]
         static void PlayerCharacterStats_OnStart_Post(PlayerCharacterStats __instance)
         => UpdateBaseStaminaRegen(__instance);
-
-        // Inn rent duration
-        [HarmonyPatch(typeof(QuestEventData), "HasExpired"), HarmonyPrefix]
-        static bool QuestEventData_HasExpired_Pre(QuestEventData __instance, ref int _gameHourAllowed)
-        {
-            if (__instance.m_signature.ParentSection == _innRentQuestFamily)
-                _gameHourAllowed = _innRentDuration;
-            return true;
-        }
-
-        // Waterskin capacity
-        [HarmonyPatch(typeof(WaterContainer), "RefreshDisplay"), HarmonyPrefix]
-        static bool WaterContainer_RefreshDisplay_Pre(WaterContainer __instance)
-        {
-            __instance.m_stackable.m_maxStackAmount = _waterskinCapacity;
-            return true;
-        }
-
-        [HarmonyPatch(typeof(Item), "OnAwake"), HarmonyPostfix]
-        static void Item_Awake_Post(Item __instance)
-        {
-            #region quit
-            if (__instance.IsNot<WaterContainer>())
-                return;
-            #endregion
-
-            __instance.m_stackable.m_maxStackAmount = _waterskinCapacity;
-        }
-
-        // Remap backpack capacities
-        [HarmonyPatch(typeof(ItemContainer), "ContainerCapacity", MethodType.Getter), HarmonyPostfix]
-        static void ItemContainer_ContainerCapacity_Post(ItemContainer __instance, ref float __result)
-        {
-            if (__instance.RefBag == null || __instance.m_baseContainerCapacity <= 0)
-                return;
-
-            __result = __result.Map(PRIMITIVE_SATCHEL_CAPACITY, TRADER_BACKPACK,
-                                    _remapBackpackCapacities.Value.x, _remapBackpackCapacities.Value.y).Round();
-        }
 
         // Load arrows from inventory
         [HarmonyPatch(typeof(WeaponLoadoutItem), "ReduceShotAmount"), HarmonyPrefix]
