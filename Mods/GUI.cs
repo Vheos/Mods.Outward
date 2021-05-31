@@ -310,7 +310,7 @@ namespace ModPack
                         settings._toggle.Value = true;
                         {
                             settings._rearrangeHUD.Value = true;
-                            settings._hudTransparency.Value = 20;
+                            settings._hudTransparency.Value = 10;
                             settings._fadingStatusEffectIcons.Value = true;
                             {
                                 settings._statusIconMaxSize.Value = 120;

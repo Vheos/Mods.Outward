@@ -92,8 +92,8 @@ namespace ModPack
                         _playersStabilityDamage.Value = 40;
                         _playersFriendlyFireToggle.Value = true;
                         {
-                            _playersFriendlyFireHealthDamage.Value = 100;
-                            _playersFriendlyFireStabilityDamage.Value = 100;
+                            _playersFriendlyFireHealthDamage.Value = 75;
+                            _playersFriendlyFireStabilityDamage.Value = 75;
                         }
                     }
                     _enemiesToggle.Value = true;
