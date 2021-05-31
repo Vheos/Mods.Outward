@@ -23,8 +23,8 @@
 
 # Contact:
 Write a comment on the [Nexus mod page](https://www.nexusmods.com/outward/mods/203?tab=posts),  
-write a message in [Outward Modding Community](https://discord.gg/zKyfGmy7TR) -> `#vheos-mod-pack`
-tag me in [Outward](https://discord.com/invite/outward) -> `#outward-modding`
+write a message in [Outward Modding Community](https://discord.gg/zKyfGmy7TR) -> `#vheos-mod-pack`  
+tag me in [Outward](https://discord.com/invite/outward) -> `#outward-modding`  
 or send me a DM on Discord - `Vheos#5865` :)
 
 # Credits:
@@ -37,11 +37,17 @@ Love you all <3
 In the meantime, you can check out the [Nexus mod page](https://www.nexusmods.com/outward/mods/203) :)
 
 # Changelog:
+- **1.11.0**
+    - moved some settings from `Various`, `Needs` and `Gamepad` into new mods - `Inns`, `Tools` and `Quickslots`
+    - `Tools`: added `More gathering tools`, `Gathering tools durability cost` and `Chance to break Flint and Steel` settings
+    - `Quickslots`: added `Contextual skills`, `Replace quickslots on equip` and `Assign by using free quickslot` settings
+    - `Various`: added  `Randomize title screen`
+    - *bugfix: `Various -> Inn rent duration` was initialized too early to take effect*
 - **1.10.0**
     - `Various`: added `Inn stashes` setting and `Enable cheats` hotkey
     - `GUI`: added `Text scale` setting
     - `Interactions`: added `Highlights` settings
-    - *bugfix: `Craftign -> Preserve durability ratios` produced broken results when all ingredients were indestructible*
+    - *bugfix: `Crafting -> Preserve durability ratios` produced broken results when all ingredients were indestructible*
     - *bugfix: `Descriptions -> Freshness bar` settings didn't work for foods in shops*
 - **1.9.0**
     - `Various`: added `Inn rent duration`, `Base stamina regen` and `Temperature` settings
