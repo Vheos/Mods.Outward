@@ -104,34 +104,34 @@
     <Compile Include="Core\Static\Prefabs.cs" />
     <Compile Include="Core\Static\GameInput.cs" />
     <Compile Include="Core\Static\Presets.cs" />
-    <Compile Include="Mods\Crafting.cs" />
-    <Compile Include="Mods\Inns.cs" />
+    <Compile Include="Mods\Survival\Crafting.cs" />
+    <Compile Include="Mods\Survival\Inns.cs" />
     <Compile Include="Mods\Development\WIP.cs" />
-    <Compile Include="Mods\Durability.cs" />
-    <Compile Include="Mods\Camping.cs" />
-    <Compile Include="Mods\Quickslots.cs" />
-    <Compile Include="Mods\Gamepad.cs" />
-    <Compile Include="Mods\SkillPrices.cs" />
-    <Compile Include="Mods\Merchants.cs" />
-    <Compile Include="Mods\SkillLimits.cs" />
-    <Compile Include="Mods\SkillTreeRandomizer.cs" />
-    <Compile Include="Mods\Targeting.cs" />
-    <Compile Include="Mods\GUI.cs" />
-    <Compile Include="Mods\KeyboardWalk.cs" />
+    <Compile Include="Mods\Survival\Durability.cs" />
+    <Compile Include="Mods\Survival\Camping.cs" />
+    <Compile Include="Mods\Combat\Quickslots.cs" />
+    <Compile Include="Mods\UI\Gamepad.cs" />
+    <Compile Include="Mods\Skills\SkillPrices.cs" />
+    <Compile Include="Mods\Survival\Merchants.cs" />
+    <Compile Include="Mods\Skills\SkillLimits.cs" />
+    <Compile Include="Mods\Skills\SkillTreeRandomizer.cs" />
+    <Compile Include="Mods\Combat\Targeting.cs" />
+    <Compile Include="Mods\UI\GUI.cs" />
+    <Compile Include="Mods\UI\KeyboardWalk.cs" />
     <Compile Include="Mods\Development\Debug.cs" />
-    <Compile Include="Mods\Descriptions.cs" />
-    <Compile Include="Mods\Speed.cs" />
-    <Compile Include="Mods\Camera.cs" />
+    <Compile Include="Mods\UI\Descriptions.cs" />
+    <Compile Include="Mods\Combat\Speed.cs" />
+    <Compile Include="Mods\UI\Camera.cs" />
     <Compile Include="Mods\Development\PistolTweaks.cs" />
-    <Compile Include="Mods\Resets.cs" />
-    <Compile Include="Mods\Damage.cs" />
-    <Compile Include="Mods\Revive.cs" />
-    <Compile Include="Mods\Needs.cs" />
-    <Compile Include="Mods\Interactions.cs" />
-    <Compile Include="Mods\SkillEditor.cs" />
-    <Compile Include="Mods\Traps.cs" />
-    <Compile Include="Mods\SurvivalTools.cs" />
-    <Compile Include="Mods\Various.cs" />
+    <Compile Include="Mods\Survival\Resets.cs" />
+    <Compile Include="Mods\Combat\Damage.cs" />
+    <Compile Include="Mods\Survival\Revive.cs" />
+    <Compile Include="Mods\Survival\Needs.cs" />
+    <Compile Include="Mods\Survival\Interactions.cs" />
+    <Compile Include="Mods\Skills\SkillEditor.cs" />
+    <Compile Include="Mods\Combat\Traps.cs" />
+    <Compile Include="Mods\Survival\SurvivalTools.cs" />
+    <Compile Include="Mods\Various\Various.cs" />
     <Compile Include="Utility\Extensions\Extensions_Collections_ICollection.cs" />
     <Compile Include="Utility\Extensions\Extensions_Collections_IList.cs" />
     <Compile Include="Utility\Extensions\Extensions_Math_Common.cs" />
@@ -160,6 +160,7 @@
     <None Include="Utility\Snippets\tempstate.snippet" />
     <None Include="Utility\Snippets\prefix.snippet" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>start "" "D:\Multiplayer\Outward\Outward.exe"</PostBuildEvent>
