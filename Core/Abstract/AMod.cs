@@ -13,11 +13,11 @@ namespace ModPack
     {
         #region const
         private const int MAX_SETTINGS_PER_MOD = 1000;
-        public const string SECTION_SURVIVAL = "    \nSURVIVAL & IMMERSION";
-        public const string SECTION_COMBAT = "   \nCOMBAT";
-        public const string SECTION_SKILLS = "  \nSKILLS";
-        public const string SECTION_UI = " \nUSER INTERFACE";
-        public const string SECTION_VARIOUS = "\nVARIOUS";
+        public const string SECTION_DEVELOPMENT = "    \nDEVELOPMENT";
+        public const string SECTION_SURVIVAL = "   \nSURVIVAL & IMMERSION";
+        public const string SECTION_COMBAT = "  \nCOMBAT";
+        public const string SECTION_SKILLS = " \nSKILLS";
+        public const string SECTION_UI = "\nUSER INTERFACE";
         static private readonly Type[] MODS_ORDERING = new[]
         {
             // Survival & Immersion
@@ -54,6 +54,11 @@ namespace ModPack
 
             // Various
             typeof(Various),
+
+            // Development
+            typeof(Debug),
+            typeof(WIP),
+            typeof(PistolTweaks),
         };
         #endregion
         #region enum

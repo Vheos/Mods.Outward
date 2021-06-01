@@ -194,7 +194,7 @@ namespace ModPack
         override protected string Description
         => "• Mods (small and big) that didn't get their own section yet :)";
         override protected string SectionOverride
-        => SECTION_VARIOUS;
+        => "";
         override public void LoadPreset(Presets.Preset preset)
         {
             switch (preset)
