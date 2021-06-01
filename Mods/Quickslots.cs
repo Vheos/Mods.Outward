@@ -18,31 +18,68 @@ namespace ModPack
             {
                 [Weapon.WeaponType.Dagger_OH] = "Dagger Slash".SkillID(),
                 [Weapon.WeaponType.Pistol_OH] = "Fire/Reload".SkillID(),
+                [(Weapon.WeaponType)WeaponTypeExtended.Light] = "Throw Lantern".SkillID(),
+                [(Weapon.WeaponType)WeaponTypeExtended.Empty] = "Push Kick".SkillID(),
             },
 
             [SkillContext.BasicA] = new Dictionary<Weapon.WeaponType, int>
             {
+                [Weapon.WeaponType.Bow] = "Evasion Shot".SkillID(),
                 [Weapon.WeaponType.Dagger_OH] = "Backstab".SkillID(),
                 [Weapon.WeaponType.Pistol_OH] = "Shatter Bullet".SkillID(),
                 [Weapon.WeaponType.Chakram_OH] = "Chakram Pierce".SkillID(),
+                [Weapon.WeaponType.Shield] = "Shield Charge".SkillID(),
+                [(Weapon.WeaponType)WeaponTypeExtended.Light] = "Flamethrower".SkillID(),
             },
-
             [SkillContext.BasicB] = new Dictionary<Weapon.WeaponType, int>
             {
+                [Weapon.WeaponType.Bow] = "Sniper Shot".SkillID(),
                 [Weapon.WeaponType.Dagger_OH] = "Opportunist Stab".SkillID(),
                 [Weapon.WeaponType.Pistol_OH] = "Frost Bullet".SkillID(),
                 [Weapon.WeaponType.Chakram_OH] = "Chakram Arc".SkillID(),
+                [Weapon.WeaponType.Shield] = "Gong Strike".SkillID(),
             },
-
             [SkillContext.Advanced] = new Dictionary<Weapon.WeaponType, int>
             {
+                [Weapon.WeaponType.Bow] = "Piercing Shot".SkillID(),
                 [Weapon.WeaponType.Dagger_OH] = "Serpent's Parry".SkillID(),
                 [Weapon.WeaponType.Pistol_OH] = "Blood Bullet".SkillID(),
                 [Weapon.WeaponType.Chakram_OH] = "Chakram Dance".SkillID(),
+                [Weapon.WeaponType.Shield] = "Shield Infusion".SkillID(),
+            },
+            [SkillContext.Weapon] = new Dictionary<Weapon.WeaponType, int>
+            {
+                [Weapon.WeaponType.Sword_1H] = "Puncture".SkillID(),
+                [Weapon.WeaponType.Sword_2H] = "Pommel Counter".SkillID(),
+                [Weapon.WeaponType.Axe_1H] = "Talus Cleaver".SkillID(),
+                [Weapon.WeaponType.Axe_2H] = "Execution".SkillID(),
+                [Weapon.WeaponType.Mace_1H] = "Mace Infusion".SkillID(),
+                [Weapon.WeaponType.Mace_2H] = "Juggernaut".SkillID(),
+                [Weapon.WeaponType.Spear_2H] = "Simeon's Gambit".SkillID(),
+                [Weapon.WeaponType.Halberd_2H] = "Moon Swipe".SkillID(),
+                [Weapon.WeaponType.FistW_2H] = "Prismatic Flurry".SkillID(),
+            },
+            [SkillContext.WeaponMaster] = new Dictionary<Weapon.WeaponType, int>
+            {
+                [Weapon.WeaponType.Sword_1H] = "The Technique".SkillID(),
+                [Weapon.WeaponType.Sword_2H] = "Moment of Truth".SkillID(),
+                [Weapon.WeaponType.Axe_1H] = "Scalp Collector".SkillID(),
+                [Weapon.WeaponType.Axe_2H] = "Warrior's Vein".SkillID(),
+                [Weapon.WeaponType.Mace_1H] = "Dispersion".SkillID(),
+                [Weapon.WeaponType.Mace_2H] = "Crescendo".SkillID(),
+                [Weapon.WeaponType.Spear_2H] = "Vicious Cycle".SkillID(),
+                [Weapon.WeaponType.Halberd_2H] = "Splitter".SkillID(),
+                [Weapon.WeaponType.FistW_2H] = "Vital Crash".SkillID(),
+                [Weapon.WeaponType.Bow] = "Strafing Run".SkillID(),
             },
         };
         #endregion
         #region enum
+        private enum WeaponTypeExtended
+        {
+            Empty = -1,
+            Light = -2,
+        }
         private enum SkillContext
         {
             Innate = 1,
@@ -96,7 +133,7 @@ namespace ModPack
         {
             switch (preset)
             {
-                case Presets.Preset.Vheos_PreferredUI:
+                case Presets.Preset.Vheos_CoopSurvival:
                     ForceApply();
                     _contextualSkillQuickslots.Value = true;
                     _replaceQuickslotsOnEquip.Value = true;
@@ -108,6 +145,15 @@ namespace ModPack
 
         // Utility
         static private Dictionary<int, SkillContext> _skillContextsByID;
+        static private Weapon.WeaponType GetExtendedWeaponType(Item item)
+        {
+            if (item != null)
+                if (item.TryAs(out Weapon weapon))
+                    return weapon.Type;
+                else if (item.LitStatus != Item.Lit.Unlightable)
+                    return (Weapon.WeaponType)WeaponTypeExtended.Light;
+            return (Weapon.WeaponType)WeaponTypeExtended.Empty;
+        }
         static private bool HasItemAssignedToAnyQuickslot(Character character, Item item)
         {
             foreach (var quickslot in character.QuickSlotMngr.m_quickSlots)
@@ -116,7 +162,7 @@ namespace ModPack
             return false;
         }
         static private Item GetLearnedSkillByID(Character character, int id)
-        => character.Inventory.SkillKnowledge.GetLearnedItems().First(skill => skill.ItemID == id);
+        => character.Inventory.SkillKnowledge.GetLearnedItems().FirstOrDefault(skill => skill.ItemID == id);
         static private void TryOverrideVanillaQuickslotInput(ref bool input, int playerID)
         {
             #region quit
@@ -218,7 +264,6 @@ namespace ModPack
                 newEditorPlacer.IsTemplate = false;
             }
         }
-
         // Find
         static private Transform GetGamePanelsHolder(CharacterUI ui)
         => ui.transform.Find("Canvas/GameplayPanels/HUD/QuickSlot/Controller/LT-RT");
@@ -234,14 +279,18 @@ namespace ModPack
             if (!_contextualSkillQuickslots || !character.IsPlayer())
                 return true;
 
-            if (__instance.TryAs(out Weapon weapon) && (!_slot.EquippedItem.TryAs(out Weapon previousWeapon) || weapon.Type != previousWeapon.Type))
-                foreach (var quickslot in character.QuickSlotMngr.m_quickSlots)
-                    if (quickslot.ActiveItem.TryAs(out Skill quickslotSkill)
-                    && _skillContextsByID.TryAssign(quickslotSkill.ItemID, out var context)
-                    && SKILL_CONTEXT_GROUPS.TryAssign(context, out var contextSkillGroup)
-                    && contextSkillGroup.TryAssign(weapon.Type, out var newContextSkillID)
-                    && GetLearnedSkillByID(character, newContextSkillID).TryAssign(out var newContextSkill))
-                        quickslot.SetQuickSlot(newContextSkill);
+            Weapon.WeaponType previousType = GetExtendedWeaponType(_slot.EquippedItem);
+            Weapon.WeaponType currentType = GetExtendedWeaponType(__instance);
+            if (currentType == previousType)
+                return true;
+
+            foreach (var quickslot in character.QuickSlotMngr.m_quickSlots)
+                if (quickslot.ActiveItem.TryAs(out Skill quickslotSkill)
+                && _skillContextsByID.TryAssign(quickslotSkill.ItemID, out var context)
+                && SKILL_CONTEXT_GROUPS.TryAssign(context, out var contextSkillGroup)
+                && contextSkillGroup.TryAssign(currentType, out var newContextSkillID)
+                && GetLearnedSkillByID(character, newContextSkillID).TryAssign(out var newContextSkill))
+                    quickslot.SetQuickSlot(newContextSkill, true);
 
             return true;
         }
