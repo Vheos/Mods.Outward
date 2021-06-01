@@ -10,6 +10,8 @@ using BepInEx;
 
 namespace ModPack
 {
+    [BepInDependency("com.bepis.bepinex.configurationmanager", BepInDependency.DependencyFlags.SoftDependency)]
+    [BepInDependency("io.mefino.configurationmanager", BepInDependency.DependencyFlags.SoftDependency)]
     [BepInPlugin(GUID, NAME, VERSION)]
     public class Main : BaseUnityPlugin
     {
@@ -17,7 +19,7 @@ namespace ModPack
         public const bool IS_DEVELOPMENT_VERSION = false;
         public const string GUID = "com.Vheos.ModPack";
         public const string NAME = "Vheos Mod Pack" + (IS_DEVELOPMENT_VERSION ? " [DEVELOPMENT]" : "");
-        public const string VERSION = "1.10.0";
+        public const string VERSION = "1.11.0";
 
         // Utility
         private List<Type> _awakeModTypes;
