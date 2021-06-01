@@ -164,13 +164,13 @@ namespace ModPack
                                                          "(requires game restart)";
                 Indent--;
             }
-            _craftFromStash.Format("Craft from stash");
+            _craftFromStash.Format("Craft with stashed items");
             _craftFromStash.Description = "When you're crafting in a city, you can use items from you stash";
-            _displayStashAmount.Format("Display items amount from stash");
+            _displayStashAmount.Format("Display stashed item amounts");
             _displayStashAmount.Description = "Displays how many of each items you have stored in your stash\n" +
                                               "(shows in player/merchant inventory and crafting menu)";
             _itemActionDropOne.Format("Add \"Drop one\" item action");
-            _itemActionDropOne.Description = "Adds a button to stacked items' context menu which skips the \"choose amount\" panel and drops exactly 1 instance of the item\n" +
+            _itemActionDropOne.Description = "Adds a button to stacked items' which skips the \"choose amount\" panel and drops exactly 1 of the item\n" +
                                              "(recommended when playing co-op for quick item sharing)";
             _temperatureToggle.Format("Temperature");
             _temperatureToggle.Description = "Change each environmental temperature level's value and cap:\n" +
