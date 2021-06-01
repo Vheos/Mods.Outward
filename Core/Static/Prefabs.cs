@@ -124,6 +124,17 @@ namespace ModPack
             ["Simeon's Gambit"] = 8100340,
             ["Moon Swipe"] = 8100320,
             ["Prismatic Flurry"] = 8201040,
+            // Weapon Master skills
+            ["The Technique"] = 8100530,
+            ["Moment of Truth"] = 8100520,
+            ["Scalp Collector"] = 8100540,
+            ["Warrior's Vein"] = 8100500,
+            ["Dispersion"] = 8100510,
+            ["Crescendo"] = 8100550,
+            ["Vicious Cycle"] = 8100560,
+            ["Splitter"] = 8100561,
+            ["Vital Crash"] = 8100570,
+            ["Strafing Run"] = 8100580,
             // Boons
             ["Mist"] = 8200170,
             ["Warm"] = 8200130,
@@ -148,11 +159,14 @@ namespace ModPack
             ["Chakram Pierce"] = 8100250,
             ["Chakram Arc"] = 8100252,
             ["Chakram Dance"] = 8100251,
+            // Shields
+            ["Shield Charge"] = 8100190,
+            ["Gong Strike"] = 8100200,
+            ["Shield Infusion"] = 8100330,
             // Bow
             ["Evasion Shot"] = 8100100,
             ["Sniper Shot"] = 8100101,
             ["Piercing Shot"] = 8100102,
-            ["Strafing Run"] = 8100580,
             // Runes
             ["Dez"] = 8100210,
             ["Shim"] = 8100220,
