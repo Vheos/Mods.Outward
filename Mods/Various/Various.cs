@@ -71,6 +71,8 @@ namespace ModPack
         static private ModSetting<bool> _enableCheats;
         static private ModSetting<string> _enableCheatsHotkey;
         static private ModSetting<bool> _skipStartupVideos;
+        static private ModSetting<TitleScreens> _titleScreenRandomize;
+        static private ModSetting<TitleScreenCharacterVisibility> _titleScreenHideCharacters;
         static private ModSetting<ArmorSlots> _armorSlotsToHide;
         static private ModSetting<bool> _removeCoopScaling;
         static private ModSetting<bool> _removeDodgeInvulnerability;
@@ -80,8 +82,6 @@ namespace ModPack
         static private ModSetting<bool> _applyArmorTrainingToManaCost;
         static private ModSetting<bool> _loadArrowsFromInventory;
         static private ModSetting<float> _baseStaminaRegen;
-        static private ModSetting<TitleScreens> _titleScreenRandomize;
-        static private ModSetting<TitleScreenCharacterVisibility> _titleScreenHideCharacters;
         static private ModSetting<bool> _craftFromStash;
         static private ModSetting<bool> _displayStashAmount;
         static private ModSetting<bool> _itemActionDropOne;
@@ -204,6 +204,8 @@ namespace ModPack
                     _enableCheats.Value = false;
                     _enableCheatsHotkey.Value = KeyCode.Keypad0.ToString();
                     _skipStartupVideos.Value = true;
+                    _titleScreenRandomize.Value = (TitleScreens)~0;
+                    _titleScreenHideCharacters.Value = TitleScreenCharacterVisibility.Randomize;
                     _removeCoopScaling.Value = true;
                     _removeDodgeInvulnerability.Value = true;
                     _healEnemiesOnLoad.Value = true;
@@ -211,6 +213,9 @@ namespace ModPack
                     _armorTrainingPenaltyReduction.Value = 50;
                     _applyArmorTrainingToManaCost.Value = true;
                     _loadArrowsFromInventory.Value = true;
+                    _craftFromStash.Value = true;
+                    _displayStashAmount.Value = true;
+                    _itemActionDropOne.Value = true;
                     _temperatureToggle.Value = true;
                     {
                         _temperatureDataByEnum[TemperatureSteps.Coldest].Value = new Vector2(-50, 50 - (50 + 1));

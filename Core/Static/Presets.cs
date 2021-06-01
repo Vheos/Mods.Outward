@@ -37,7 +37,6 @@ namespace ModPack
 
             _presetToLoad = new ModSetting<string>("", nameof(_presetToLoad), PresetToName(Preset.None), new AcceptableValueList<string>(names.ToArray()));
             _presetToLoad.Format("Load preset");
-            _presetToLoad.IsAdvanced = true;
             _presetToLoad.DisplayResetButton = false;
 
             _presetToLoad.AddEvent(LoadChosenPreset);

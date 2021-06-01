@@ -1,5 +1,5 @@
 # How to:
-- Install the latest [BepInEx](https://github.com/BepInEx/BepInEx/releases/latest/) and **ConfigurationManager** ([official release](https://github.com/BepInEx/BepInEx.ConfigurationManager/releases/latest) **OR** [Outward fork](https://github.com/Mefino/BepInEx.ConfigurationManager/releases/latest) + [SideLoader](https://github.com/sinai-dev/Outward-SideLoader/releases/latest))
+- Install the latest [BepInEx](https://github.com/BepInEx/BepInEx/releases/latest/) and **ConfigurationManager** ([official release](https://github.com/BepInEx/BepInEx.ConfigurationManager/releases/latest) **OR** [Mefino fork](https://github.com/Mefino/BepInEx.ConfigurationManager/releases/latest) + [SideLoader](https://github.com/sinai-dev/Outward-SideLoader/releases/latest))
 - Download this mod from [GitHub](https://github.com/Vheos777/OutwardMods/releases), [Thunderstore](https://outward.thunderstore.io/package/Vheos/VheosModPack/) or [Nexus](https://www.nexusmods.com/outward/mods/203?tab=files)
 - Move the unzipped `Vheos` folder to `Outward\BepInEx\plugins\`
 - Press `F1` in game to open the `Configuration Manager` window
@@ -41,8 +41,11 @@ In the meantime, you can check out the [Nexus mod page](https://www.nexusmods.co
     - moved some settings from `Various`, `Needs` and `Gamepad` into new mods - `Inns`, `Tools` and `Quickslots`
     - `Tools`: added `More gathering tools`, `Gathering tools durability cost` and `Chance to break Flint and Steel` settings
     - `Quickslots`: added `Contextual skills`, `Replace quickslots on equip` and `Assign by using free quickslot` settings
-    - `Various`: added  `Randomize title screen`
+    - `Various`: added  `Randomize title screen`, `Craft with stash items`, `Display stashed item amounts` and `Add "Drop one" item action` settings
+    - removed `Various` section and moved `Various` mod to the top of the mods list
     - *bugfix: `Various -> Inn rent duration` was initialized too early to take effect*
+    - *bugfix: `Tree Randomizer` mod was tagged with IDevelopmentOnly and didn't appear in the mods list*
+    - *bugfix: some mods crashed when using the Mefino fork of `ConfigurationManager`*
 - **1.10.0**
     - `Various`: added `Inn stashes` setting and `Enable cheats` hotkey
     - `GUI`: added `Text scale` setting
