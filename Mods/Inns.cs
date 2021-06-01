@@ -13,7 +13,7 @@ namespace ModPack
     {
         #region const
         private const string INNS_QUEST_FAMILY_NAME = "Inns";
-        static private readonly Dictionary<AreaManager.AreaEnum, (string UID, Vector3[] Positions)> INN_STASH_POSITIONS_BY_CITY = new Dictionary<AreaManager.AreaEnum, (string, Vector3[])>
+        static private readonly Dictionary<AreaManager.AreaEnum, (string UID, Vector3[] Positions)> STASH_DATA_BY_CITY = new Dictionary<AreaManager.AreaEnum, (string, Vector3[])>
         {
             [AreaManager.AreaEnum.CierzoVillage] = ("ImqRiGAT80aE2WtUHfdcMw", new[] { new Vector3(-367.850f, -1488.250f, 596.277f),
                                                                                       new Vector3(-373.539f, -1488.250f, 583.187f) }),
@@ -26,6 +26,7 @@ namespace ModPack
                                                                                   new Vector3(-182.373f, -1515.915f, 606.291f),
                                                                                   new Vector3(-383.484f, -1504.820f, 583.343f),
                                                                                   new Vector3(-392.681f, -1504.820f, 586.551f)}),
+            //[AreaManager.AreaEnum.NewSirocco] = ("???", new Vector3[0]),
         };
         #endregion
 
@@ -75,12 +76,12 @@ namespace ModPack
         {
             #region quit
             if (!_stashes || _identifier != "Loading" || !AreaManager.Instance.CurrentArea.TryAssign(out var currentArea)
-            || !INN_STASH_POSITIONS_BY_CITY.ContainsKey(currentArea.ID.As<AreaManager.AreaEnum>()))
+            || !STASH_DATA_BY_CITY.ContainsKey((AreaManager.AreaEnum)currentArea.ID))
                 return;
             #endregion
 
             // Cache
-            (string UID, Vector3[] Positions) = INN_STASH_POSITIONS_BY_CITY[currentArea.ID.As<AreaManager.AreaEnum>()];
+            (string UID, Vector3[] Positions) = STASH_DATA_BY_CITY[(AreaManager.AreaEnum)currentArea.ID];
             TreasureChest stash = (TreasureChest)ItemManager.Instance.GetItem(UID);
             stash.GOSetActive(true);
 
