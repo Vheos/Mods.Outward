@@ -18,6 +18,16 @@ namespace ModPack
     public class Various : AMod, IUpdatable
     {
         #region const
+        private const int DROP_ONE_ACTION_ID = -2;
+        private const string DROP_ONE_ACTION_TEXT = "Drop one";
+        static private readonly Dictionary<AreaManager.AreaEnum, string> STASH_UID_BY_CITY = new Dictionary<AreaManager.AreaEnum, string>
+        {
+            [AreaManager.AreaEnum.CierzoVillage] = "ImqRiGAT80aE2WtUHfdcMw",
+            [AreaManager.AreaEnum.Berg] = "ImqRiGAT80aE2WtUHfdcMw",
+            [AreaManager.AreaEnum.Monsoon] = "ImqRiGAT80aE2WtUHfdcMw",
+            [AreaManager.AreaEnum.Levant] = "ZbPXNsPvlUeQVJRks3zBzg",
+            [AreaManager.AreaEnum.Harmattan] = "ImqRiGAT80aE2WtUHfdcMw",
+        };
         private const float DEFAULT_ENEMY_HEALTH_RESET_HOURS = 24f;   // Character.HoursToHealthReset
         private const int ARMOR_TRAINING_ID = 8205220;
         static private readonly Dictionary<TemperatureSteps, Vector2> DEFAULT_TEMPERATURE_DATA_BY_ENUM = new Dictionary<TemperatureSteps, Vector2>
@@ -72,6 +82,9 @@ namespace ModPack
         static private ModSetting<float> _baseStaminaRegen;
         static private ModSetting<TitleScreens> _titleScreenRandomize;
         static private ModSetting<TitleScreenCharacterVisibility> _titleScreenHideCharacters;
+        static private ModSetting<bool> _craftFromStash;
+        static private ModSetting<bool> _displayStashAmount;
+        static private ModSetting<bool> _itemActionDropOne;
         static private ModSetting<bool> _temperatureToggle;
         static private Dictionary<TemperatureSteps, ModSetting<Vector2>> _temperatureDataByEnum;
         override protected void Initialize()
@@ -90,6 +103,9 @@ namespace ModPack
             _baseStaminaRegen = CreateSetting(nameof(_baseStaminaRegen), 2.4f, FloatRange(0, 10));
             _titleScreenRandomize = CreateSetting(nameof(_titleScreenRandomize), (TitleScreens)0);
             _titleScreenHideCharacters = CreateSetting(nameof(_titleScreenHideCharacters), TitleScreenCharacterVisibility.Enable);
+            _craftFromStash = CreateSetting(nameof(_craftFromStash), false);
+            _displayStashAmount = CreateSetting(nameof(_displayStashAmount), false);
+            _itemActionDropOne = CreateSetting(nameof(_displayStashAmount), false);
             _temperatureToggle = CreateSetting(nameof(_temperatureToggle), false);
             _temperatureDataByEnum = new Dictionary<TemperatureSteps, ModSetting<Vector2>>();
             foreach (var step in Utility.GetEnumValues<TemperatureSteps>())
@@ -137,7 +153,7 @@ namespace ModPack
                 Indent--;
             }
             _loadArrowsFromInventory.Format("Load arrows from inventory");
-            _loadArrowsFromInventory.Description = "Whenever you shoot your bow, the lost arrow is instantly replaced with one from your backpack or pouch (in that order).";
+            _loadArrowsFromInventory.Description = "Whenever you shoot your bow, the lost arrow is instantly replaced with one from your backpack or pouch (in that order)";
             _baseStaminaRegen.Format("Base stamina regen");
             _titleScreenRandomize.Format("Randomize title screen");
             _titleScreenRandomize.Description = "Every time you start the game, one of the chosen title screens will be loaded at random (untick all for default)";
@@ -148,6 +164,14 @@ namespace ModPack
                                                          "(requires game restart)";
                 Indent--;
             }
+            _craftFromStash.Format("Craft from stash");
+            _craftFromStash.Description = "When you're crafting in a city, you can use items from you stash";
+            _displayStashAmount.Format("Display items amount from stash");
+            _displayStashAmount.Description = "Displays how many of each items you have stored in your stash\n" +
+                                              "(shows in player/merchant inventory and crafting menu)";
+            _itemActionDropOne.Format("Add \"Drop one\" item action");
+            _itemActionDropOne.Description = "Adds a button to stacked items' context menu which skips the \"choose amount\" panel and drops exactly 1 instance of the item\n" +
+                                             "(recommended when playing co-op for quick item sharing)";
             _temperatureToggle.Format("Temperature");
             _temperatureToggle.Description = "Change each environmental temperature level's value and cap:\n" +
                                              "X   -   value; how much cold/hot weather defense you need to nullify this temperature level\n" +
@@ -209,6 +233,18 @@ namespace ModPack
         }
 
         // Utility
+        static private TreasureChest _playerStash;
+        static private TreasureChest PlayerStash
+        {
+            get
+            {
+                if (_playerStash == null
+                && AreaManager.Instance.CurrentArea.TryAssign(out var currentArea)
+                && STASH_UID_BY_CITY.ContainsKey((AreaManager.AreaEnum)currentArea.ID))
+                    _playerStash = (TreasureChest)ItemManager.Instance.GetItem(STASH_UID_BY_CITY[(AreaManager.AreaEnum)currentArea.ID]);
+                return _playerStash;
+            }
+        }
         static private bool ShouldArmorSlotBeHidden(EquipmentSlot.EquipmentSlotIDs slot)
         => slot == EquipmentSlot.EquipmentSlotIDs.Helmet && _armorSlotsToHide.Value.HasFlag(ArmorSlots.Head)
         || slot == EquipmentSlot.EquipmentSlotIDs.Chest && _armorSlotsToHide.Value.HasFlag(ArmorSlots.Chest)
@@ -257,9 +293,103 @@ namespace ModPack
                         environmentConditions.TemperatureCaps[step] = _temperatureDataByEnum[step].Value.y;
                     }
         }
+        static private void TryDisplayStashAmount(ItemDisplay itemDisplay)
+        {
+            #region quit
+            if (!_displayStashAmount || PlayerStash == null
+            || !itemDisplay.m_lblQuantity.TryAssign(out var quantity)
+            || !itemDisplay.RefItem.TryAssign(out var item)
+            || item.OwnerCharacter == null
+            && item.ParentContainer.IsNot<MerchantPouch>()
+            && itemDisplay.IsNot<RecipeResultDisplay>())
+                return;
+            #endregion
+
+            int stashAmount = itemDisplay is CurrencyDisplay ? PlayerStash.ContainedSilver : PlayerStash.ItemStackCount(item.ItemID);
+            if (stashAmount <= 0)
+                return;
+
+            int amount = itemDisplay.m_lastQuantity;
+            if (amount <= 0 || itemDisplay.m_dBarUses.TryAssign(out var dotBar) && dotBar.GOActive())
+                amount = 1;
+
+            int fontSize = (quantity.fontSize * 0.75f).Round();
+            quantity.alignment = TextAnchor.UpperRight;
+            quantity.lineSpacing = 0.75f;
+            quantity.text = $"{amount}\n<color=#00FF00FF><size={fontSize}><b>+{stashAmount}</b></size></color>";
+        }
 
         // Hooks
 #pragma warning disable IDE0051 // Remove unused private members
+        // Drop one
+        [HarmonyPatch(typeof(ItemDisplayOptionPanel), "GetActiveActions"), HarmonyPostfix]
+        static void ItemDisplayOptionPanel_GetActiveActions_Post(ItemDisplayOptionPanel __instance, ref List<int> __result)
+        {
+            #region quit
+            if (!_itemActionDropOne || !__instance.m_activatedItemDisplay.TryAssign(out var itemDisplay)
+            || itemDisplay.RefItem.MoveStackAsOne || __instance.m_activatedItemDisplay.StackCount == 1)
+                return;
+            #endregion
+
+            __result.Add(DROP_ONE_ACTION_ID);
+        }
+
+        [HarmonyPatch(typeof(ItemDisplayOptionPanel), "GetActionText"), HarmonyPrefix]
+        static bool ItemDisplayOptionPanel_GetActionText_Pre(ItemDisplayOptionPanel __instance, ref string __result, ref int _actionID)
+        {
+            #region quit
+            if (_actionID != DROP_ONE_ACTION_ID)
+                return true;
+            #endregion
+
+            __result = DROP_ONE_ACTION_TEXT;
+            return false;
+        }
+
+        [HarmonyPatch(typeof(ItemDisplayOptionPanel), "ActionHasBeenPressed"), HarmonyPrefix]
+        static bool ItemDisplayOptionPanel_ActionHasBeenPressed_Pre(ItemDisplayOptionPanel __instance, ref int _actionID)
+        {
+            #region quit
+            if (_actionID != DROP_ONE_ACTION_ID)
+                return true;
+            #endregion
+
+            __instance.m_activatedItemDisplay.OnConfirmDropStack(1);
+            return false;
+        }
+
+        // Craft from stash
+        [HarmonyPatch(typeof(CharacterInventory), "InventoryIngredients",
+            new[] { typeof(Tag), typeof(DictionaryExt<int, CompatibleIngredient>) },
+            new[] { ArgumentType.Normal, ArgumentType.Ref }),
+            HarmonyPostfix]
+        static void CharacterInventory_InventoryIngredients_Post(CharacterInventory __instance, Tag _craftingStationTag, ref DictionaryExt<int, CompatibleIngredient> _sortedIngredient)
+        {
+            #region quit
+            if (!_craftFromStash && PlayerStash != null)
+                return;
+            #endregion
+
+            __instance.InventoryIngredients(_craftingStationTag, ref _sortedIngredient, PlayerStash.GetContainedItems());
+        }
+
+        // Display stash amount
+        [HarmonyPatch(typeof(ItemDisplay), "UpdateQuantityDisplay"), HarmonyPostfix]
+        static void ItemDisplay_UpdateQuantityDisplay_Post(ItemDisplay __instance)
+        => TryDisplayStashAmount(__instance);
+
+        [HarmonyPatch(typeof(CurrencyDisplay), "UpdateQuantityDisplay"), HarmonyPostfix]
+        static void CurrencyDisplay_UpdateQuantityDisplay_Post(CurrencyDisplay __instance)
+        => TryDisplayStashAmount(__instance);
+
+        [HarmonyPatch(typeof(RecipeResultDisplay), "UpdateQuantityDisplay"), HarmonyPostfix]
+        static void RecipeResultDisplay_UpdateQuantityDisplay_Post(RecipeResultDisplay __instance)
+        => TryDisplayStashAmount(__instance);
+
+        [HarmonyPatch(typeof(NetworkLevelLoader), "UnPauseGameplay"), HarmonyPostfix]
+        static void NetworkLevelLoader_UnPauseGameplay_Post(NetworkLevelLoader __instance)
+        => _playerStash = null;
+
         // Override title screen
         [HarmonyPatch(typeof(TitleScreenLoader), "LoadTitleScreen", new[] { typeof(OTWStoreAPI.DLCs) }), HarmonyPrefix]
         static bool TitleScreenLoader_LoadTitleScreen_Pre(TitleScreenLoader __instance, ref OTWStoreAPI.DLCs _dlc)
