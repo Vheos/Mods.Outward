@@ -10,7 +10,7 @@ using Random = UnityEngine.Random;
 
 namespace ModPack
 {
-    public class SkillTreeRandomizer : AMod, IDelayedInit, IDevelopmentOnly
+    public class SkillTreeRandomizer : AMod, IDelayedInit
     {
         #region const
         private const string ICONS_FOLDER = @"Skills\";
