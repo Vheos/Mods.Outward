@@ -18,6 +18,23 @@ namespace ModPack
     public class Various : AMod, IUpdatable
     {
         #region const
+        static private readonly Dictionary<TargetingGroups, Character.Factions[]> NEUTRAL_FACTION_GROUPS = new Dictionary<TargetingGroups, Character.Factions[]>
+        {
+            [TargetingGroups.HumansAndNonHostileMonsters] = new[]
+            {
+                Character.Factions.Bandits,
+                Character.Factions.Deer,
+            },
+            [TargetingGroups.HostileMonsters] = new[]
+            {
+                Character.Factions.Mercs,
+                Character.Factions.Tuanosaurs,
+                Character.Factions.Hounds,
+                Character.Factions.Merchants,
+                Character.Factions.Golden,
+                Character.Factions.CorruptionSpirit,
+            },
+        };
         private const int DROP_ONE_ACTION_ID = -2;
         private const string DROP_ONE_ACTION_TEXT = "Drop one";
         static private readonly Dictionary<AreaManager.AreaEnum, string> STASH_UIDS_BY_CITY = new Dictionary<AreaManager.AreaEnum, string>
@@ -75,6 +92,12 @@ namespace ModPack
             Disable = 2,
             Randomize = 3,
         }
+        [Flags]
+        private enum TargetingGroups
+        {
+            HumansAndNonHostileMonsters = 1 << 1,
+            HostileMonsters = 1 << 2,
+        }
         #endregion
 
         // Settings
@@ -96,6 +119,8 @@ namespace ModPack
         static private ModSetting<bool> _displayStashAmount;
         static private ModSetting<bool> _displayPricesInStash;
         static private ModSetting<bool> _itemActionDropOne;
+        static private ModSetting<int> _enemyDetectionModifier;
+        static private ModSetting<TargetingGroups> _preventInfighting;
         static private ModSetting<bool> _temperatureToggle;
         static private Dictionary<TemperatureSteps, ModSetting<Vector2>> _temperatureDataByEnum;
         override protected void Initialize()
@@ -118,6 +143,8 @@ namespace ModPack
             _displayStashAmount = CreateSetting(nameof(_displayStashAmount), false);
             _displayPricesInStash = CreateSetting(nameof(_displayPricesInStash), false);
             _itemActionDropOne = CreateSetting(nameof(_displayStashAmount), false);
+            _enemyDetectionModifier = CreateSetting(nameof(_enemyDetectionModifier), 0, IntRange(-100, +100));
+            _preventInfighting = CreateSetting(nameof(_preventInfighting), (TargetingGroups)0);
             _temperatureToggle = CreateSetting(nameof(_temperatureToggle), false);
             _temperatureDataByEnum = new Dictionary<TemperatureSteps, ModSetting<Vector2>>();
             foreach (var step in Utility.GetEnumValues<TemperatureSteps>())
@@ -187,6 +214,16 @@ namespace ModPack
             _itemActionDropOne.Format("Add \"Drop one\" item action");
             _itemActionDropOne.Description = "Adds a button to stacked items' which skips the \"choose amount\" panel and drops exactly 1 of the item\n" +
                                              "(recommended when playing co-op for quick item sharing)";
+            _enemyDetectionModifier.Format("Enemy detection modifier");
+            _enemyDetectionModifier.Description = "at +100% enemies will detect you from twice the vanilla distance, and in a 90 degrees cone\n" +
+                                                  "at -50% all ranges and angles will be halved\n" +
+                                                  "at -100% they will be effectively blind and deaf";
+            _preventInfighting.Format("Prevent infighting between");
+            _preventInfighting.Description = "Humans and non hostile monsters:\n" +
+                                             "most human enemies (bandits) and monster enemies that aren't hostile at first sight (pearlbirds, deers) will ignore each other\n" +
+                                             "\n" +
+                                             "Hostile monsters\n" +
+                                             "most hostile monsters (mantises, hive lords, assassin bugs) will ignore each other";
             _temperatureToggle.Format("Temperature");
             _temperatureToggle.Description = "Change each environmental temperature level's value and cap:\n" +
                                              "X   -   value; how much cold/hot weather defense you need to nullify this temperature level\n" +
@@ -232,6 +269,8 @@ namespace ModPack
                     _displayStashAmount.Value = true;
                     _displayPricesInStash.Value = true;
                     _itemActionDropOne.Value = true;
+                    _enemyDetectionModifier.Value = +50;
+                    _preventInfighting.Value = (TargetingGroups)~0;
                     _temperatureToggle.Value = true;
                     {
                         _temperatureDataByEnum[TemperatureSteps.Coldest].Value = new Vector2(-50, 50 - (50 + 1));
@@ -361,6 +400,73 @@ namespace ModPack
         {
             _playerStash = null;
             _soroboreanCaravanner = null;
+        }
+
+        // Prevent infighting
+        [HarmonyPatch(typeof(TargetingSystem), "InitTargetableFaction"), HarmonyPrefix]
+        static bool TargetingSystem_InitTargetableFaction_Pre(TargetingSystem __instance)
+        {
+            #region quit
+            if (_preventInfighting.Value == 0)
+                return true;
+            #endregion
+
+            // Cache
+            Character.Factions characterFaction = __instance.m_character.Faction;
+
+            // Gather ignored factions
+            List<Character.Factions> ignoreFactions = new List<Character.Factions>();
+            foreach (var group in NEUTRAL_FACTION_GROUPS)
+                if (group.Value.Contains(characterFaction))
+                    foreach (var faction in group.Value)
+                        if (faction != characterFaction)
+                            ignoreFactions.TryAddUnique(faction);
+
+            // Initialize
+            List<Character.Factions> targetableFactions = new List<Character.Factions>();
+            foreach (var faction in Utility.GetEnumValues<Character.Factions>())
+            {
+                if (faction == Character.Factions.NONE 
+                || faction == Character.Factions.COUNT
+                || faction.IsContainedIn(ignoreFactions)
+                || faction.IsContainedIn(__instance.StartAlliedFactions)
+                || __instance.AlliedToSameFaction && faction == characterFaction)
+                    continue;
+
+                targetableFactions.Add(faction);
+            }
+
+            __instance.TargetableFactions = targetableFactions.ToArray();
+            return false;
+        }
+
+        // Enemy detection modifier
+        [HarmonyPatch(typeof(AIPreset), "ApplyToCharAI"), HarmonyPostfix]
+        static void AIPreset_ApplyToCharAI_Post(AIPreset __instance, CharacterAI _charAI)
+        {
+            #region quit
+            if (_enemyDetectionModifier == 0)
+                return;
+            #endregion
+
+            float multiplier = 1 + _enemyDetectionModifier / 100f;
+            foreach (var detection in _charAI.GetComponentsInChildren<AICEnemyDetection>(true))
+            {
+                // View angles
+                detection.GoodViewAngle = Utility.Lerp3(0, detection.GoodViewAngle, 90, multiplier / 2);
+                detection.ViewAngle = Utility.Lerp3(0, detection.ViewAngle, 180, multiplier / 2);
+
+                // View ranges
+                detection.ViewRange *= multiplier;
+                detection.LowViewRange *= multiplier;
+
+                // Hearing range
+                detection.HearingDetectRange *= multiplier;
+
+                // View and hearing detectability
+                //detection.ViewVisDetect *= multiplier;
+                //detection.HearingDetect *= multiplier;
+            }
         }
 
         // Display prices in stash
@@ -629,7 +735,7 @@ namespace ModPack
         // Remove co-op scaling
         [HarmonyPatch(typeof(CoopStats), "ApplyToCharacter"), HarmonyPrefix]
         static bool CoopStats_ApplyToCharacter_Pre()
-    => !_removeCoopScaling;
+        => !_removeCoopScaling;
 
         [HarmonyPatch(typeof(CoopStats), "RemoveFromCharacter"), HarmonyPrefix]
         static bool CoopStats_RemoveFromCharacter_Pre()
