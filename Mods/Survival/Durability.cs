@@ -126,7 +126,8 @@ namespace ModPack
             _smithRepairsOnlyEquipped.Description = "Blacksmith will not repair items in your pouch and bag";
             _minStartingDurability.Format("Minimum starting durability");
             _minStartingDurability.Description = "When items are spawned, their durability is randomized between this value and 100%\n" +
-                                                 "Only affects item containers, enemy corpses and merchant stock";
+                                                 "Only affects dynamically spawned item (containers, enemy corpses, merchant stock)\n" +
+                                                 "Scene-static and serialized items are unaffected";
         }
         override protected string Description
         => "• Change how quickly durability decreases per item type\n" +
@@ -296,11 +297,11 @@ namespace ModPack
             #region quit
             if (_minStartingDurability >= 100
             || !_itemDrop.DroppedItem.TryAssign(out var item) || !Prefabs.ItemsByID[item.ItemIDString].TryAssign(out var prefab)
-            || prefab.Stats == null || prefab.MaxDurability <= 0)
+            || !prefab.Stats.TryAssign(out var prefabStats) || prefabStats.MaxDurability <= 0)
                 return true;
             #endregion
 
-            prefab.Stats.StartingDurability = (prefab.MaxDurability * Random.Range(_minStartingDurability / 100f, 1f)).Round();
+            prefabStats.StartingDurability = (prefab.MaxDurability * Random.Range(_minStartingDurability / 100f, 1f)).Round();
             __state = prefab;
             return true;
         }
@@ -309,7 +310,7 @@ namespace ModPack
         static void ItemDropper_GenerateItem_Post(ItemDropper __instance, ref Item __state)
         {
             #region quit
-            if (__state == null)
+            if (__state == default)
                 return;
             #endregion
 
