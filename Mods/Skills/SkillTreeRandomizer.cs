@@ -180,7 +180,7 @@ namespace ModPack
         static private ModSetting<TheSoroboreansOutput> _theSoroboreansOutput;
         static private ModSetting<TheThreeBrothersOutput> _theThreeBrothersOutput;
         static private ModSetting<EqualizedTraits> _equalizedTraits;
-        static private ModSetting<bool> _randomizeBreakthroughSkills, _preferPassiveBreakthroughs;
+        static private ModSetting<bool> _randomizeBreakthroughSkills, _preferPassiveBreakthroughs, _avoidChoiceBreakthroughs;
         static private ModSetting<bool> _treatWeaponMasterAsAdvanced;
         static private ModSetting<bool> _affectOnlyChosenOutputTrees;
         static private ModSetting<int> _seed;
@@ -195,6 +195,7 @@ namespace ModPack
             _equalizedTraits = CreateSetting(nameof(_equalizedTraits), EqualizedTraits.Count | EqualizedTraits.Types | EqualizedTraits.Levels);
             _randomizeBreakthroughSkills = CreateSetting(nameof(_randomizeBreakthroughSkills), false);
             _preferPassiveBreakthroughs = CreateSetting(nameof(_preferPassiveBreakthroughs), false);
+            _avoidChoiceBreakthroughs = CreateSetting(nameof(_avoidChoiceBreakthroughs), false);
             _treatWeaponMasterAsAdvanced = CreateSetting(nameof(_treatWeaponMasterAsAdvanced), false);
             _affectOnlyChosenOutputTrees = CreateSetting(nameof(_affectOnlyChosenOutputTrees), false);
 
@@ -314,7 +315,9 @@ namespace ModPack
             Indent++;
             {
                 _preferPassiveBreakthroughs.Format("prefer passives");
-                _preferPassiveBreakthroughs.Description = "The new breakthrough will be picked from PASSIVE advanced skills (if any have been assigned to the tree)";
+                _preferPassiveBreakthroughs.Description = "If possible, the new breakthrough will be a passive skill";
+                _avoidChoiceBreakthroughs.Format("avoid choices");
+                _avoidChoiceBreakthroughs.Description = "If possible, the new breakthrough will not be a choice between 2 skills";
                 Indent--;
             }
             _treatWeaponMasterAsAdvanced.Format("Treat weapon master as advanced", _theThreeBrothersInput, TheThreeBrothersInput.WeaponMaster);
@@ -352,6 +355,7 @@ namespace ModPack
                     _equalizedTraits.Value = (EqualizedTraits)~0 & ~EqualizedTraits.Choices;
                     _randomizeBreakthroughSkills.Value = true;
                     _preferPassiveBreakthroughs.Value = true;
+                    _avoidChoiceBreakthroughs.Value = true;
                     _treatWeaponMasterAsAdvanced.Value = true;
                     _affectOnlyChosenOutputTrees.Value = false;
                     _rerollOnGameStart.Value = true;
@@ -539,16 +543,24 @@ namespace ModPack
                 BaseSkillSlot breakthroughSlot = randomOutputTree.BreakthroughSkill;
                 if (_randomizeBreakthroughSkills)
                 {
-                    // Prefer passive
                     IEnumerable<BaseSkillSlot> potentialBreakthroughs = randomizedSlots.Where(slot => GetLevel(slot) == SlotLevel.Advanced);
                     if (potentialBreakthroughs.Any())
                     {
-                        if (_preferPassiveBreakthroughs)
-                        {
-                            IEnumerable<BaseSkillSlot> passiveBreakthroughs = potentialBreakthroughs.Where(slot => GetType(slot) == SlotType.Passive);
-                            if (passiveBreakthroughs.Any())
-                                potentialBreakthroughs = passiveBreakthroughs;
-                        }
+                        // Prefer passives & avoid choices
+                        IEnumerable<BaseSkillSlot> passives = _preferPassiveBreakthroughs
+                                                            ? potentialBreakthroughs.Where(slot => GetType(slot) == SlotType.Passive)
+                                                            : potentialBreakthroughs;
+                        IEnumerable<BaseSkillSlot> nonChoices = _avoidChoiceBreakthroughs
+                                                              ? potentialBreakthroughs.Where(slot => !IsChoice(slot))
+                                                              : potentialBreakthroughs;
+                        IEnumerable<BaseSkillSlot> intersection = passives.Intersect(nonChoices);
+                        if (intersection.Any())
+                            potentialBreakthroughs = intersection;
+                        else if (passives.Any())
+                            potentialBreakthroughs = passives;
+                        else if (nonChoices.Any())
+                            potentialBreakthroughs = nonChoices;
+
                         // Randomize
                         BaseSkillSlot randomAdvancedSlot = potentialBreakthroughs.ToArray().Random();
                         breakthroughSlot = CopySlot(randomAdvancedSlot);
