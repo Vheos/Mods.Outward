@@ -25,15 +25,10 @@ namespace ModPack
             Breakthrough = 2,
             Advanced = 3,
         }
-        private enum Formula
+        private enum FormulaType
         {
             Linear = 1,
             Exponential = 2,
-        }
-        private enum SkillsCountScope
-        {
-            Local = 1,
-            Global = 2,
         }
         #endregion
         #region class
@@ -60,25 +55,16 @@ namespace ModPack
         #endregion
 
         // Settings       
-        static private ModSetting<bool> _pricesToggle;
-        static private ModSetting<int> _pricesBasic, _pricesBreakthrough, _pricesAdvanced;
+        static private ModSetting<bool> _formulaToggle;
+        static private Dictionary<SlotLevel, ModSetting<Vector4>> _formulaCoeffsByLevel;
+        static private ModSetting<FormulaType> _formulaType;
         static private ModSetting<bool> _learnMutuallyExclusiveSkills;
         static private ModSetting<bool> _exclusiveSkillCostsTsar;
         static private ModSetting<int> _exclusiveSkillCostMultiplier;
-        static private ModSetting<bool> _customNonBasicSkillCosts;
-        static private Dictionary<SlotLevel, ModSetting<Vector4>> _priceCoeffsByLevel;
-        static private ModSetting<Formula> _formula;
-        static private ModSetting<SkillsCountScope> _skillsCountScope;
         override protected void Initialize()
         {
-            _pricesToggle = CreateSetting(nameof(_pricesToggle), false);
-            _pricesBasic = CreateSetting(nameof(_pricesBasic), 50, IntRange(0, 1000));
-            _pricesBreakthrough = CreateSetting(nameof(_pricesBreakthrough), 50, IntRange(0, 1000));
-            _pricesAdvanced = CreateSetting(nameof(_pricesAdvanced), 600, IntRange(0, 1000));
-            _learnMutuallyExclusiveSkills = CreateSetting(nameof(_learnMutuallyExclusiveSkills), false);
-            _exclusiveSkillCostsTsar = CreateSetting(nameof(_exclusiveSkillCostsTsar), false);
-            _exclusiveSkillCostMultiplier = CreateSetting(nameof(_exclusiveSkillCostMultiplier), 10, IntRange(0, 100));
-            _priceCoeffsByLevel = new Dictionary<SlotLevel, ModSetting<Vector4>>();
+            _formulaToggle = CreateSetting(nameof(_formulaToggle), false);
+            _formulaCoeffsByLevel = new Dictionary<SlotLevel, ModSetting<Vector4>>();
             foreach (var level in Utility.GetEnumValues<SlotLevel>())
             {
                 Vector4 initialPrice = Vector4.zero;
@@ -88,45 +74,27 @@ namespace ModPack
                     case SlotLevel.Breakthrough: initialPrice.x = 500; break;
                     case SlotLevel.Advanced: initialPrice.x = 600; break;
                 }
-                _priceCoeffsByLevel.Add(level, CreateSetting(nameof(_priceCoeffsByLevel) + level, initialPrice));
+                _formulaCoeffsByLevel.Add(level, CreateSetting(nameof(_formulaCoeffsByLevel) + level, initialPrice));
             }
-            _formula = CreateSetting(nameof(_formula), Formula.Linear);
-            _skillsCountScope = CreateSetting(nameof(_skillsCountScope), SkillsCountScope.Global);
+            _formulaType = CreateSetting(nameof(_formulaType), FormulaType.Linear);
+            _learnMutuallyExclusiveSkills = CreateSetting(nameof(_learnMutuallyExclusiveSkills), false);
+            _exclusiveSkillCostsTsar = CreateSetting(nameof(_exclusiveSkillCostsTsar), false);
+            _exclusiveSkillCostMultiplier = CreateSetting(nameof(_exclusiveSkillCostMultiplier), 10, IntRange(0, 100));
 
-            _customNonBasicSkillCosts = CreateSetting(nameof(_customNonBasicSkillCosts), false);
-            _skillRequirementsByTrainerName = new Dictionary<string, SkillRequirement>()
-            {
-                // Vanilla
-                ["Kazite Spellblade"] = new SkillRequirement("Old Legion Shield"),
-                ["Cabal Hermit"] = new SkillRequirement("Boiled Azure Shrimp", 4),
-                ["Wild Hunter"] = new SkillRequirement("Coralhorn Antler", 4),
-                ["Rune Sage"] = new SkillRequirement("Great Astral Potion", 8),
-                ["Warrior Monk"] = new SkillRequirement("Alpha Tuanosaur Tail"),
-                ["Philosopher"] = new SkillRequirement("Crystal Powder", 4),
-                ["Rogue Engineer"] = new SkillRequirement("Manticore Tail"),
-                ["Mercenary"] = new SkillRequirement("Gold Ingot", 2),
-                // DLC
-                ["The Speedster"] = null,
-                ["Hex Mage"] = null,
-                ["Primal Ritualist"] = null,
-                // No breakthrough
-                ["Specialist"] = null,
-                ["Weapon Master"] = null,
-            };
             _exclusiveSkillRequirement = new SkillRequirement("Tsar Stone");
         }
         override protected void SetFormatting()
         {
-            _pricesToggle.Format("Prices by skill level");
-            _pricesToggle.Description = "Define the price formula for skills of each level";
+            _formulaToggle.Format("Formulas");
+            _formulaToggle.Description = "Define a price formula for skills of each level";
             Indent++;
             {
-                foreach (var priceCoeffByLevel in _priceCoeffsByLevel)
-                    priceCoeffByLevel.Value.Format(priceCoeffByLevel.Key.ToString(), _pricesToggle);
-                _priceCoeffsByLevel[SlotLevel.Basic].Description = "below the breakthrough skill in a tree";
-                _priceCoeffsByLevel[SlotLevel.Advanced].Description = "above breakthrough in a tree";
-                _formula.Format("Formula", _pricesToggle);
-                _formula.Description = "Linear   -        X   +      Y x B     +      Z x C     +      W x D  \n" +
+                foreach (var priceCoeffByLevel in _formulaCoeffsByLevel)
+                    priceCoeffByLevel.Value.Format(priceCoeffByLevel.Key.ToString(), _formulaToggle);
+                _formulaCoeffsByLevel[SlotLevel.Basic].Description = "below the breakthrough skill in a tree";
+                _formulaCoeffsByLevel[SlotLevel.Advanced].Description = "above breakthrough in a tree";
+                _formulaType.Format("Type", _formulaToggle);
+                _formulaType.Description = "Linear   -        X   +      Y x B     +      Z x C     +      W x D  \n" +
                                        "Exponential   -   X  x  (1+Y%) ^ B  x  (1+Z%) ^ C  x  (1+W%) ^ D\n" +
                                        "where:\n" +
                                        "B   -   number of all unlocked skills\n" +
@@ -142,18 +110,6 @@ namespace ModPack
                 _exclusiveSkillCostMultiplier.Format("at normal price multiplied by", _exclusiveSkillCostsTsar, false);
                 Indent--;
             }
-
-            _customNonBasicSkillCosts.Format("[PERSONAL] Custom costs");
-            _customNonBasicSkillCosts.Description = "Learning breakthrough and advanced skills will require specific items, depending on the trainer:";
-            foreach (var skillRequirementByTrainerName in _skillRequirementsByTrainerName)
-            {
-                string trainer = skillRequirementByTrainerName.Key;
-                SkillRequirement requirement = skillRequirementByTrainerName.Value;
-                if (requirement != null)
-                    _customNonBasicSkillCosts.Description += $"\n{trainer}   -   {requirement.Amount}x {requirement.ItemName}";
-            }
-            _customNonBasicSkillCosts.IsAdvanced = true;
-
         }
         override protected string Description
         => "• Change skill trainers' prices\n" +
@@ -168,15 +124,15 @@ namespace ModPack
             {
                 case Presets.Preset.Vheos_CoopSurvival:
                     ForceApply();
-                    _pricesToggle.Value = true;
+                    _formulaToggle.Value = true;
                     {
-                        _pricesBasic.Value = 0;
-                        _pricesBreakthrough.Value = 0;
-                        _pricesAdvanced.Value = 0;
+                        _formulaCoeffsByLevel[SlotLevel.Basic].Value = new Vector4(0, 1, 1, 0);
+                        _formulaCoeffsByLevel[SlotLevel.Breakthrough].Value = new Vector4(100, 0, 0, 100);
+                        _formulaCoeffsByLevel[SlotLevel.Advanced].Value = new Vector4(0, 1, 1, 0);
+                        _formulaType.Value = FormulaType.Linear;
                     }
                     _learnMutuallyExclusiveSkills.Value = true;
                     _exclusiveSkillCostsTsar.Value = true;
-                    _customNonBasicSkillCosts.Value = false;
                     break;
             }
         }
@@ -203,12 +159,12 @@ namespace ModPack
         {
             // Cache
             CharacterSkillKnowledge characterSkills = character.Inventory.SkillKnowledge;
-            Vector4 coeffs = _priceCoeffsByLevel[GetLevel(slot)];
+            Vector4 coeffs = _formulaCoeffsByLevel[GetLevel(slot)];
             int allSkillsCount = characterSkills.m_activeSkillUIDs.Count + characterSkills.m_passiveSkillUIDs.Count;
             int currentSkillsCount = slot.ParentBranch.ParentTree.SkillSlots.Count(t => t.HasSkill(character));
             int breakthroughsCount = character.PlayerStats.m_usedBreakthroughCount;
 
-            float price = _formula == Formula.Linear
+            float price = _formulaType == FormulaType.Linear
                         ? coeffs.x + coeffs.y * allSkillsCount
                                    + coeffs.z * currentSkillsCount
                                    + coeffs.w * breakthroughsCount
@@ -242,7 +198,7 @@ namespace ModPack
             currencyLeft.text = inventory.ContainedSilver.ToString();
 
             // Price
-            if (_pricesToggle)
+            if (_formulaToggle)
                 slot.m_requiredMoney = GetPrice(__instance.LocalCharacter, slot);
 
             // Currency
@@ -270,3 +226,43 @@ namespace ModPack
         => !_learnMutuallyExclusiveSkills;
     }
 }
+
+/*
+static private ModSetting<bool> _customNonBasicSkillCosts;
+
+
+
+_customNonBasicSkillCosts = CreateSetting(nameof(_customNonBasicSkillCosts), false);
+_skillRequirementsByTrainerName = new Dictionary<string, SkillRequirement>()
+{
+    // Vanilla
+    ["Kazite Spellblade"] = new SkillRequirement("Old Legion Shield"),
+    ["Cabal Hermit"] = new SkillRequirement("Boiled Azure Shrimp", 4),
+    ["Wild Hunter"] = new SkillRequirement("Coralhorn Antler", 4),
+    ["Rune Sage"] = new SkillRequirement("Great Astral Potion", 8),
+    ["Warrior Monk"] = new SkillRequirement("Alpha Tuanosaur Tail"),
+    ["Philosopher"] = new SkillRequirement("Crystal Powder", 4),
+    ["Rogue Engineer"] = new SkillRequirement("Manticore Tail"),
+    ["Mercenary"] = new SkillRequirement("Gold Ingot", 2),
+    // DLC
+    ["The Speedster"] = null,
+    ["Hex Mage"] = null,
+    ["Primal Ritualist"] = null,
+    // No breakthrough
+    ["Specialist"] = null,
+    ["Weapon Master"] = null,
+};
+
+
+
+_customNonBasicSkillCosts.Format("[PERSONAL] Custom costs");
+_customNonBasicSkillCosts.Description = "Learning breakthrough and advanced skills will require specific items, depending on the trainer:";
+foreach (var skillRequirementByTrainerName in _skillRequirementsByTrainerName)
+{
+    string trainer = skillRequirementByTrainerName.Key;
+    SkillRequirement requirement = skillRequirementByTrainerName.Value;
+    if (requirement != null)
+        _customNonBasicSkillCosts.Description += $"\n{trainer}   -   {requirement.Amount}x {requirement.ItemName}";
+}
+_customNonBasicSkillCosts.IsAdvanced = true;
+*/
