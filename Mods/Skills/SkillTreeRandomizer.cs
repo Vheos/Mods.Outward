@@ -314,10 +314,10 @@ namespace ModPack
                                                        "Every tree will get a new breakthrough - chosen at random from all assigned advanced skills";
             Indent++;
             {
-                _preferPassiveBreakthroughs.Format("prefer passives");
+                _preferPassiveBreakthroughs.Format("prefer passives", _randomizeBreakthroughSkills);
                 _preferPassiveBreakthroughs.Description = "If possible, the new breakthrough will be a passive skill";
-                _avoidChoiceBreakthroughs.Format("avoid choices");
-                _avoidChoiceBreakthroughs.Description = "If possible, the new breakthrough will not be a choice between 2 skills";
+                _avoidChoiceBreakthroughs.Format("avoid choices", _randomizeBreakthroughSkills);
+                _avoidChoiceBreakthroughs.Description = "If possible, the new breakthrough won't be a choice between 2 skills";
                 Indent--;
             }
             _treatWeaponMasterAsAdvanced.Format("Treat weapon master as advanced", _theThreeBrothersInput, TheThreeBrothersInput.WeaponMaster);
