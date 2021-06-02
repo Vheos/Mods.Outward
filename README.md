@@ -28,7 +28,7 @@ tag me in [Outward](https://discord.com/invite/outward) -> `#outward-modding`
 or send me a DM on Discord - `Vheos#5865` :)
 
 # Credits:
-`Sinai`, `raphendyr`, `ehaugw`, `SpicerXD`, `IggyTheMad`, `Tau37`  
+`Sinai`, `raphendyr`, `ehaugw`, `SpicerXD`, `IggyTheMad`, `Tau37` , `Yansilv`
 and other passionate people in the [Outward Modding Community](https://discord.gg/zKyfGmy7TR) Discord server!  
 Love you all <3  
 
@@ -37,6 +37,11 @@ Love you all <3
 In the meantime, you can check out the [Nexus mod page](https://www.nexusmods.com/outward/mods/203) :)
 
 # Changelog:
+- **1.12.0**
+    - `Various`: added `Display prices in stash` setting
+    - `Tree Randomizer -> Randomize breakthroughs`:  added an option to avoid choices
+    - `SKILLS -> Prices`: reworked, now allows the user to define a formula (linear and exponential)
+    - *bugfix: `Various -> Craft from stash` was inconsistent because of incorrect quit condition*
 - **1.11.0**
     - moved some settings from `Various`, `Needs` and `Gamepad` into new mods - `Inns`, `Tools` and `Quickslots`
     - `Tools`: added `More gathering tools`, `Gathering tools durability cost` and `Chance to break Flint and Steel` settings
