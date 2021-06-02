@@ -25,6 +25,16 @@ namespace ModPack
             Breakthrough = 2,
             Advanced = 3,
         }
+        private enum Formula
+        {
+            Linear = 1,
+            Exponential = 2,
+        }
+        private enum SkillsCountScope
+        {
+            Local = 1,
+            Global = 2,
+        }
         #endregion
         #region class
         private class SkillRequirement
@@ -56,6 +66,9 @@ namespace ModPack
         static private ModSetting<bool> _exclusiveSkillCostsTsar;
         static private ModSetting<int> _exclusiveSkillCostMultiplier;
         static private ModSetting<bool> _customNonBasicSkillCosts;
+        static private Dictionary<SlotLevel, ModSetting<Vector4>> _priceCoeffsByLevel;
+        static private ModSetting<Formula> _formula;
+        static private ModSetting<SkillsCountScope> _skillsCountScope;
         override protected void Initialize()
         {
             _pricesToggle = CreateSetting(nameof(_pricesToggle), false);
@@ -65,6 +78,20 @@ namespace ModPack
             _learnMutuallyExclusiveSkills = CreateSetting(nameof(_learnMutuallyExclusiveSkills), false);
             _exclusiveSkillCostsTsar = CreateSetting(nameof(_exclusiveSkillCostsTsar), false);
             _exclusiveSkillCostMultiplier = CreateSetting(nameof(_exclusiveSkillCostMultiplier), 10, IntRange(0, 100));
+            _priceCoeffsByLevel = new Dictionary<SlotLevel, ModSetting<Vector4>>();
+            foreach (var level in Utility.GetEnumValues<SlotLevel>())
+            {
+                Vector4 initialPrice = Vector4.zero;
+                switch (level)
+                {
+                    case SlotLevel.Basic: initialPrice.x = 50; break;
+                    case SlotLevel.Breakthrough: initialPrice.x = 500; break;
+                    case SlotLevel.Advanced: initialPrice.x = 600; break;
+                }
+                _priceCoeffsByLevel.Add(level, CreateSetting(nameof(_priceCoeffsByLevel) + level, initialPrice));
+            }
+            _formula = CreateSetting(nameof(_formula), Formula.Linear);
+            _skillsCountScope = CreateSetting(nameof(_skillsCountScope), SkillsCountScope.Global);
 
             _customNonBasicSkillCosts = CreateSetting(nameof(_customNonBasicSkillCosts), false);
             _skillRequirementsByTrainerName = new Dictionary<string, SkillRequirement>()
@@ -91,13 +118,20 @@ namespace ModPack
         override protected void SetFormatting()
         {
             _pricesToggle.Format("Prices by skill level");
+            _pricesToggle.Description = "Define the price formula for skills of each level";
             Indent++;
             {
-                _pricesBasic.Format("Basic", _pricesToggle);
-                _pricesBasic.Description = "below breakthrough in a skill tree";
-                _pricesBreakthrough.Format("Breakthrough", _pricesToggle);
-                _pricesAdvanced.Format("Advanced", _pricesToggle);
-                _pricesAdvanced.Description = "above breakthrough in a skill tree";
+                foreach (var priceCoeffByLevel in _priceCoeffsByLevel)
+                    priceCoeffByLevel.Value.Format(priceCoeffByLevel.Key.ToString(), _pricesToggle);
+                _priceCoeffsByLevel[SlotLevel.Basic].Description = "below the breakthrough skill in a tree";
+                _priceCoeffsByLevel[SlotLevel.Advanced].Description = "above breakthrough in a tree";
+                _formula.Format("Formula", _pricesToggle);
+                _formula.Description = "Linear   -        X   +      Y x B     +      Z x C     +      W x D  \n" +
+                                       "Exponential   -   X  x  (1+Y%) ^ B  x  (1+Z%) ^ C  x  (1+W%) ^ D\n" +
+                                       "where:\n" +
+                                       "B   -   number of all unlocked skills\n" +
+                                       "C   -   number of unlocked skills at current trainer\n" +
+                                       "D   -   number of used breakthrough points";
                 Indent--;
             }
             _learnMutuallyExclusiveSkills.Format("Learn mutually exclusive skills");
@@ -165,6 +199,24 @@ namespace ModPack
                 default: return 0;
             }
         }
+        static private int GetPrice(Character character, SkillSlot slot)
+        {
+            // Cache
+            CharacterSkillKnowledge characterSkills = character.Inventory.SkillKnowledge;
+            Vector4 coeffs = _priceCoeffsByLevel[GetLevel(slot)];
+            int allSkillsCount = characterSkills.m_activeSkillUIDs.Count + characterSkills.m_passiveSkillUIDs.Count;
+            int currentSkillsCount = slot.ParentBranch.ParentTree.SkillSlots.Count(t => t.HasSkill(character));
+            int breakthroughsCount = character.PlayerStats.m_usedBreakthroughCount;
+
+            float price = _formula == Formula.Linear
+                        ? coeffs.x + coeffs.y * allSkillsCount
+                                   + coeffs.z * currentSkillsCount
+                                   + coeffs.w * breakthroughsCount
+                        : coeffs.x * coeffs.y.Div(100f).Add(1).Pow(allSkillsCount)
+                                   * coeffs.z.Div(100f).Add(1).Pow(currentSkillsCount)
+                                   * coeffs.w.Div(100f).Add(1).Pow(breakthroughsCount);
+            return price.Round();
+        }
 
         // Hooks
 #pragma warning disable IDE0051 // Remove unused private members
@@ -190,39 +242,25 @@ namespace ModPack
             currencyLeft.text = inventory.ContainedSilver.ToString();
 
             // Price
-            switch (GetLevel(slot))
-            {
-                case SlotLevel.Basic: slot.m_requiredMoney = _pricesBasic; break;
-                case SlotLevel.Breakthrough: slot.m_requiredMoney = _pricesBreakthrough; break;
-                case SlotLevel.Advanced: slot.m_requiredMoney = _pricesAdvanced; break;
-                default: break;
-            }
+            if (_pricesToggle)
+                slot.m_requiredMoney = GetPrice(__instance.LocalCharacter, slot);
 
             // Currency
-            bool isCustomAdvancedCurrency = _customNonBasicSkillCosts && GetLevel(slot) != SlotLevel.Basic;
-            bool isExclusive = _learnMutuallyExclusiveSkills && HasMutuallyExclusiveSkill(__instance.LocalCharacter, slot);
-
-            SkillRequirement skillRequirement = null;
-            if (isExclusive && _exclusiveSkillCostsTsar)
-                skillRequirement = _exclusiveSkillRequirement;
-            else if (isCustomAdvancedCurrency)
-                skillRequirement = _skillRequirementsByTrainerName[__instance.m_trainerTree.Name];
-
-            if (skillRequirement != null)
-            {
-                tree.AlternateCurrecy = skillRequirement.ItemID;
-                tree.AlternateCurrencyIcon = skillRequirement.Icon;
-                currencyIcon.overrideSprite = skillRequirement.Icon;
-                currencyIcon.rectTransform.pivot = ALTERNATE_CURRENCY_ICON_PIVOT;
-                currencyIcon.rectTransform.localScale = ALTERNATE_CURRENCY_ICON_SCALE;
-                currencyReqIcon.rectTransform.pivot = ALTERNATE_CURRENCY_ICON_PIVOT;
-                currencyReqIcon.rectTransform.localScale = ALTERNATE_CURRENCY_ICON_SCALE;
-                currencyLeft.text = inventory.ItemCount(skillRequirement.ItemID).ToString();
-                slot.m_requiredMoney = skillRequirement.Amount;
-            }
-
-            if (isExclusive && !_exclusiveSkillCostsTsar)
-                slot.m_requiredMoney *= _exclusiveSkillCostMultiplier;
+            if (_learnMutuallyExclusiveSkills && HasMutuallyExclusiveSkill(__instance.LocalCharacter, slot))
+                if (_exclusiveSkillCostsTsar)
+                {
+                    tree.AlternateCurrecy = SkillPrices._exclusiveSkillRequirement.ItemID;
+                    tree.AlternateCurrencyIcon = _exclusiveSkillRequirement.Icon;
+                    currencyIcon.overrideSprite = _exclusiveSkillRequirement.Icon;
+                    currencyIcon.rectTransform.pivot = ALTERNATE_CURRENCY_ICON_PIVOT;
+                    currencyIcon.rectTransform.localScale = ALTERNATE_CURRENCY_ICON_SCALE;
+                    currencyReqIcon.rectTransform.pivot = ALTERNATE_CURRENCY_ICON_PIVOT;
+                    currencyReqIcon.rectTransform.localScale = ALTERNATE_CURRENCY_ICON_SCALE;
+                    currencyLeft.text = inventory.ItemCount(_exclusiveSkillRequirement.ItemID).ToString();
+                    slot.m_requiredMoney = _exclusiveSkillRequirement.Amount;
+                }
+                else
+                    slot.m_requiredMoney *= _exclusiveSkillCostMultiplier;
 
             return true;
         }
