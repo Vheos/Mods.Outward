@@ -20,13 +20,23 @@ namespace ModPack
         #region const
         private const int DROP_ONE_ACTION_ID = -2;
         private const string DROP_ONE_ACTION_TEXT = "Drop one";
-        static private readonly Dictionary<AreaManager.AreaEnum, string> STASH_UID_BY_CITY = new Dictionary<AreaManager.AreaEnum, string>
+        static private readonly Dictionary<AreaManager.AreaEnum, string> STASH_UIDS_BY_CITY = new Dictionary<AreaManager.AreaEnum, string>
         {
             [AreaManager.AreaEnum.CierzoVillage] = "ImqRiGAT80aE2WtUHfdcMw",
             [AreaManager.AreaEnum.Berg] = "ImqRiGAT80aE2WtUHfdcMw",
             [AreaManager.AreaEnum.Monsoon] = "ImqRiGAT80aE2WtUHfdcMw",
             [AreaManager.AreaEnum.Levant] = "ZbPXNsPvlUeQVJRks3zBzg",
             [AreaManager.AreaEnum.Harmattan] = "ImqRiGAT80aE2WtUHfdcMw",
+            [AreaManager.AreaEnum.NewSirocco] = "IqUugGqBBkaOcQdRmhnMng",
+        };
+        static private readonly Dictionary<AreaManager.AreaEnum, string> SOROBOREAN_CARAVANNER_UIDS_BY_CITY = new Dictionary<AreaManager.AreaEnum, string>
+        {
+            [AreaManager.AreaEnum.CierzoVillage] = "G_GyAVjRWkq8e2L8WP4TgA",
+            [AreaManager.AreaEnum.Berg] = "-MSrkT502k63y3CV2j98TQ",
+            [AreaManager.AreaEnum.Monsoon] = "9GAbQm8Ekk23M0LohPF7dg",
+            [AreaManager.AreaEnum.Levant] = "Tbq1PxS_iUO6vhnr7aGUhg",
+            [AreaManager.AreaEnum.Harmattan] = "WN0BVRJwtE-goNLvproxgw",
+            [AreaManager.AreaEnum.NewSirocco] = "-MSrkT502k63y3CV2j98TQ",
         };
         private const float DEFAULT_ENEMY_HEALTH_RESET_HOURS = 24f;   // Character.HoursToHealthReset
         private const int ARMOR_TRAINING_ID = 8205220;
@@ -84,6 +94,7 @@ namespace ModPack
         static private ModSetting<float> _baseStaminaRegen;
         static private ModSetting<bool> _craftFromStash;
         static private ModSetting<bool> _displayStashAmount;
+        static private ModSetting<bool> _displayPricesInStash;
         static private ModSetting<bool> _itemActionDropOne;
         static private ModSetting<bool> _temperatureToggle;
         static private Dictionary<TemperatureSteps, ModSetting<Vector2>> _temperatureDataByEnum;
@@ -105,6 +116,7 @@ namespace ModPack
             _titleScreenHideCharacters = CreateSetting(nameof(_titleScreenHideCharacters), TitleScreenCharacterVisibility.Enable);
             _craftFromStash = CreateSetting(nameof(_craftFromStash), false);
             _displayStashAmount = CreateSetting(nameof(_displayStashAmount), false);
+            _displayPricesInStash = CreateSetting(nameof(_displayPricesInStash), false);
             _itemActionDropOne = CreateSetting(nameof(_displayStashAmount), false);
             _temperatureToggle = CreateSetting(nameof(_temperatureToggle), false);
             _temperatureDataByEnum = new Dictionary<TemperatureSteps, ModSetting<Vector2>>();
@@ -169,6 +181,9 @@ namespace ModPack
             _displayStashAmount.Format("Display stashed item amounts");
             _displayStashAmount.Description = "Displays how many of each items you have stored in your stash\n" +
                                               "(shows in player/merchant inventory and crafting menu)";
+            _displayPricesInStash.Format("Display prices in stash");
+            _displayPricesInStash.Description = "Items in stash will have their sell prices displayed\n" +
+                                                "(if prices vary among merchants, Soroborean Caravanner is taken as reference)";
             _itemActionDropOne.Format("Add \"Drop one\" item action");
             _itemActionDropOne.Description = "Adds a button to stacked items' which skips the \"choose amount\" panel and drops exactly 1 of the item\n" +
                                              "(recommended when playing co-op for quick item sharing)";
@@ -215,6 +230,7 @@ namespace ModPack
                     _loadArrowsFromInventory.Value = true;
                     _craftFromStash.Value = true;
                     _displayStashAmount.Value = true;
+                    _displayPricesInStash.Value = true;
                     _itemActionDropOne.Value = true;
                     _temperatureToggle.Value = true;
                     {
@@ -245,9 +261,22 @@ namespace ModPack
             {
                 if (_playerStash == null
                 && AreaManager.Instance.CurrentArea.TryAssign(out var currentArea)
-                && STASH_UID_BY_CITY.ContainsKey((AreaManager.AreaEnum)currentArea.ID))
-                    _playerStash = (TreasureChest)ItemManager.Instance.GetItem(STASH_UID_BY_CITY[(AreaManager.AreaEnum)currentArea.ID]);
+                && STASH_UIDS_BY_CITY.TryAssign((AreaManager.AreaEnum)currentArea.ID, out var uid))
+                    _playerStash = (TreasureChest)ItemManager.Instance.GetItem(uid);
                 return _playerStash;
+            }
+        }
+        static private Merchant _soroboreanCaravanner;
+        static private Merchant SoroboreanCaravanner
+        {
+            get
+            {
+                if (_soroboreanCaravanner == null
+                && AreaManager.Instance.CurrentArea.TryAssign(out var currentArea)
+                && SOROBOREAN_CARAVANNER_UIDS_BY_CITY.TryAssign((AreaManager.AreaEnum)currentArea.ID, out var uid)
+                && Merchant.m_sceneMerchants.ContainsKey(uid))
+                    _soroboreanCaravanner = Merchant.m_sceneMerchants[uid];
+                return _soroboreanCaravanner;
             }
         }
         static private bool ShouldArmorSlotBeHidden(EquipmentSlot.EquipmentSlotIDs slot)
@@ -326,6 +355,33 @@ namespace ModPack
 
         // Hooks
 #pragma warning disable IDE0051 // Remove unused private members
+        // Reset static scene data
+        [HarmonyPatch(typeof(NetworkLevelLoader), "UnPauseGameplay"), HarmonyPostfix]
+        static void NetworkLevelLoader_UnPauseGameplay_Post(NetworkLevelLoader __instance)
+        {
+            _playerStash = null;
+            _soroboreanCaravanner = null;
+        }
+
+        // Display prices in stash
+        [HarmonyPatch(typeof(ItemDisplay), "UpdateValueDisplay"), HarmonyPrefix]
+        static bool ItemDisplay_UpdateValueDisplay_Pre(ItemDisplay __instance)
+        {
+            #region quit
+            if (!_displayPricesInStash
+            || !__instance.CharacterUI.TryAssign(out var characterUI) || !characterUI.GetIsMenuDisplayed(CharacterUI.MenuScreens.Stash)
+            || !__instance.RefItem.TryAssign(out var item) || item.OwnerCharacter != null
+            || !__instance.m_lblValue.TryAssign(out var priceText)
+            || SoroboreanCaravanner == null)
+                return true;
+            #endregion
+
+            if (!__instance.m_valueHolder.activeSelf)
+                __instance.m_valueHolder.SetActive(true);
+            priceText.text = item.GetSellValue(characterUI.TargetCharacter, SoroboreanCaravanner).ToString();
+            return false;
+        }
+
         // Drop one
         [HarmonyPatch(typeof(ItemDisplayOptionPanel), "GetActiveActions"), HarmonyPostfix]
         static void ItemDisplayOptionPanel_GetActiveActions_Post(ItemDisplayOptionPanel __instance, ref List<int> __result)
@@ -371,7 +427,7 @@ namespace ModPack
         static void CharacterInventory_InventoryIngredients_Post(CharacterInventory __instance, Tag _craftingStationTag, ref DictionaryExt<int, CompatibleIngredient> _sortedIngredient)
         {
             #region quit
-            if (!_craftFromStash && PlayerStash != null)
+            if (!_craftFromStash || PlayerStash == null)
                 return;
             #endregion
 
@@ -390,10 +446,6 @@ namespace ModPack
         [HarmonyPatch(typeof(RecipeResultDisplay), "UpdateQuantityDisplay"), HarmonyPostfix]
         static void RecipeResultDisplay_UpdateQuantityDisplay_Post(RecipeResultDisplay __instance)
         => TryDisplayStashAmount(__instance);
-
-        [HarmonyPatch(typeof(NetworkLevelLoader), "UnPauseGameplay"), HarmonyPostfix]
-        static void NetworkLevelLoader_UnPauseGameplay_Post(NetworkLevelLoader __instance)
-        => _playerStash = null;
 
         // Override title screen
         [HarmonyPatch(typeof(TitleScreenLoader), "LoadTitleScreen", new[] { typeof(OTWStoreAPI.DLCs) }), HarmonyPrefix]
