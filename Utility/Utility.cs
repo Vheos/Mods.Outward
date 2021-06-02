@@ -114,11 +114,13 @@ namespace ModPack
             temp.DestroyObject();
         }
         static public Color Lerp3(Color a, Color b, Color c, float t)
-        {
-            if (t < 0.5f)
-                return Color.Lerp(a, b, t * 2);
-            return Color.Lerp(b, c, t * 2 - 1);
-        }
+        => t < 0.5f
+           ? Color.Lerp(a, b, t * 2)
+           : Color.Lerp(b, c, t * 2 - 1);
+        static public float Lerp3(float a, float b, float c, float t)
+        => t < 0.5f
+           ? Mathf.Lerp(a, b, t * 2)
+           : Mathf.Lerp(b, c, t * 2 - 1);
         static public IEnumerator CoroutineWaitUntilEndOfFrame(Action action)
         {
             yield return new WaitForEndOfFrame();
