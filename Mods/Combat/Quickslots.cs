@@ -19,7 +19,6 @@ namespace ModPack
                 [Weapon.WeaponType.Dagger_OH] = "Dagger Slash".SkillID(),
                 [Weapon.WeaponType.Pistol_OH] = "Fire/Reload".SkillID(),
                 [(Weapon.WeaponType)WeaponTypeExtended.Light] = "Throw Lantern".SkillID(),
-                [(Weapon.WeaponType)WeaponTypeExtended.Empty] = "Push Kick".SkillID(),
             },
 
             [SkillContext.BasicA] = new Dictionary<Weapon.WeaponType, int>
