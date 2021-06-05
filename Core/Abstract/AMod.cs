@@ -36,6 +36,7 @@ namespace ModPack
             typeof(Damage),
             typeof(Speed),
             typeof(Targeting),
+            typeof(AI),
             typeof(Traps),
             typeof(Quickslots),
 
