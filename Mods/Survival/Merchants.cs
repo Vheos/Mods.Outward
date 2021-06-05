@@ -172,7 +172,7 @@ namespace ModPack
             float relativeIncrease = price == 0 ? 0f : 1f;
             if (preRandomPrice != 0)
                 relativeIncrease = (float)price / preRandomPrice - 1f;
-            if (item.OwnerCharacter == null)
+            if (item.ParentContainer is MerchantPouch)
                 relativeIncrease *= -1;
 
             if (relativeIncrease == 0)
