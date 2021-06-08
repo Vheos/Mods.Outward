@@ -12,6 +12,11 @@ namespace ModPack
     public class SurvivalTools : AMod
     {
         #region const
+        static private readonly int[] TORCH_IDS = new[]
+        {
+            "Makeshift Torch".ItemID(),
+            "Ice-Flame Torch".ItemID(),
+        };
         private const string FLINT_AND_STEEL_BREAK_NOTIFICATION = "Flint and Steel broke!";
         private const int PRIMITIVE_SATCHEL_CAPACITY = 25;
         private const int TRADER_BACKPACK = 100;
@@ -23,6 +28,10 @@ namespace ModPack
         static private ModSetting<int> _chanceToBreakFlintAndSteel;
         static private ModSetting<int> _waterskinCapacity;
         static private ModSetting<Vector2> _remapBackpackCapacities;
+        static private ModSetting<float> _torchesTemperatureRadius;
+        static private ModSetting<bool> _torchesDecayOnGround;
+        static private ModSetting<int> _lightsIntensity;
+        static private ModSetting<bool> _twoPersonBeds;
         override protected void Initialize()
         {
             _moreGatheringTools = CreateSetting(nameof(_moreGatheringTools), false);
@@ -30,6 +39,10 @@ namespace ModPack
             _chanceToBreakFlintAndSteel = CreateSetting(nameof(_chanceToBreakFlintAndSteel), 0, IntRange(0, 100));
             _waterskinCapacity = CreateSetting(nameof(_waterskinCapacity), 5, IntRange(1, 18));
             _remapBackpackCapacities = CreateSetting(nameof(_remapBackpackCapacities), new Vector2(PRIMITIVE_SATCHEL_CAPACITY, TRADER_BACKPACK));
+            _torchesTemperatureRadius = CreateSetting(nameof(_torchesTemperatureRadius), 1f, FloatRange(0, 10));
+            _torchesDecayOnGround = CreateSetting(nameof(_torchesDecayOnGround), false);
+            _lightsIntensity = CreateSetting(nameof(_lightsIntensity), 100, IntRange(50, 200));
+            _twoPersonBeds = CreateSetting(nameof(_twoPersonBeds), false);
         }
         override protected void SetFormatting()
         {
@@ -48,6 +61,15 @@ namespace ModPack
             _remapBackpackCapacities.Description = "X   -   Primitive Satchel's capacity\n" +
                                                    "Y   -   Trader Backpack's capacity\n" +
                                                    "(all other backpacks will have their capacities scaled accordingly)";
+            _torchesTemperatureRadius.Format("Torches temperature radius");
+            _torchesTemperatureRadius.Description = "Increase to share a torch's temperature with your friend eaiser";
+            _torchesDecayOnGround.Format("Torches burn out on ground");
+            _torchesDecayOnGround.Description = "Normally, torches don't burn out when on ground, even if they are lit and provide temperature";
+            _lightsIntensity.Format("Lights intensity");
+            _lightsIntensity.Description = "Multiplies torches' and lanterns' lighting distance (in %)";
+            _twoPersonBeds.Format("Two-person beds");
+            _twoPersonBeds.Description = "All beds, tents and bedrolls will allow for 2 users at the same time";
+
         }
         override protected string Description
         => "• Allow gathering with more tools\n" +
@@ -70,6 +92,10 @@ namespace ModPack
                     _chanceToBreakFlintAndSteel.Value = 25;
                     _moreGatheringTools.Value = true;
                     _gatheringDurabilityCost.Value = new Vector2(15, 3);
+                    _torchesTemperatureRadius.Value = 5;
+                    _torchesDecayOnGround.Value = true;
+                    _lightsIntensity.Value = 133;
+                    _twoPersonBeds.Value = true;
                     break;
             }
         }
@@ -179,6 +205,46 @@ namespace ModPack
 
             __result = __result.Map(PRIMITIVE_SATCHEL_CAPACITY, TRADER_BACKPACK,
                                     _remapBackpackCapacities.Value.x, _remapBackpackCapacities.Value.y).Round();
+        }
+
+        // Torches temperature radius
+        [HarmonyPatch(typeof(TemperatureSource), "Start"), HarmonyPostfix]
+        static void TemperatureSource_Start_Post(TemperatureSource __instance)
+        {
+            #region quit
+            if (!__instance.m_item.TryAssign(out var item) || item.ItemID.IsNotContainedIn(TORCH_IDS))
+                return;
+            #endregion
+
+            __instance.DistanceRanges = new List<Vector2> { new Vector2(0, _torchesTemperatureRadius) };
+            __instance.m_maxDistance = _torchesTemperatureRadius;
+            if (TemperatureSource.BiggestRangeInScene < _torchesTemperatureRadius)
+                TemperatureSource.BiggestRangeInScene = _torchesTemperatureRadius;
+            __instance.m_temperatureCollider.As<SphereCollider>().radius = _torchesTemperatureRadius;
+            item.PerishScript.DontPerishInWorld = !_torchesDecayOnGround;
+            return;
+        }
+
+        // Lights intensity
+        [HarmonyPatch(typeof(ItemLanternVisual), "Awake"), HarmonyPostfix]
+        static void ItemLanternVisual_Awake_Post(ItemLanternVisual __instance)
+        {
+            float modifier = _lightsIntensity / 100f;
+            __instance.LanternLight.range *= modifier;
+        }
+
+        // Tents capacity
+        [HarmonyPatch(typeof(Sleepable), "RequestSleepableRoom"), HarmonyPrefix]
+        static bool Sleepable_RequestSleepableRoom_Pre(Sleepable __instance)
+        {
+            #region quit
+            if (!_twoPersonBeds || Global.Lobby.PlayersInLobbyCount <= 1)
+                return true;
+            #endregion
+
+            __instance.Capacity = 2;
+            __instance.CharAnimOffset.SetX(0.2f * (__instance.m_occupants.Count == 0 ? -1f : +1f));
+            return true;
         }
     }
 }
