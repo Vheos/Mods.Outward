@@ -4,8 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using BepInEx.Configuration;
 using HarmonyLib;
-
-
+using System.Collections;
 
 namespace ModPack
 {
@@ -46,9 +45,9 @@ namespace ModPack
         static private ModSetting<int> _changeTargetOnHit;
         static private ModSetting<int> _walkTowardsPlayerOnSpawn;
         static private ModSetting<bool> _changeTargetWhenTooFar;
-        static private ModSetting<float> _changeInterval;
-        static private ModSetting<float> _changeMinimumDistance;
-        static private ModSetting<float> _changeFarToNearRatio;
+        static private ModSetting<int> _changeTargetChancePerSecond;
+        static private ModSetting<float> _changeTargetCurrentToNearestRatio;
+        static private ModSetting<bool> _changeTargetDetectAllPlayers;
         override protected void Initialize()
         {
             _enemyDetectionModifier = CreateSetting(nameof(_enemyDetectionModifier), 0, IntRange(-100, +100));
@@ -56,10 +55,9 @@ namespace ModPack
             _changeTargetOnHit = CreateSetting(nameof(_changeTargetOnHit), 50, IntRange(0, 100));
             _walkTowardsPlayerOnSpawn = CreateSetting(nameof(_walkTowardsPlayerOnSpawn), 50, IntRange(0, 100));
             _changeTargetWhenTooFar = CreateSetting(nameof(_changeTargetWhenTooFar), false);
-
-            _changeInterval = CreateSetting(nameof(_changeInterval), 2f, FloatRange(0.1f, 10f));
-            _changeMinimumDistance = CreateSetting(nameof(_changeMinimumDistance), 1f, FloatRange(HUMAN_COLLISION_RADIUS * 2, 5f));
-            _changeFarToNearRatio = CreateSetting(nameof(_changeFarToNearRatio), 2f, FloatRange(1f, 5f));
+            _changeTargetChancePerSecond = CreateSetting(nameof(_changeTargetChancePerSecond), 50, IntRange(0, 100));
+            _changeTargetDetectAllPlayers = CreateSetting(nameof(_changeTargetDetectAllPlayers), false);
+            _changeTargetCurrentToNearestRatio = CreateSetting(nameof(_changeTargetCurrentToNearestRatio), 2f, FloatRange(1f, 5f));
         }
         override protected void SetFormatting()
         {
@@ -80,11 +78,16 @@ namespace ModPack
             _walkTowardsPlayerOnSpawn.Description = "Chance that enemies will walk in the nearest player's direction when spawned";
 
             _changeTargetWhenTooFar.Format("Change target when too far");
+            _changeTargetWhenTooFar.Description = "When enemy's current target retreats too far, the enemy will change to a closer one\n" +
+                                                  "Only characters that have been detected or attacked the enemy are taken into account";
             Indent++;
             {
-                _changeInterval.Format("Interval", _changeTargetWhenTooFar);
-                _changeMinimumDistance.Format("Minimum distance", _changeTargetWhenTooFar);
-                _changeFarToNearRatio.Format("Minimum ratio", _changeTargetWhenTooFar);
+                _changeTargetChancePerSecond.Format("Chance per second", _changeTargetWhenTooFar);
+                _changeTargetChancePerSecond.Description = "at 100%, enemies will try to change target every second";
+                _changeTargetCurrentToNearestRatio.Format("Minimum target-nearest ratio", _changeTargetWhenTooFar);
+                _changeTargetCurrentToNearestRatio.Description = "Enemies will try to change target only if their current target is this many times further away then their nearest attacker";
+                _changeTargetDetectAllPlayers.Format("Detect all players");
+                _changeTargetDetectAllPlayers.Description = "When enemies detect any player, they will become aware of other players as well";
                 Indent--;
             }
         }
@@ -98,11 +101,64 @@ namespace ModPack
                     ForceApply();
                     _enemyDetectionModifier.Value = +33;
                     _preventInfighting.Value = (TargetingGroups)~0;
+                    _changeTargetOnHit.Value = 0;
+                    _walkTowardsPlayerOnSpawn.Value = 0;
+                    _changeTargetWhenTooFar.Value = true;
+                    _changeTargetChancePerSecond.Value = 50;
+                    _changeTargetCurrentToNearestRatio.Value = 1.5f;
+                    _changeTargetDetectAllPlayers.Value = true;
                     break;
             }
         }
 
         // Utility
+        static public void TryRetarget(CharacterAI ai)
+        {
+            Character enemy = ai.Character;
+            var lastAttackers = enemy.m_lastDealers;
+            //Tools.Log($"{enemy.Name} - enemies:  {lastAttackers.Count}");
+
+            if (lastAttackers.Count <= 1
+            || UnityEngine.Random.value > _changeTargetChancePerSecond / 100f)
+                return;
+
+            float currentDistance = enemy.DistanceTo(enemy.TargetingSystem.LockedCharacter);
+            float nearestDistance = float.MaxValue;
+            Character nearestAttacker = null;
+            foreach (var attackerData in lastAttackers)
+                if (CharacterManager.Instance.GetCharacter(attackerData.Key).TryAssign(out var attacker))
+                {
+                    float distance = enemy.DistanceTo(attacker);
+                    if (distance < nearestDistance)
+                    {
+                        nearestDistance = distance;
+                        nearestAttacker = attacker;
+                    }
+                }
+
+            //Tools.Log($"{enemy.Name} - distance: {currentDistance:F2} / {nearestDistance:F2} = {currentDistance / nearestDistance:F2}");
+            if (currentDistance / nearestDistance >= _changeTargetCurrentToNearestRatio)
+            {
+                //Tools.Log($"\tswitching to {nearestAttacker.Name}");
+                enemy.TargetingSystem.SwitchTarget(nearestAttacker.LockingPoint);
+            }
+        }
+        static public IEnumerator TryRetargetCoroutine(CharacterAI ai)
+        {
+            //Tools.Log($"{ai.name} - START");
+            while (true)
+            {
+                if (ai.Character.IsDead || ai.Character.IsPetrified
+                || ai.CurrentAiState.IsNotAny<AISCombatMelee, AISCombatRanged>())
+                {
+                    //Tools.Log($"{ai.name} - STOP");
+                    yield break;
+                }
+
+                TryRetarget(ai);
+                yield return new WaitForSeconds(1f);
+            }
+        }
 
         // Hooks
 #pragma warning disable IDE0051 // Remove unused private members
@@ -176,10 +232,54 @@ namespace ModPack
 
         [HarmonyPatch(typeof(AISquadSpawnPoint), "SpawnSquad"), HarmonyPrefix]
         static void AISquadSpawnPoint_SpawnSquad_Pre(AISquadSpawnPoint __instance)
-        => __instance.ChanceToWanderTowardsPlayers = _changeTargetOnHit;
+        => __instance.ChanceToWanderTowardsPlayers = _walkTowardsPlayerOnSpawn;
 
         [HarmonyPatch(typeof(AICEnemyDetection), "Init"), HarmonyPrefix]
         static void AICEnemyDetection_Init_Pre(AICEnemyDetection __instance)
-        => __instance.ChanceToSwitchTargetOnHurt = _walkTowardsPlayerOnSpawn;
+        => __instance.ChanceToSwitchTargetOnHurt = _changeTargetOnHit;
+
+        // Change target when far
+        [HarmonyPatch(typeof(CharacterAI), "SwitchAiState"), HarmonyPostfix]
+        static void CharacterAI_SwitchAiState_Post(CharacterAI __instance)
+        {
+            #region quit
+            if (!_changeTargetWhenTooFar)
+                return;
+            #endregion
+
+            AIState previousState = __instance.AiStates[__instance.m_previousStateID];
+            AIState currentState = __instance.AiStates[__instance.m_currentStateID];
+
+            // Entered combat
+            if (previousState.IsNotAny<AISCombatMelee, AISCombatRanged>()
+            && currentState.IsAny<AISCombatMelee, AISCombatRanged>())
+                __instance.StartCoroutine(TryRetargetCoroutine(__instance));
+
+            // Quit combat
+            else if (previousState.IsAny<AISCombatMelee, AISCombatRanged>()
+            && currentState.IsNotAny<AISCombatMelee, AISCombatRanged>())
+                __instance.Character.m_lastDealers.Clear();
+        }
+
+        [HarmonyPatch(typeof(AICEnemyDetection), "Detected"), HarmonyPostfix]
+        static void AICEnemyDetection_Detected_Post(AICEnemyDetection __instance, LockingPoint _point)
+        {
+            #region quit
+            if (!_changeTargetWhenTooFar || !_point.OwnerChar.TryAssign(out var target))
+                return;
+            #endregion
+
+            Character enemy = __instance.m_characterAI.Character;
+            enemy.AddLastDealer(target.UID);
+            if (_changeTargetDetectAllPlayers && target.IsPlayer())
+                foreach (var player in Players.Local)
+                    enemy.AddLastDealer(player.Character.UID);
+        }
     }
 }
+
+/*
+ *         static private ModSetting<float> _changeMinimumDistance;
+        _changeMinimumDistance = CreateSetting(nameof(_changeMinimumDistance), 1f, FloatRange(HUMAN_COLLISION_RADIUS* 2, 5f));
+            _changeMinimumDistance.Format("Minimum distance", _changeTargetWhenTooFar);
+*/
