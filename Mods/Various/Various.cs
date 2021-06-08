@@ -344,16 +344,15 @@ namespace ModPack
             if (stashAmount <= 0)
                 return;
 
-            int amount = itemDisplay.m_lastQuantity;
-            if (itemDisplay is RecipeResultDisplay)
-                amount = itemDisplay.StackCount;
+            if (itemDisplay.IsNot<RecipeResultDisplay>())
+                quantity.text = itemDisplay.m_lastQuantity.ToString();
             else if (itemDisplay.m_dBarUses.TryAssign(out var dotBar) && dotBar.GOActive())
-                amount = 1;
+                quantity.text = "1";
 
             int fontSize = (quantity.fontSize * 0.75f).Round();
             quantity.alignment = TextAnchor.UpperRight;
             quantity.lineSpacing = 0.75f;
-            quantity.text = $"{amount}\n<color=#00FF00FF><size={fontSize}><b>+{stashAmount}</b></size></color>";
+            quantity.text += $"\n<color=#00FF00FF><size={fontSize}><b>+{stashAmount}</b></size></color>";
         }
 
         // Hooks
