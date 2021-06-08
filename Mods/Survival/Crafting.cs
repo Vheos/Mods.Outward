@@ -314,7 +314,8 @@ namespace ModPack
                 return true;
             #endregion
 
-            __instance.m_lblQuantity.text = GetModifiedResultsAmount(__instance.m_result).ToString();
+            int amount = GetModifiedResultsAmount(__instance.m_result);
+            __instance.m_lblQuantity.text = amount > 0 ? amount.ToString() : "";
             return false;
         }
     }
