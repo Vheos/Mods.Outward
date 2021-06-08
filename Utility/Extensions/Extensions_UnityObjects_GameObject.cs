@@ -142,16 +142,16 @@ namespace ModPack
         /// <summary> Returns the direction from this object towards a. </summary>
         static public Vector3 DirectionTowards(this GameObject t, Component a)
         => t.DirectionTowards(a.gameObject);
-        /// <summary> Returns the direction from a towards this vector. </summary>
+        /// <summary> Returns the direction from a towards this object. </summary>
         static public Vector3 DirectionAwayFrom(this GameObject t, GameObject a)
         => t.transform.position.DirectionAwayFrom(a.transform.position);
-        /// <summary> Returns the direction from a towards this vector. </summary>
+        /// <summary> Returns the direction from a towards this object. </summary>
         static public Vector3 DirectionAwayFrom(this GameObject t, Component a)
         => t.DirectionAwayFrom(a.gameObject);
-        /// <summary> Returns the distance between this vector and a. </summary>
+        /// <summary> Returns the distance between this object and a. </summary>
         static public float DistanceTo(this GameObject t, GameObject a)
         => t.transform.position.DistanceTo(a.transform.position);
-        /// <summary> Returns the distance between this vector and a. </summary>
+        /// <summary> Returns the distance between this object and a. </summary>
         static public float DistanceTo(this GameObject t, Component a)
         => t.DistanceTo(a.gameObject);
 
