@@ -257,7 +257,7 @@ namespace ModPack
         static void CraftingMenu_IngredientSelectorHasChanged_Post(CraftingMenu __instance, int _selectorIndex, int _itemID)
         {
             #region quit
-            if (!_limitedManualCrafting || _selectorIndex != 0)
+            if (!_limitedManualCrafting || __instance.m_lastRecipeIndex >= 0)
                 return;
             #endregion
 
