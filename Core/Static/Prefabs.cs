@@ -111,6 +111,9 @@ namespace ModPack
             ["Flint and Steel"] = 5600010,
             ["Fishing Harpoon"] = 2130130,
             ["Mining Pick"] = 2120050,
+
+            ["Makeshift Torch"] = 5100060,
+            ["Ice-Flame Torch"] = 5100070,
         };
         static public readonly Dictionary<string, int> SkillIDsByName = new Dictionary<string, int>
         {
