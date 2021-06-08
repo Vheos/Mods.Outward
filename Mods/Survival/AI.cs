@@ -42,8 +42,8 @@ namespace ModPack
         // Settings
         static private ModSetting<int> _enemyDetectionModifier;
         static private ModSetting<TargetingGroups> _preventInfighting;
-        static private ModSetting<int> _changeTargetOnHit;
         static private ModSetting<int> _walkTowardsPlayerOnSpawn;
+        static private ModSetting<int> _changeTargetOnHit;
         static private ModSetting<bool> _changeTargetWhenTooFar;
         static private ModSetting<int> _changeTargetChancePerSecond;
         static private ModSetting<float> _changeTargetCurrentToNearestRatio;
@@ -71,15 +71,14 @@ namespace ModPack
                                              "\n" +
                                              "Hostile monsters\n" +
                                              "most hostile monsters (mantises, hive lords, assassin bugs) will ignore each other";
+            _walkTowardsPlayerOnSpawn.Format("Walk towards player on spawn");
+            _walkTowardsPlayerOnSpawn.Description = "Chance that enemies will walk in the nearest player's direction when spawned";
             _changeTargetOnHit.Format("Change target on hit");
             _changeTargetOnHit.Description = "Chance that enemies will target the most recent attacker\n" +
                                              "at 0%, enemies will never change their first targets";
-            _walkTowardsPlayerOnSpawn.Format("Walk towards player on spawn");
-            _walkTowardsPlayerOnSpawn.Description = "Chance that enemies will walk in the nearest player's direction when spawned";
-
             _changeTargetWhenTooFar.Format("Change target when too far");
             _changeTargetWhenTooFar.Description = "When enemy's current target retreats too far, the enemy will change to a closer one\n" +
-                                                  "Only characters that have been detected or attacked the enemy are taken into account";
+                                                  "Only detected characters and actual attackers are taken into account";
             Indent++;
             {
                 _changeTargetChancePerSecond.Format("Chance per second", _changeTargetWhenTooFar);
