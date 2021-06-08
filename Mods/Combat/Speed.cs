@@ -96,7 +96,7 @@ namespace ModPack
                     _gameToggle.Value = true;
                     {
                         _defaultGameSpeed.Value = 90;
-                        _speedHackMultiplier.Value = 300;
+                        _speedHackMultiplier.Value = 250;
                         _speedHackKey.Value = KeyCode.Keypad1.ToString();
                     }
                     _playersToggle.Value = true;

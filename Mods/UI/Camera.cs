@@ -224,7 +224,7 @@ namespace ModPack
                             {
                                 settings._variousMin.Value = new Vector3(60, 2, 1);
                                 settings._variousAvg.Value = new Vector3(50, 6, 1);
-                                settings._variousMax.Value = new Vector3(40, 18, 0.8f);
+                                settings._variousMax.Value = new Vector3(25, 18, 0.4f);
                             }
                         }
                     }

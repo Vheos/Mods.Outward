@@ -136,7 +136,7 @@ namespace ModPack
                     ForceApply();
                     _contextualSkillQuickslots.Value = true;
                     _replaceQuickslotsOnEquip.Value = true;
-                    _assingByUsingFreeQuickslot.Value = true;
+                    _assingByUsingFreeQuickslot.Value = false;
                     _extraGamepadQuickslots.Value = true;
                     break;
             }
