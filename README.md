@@ -28,7 +28,7 @@ tag me in [Outward](https://discord.com/invite/outward) -> `#outward-modding`
 or send me a DM on Discord - `Vheos#5865` :)
 
 # Credits:
-`Sinai`, `raphendyr`, `ehaugw`, `SpicerXD`, `IggyTheMad`, `Tau37` , `Yansilv`
+`Sinai`, `raphendyr`, `ehaugw`, `SpicerXD`, `IggyTheMad`, `Tau37`, `Yansilv`  
 and other passionate people in the [Outward Modding Community](https://discord.gg/zKyfGmy7TR) Discord server!  
 Love you all <3  
 
@@ -38,15 +38,21 @@ In the meantime, you can check out the [Nexus mod page](https://www.nexusmods.co
 
 # Changelog:
 - **1.12.0**
+    - added `AI` mod with new `Enemy detection modifier`, `Prevent infighting between`, `Change target on hit`, `Walk towards player on spawn`, and `Change target when too far` settings
+    - moved some settings from `Various` into the new `AI` mod
     - `Various`: added `Display prices in stash` setting
+    - `Tools`: added `Torches temperature radius`, `Torches burn out on ground`, `Lights intensity` and `Two-person beds` settings
     - `Tree Randomizer -> Randomize breakthroughs`:  added an option to avoid choices
     - `SKILLS -> Prices`: reworked, now allows the user to define a formula (linear and exponential)
     - *bugfix: `Various -> Craft from stash` was inconsistent because of incorrect quit condition*
+    - *bugfix: `Various -> Display stashed item amounts` made recipes display wrong results amount*
+    - *bugfix: `Crafting -> Limited manual crafting` removed the other 3 ingredient slots when swapping the first ingredient of a learned recipe*
+    - *bugfix: `Quickslots -> Contextual skills` always replaced Push Kick with a corresponding innate skill when equipping offhand
 - **1.11.0**
-    - moved some settings from `Various`, `Needs` and `Gamepad` into new mods - `Inns`, `Tools` and `Quickslots`
-    - `Tools`: added `More gathering tools`, `Gathering tools durability cost` and `Chance to break Flint and Steel` settings
-    - `Quickslots`: added `Contextual skills`, `Replace quickslots on equip` and `Assign by using free quickslot` settings
-    - `Various`: added  `Randomize title screen`, `Craft with stash items`, `Display stashed item amounts` and `Add "Drop one" item action` settings
+    - added `Tools` mod with `More gathering tools`, `Gathering tools durability cost` and `Chance to break Flint and Steel` settings
+    - added `Quickslots` mod with `Contextual skills`, `Replace quickslots on equip` and `Assign by using free quickslot` settings
+    - added `Various` mod with `Randomize title screen`, `Craft with stash items`, `Display stashed item amounts` and `Add "Drop one" item action` settings
+    - moved some settings from `Various`, `Needs` and `Gamepad` into the new `Inns`, `Tools` and `Quickslots` mods
     - removed `Various` section and moved `Various` mod to the top of the mods list
     - *bugfix: `Various -> Inn rent duration` was initialized too early to take effect*
     - *bugfix: `Tree Randomizer` mod was tagged with IDevelopmentOnly and didn't appear in the mods list*
