@@ -267,8 +267,12 @@ namespace ModPack
         }
         static public bool Is<T>(this object t)
         => t is T;
+        static public bool IsAny<T1, T2>(this object t)
+        => t.Is<T1>() || t.Is<T2>();
         static public bool IsNot<T>(this object t)
         => !t.Is<T>();
+        static public bool IsNotAny<T1, T2>(this object t)
+        => t.IsNot<T1>() && t.IsNot<T2>();
         static public bool IsAssignableTo<T>(this Type t)
         => typeof(T).IsAssignableFrom(t);
         static public bool IsNotAssignableTo<T>(this Type t)
