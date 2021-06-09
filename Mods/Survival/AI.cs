@@ -45,7 +45,8 @@ namespace ModPack
         static private ModSetting<int> _walkTowardsPlayerOnSpawn;
         static private ModSetting<int> _changeTargetOnHit;
         static private ModSetting<bool> _changeTargetWhenTooFar;
-        static private ModSetting<int> _changeTargetChancePerSecond;
+        static private ModSetting<int> _changeTargetCheckFrequency;
+        static private ModSetting<int> _changeTargetChancePerCheck;
         static private ModSetting<float> _changeTargetCurrentToNearestRatio;
         static private ModSetting<bool> _changeTargetDetectAllPlayers;
         override protected void Initialize()
@@ -55,9 +56,10 @@ namespace ModPack
             _changeTargetOnHit = CreateSetting(nameof(_changeTargetOnHit), 50, IntRange(0, 100));
             _walkTowardsPlayerOnSpawn = CreateSetting(nameof(_walkTowardsPlayerOnSpawn), 50, IntRange(0, 100));
             _changeTargetWhenTooFar = CreateSetting(nameof(_changeTargetWhenTooFar), false);
-            _changeTargetChancePerSecond = CreateSetting(nameof(_changeTargetChancePerSecond), 50, IntRange(0, 100));
-            _changeTargetDetectAllPlayers = CreateSetting(nameof(_changeTargetDetectAllPlayers), false);
-            _changeTargetCurrentToNearestRatio = CreateSetting(nameof(_changeTargetCurrentToNearestRatio), 2f, FloatRange(1f, 5f));
+            _changeTargetCheckFrequency = CreateSetting(nameof(_changeTargetCheckFrequency), 2, IntRange(1, 10));
+            _changeTargetChancePerCheck = CreateSetting(nameof(_changeTargetChancePerCheck), 25, IntRange(1, 100));
+            _changeTargetCurrentToNearestRatio = CreateSetting(nameof(_changeTargetCurrentToNearestRatio), 1.5f, FloatRange(1f, 5f));
+            _changeTargetDetectAllPlayers = CreateSetting(nameof(_changeTargetDetectAllPlayers), true);
         }
         override protected void SetFormatting()
         {
@@ -81,11 +83,13 @@ namespace ModPack
                                                   "Only detected characters and actual attackers are taken into account";
             Indent++;
             {
-                _changeTargetChancePerSecond.Format("Chance per second", _changeTargetWhenTooFar);
-                _changeTargetChancePerSecond.Description = "at 100%, enemies will try to change target every second";
+                _changeTargetCheckFrequency.Format("Check frequency", _changeTargetWhenTooFar);
+                _changeTargetCheckFrequency.Description = "How many times per second should the enemy try to change target";
+                _changeTargetChancePerCheck.Format("Chance per check", _changeTargetWhenTooFar);
+                _changeTargetChancePerCheck.Description = "at 100%, enemies will try to change target every second";
                 _changeTargetCurrentToNearestRatio.Format("Minimum target-nearest ratio", _changeTargetWhenTooFar);
                 _changeTargetCurrentToNearestRatio.Description = "Enemies will try to change target only if their current target is this many times further away then their nearest attacker";
-                _changeTargetDetectAllPlayers.Format("Detect all players");
+                _changeTargetDetectAllPlayers.Format("Detect all players", _changeTargetWhenTooFar);
                 _changeTargetDetectAllPlayers.Description = "When enemies detect any player, they will become aware of other players as well";
                 Indent--;
             }
@@ -103,7 +107,8 @@ namespace ModPack
                     _changeTargetOnHit.Value = 0;
                     _walkTowardsPlayerOnSpawn.Value = 0;
                     _changeTargetWhenTooFar.Value = true;
-                    _changeTargetChancePerSecond.Value = 50;
+                    _changeTargetCheckFrequency.Value = 2;
+                    _changeTargetChancePerCheck.Value = 25;
                     _changeTargetCurrentToNearestRatio.Value = 1.5f;
                     _changeTargetDetectAllPlayers.Value = true;
                     break;
@@ -118,7 +123,7 @@ namespace ModPack
             //Tools.Log($"{enemy.Name} - enemies:  {lastAttackers.Count}");
 
             if (lastAttackers.Count <= 1
-            || UnityEngine.Random.value > _changeTargetChancePerSecond / 100f)
+            || UnityEngine.Random.value > _changeTargetChancePerCheck / 100f)
                 return;
 
             float currentDistance = enemy.DistanceTo(enemy.TargetingSystem.LockedCharacter);
@@ -155,7 +160,7 @@ namespace ModPack
                 }
 
                 TryRetarget(ai);
-                yield return new WaitForSeconds(1f);
+                yield return new WaitForSeconds(1f / _changeTargetCheckFrequency);
             }
         }
 
