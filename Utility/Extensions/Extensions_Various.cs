@@ -18,6 +18,8 @@ namespace ModPack
         // Game
         static public bool IsPlayer(this Character character)
         => character.PlayerStats != null;
+        static public bool IsAlly(this Character character)
+        => character.Faction == Character.Factions.Player;
         static public bool IsEnemy(this Character character)
         => character.IsEnemyOf(Character.Factions.Player);
         static public bool IsEnemyOf(this Character character, Character.Factions faction)

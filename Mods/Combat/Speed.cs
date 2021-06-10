@@ -146,7 +146,7 @@ namespace ModPack
                 return true;
             #endregion
 
-            if (_playersToggle && character.IsPlayer())
+            if (_playersToggle && character.IsAlly())
                 character.Animator.speed = _playersAnimationSpeed / 100f;
             else if (_enemiesToggle && character.IsEnemy())
                 character.Animator.speed = _enemiesAnimationSpeed / 100f;
@@ -167,7 +167,7 @@ namespace ModPack
         static void CharacterStats_MovementSpeed_Getter_Post(CharacterStats __instance, ref float __result)
         {
             Character character = __instance.m_character;
-            if (_playersToggle && character.IsPlayer())
+            if (_playersToggle && character.IsAlly())
                 __result *= _playersMovementSpeed / 100f;
             else if (_enemiesToggle && character.IsEnemy())
                 __result *= _enemiesMovementSpeed / 100f;
@@ -177,7 +177,7 @@ namespace ModPack
         static void Weapon_GetAttackSpeed_Post(Weapon __instance, ref float __result)
         {
             Character owner = __instance.OwnerCharacter;
-            if (_playersToggle && owner.IsPlayer())
+            if (_playersToggle && owner.IsAlly())
                 __result *= _playersAttackSpeed / 100f;
             else if (_enemiesToggle && owner.IsEnemy())
                 __result *= _enemiesAttackSpeed / 100f;

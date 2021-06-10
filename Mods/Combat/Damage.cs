@@ -120,7 +120,7 @@ namespace ModPack
                 return;
             #endregion
 
-            __result |= _character.IsPlayer() && !_character.IsOwnerOf(__instance);
+            __result |= _character.IsAlly() && !_character.IsOwnerOf(__instance);
         }
 
         [HarmonyPatch(typeof(MeleeHitDetector), "ElligibleFaction", new[] { typeof(Character) }), HarmonyPostfix]
@@ -131,19 +131,19 @@ namespace ModPack
                 return;
             #endregion
 
-            __result |= _character.IsPlayer() && !_character.IsOwnerOf(__instance);
+            __result |= _character.IsAlly() && !_character.IsOwnerOf(__instance);
         }
 
         [HarmonyPatch(typeof(Character), "OnReceiveHitCombatEngaged"), HarmonyPrefix]
         static bool Character_OnReceiveHitCombatEngaged_Pre(Character __instance, ref Character _dealerChar)
-        => !_playersFriendlyFireToggle || _dealerChar == null || !_dealerChar.IsPlayer();
+        => !_playersFriendlyFireToggle || _dealerChar == null || !_dealerChar.IsAlly();
 
 
         [HarmonyPatch(typeof(Character), "VitalityHit"), HarmonyPrefix]
         static bool Character_VitalityHit_Pre(Character __instance, Character _dealerChar, ref float _damage)
         {
             if (_dealerChar != null && _dealerChar.IsEnemy()
-            || _dealerChar == null && __instance.IsPlayer())
+            || _dealerChar == null && __instance.IsAlly())
             {
                 if (_enemiesToggle)
                     _damage *= _enemiesHealthDamage / 100f;
@@ -154,7 +154,7 @@ namespace ModPack
             {
                 if (_playersToggle)
                     _damage *= _playersHealthDamage / 100f;
-                if (_playersFriendlyFireToggle && __instance.IsPlayer())
+                if (_playersFriendlyFireToggle && __instance.IsAlly())
                     _damage *= _playersFriendlyFireHealthDamage / 100f;
             }
 
@@ -165,7 +165,7 @@ namespace ModPack
         static bool Character_StabilityHit_Pre(Character __instance, Character _dealerChar, ref float _knockValue)
         {
             if (_dealerChar != null && _dealerChar.IsEnemy()
-            || _dealerChar == null && __instance.IsPlayer())
+            || _dealerChar == null && __instance.IsAlly())
             {
                 if (_enemiesToggle)
                     _knockValue *= _enemiesStabilityDamage / 100f;
@@ -176,7 +176,7 @@ namespace ModPack
             {
                 if (_playersToggle)
                     _knockValue *= _playersStabilityDamage / 100f;
-                if (_playersFriendlyFireToggle && __instance.IsPlayer())
+                if (_playersFriendlyFireToggle && __instance.IsAlly())
                     _knockValue *= _playersFriendlyFireStabilityDamage / 100f;
             }
 
