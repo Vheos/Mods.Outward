@@ -38,16 +38,18 @@ In the meantime, you can check out the [Nexus mod page](https://www.nexusmods.co
 
 # Changelog:
 - **1.12.0**
-    - added `AI` mod with new `Enemy detection modifier`, `Prevent infighting between`, `Change target on hit`, `Walk towards player on spawn`, and `Change target when too far` settings
+    - added `AI` mod with `Enemy detection modifier`, `Prevent infighting between`, `Walk towards player on spawn`, `Change target on hit`, and `Change target when too far` settings
     - moved some settings from `Various` into the new `AI` mod
     - `Various`: added `Display prices in stash` setting
-    - `Tools`: added `Torches temperature radius`, `Torches burn out on ground`, `Lights intensity` and `Two-person beds` settings
+    - `Tools`: added `Torches temperature radius`, `Torches burn out on ground`, `Lights range` and `Two-person beds` settings
     - `Tree Randomizer -> Randomize breakthroughs`:  added an option to avoid choices
     - `SKILLS -> Prices`: reworked, now allows the user to define a formula (linear and exponential)
+    - `Resets -> Areas`: added an advanced workaround fix for unarmed bandits when resetting enemies but not items
     - *bugfix: `Various -> Craft from stash` was inconsistent because of incorrect quit condition*
-    - *bugfix: `Various -> Display stashed item amounts` made recipes display wrong results amount*
+    - *bugfix: `Various -> Display stashed item amounts` made recipes display incorrect results amount*
     - *bugfix: `Crafting -> Limited manual crafting` removed the other 3 ingredient slots when swapping the first ingredient of a learned recipe*
-    - *bugfix: `Quickslots -> Contextual skills` always replaced Push Kick with a corresponding innate skill when equipping offhand
+    - *bugfix: `Quickslots -> Contextual skills` always replaced Push Kick with a corresponding innate skill when equipping offhand*
+    - *bugfix: some `Quickslots` settings crashed the game when switching areas with an active Summoned Ghost*
 - **1.11.0**
     - added `Tools` mod with `More gathering tools`, `Gathering tools durability cost` and `Chance to break Flint and Steel` settings
     - added `Quickslots` mod with `Contextual skills`, `Replace quickslots on equip` and `Assign by using free quickslot` settings
