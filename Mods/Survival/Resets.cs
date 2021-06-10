@@ -24,6 +24,82 @@ namespace ModPack
         private const int FISHING_HARPOON_ID = 2130130;   //
         private const int MINING_PICK_ID = 2120050;   //
         private const float TIME_UNIT = 24f;   // Day = TIME_UNIT
+        static private readonly Dictionary<WeaponSet, int[]> MELEE_WEAPON_IDS_BY_SET = new Dictionary<WeaponSet, int[]>
+        {
+            [WeaponSet.Junk] = new[]
+            {
+                2000060,
+                2100210,
+                2010050,
+                2110040,
+                2020130,
+                2120050,
+                2130040,
+                2130130,
+                2130010,
+                2130030,
+                2160020,
+            },
+            [WeaponSet.Iron] = new[]
+            {
+                2000010,
+                2100080,
+                2010000,
+                2110030,
+                2020010,
+                2120080,
+                2130110,
+                2140000,
+                2160000,
+            },
+            [WeaponSet.Fang] = new[]
+            {
+                2000050,
+                2100020,
+                2010040,
+                2110010,
+                2020050,
+                2120020,
+                2130020,
+                2140020,
+                2160030,
+            },
+            [WeaponSet.Gold] = new[]
+            {
+                2000061,
+                2100211,
+                2010051,
+                2110041,
+                2020131,
+                2120051,
+                2130041,
+                2130131,
+                2130011,
+                2130031,
+                2160021,
+            },
+            [WeaponSet.Savage] = new[]
+            {
+                2000051,
+                2100021,
+                2010041,
+                2110011,
+                2020051,
+                2120021,
+                2130022,
+                2140021,
+                2160031,
+            },
+        };
+
+        static private readonly Dictionary<WeaponSet, int[]> RANGED_WEAPON_IDS_BY_SET = new Dictionary<WeaponSet, int[]>
+        {
+            [WeaponSet.Junk] = new[] { 2200000 },
+            [WeaponSet.Iron] = new[] { 2200000 },
+            [WeaponSet.Fang] = new[] { 2200000 },
+            [WeaponSet.Gold] = new[] { 2200001 },
+            [WeaponSet.Savage] = new[] { 2200001 },
+        };
         #endregion
         #region enum
         private enum ResetMode
@@ -45,6 +121,15 @@ namespace ModPack
             DeathEvents = 1 << 7,
             Cities = 1 << 8,
         }
+        private enum WeaponSet
+        {
+            Disabled = 0,
+            Junk = 1,
+            Iron = 2,
+            Fang = 3,
+            Gold = 4,
+            Savage = 5,
+        }
         #endregion
 
         // Config
@@ -53,6 +138,8 @@ namespace ModPack
         static private ModSetting<int> _areasTimer, _gatheringTimer, _fishingTimer, _miningTimer, _merchantsTimer;
         static private ModSetting<int> _areasTimerSinceReset;
         static private ModSetting<AreasResetLayers> _areasResetLayers;
+        static private ModSetting<WeaponSet> _fixUnarmedBandits;
+        static private ModSetting<int> _fixUnarmedBanditsDurabilityRatio;
         override protected void Initialize()
         {
             _areasToggle = CreateSetting(nameof(_areasToggle), false);
@@ -60,6 +147,8 @@ namespace ModPack
             _areasTimer = CreateSetting(nameof(_areasTimer), AREAS_RESET_HOURS.Div(TIME_UNIT).Round(), IntRange(0, 100));
             _areasTimerSinceReset = CreateSetting(nameof(_areasTimerSinceReset), AREAS_RESET_HOURS.Div(TIME_UNIT).Round(), IntRange(0, 100));
             _areasResetLayers = CreateSetting(nameof(_areasResetLayers), (AreasResetLayers)((1 << 8) - 1));
+            _fixUnarmedBandits = CreateSetting(nameof(_fixUnarmedBandits), WeaponSet.Disabled);
+            _fixUnarmedBanditsDurabilityRatio = CreateSetting(nameof(_fixUnarmedBanditsDurabilityRatio), 100, IntRange(0, 100));
 
             _gatherablesToggle = CreateSetting(nameof(_gatherablesToggle), false);
             _gatheringMode = CreateSetting(nameof(_gatheringMode), ResetMode.Timer);
@@ -87,6 +176,14 @@ namespace ModPack
                 _areasTimerSinceReset.Format("Days since last reset", _areasMode, ResetMode.Timer);
                 _areasResetLayers.Format("Layers to reset", _areasMode, ResetMode.Never, false);
                 _areasResetLayers.Description = "Cities  -  makes cities reset just like any other area";
+                _fixUnarmedBandits.Format("Fix unarmed bandits", _areasResetLayers, AreasResetLayers.Enemies);
+                _fixUnarmedBandits.IsAdvanced = true;
+                Indent++;
+                {
+                    _fixUnarmedBanditsDurabilityRatio.Format("New weapons' durability", _fixUnarmedBandits, WeaponSet.Disabled, false);
+                    _fixUnarmedBanditsDurabilityRatio.IsAdvanced = true;
+                    Indent--;
+                }
                 Indent--;
             }
 
@@ -133,6 +230,8 @@ namespace ModPack
                         _areasTimer.Value = 4;
                         _areasTimerSinceReset.Value = 14;
                         _areasResetLayers.Value = AreasResetLayers.Enemies;
+                        _fixUnarmedBandits.Value = WeaponSet.Fang;
+                        _fixUnarmedBanditsDurabilityRatio.Value = 67; 
                     }
                     _gatherablesToggle.Value = true;
                     {
@@ -158,6 +257,19 @@ namespace ModPack
                     saveDatasToRemove.Add(saveData);
 
             saveDataList.Remove(saveDatasToRemove);
+        }
+        static private bool HasAnyMeleeWeapon(Character character)
+        => character.CurrentWeapon is MeleeWeapon || character.Inventory.Pouch.GetContainedItems().Any(item => item is MeleeWeapon);
+        static private bool HasAnyRangedWeapon(Character character)
+        => character.CurrentWeapon is ProjectileWeapon || character.Inventory.Pouch.GetContainedItems().Any(item => item is ProjectileWeapon);
+        static private void GenerateAndEquipPouchItem(Character character, int itemID, float durabilityRatio = 1f)
+        {
+            Item newItem = ItemManager.Instance.GenerateItem(itemID);
+            newItem.ForceStartInit();
+            newItem.ChangeParent(character.Inventory.Pouch.transform);
+            newItem.ForceUpdateParentChange();
+            newItem.SetDurabilityRatio(durabilityRatio / 100f);
+            newItem.TryQuickSlotUse();
         }
 
         // Hooks
@@ -276,6 +388,24 @@ namespace ModPack
                 if (___m_nextRefreshTime == double.PositiveInfinity)
                     ___m_nextRefreshTime = GameTime + __instance.InventoryRefreshRate;
             }
+
+            return true;
+        }
+
+        // Bandits fix
+        [HarmonyPatch(typeof(AISCombat), "UpdateMed"), HarmonyPrefix]
+        static bool AISCombat_UpdateMed_Pre(AISCombat __instance)
+        {
+            #region quit
+            if (_fixUnarmedBandits == WeaponSet.Disabled)
+                return true;
+            #endregion
+
+            Character character = __instance.m_character;
+            if (__instance is AISCombatMelee && !HasAnyMeleeWeapon(character))
+                GenerateAndEquipPouchItem(character, MELEE_WEAPON_IDS_BY_SET[_fixUnarmedBandits].Random(), _fixUnarmedBanditsDurabilityRatio);
+            if (__instance is AISCombatRanged && !HasAnyRangedWeapon(character))
+                GenerateAndEquipPouchItem(character, RANGED_WEAPON_IDS_BY_SET[_fixUnarmedBandits].Random(), _fixUnarmedBanditsDurabilityRatio);
 
             return true;
         }
