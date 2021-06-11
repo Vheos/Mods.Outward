@@ -396,17 +396,16 @@ namespace ModPack
         [HarmonyPatch(typeof(AISCombat), "UpdateMed"), HarmonyPrefix]
         static bool AISCombat_UpdateMed_Pre(AISCombat __instance)
         {
+            Character character = __instance.m_character;
             #region quit
-            if (_fixUnarmedBandits == WeaponSet.Disabled)
+            if (_fixUnarmedBandits == WeaponSet.Disabled || character.Faction != Character.Factions.Bandits)
                 return true;
             #endregion
 
-            Character character = __instance.m_character;
             if (__instance is AISCombatMelee && !HasAnyMeleeWeapon(character))
                 GenerateAndEquipPouchItem(character, MELEE_WEAPON_IDS_BY_SET[_fixUnarmedBandits].Random(), _fixUnarmedBanditsDurabilityRatio);
             if (__instance is AISCombatRanged && !HasAnyRangedWeapon(character))
                 GenerateAndEquipPouchItem(character, RANGED_WEAPON_IDS_BY_SET[_fixUnarmedBandits].Random(), _fixUnarmedBanditsDurabilityRatio);
-
             return true;
         }
     }
