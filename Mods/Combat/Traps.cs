@@ -66,8 +66,8 @@ namespace ModPack
             {
                 case Presets.Preset.Vheos_CoopSurvival:
                     ForceApply();
-                    _trapsArmDelay.Value = 3;
-                    _trapsFriendlyFire.Value = true;
+                    _trapsArmDelay.Value = 5;
+                    _trapsFriendlyFire.Value = false;
                     _wireTrapDepth.Value = 0.2f;
                     _pressureTrapRadius.Value = 0.6f;
                     _runicTrapRadius.Value = 0.8f;

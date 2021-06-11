@@ -127,7 +127,7 @@ namespace ModPack
                     _formulaToggle.Value = true;
                     {
                         _formulaCoeffsByLevel[SlotLevel.Basic].Value = new Vector4(0, 1, 1, 0);
-                        _formulaCoeffsByLevel[SlotLevel.Breakthrough].Value = new Vector4(100, 0, 0, 100);
+                        _formulaCoeffsByLevel[SlotLevel.Breakthrough].Value = new Vector4(0, 1, 1, 0);
                         _formulaCoeffsByLevel[SlotLevel.Advanced].Value = new Vector4(0, 1, 1, 0);
                         _formulaType.Value = FormulaType.Linear;
                     }

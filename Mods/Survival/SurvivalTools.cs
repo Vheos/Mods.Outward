@@ -93,7 +93,7 @@ namespace ModPack
                     _chanceToBreakFlintAndSteel.Value = 25;
                     _moreGatheringTools.Value = true;
                     _gatheringDurabilityCost.Value = new Vector2(15, 3);
-                    _torchesTemperatureRadius.Value = 5;
+                    _torchesTemperatureRadius.Value = 7.5f;
                     _torchesDecayOnGround.Value = true;
                     _lightsRange.Value = 133;
                     _twoPersonBeds.Value = true;
