@@ -27,9 +27,8 @@ namespace ModPack
         #endregion
 
         // Privates
-        static private List<AMod> _allMods;
         static private ModSetting<string> _presetToLoad;
-        static private void CreateSetting()
+        static private void CreateSetting(List<AMod> mods)
         {
             List<string> names = new List<string>();
             foreach (var preset in Utility.GetEnumValues<Preset>())
@@ -37,18 +36,19 @@ namespace ModPack
 
             _presetToLoad = new ModSetting<string>("", nameof(_presetToLoad), PresetToName(Preset.None), new AcceptableValueList<string>(names.ToArray()));
             _presetToLoad.Format("Load preset");
+            _presetToLoad.IsAdvanced = true;
             _presetToLoad.DisplayResetButton = false;
 
-            _presetToLoad.AddEvent(LoadChosenPreset);
+            _presetToLoad.AddEvent(() => LoadChosenPreset(mods));
         }
-        static private void LoadChosenPreset()
+        static private void LoadChosenPreset(List<AMod> mods)
         {
             Preset preset = NameToPreset(_presetToLoad);
             if (preset == Preset.ResetToDefaults)
-                foreach (var mod in _allMods)
+                foreach (var mod in mods)
                     mod.ResetSettings(true);
             else
-                foreach (var mod in _allMods)
+                foreach (var mod in mods)
                     mod.LoadPreset(preset);
 
             _presetToLoad.SetSilently(PresetToName(Preset.None));
@@ -76,9 +76,7 @@ namespace ModPack
 
         // Initializers
         static public void Initialize(List<AMod> allMods)
-        {
-            _allMods = allMods;
-            CreateSetting();
-        }
+        => CreateSetting(allMods);
+
     }
 }
