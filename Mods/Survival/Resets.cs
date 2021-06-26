@@ -398,7 +398,10 @@ namespace ModPack
         {
             Character character = __instance.m_character;
             #region quit
-            if (_fixUnarmedBandits == WeaponSet.Disabled || character.Faction != Character.Factions.Bandits)
+            if (_fixUnarmedBandits == WeaponSet.Disabled
+            || character.Faction != Character.Factions.Bandits
+            || character.m_animatorIsHumanDefault == false
+            || !character.name.ToLowerInvariant().Contains("bandit"))
                 return true;
             #endregion
 
