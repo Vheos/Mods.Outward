@@ -29,6 +29,9 @@ namespace ModPack
         // Constructors
         public ModSetting(string section, string name, T defaultValue = default, AcceptableValueBase acceptableValues = null) : base()
         {
+            if (acceptableValues != null && Tools.AreSettingLimitsUnlocked)
+                acceptableValues = null;
+
             ConfigDescription description = new ConfigDescription("", acceptableValues, new ConfigurationManagerAttributes());
             _configEntryBase = _configEntry = Tools.ConfigFile.Bind(section, name, defaultValue, description);
             IsVisible = true;

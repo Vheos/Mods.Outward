@@ -21,7 +21,6 @@ namespace ModPack
         { get; private set; }
         static public BaseUnityPlugin PluginComponent
         { get; private set; }
-
         static public void SetDirtyConfigWindow()
         => _isConfigWindowDirty = true;
         static public void TryRedrawConfigWindow()
@@ -77,12 +76,26 @@ namespace ModPack
                 return elapsed;
             }
         }
+        static public bool AreSettingLimitsUnlocked
+        => _unlockSettingLimits;
 
         // Privates
         static private Stopwatch _stopwatch;
         static private ManualLogSource _logger;
         static private ConfigurationManager.ConfigurationManager _configManager;
         static private bool _isConfigWindowDirty;
+        static private ModSetting<bool> _unlockSettingLimits;
+        static private void CreateUnlockLimitsSetting()
+        {
+            _unlockSettingLimits = new ModSetting<bool>("", nameof(_unlockSettingLimits), false);
+            _unlockSettingLimits.Format("Unlock settings' limits");
+            _unlockSettingLimits.Description = "Each setting that uses a value slider will use an input box instead\n" +
+                                               "This allows you to enter ANY value, unlimited by the slider limits.\n" +
+                                               "However, some extreme values on some settings might produce unexpected results or even crash the game.\n" +
+                                               "(requires game restart)";
+            _unlockSettingLimits.IsAdvanced = true;
+            _unlockSettingLimits.DisplayResetButton = false;
+        }
 
         // Initializers
         static public void Initialize(BaseUnityPlugin pluginComponent, ManualLogSource logger)
@@ -92,6 +105,7 @@ namespace ModPack
             PluginComponent = pluginComponent;
             ConfigFile = PluginComponent.Config;
             _configManager = PluginComponent.GetComponent<ConfigurationManager.ConfigurationManager>();
+            CreateUnlockLimitsSetting();
         }
     }
 }
