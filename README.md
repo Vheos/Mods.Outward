@@ -1,8 +1,8 @@
 # How to:
-- Install the latest [BepInEx](https://github.com/BepInEx/BepInEx/releases/latest/) and **ConfigurationManager** ([official release](https://github.com/BepInEx/BepInEx.ConfigurationManager/releases/latest) **OR** [Mefino fork](https://github.com/Mefino/BepInEx.ConfigurationManager/releases/latest) + [SideLoader](https://github.com/sinai-dev/Outward-SideLoader/releases/latest))
+- Download and install [BepInEx](https://github.com/BepInEx/BepInEx/releases/latest/) and **ConfigurationManager** ([official release](https://github.com/BepInEx/BepInEx.ConfigurationManager/releases/latest) **OR** [Mefino fork](https://github.com/Mefino/BepInEx.ConfigurationManager/releases/latest) + [SideLoader](https://github.com/sinai-dev/Outward-SideLoader/releases/latest))
 - Download this mod from [GitHub](https://github.com/Vheos777/OutwardMods/releases), [Thunderstore](https://outward.thunderstore.io/package/Vheos/VheosModPack/) or [Nexus](https://www.nexusmods.com/outward/mods/203?tab=files)
 - Move the unzipped `Vheos` folder to `Outward\BepInEx\plugins\`
-- Press `F1` in game to open the `Configuration Manager` window
+- Press `F1` (or `F5`) in game to open the `Configuration Manager` window
 - Enjoy <3
 
 # FAQ:
@@ -22,10 +22,10 @@
     - yep, all my mods are open source and available at [GitHub](https://github.com/Vheos777/OutwardMods)! Feel free to study, clone and/or edit the code as you please :)
 
 # Contact:
-Write a comment on the [Nexus mod page](https://www.nexusmods.com/outward/mods/203?tab=posts),  
-write a message in [Outward Modding Community](https://discord.gg/zKyfGmy7TR) -> `#vheos-mod-pack`  
-tag me in [Outward](https://discord.com/invite/outward) -> `#outward-modding`  
-or send me a DM on Discord - `Vheos#5865` :)
+- write a comment on the [Nexus mod page](https://www.nexusmods.com/outward/mods/203?tab=posts)
+- write a message in [Outward Modding Community](https://discord.gg/zKyfGmy7TR) -> `#vheos-mod-pack`
+- tag me in [Outward](https://discord.com/invite/outward) -> `#outward-modding`
+- send me a DM on Discord - `Vheos#5865`
 
 # Credits:
 `Sinai`, `raphendyr`, `ehaugw`, `SpicerXD`, `IggyTheMad`, `Tau37`, `Yansilv`  
@@ -37,6 +37,9 @@ Love you all <3
 In the meantime, you can check out the [Nexus mod page](https://www.nexusmods.com/outward/mods/203) :)
 
 # Changelog:
+- **1.12.1**
+    - added a global advanced setting to `Unlock settings' limits`
+    - `SKILLS -> Prices -> Mutually exclusive prices`: changed the price multiplier from integers to percents
 - **1.12.0**
     - added `AI` mod with `Enemy detection modifier`, `Prevent infighting between`, `Walk towards player on spawn`, `Change target on hit`, and `Change target when too far` settings
     - moved some settings from `Various` into the new `AI` mod
