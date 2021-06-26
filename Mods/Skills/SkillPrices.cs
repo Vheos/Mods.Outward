@@ -79,7 +79,7 @@ namespace ModPack
             _formulaType = CreateSetting(nameof(_formulaType), FormulaType.Linear);
             _learnMutuallyExclusiveSkills = CreateSetting(nameof(_learnMutuallyExclusiveSkills), false);
             _exclusiveSkillCostsTsar = CreateSetting(nameof(_exclusiveSkillCostsTsar), false);
-            _exclusiveSkillCostMultiplier = CreateSetting(nameof(_exclusiveSkillCostMultiplier), 10, IntRange(0, 100));
+            _exclusiveSkillCostMultiplier = CreateSetting(nameof(_exclusiveSkillCostMultiplier), 300, IntRange(100, 500));
 
             _exclusiveSkillRequirement = new SkillRequirement("Tsar Stone");
         }
@@ -107,7 +107,7 @@ namespace ModPack
             Indent++;
             {
                 _exclusiveSkillCostsTsar.Format("at the cost of a Tsar Stone", _learnMutuallyExclusiveSkills);
-                _exclusiveSkillCostMultiplier.Format("at normal price multiplied by", _exclusiveSkillCostsTsar, false);
+                _exclusiveSkillCostMultiplier.Format("at normal price multiplied by (%)", _exclusiveSkillCostsTsar, false);
                 Indent--;
             }
         }
@@ -138,7 +138,6 @@ namespace ModPack
         }
 
         // Utility
-        static private Dictionary<string, SkillRequirement> _skillRequirementsByTrainerName;
         static private SkillRequirement _exclusiveSkillRequirement;
         static private bool HasMutuallyExclusiveSkill(Character character, SkillSlot skillSlot)
         => skillSlot.SiblingSlot != null && skillSlot.SiblingSlot.HasSkill(character);
@@ -216,7 +215,7 @@ namespace ModPack
                     slot.m_requiredMoney = _exclusiveSkillRequirement.Amount;
                 }
                 else
-                    slot.m_requiredMoney *= _exclusiveSkillCostMultiplier;
+                    slot.m_requiredMoney = (slot.m_requiredMoney * _exclusiveSkillCostMultiplier / 100f).Round();
 
             return true;
         }
