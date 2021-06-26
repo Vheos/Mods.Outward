@@ -58,7 +58,7 @@ namespace ModPack
             _changeTargetWhenTooFar = CreateSetting(nameof(_changeTargetWhenTooFar), false);
             _changeTargetCheckFrequency = CreateSetting(nameof(_changeTargetCheckFrequency), 2, IntRange(1, 10));
             _changeTargetChancePerCheck = CreateSetting(nameof(_changeTargetChancePerCheck), 25, IntRange(1, 100));
-            _changeTargetCurrentToNearestRatio = CreateSetting(nameof(_changeTargetCurrentToNearestRatio), 1.5f, FloatRange(1f, 5f));
+            _changeTargetCurrentToNearestRatio = CreateSetting(nameof(_changeTargetCurrentToNearestRatio), 1.5f, FloatRange(1f, 2f));
             _changeTargetDetectAllPlayers = CreateSetting(nameof(_changeTargetDetectAllPlayers), true);
         }
         override protected void SetFormatting()
@@ -109,7 +109,7 @@ namespace ModPack
                     _changeTargetWhenTooFar.Value = true;
                     _changeTargetCheckFrequency.Value = 2;
                     _changeTargetChancePerCheck.Value = 25;
-                    _changeTargetCurrentToNearestRatio.Value = 1.5f;
+                    _changeTargetCurrentToNearestRatio.Value = 1.2f;
                     _changeTargetDetectAllPlayers.Value = true;
                     break;
             }
