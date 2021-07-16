@@ -4,7 +4,12 @@ using System.Collections.Generic;
 using UnityEngine;
 using BepInEx.Configuration;
 using HarmonyLib;
+using Vheos.ModdingCore;
 using System.Collections;
+using Vheos.Extensions.UnityObjects;
+using Vheos.Extensions.Collections;
+using Vheos.Extensions.General;
+
 
 namespace ModPack
 {
@@ -130,7 +135,7 @@ namespace ModPack
             float nearestDistance = float.MaxValue;
             Character nearestAttacker = null;
             foreach (var attackerData in lastAttackers)
-                if (CharacterManager.Instance.GetCharacter(attackerData.Key).TryAssign(out var attacker))
+                if (CharacterManager.Instance.GetCharacter(attackerData.Key).TryNonNull(out var attacker))
                 {
                     float distance = enemy.DistanceTo(attacker);
                     if (distance < nearestDistance)
@@ -269,7 +274,7 @@ namespace ModPack
         static void AICEnemyDetection_Detected_Post(AICEnemyDetection __instance, LockingPoint _point)
         {
             #region quit
-            if (!_changeTargetWhenTooFar || !_point.OwnerChar.TryAssign(out var target))
+            if (!_changeTargetWhenTooFar || !_point.OwnerChar.TryNonNull(out var target))
                 return;
             #endregion
 

@@ -4,7 +4,11 @@ using System.Collections.Generic;
 using UnityEngine;
 using BepInEx.Configuration;
 using HarmonyLib;
+using Vheos.ModdingCore;
 using BepInEx;
+using Vheos.Extensions.Math;
+using Vheos.Extensions.General;
+using Vheos.Extensions.Collections;
 
 
 
@@ -17,7 +21,7 @@ namespace ModPack
     {
         // Settings
         public const bool IS_DEVELOPMENT_VERSION = false;
-        public const string GUID = "com.Vheos.ModPack";
+        public const string GUID = "com.Vheos.Mods.Outward";
         public const string NAME = "Vheos Mod Pack" + (IS_DEVELOPMENT_VERSION ? " [DEVELOPMENT]" : "");
         public const string VERSION = "1.12.1";
 
@@ -30,8 +34,8 @@ namespace ModPack
         {
             foreach (var modType in Utility.GetDerivedTypes<AMod>())
                 if ((IS_DEVELOPMENT_VERSION || modType.IsNotAssignableTo<IDevelopmentOnly>())
-                && (blacklist.IsEmpty() || modType.IsNotContainedIn(blacklist))
-                && (whitelist.IsEmpty() || modType.IsContainedIn(whitelist)))
+                && (blacklist.IsNullOrEmpty() || modType.IsNotContainedIn(blacklist))
+                && (whitelist.IsNullOrEmpty() || modType.IsContainedIn(whitelist)))
                     if (modType.IsAssignableTo<IDelayedInit>())
                         _delayedModTypes.Add(modType);
                     else
@@ -42,7 +46,7 @@ namespace ModPack
             if (Prefabs.IsInitialized || !IsGameInitialized)
                 return;
 
-            Tools.Log($"Finished waiting ({Tools.ElapsedMilliseconds}ms)");
+            Tools.Log($"Finished waiting");
             Tools.Log("");
 
             Tools.Log("Initializing prefabs...");
@@ -53,31 +57,23 @@ namespace ModPack
             Tools.Log("Initializing Presets...");
             Presets.Initialize(_mods);
 
-            Tools.Log($"Finished DelayedInit ({Tools.ElapsedMilliseconds}ms)");
-            Tools.Log("");
-            Tools.IsStopwatchActive = false;
+            Tools.Log($"Finished DelayedInit");
         }
         private void InstantiateMods(ICollection<Type> modTypes)
         {
             foreach (var modType in modTypes)
-                InstantiateMod(modType);
-        }
-        private void InstantiateMod(Type modType)
-        {
-            AMod newMod = (AMod)Activator.CreateInstance(modType);
-            _mods.Add(newMod);
-            if (modType.IsAssignableTo<IUpdatable>())
-                _updatableMods.Add(newMod as IUpdatable);
+            {
+                AMod newMod = (AMod)Activator.CreateInstance(modType);
+                _mods.Add(newMod);
+                if (modType.IsAssignableTo<IUpdatable>())
+                    _updatableMods.Add(newMod as IUpdatable);
+            }
         }
         private void UpdateMods(ICollection<IUpdatable> updatableMods)
         {
             foreach (var updatableMod in updatableMods)
-                UpdateMod(updatableMod);
-        }
-        private void UpdateMod(IUpdatable updatableMod)
-        {
-            if (updatableMod.IsEnabled)
-                updatableMod.OnUpdate();
+                if (updatableMod.IsEnabled)
+                    updatableMod.OnUpdate();
         }
         private bool IsGameInitialized
         => ResourcesPrefabManager.Instance.Loaded && UIUtilities.m_instance != null;
@@ -92,7 +88,6 @@ namespace ModPack
             _mods = new List<AMod>();
 
             Tools.Initialize(this, Logger);
-            Tools.IsStopwatchActive = true;
 
             Tools.Log("Initializing GameInput...");
             GameInput.Initialize();
@@ -111,7 +106,7 @@ namespace ModPack
             Tools.Log("Instantiating awake mods...");
             InstantiateMods(_awakeModTypes);
 
-            Tools.Log($"Finished AwakeInit ({Tools.ElapsedMilliseconds}ms)");
+            Tools.Log($"Finished AwakeInit");
             Tools.Log("");
 
             Tools.Log($"Waiting for game initialization...");

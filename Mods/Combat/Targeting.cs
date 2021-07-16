@@ -4,6 +4,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using BepInEx.Configuration;
 using HarmonyLib;
+using Vheos.ModdingCore;
+using Vheos.Extensions.General;
 
 
 

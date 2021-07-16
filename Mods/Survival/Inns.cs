@@ -4,6 +4,9 @@ using System.Collections.Generic;
 using UnityEngine;
 using BepInEx.Configuration;
 using HarmonyLib;
+using Vheos.ModdingCore;
+using Vheos.Extensions.UnityObjects;
+using Vheos.Extensions.General;
 
 
 
@@ -75,7 +78,7 @@ namespace ModPack
         static void NetworkLevelLoader_UnPauseGameplay_Post(NetworkLevelLoader __instance, string _identifier)
         {
             #region quit
-            if (!_stashes || _identifier != "Loading" || !AreaManager.Instance.CurrentArea.TryAssign(out var currentArea)
+            if (!_stashes || _identifier != "Loading" || !AreaManager.Instance.CurrentArea.TryNonNull(out var currentArea)
             || !STASH_DATA_BY_CITY.ContainsKey((AreaManager.AreaEnum)currentArea.ID))
                 return;
             #endregion
@@ -114,7 +117,7 @@ namespace ModPack
         static bool InteractionOpenChest_OnActivate_Pre(InteractionOpenChest __instance)
         {
             #region quit
-            if (!_stashes || !__instance.m_chest.TryAssign(out var chest))
+            if (!_stashes || !__instance.m_chest.TryNonNull(out var chest))
                 return true;
             #endregion
 

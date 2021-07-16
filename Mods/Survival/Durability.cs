@@ -4,6 +4,10 @@ using System.Collections.Generic;
 using UnityEngine;
 using BepInEx.Configuration;
 using HarmonyLib;
+using Vheos.ModdingCore;
+using Vheos.Extensions.Math;
+using Vheos.Extensions.Collections;
+using Vheos.Extensions.General;
 using Random = UnityEngine.Random;
 
 
@@ -231,7 +235,7 @@ namespace ModPack
                 && slot.EquippedItem.RepairedInRest && !slot.EquippedItem.IsIndestructible && slot.EquippedItem.DurabilityRatio < 1f)
                     equippedItems.Add(slot.EquippedItem);
 
-            if (equippedItems.IsEmpty())
+            if (equippedItems.IsNullOrEmpty())
                 return false;
 
             // Repair values
@@ -296,8 +300,8 @@ namespace ModPack
         {
             #region quit
             if (_minStartingDurability >= 100
-            || !_itemDrop.DroppedItem.TryAssign(out var item) || !Prefabs.ItemsByID[item.ItemIDString].TryAssign(out var prefab)
-            || !prefab.Stats.TryAssign(out var prefabStats) || prefabStats.MaxDurability <= 0)
+            || !_itemDrop.DroppedItem.TryNonNull(out var item) || !Prefabs.ItemsByID[item.ItemIDString].TryNonNull(out var prefab)
+            || !prefab.Stats.TryNonNull(out var prefabStats) || prefabStats.MaxDurability <= 0)
                 return true;
             #endregion
 

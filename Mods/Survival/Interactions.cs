@@ -4,6 +4,11 @@ using System.Collections.Generic;
 using UnityEngine;
 using BepInEx.Configuration;
 using HarmonyLib;
+using Vheos.ModdingCore;
+using Vheos.Extensions.Math;
+using Vheos.Extensions.UnityObjects;
+using Vheos.Extensions.General;
+
 using Random = UnityEngine.Random;
 
 
@@ -367,7 +372,7 @@ namespace ModPack
             #region quit
             if (_character == null || !_character.InCombat
             || !__instance.CurrentTriggerManager.TryAs<InteractionActivator>(out var activator)
-            || !activator.BasicInteraction.TryAssign(out var interaction)
+            || !activator.BasicInteraction.TryNonNull(out var interaction)
             || (interaction.IsNot<InteractionOpenContainer>() || !flags.HasFlag(DisallowedInCombat.Loot))
             && (interaction.IsNot<InteractionSwitchArea>() || !flags.HasFlag(DisallowedInCombat.Travel))
             && (interaction.IsNot<InteractionWarp>() || !flags.HasFlag(DisallowedInCombat.Warp))
@@ -387,7 +392,7 @@ namespace ModPack
             #region quit
             if (!_highlightsToggle
             || !__instance.m_renderer.TryAs(out ParticleSystemRenderer renderer)
-            || !renderer.GetComponent<ParticleSystem>().TryAssign(out var particleSystem))
+            || !renderer.GetComponent<ParticleSystem>().TryNonNull(out var particleSystem))
                 return true;
             #endregion
 
@@ -406,7 +411,7 @@ namespace ModPack
                 if (__instance.TryAs(out ItemHighlight itemHighlight))
                 {
                     newColor = HIGHLIGHT_COLOR_OTHER_ITEM;
-                    if (itemHighlight.Item.TryAssign(out var item))
+                    if (itemHighlight.Item.TryNonNull(out var item))
                         if (item is Equipment)
                             newColor = HIGHLIGHT_COLOR_EQUIP;
                         else if (item is ItemContainer)
@@ -434,7 +439,7 @@ namespace ModPack
             main.startColor = newColor;
 
             // Apply distance
-            if (particleSystem.GetComponent<DisableParticlesWhenFar>().TryAssign(out var disableParticlesWhenFar))
+            if (particleSystem.GetComponent<DisableParticlesWhenFar>().TryNonNull(out var disableParticlesWhenFar))
                 disableParticlesWhenFar.m_sqrDist = _highlightsDistance.Value.Pow(2);
 
             // Finalize

@@ -4,7 +4,10 @@ using System.Collections.Generic;
 using UnityEngine;
 using BepInEx.Configuration;
 using HarmonyLib;
+using Vheos.ModdingCore;
 using UnityEngine.UI;
+using Vheos.Extensions.Math;
+using Vheos.Extensions.General;
 using Random = UnityEngine.Random;
 
 
@@ -165,8 +168,8 @@ namespace ModPack
 
             // Color
             if (!changePriceColor
-            || !item.m_refItemDisplay.TryAssign(out var itemDisplay)
-            || !itemDisplay.m_lblValue.TryAssign(out var priceText))
+            || !item.m_refItemDisplay.TryNonNull(out var itemDisplay)
+            || !itemDisplay.m_lblValue.TryNonNull(out var priceText))
                 return;
 
             float relativeIncrease = price == 0 ? 0f : 1f;

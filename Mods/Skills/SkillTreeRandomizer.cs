@@ -4,6 +4,12 @@ using System.Collections.Generic;
 using UnityEngine;
 using BepInEx.Configuration;
 using HarmonyLib;
+using Vheos.ModdingCore;
+using Vheos.Extensions.Math;
+using Vheos.Extensions.UnityObjects;
+using Vheos.Extensions.Collections;
+using Vheos.Extensions.General;
+
 using Random = UnityEngine.Random;
 
 
@@ -492,7 +498,7 @@ namespace ModPack
                     if (_randomizeBreakthroughSkills || !child.GetComponent<SkillBranch>().IsBreakthrough)
                         childObjects.Add(child);
 
-                childObjects.DestroyImmediately();
+                childObjects.Destroy(true);
                 tree.m_skillSlots.Clear();
                 tree.m_branches.Clear();
                 tree.m_breakthroughSkillIndex = -1;
@@ -504,7 +510,7 @@ namespace ModPack
         {
             // Quit
             List<SkillSchool> outputTrees = GetOutputSkillTrees().ToList();
-            if (outputTrees.IsEmpty())
+            if (outputTrees.IsNullOrEmpty())
                 return;
 
             // Initialize
@@ -580,7 +586,7 @@ namespace ModPack
                     ref int index = ref (isAdvanced ? ref advancedIndex : ref basicIndex);
 
                     // Ignore skills
-                    if (!SLOT_POSITIONS.IsIndexValid(index))
+                    if (!SLOT_POSITIONS.IsValid(index))
                         continue;
 
                     // Initialize slot
@@ -627,7 +633,7 @@ namespace ModPack
         {
             slot.m_columnIndex = column;
             string rowName = row.ToString();
-            if (!tree.FindChild(rowName).TryAssign(out var branchHolder))
+            if (!tree.FindChild(rowName).TryNonNull(out var branchHolder))
             {
                 branchHolder = new GameObject(rowName);
                 branchHolder.BecomeChildOf(tree);
@@ -640,7 +646,7 @@ namespace ModPack
         static private SkillSchool FlagToSkillTree(Enum flag, bool fromCache = false)
         {
             SkillTreeHolder skillTreeHolder = fromCache ? _cachedSkillTreeHolder : SkillTreeHolder.Instance;
-            if (!FlagToSkillTreeName(Convert.ToInt32(flag)).TryAssign(out var treeName)
+            if (!FlagToSkillTreeName(Convert.ToInt32(flag)).TryNonNull(out var treeName)
             || !skillTreeHolder.transform.TryFind(treeName, out var treeTransform)
             || !treeTransform.TryGetComponent(out SkillSchool tree))
                 return null;
@@ -689,7 +695,7 @@ namespace ModPack
             && GetVanillaTree(slot) == FlagToSkillTree(TheThreeBrothersInput.WeaponMaster, true))
                 return SlotLevel.Advanced;
 
-            if (!slot.ParentBranch.ParentTree.BreakthroughSkill.TryAssign(out var breakthroughSlot))
+            if (!slot.ParentBranch.ParentTree.BreakthroughSkill.TryNonNull(out var breakthroughSlot))
                 return SlotLevel.Basic;
 
             switch (slot.ParentBranch.Index.CompareTo(breakthroughSlot.ParentBranch.Index))

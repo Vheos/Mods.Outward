@@ -3,7 +3,11 @@ using System.Linq;
 using System.Collections.Generic;
 using UnityEngine;
 using BepInEx.Configuration;
+using Vheos.Extensions.Math;
+using Vheos.Extensions.General;
+using Vheos.Extensions.Collections;
 using HarmonyLib;
+using Vheos.ModdingCore;
 
 
 
@@ -165,9 +169,9 @@ namespace ModPack
         {
             List<Item> destructibleIngredients = new List<Item>();
             foreach (var ingredientSelector in craftingMenu.m_ingredientSelectors)
-                if (ingredientSelector.AssignedIngredient.TryAssign(out var ingredient))
+                if (ingredientSelector.AssignedIngredient.TryNonNull(out var ingredient))
                     foreach (var itemAmountByUID in ingredient.GetConsumedItems(false, out _))
-                        if (ItemManager.Instance.GetItem(itemAmountByUID.Key).TryAssign(out var item)
+                        if (ItemManager.Instance.GetItem(itemAmountByUID.Key).TryNonNull(out var item)
                         && item.MaxDurability > 0)
                             destructibleIngredients.TryAddUnique(item);
             return destructibleIngredients;
@@ -184,7 +188,7 @@ namespace ModPack
             {
                 Recipe recipe = craftingMenu.m_allRecipes[recipeIndex];
                 foreach (var result in recipe.Results)
-                    if (result.RefItem.TryAssign(out var item)
+                    if (result.RefItem.TryNonNull(out var item)
                     && item.MaxDurability > 0)
                         desctructibleResults.TryAddUnique(item);
             }
@@ -212,7 +216,7 @@ namespace ModPack
             List<Item> ingredients = GetDestructibleIngredients(__instance);
             List<Item> results = GetDestructibleResults(__instance);
             #region quit
-            if (!_preserveDurability || ingredients.IsEmpty() || ingredients.IsEmpty())
+            if (!_preserveDurability || ingredients.IsNullOrEmpty() || ingredients.IsNullOrEmpty())
                 return true;
             #endregion
 
@@ -222,7 +226,7 @@ namespace ModPack
             averageRatio /= ingredients.Count;
 
             foreach (var item in results)
-                if (item.Stats.TryAssign(out var stats))
+                if (item.Stats.TryNonNull(out var stats))
                     stats.StartingDurability = (stats.MaxDurability * averageRatio.Lerp(1f, _restoreMissingDurability / 100f)).Round();
 
             __state = results;
@@ -238,7 +242,7 @@ namespace ModPack
             #endregion
 
             foreach (var item in __state)
-                if (item.Stats.TryAssign(out var stats))
+                if (item.Stats.TryNonNull(out var stats))
                     stats.StartingDurability = -1;
         }
 

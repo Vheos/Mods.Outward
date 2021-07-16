@@ -4,8 +4,13 @@ using System.Collections.Generic;
 using UnityEngine;
 using BepInEx.Configuration;
 using HarmonyLib;
+using Vheos.ModdingCore;
 using UnityEngine.UI;
 using NodeCanvas.Tasks.Conditions;
+using Vheos.Extensions.Math;
+using Vheos.Extensions.UnityObjects;
+using Vheos.Extensions.General;
+using Vheos.Extensions.Collections;
 
 
 

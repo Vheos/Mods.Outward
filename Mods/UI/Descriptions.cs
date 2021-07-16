@@ -4,6 +4,10 @@ using System.Collections.Generic;
 using UnityEngine;
 using BepInEx.Configuration;
 using HarmonyLib;
+using Vheos.ModdingCore;
+using Vheos.Extensions.Math;
+using Vheos.Extensions.Collections;
+using Vheos.Extensions.General;
 
 
 
@@ -248,9 +252,9 @@ namespace ModPack
         {
             if (_impactIcon == null
             && characterUI.m_menus[(int)CharacterUI.MenuScreens.Equipment].TryAs(out EquipmentMenu equipmentMenu)
-            && equipmentMenu.transform.GetFirstComponentsInHierarchy<EquipmentOverviewPanel>().TryAssign(out var equipmentOverview)
-            && equipmentOverview.m_lblImpactAtk.TryAssign(out var impactDisplay)
-            && impactDisplay.m_imgIcon.TryAssign(out var impactImage))
+            && equipmentMenu.transform.GetFirstComponentsInHierarchy<EquipmentOverviewPanel>().TryNonNull(out var equipmentOverview)
+            && equipmentOverview.m_lblImpactAtk.TryNonNull(out var impactDisplay)
+            && impactDisplay.m_imgIcon.TryNonNull(out var impactImage))
                 _impactIcon = impactImage.sprite;
         }
         static private void SetBackgrounds(bool state)
@@ -335,7 +339,7 @@ namespace ModPack
                         return statusName;
 
                     StatusData.EffectData firstEffectData = statusEffect.GetDatas()[0];
-                    if (firstEffectData.Data.IsEmpty())
+                    if (firstEffectData.Data.IsNullOrEmpty())
                         return statusName;
 
                     string firstValue = firstEffectData.Data[0];
@@ -454,12 +458,12 @@ namespace ModPack
             TrySwapProtectionWithResistances(__instance.m_lastItem);
 
             #region quit
-            if (_details.Value == Details.None || !__instance.m_lastItem.TryAssign(out var item) || !item.IsIngestible() && item.IsNot<Skill>())
+            if (_details.Value == Details.None || !__instance.m_lastItem.TryNonNull(out var item) || !item.IsIngestible() && item.IsNot<Skill>())
                 return true;
             #endregion
 
             if (item.TryAs(out WaterContainer waterskin)
-            && waterskin.GetWaterItem().TryAssign(out var waterItem))
+            && waterskin.GetWaterItem().TryNonNull(out var waterItem))
                 item = waterItem;
 
             int rowIndex = 0;

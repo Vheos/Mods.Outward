@@ -4,6 +4,9 @@ using System.Collections.Generic;
 using UnityEngine;
 using BepInEx.Configuration;
 using HarmonyLib;
+using Vheos.ModdingCore;
+using Vheos.Extensions.Math;
+using Vheos.Extensions.Collections;
 using Random = UnityEngine.Random;
 using SlotList = System.Collections.Generic.List<BaseSkillSlot>;
 using SlotList2D = System.Collections.Generic.List<System.Collections.Generic.List<BaseSkillSlot>>;
@@ -342,7 +345,7 @@ namespace ModPack
         static bool PlaySoundEffect_ActivateLocally_Pre(PlaySoundEffect __instance)
         {
             #region quit
-            if (!_runesToggle || __instance.Sounds.IsEmpty() || __instance.Sounds.First() != GlobalAudioManager.Sounds.SFX_SKILL_RuneSpell)
+            if (!_runesToggle || __instance.Sounds.IsNullOrEmpty() || __instance.Sounds.First() != GlobalAudioManager.Sounds.SFX_SKILL_RuneSpell)
                 return true;
             #endregion
 

@@ -4,8 +4,10 @@ using System.Collections.Generic;
 using UnityEngine;
 using BepInEx.Configuration;
 using HarmonyLib;
+using Vheos.ModdingCore;
 using UnityEngine.UI;
-
+using Vheos.Extensions.Math;
+using Vheos.Extensions.General;
 
 
 
@@ -143,7 +145,7 @@ namespace ModPack
         => skillSlot.SiblingSlot != null && skillSlot.SiblingSlot.HasSkill(character);
         static private SlotLevel GetLevel(BaseSkillSlot slot)
         {
-            if (!slot.ParentBranch.ParentTree.BreakthroughSkill.TryAssign(out var breakthroughSlot))
+            if (!slot.ParentBranch.ParentTree.BreakthroughSkill.TryNonNull(out var breakthroughSlot))
                 return SlotLevel.Basic;
 
             switch (slot.ParentBranch.Index.CompareTo(breakthroughSlot.ParentBranch.Index))

@@ -4,8 +4,11 @@ using System.Collections.Generic;
 using UnityEngine;
 using BepInEx.Configuration;
 using HarmonyLib;
+using Vheos.ModdingCore;
 using UnityEngine.UI;
 using System.Collections;
+using Vheos.Extensions.Math;
+using Vheos.Extensions.General;
 
 
 
@@ -261,8 +264,8 @@ namespace ModPack
             get
             {
                 if (_playerStash == null
-                && AreaManager.Instance.CurrentArea.TryAssign(out var currentArea)
-                && STASH_UIDS_BY_CITY.TryAssign((AreaManager.AreaEnum)currentArea.ID, out var uid))
+                && AreaManager.Instance.CurrentArea.TryNonNull(out var currentArea)
+                && STASH_UIDS_BY_CITY.TryGet((AreaManager.AreaEnum)currentArea.ID, out var uid))
                     _playerStash = (TreasureChest)ItemManager.Instance.GetItem(uid);
                 return _playerStash;
             }
@@ -273,8 +276,8 @@ namespace ModPack
             get
             {
                 if (_soroboreanCaravanner == null
-                && AreaManager.Instance.CurrentArea.TryAssign(out var currentArea)
-                && SOROBOREAN_CARAVANNER_UIDS_BY_CITY.TryAssign((AreaManager.AreaEnum)currentArea.ID, out var uid)
+                && AreaManager.Instance.CurrentArea.TryNonNull(out var currentArea)
+                && SOROBOREAN_CARAVANNER_UIDS_BY_CITY.TryGet((AreaManager.AreaEnum)currentArea.ID, out var uid)
                 && Merchant.m_sceneMerchants.ContainsKey(uid))
                     _soroboreanCaravanner = Merchant.m_sceneMerchants[uid];
                 return _soroboreanCaravanner;
@@ -320,7 +323,7 @@ namespace ModPack
                 return;
             #endregion
 
-            if (EnvironmentConditions.Instance.TryAssign(out var environmentConditions))
+            if (EnvironmentConditions.Instance.TryNonNull(out var environmentConditions))
                 foreach (var step in Utility.GetEnumValues<TemperatureSteps>())
                     if (step != TemperatureSteps.Count)
                     {
@@ -332,8 +335,8 @@ namespace ModPack
         {
             #region quit
             if (!_displayStashAmount || PlayerStash == null
-            || !itemDisplay.m_lblQuantity.TryAssign(out var quantity)
-            || !itemDisplay.RefItem.TryAssign(out var item)
+            || !itemDisplay.m_lblQuantity.TryNonNull(out var quantity)
+            || !itemDisplay.RefItem.TryNonNull(out var item)
             || item.OwnerCharacter == null
             && item.ParentContainer.IsNot<MerchantPouch>()
             && itemDisplay.IsNot<RecipeResultDisplay>())
@@ -346,7 +349,7 @@ namespace ModPack
 
             if (itemDisplay.IsNot<RecipeResultDisplay>())
                 quantity.text = itemDisplay.m_lastQuantity.ToString();
-            else if (itemDisplay.m_dBarUses.TryAssign(out var dotBar) && dotBar.GOActive())
+            else if (itemDisplay.m_dBarUses.TryNonNull(out var dotBar) && dotBar.GOActive())
                 quantity.text = "1";
 
             int fontSize = (quantity.fontSize * 0.75f).Round();
@@ -371,9 +374,9 @@ namespace ModPack
         {
             #region quit
             if (!_displayPricesInStash
-            || !__instance.CharacterUI.TryAssign(out var characterUI) || !characterUI.GetIsMenuDisplayed(CharacterUI.MenuScreens.Stash)
-            || !__instance.RefItem.TryAssign(out var item) || item.OwnerCharacter != null
-            || !__instance.m_lblValue.TryAssign(out var priceText)
+            || !__instance.CharacterUI.TryNonNull(out var characterUI) || !characterUI.GetIsMenuDisplayed(CharacterUI.MenuScreens.Stash)
+            || !__instance.RefItem.TryNonNull(out var item) || item.OwnerCharacter != null
+            || !__instance.m_lblValue.TryNonNull(out var priceText)
             || SoroboreanCaravanner == null)
                 return true;
             #endregion
@@ -389,9 +392,9 @@ namespace ModPack
         static void ItemDisplayOptionPanel_GetActiveActions_Post(ItemDisplayOptionPanel __instance, ref List<int> __result)
         {
             #region quit
-            //!itemDisplay.RefItem.TryAssign(out var item) || item.MoveStackAsOne  
+            //!itemDisplay.RefItem.TryNonNull(out var item) || item.MoveStackAsOne  
             if (!_itemActionDropOne || __instance == null ||
-            !__instance.m_activatedItemDisplay.TryAssign(out var itemDisplay)
+            !__instance.m_activatedItemDisplay.TryNonNull(out var itemDisplay)
             || itemDisplay.StackCount <= 1)
                 return;
             #endregion

@@ -4,8 +4,12 @@ using System.Collections.Generic;
 using UnityEngine;
 using BepInEx.Configuration;
 using HarmonyLib;
+using Vheos.ModdingCore;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
+using Vheos.Extensions.UnityObjects;
+using Vheos.Extensions.General;
+using Vheos.Extensions.Collections;
 
 
 
@@ -80,14 +84,14 @@ namespace ModPack
             else if (currentID >= 0)
             {
                 int nextID = currentID + bagItems.Count / 2;
-                if (bagItems.IsIndexValid(nextID))
+                if (bagItems.IsValid(nextID))
                     bagItems[nextID].OnSelect();
                 else
                     bagItems.Last().OnSelect();
             }
-            else if (bagItems.IsNotEmpty())
+            else if (bagItems.IsNotNullOrEmpty())
                 bagItems.First().OnSelect();
-            else if (pouchItems.IsNotEmpty())
+            else if (pouchItems.IsNotNullOrEmpty())
                 pouchItems.First().OnSelect();
         }
         static private void SwitchToStash(Players.Data player)
@@ -107,12 +111,12 @@ namespace ModPack
             else if (currentID >= 0)
             {
                 int nextID = currentID + chestItems.Count / 2;
-                if (chestItems.IsIndexValid(nextID))
+                if (chestItems.IsValid(nextID))
                     chestItems[nextID].OnSelect();
                 else
                     chestItems.Last().OnSelect();
             }
-            else if (chestItems.IsNotEmpty())
+            else if (chestItems.IsNotNullOrEmpty())
                 chestItems.First().OnSelect();
         }
         static private void ChangeSorting(Players.Data player)
