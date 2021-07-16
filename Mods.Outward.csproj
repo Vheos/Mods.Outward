@@ -146,11 +146,7 @@
     <Compile Include="Mods\Combat\Traps.cs" />
     <Compile Include="Mods\Survival\SurvivalTools.cs" />
     <Compile Include="Mods\Various\Various.cs" />
-    <Compile Include="Utility\Extensions\Extensions_Various.cs" />
-    <Compile Include="Utility\TraitEqualizer\Trait.cs" />
-    <Compile Include="Utility\TraitEqualizer\TraitElement.cs" />
-    <Compile Include="Utility\TraitEqualizer\TraitEqualizer.cs" />
-    <Compile Include="Utility\TraitEqualizer\TraitList.cs" />
+    <Compile Include="Utility\Extensions_Various.cs" />
     <Compile Include="Utility\Utility.cs" />
     <Compile Include="Core\Main.cs" />
   </ItemGroup>
@@ -165,17 +161,21 @@
     <Folder Include="Properties\" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Vheos.Extensions\Vheos.Extensions.csproj">
+    <ProjectReference Include="..\..\Tools\Extensions\Tools.Extensions.csproj">
       <Project>{4afe5e8c-29c0-4389-aaa0-55584146becf}</Project>
-      <Name>Vheos.Extensions</Name>
+      <Name>Tools.Extensions</Name>
       <EmbedInteropTypes>False</EmbedInteropTypes>
       <Private>True</Private>
     </ProjectReference>
-    <ProjectReference Include="..\Vheos.ModdingCore\Vheos.ModdingCore.csproj">
+    <ProjectReference Include="..\..\Tools\ModdingCore\Tools.ModdingCore.csproj">
       <Project>{a48747d8-e698-4c2c-bf11-0efed7d79ef0}</Project>
-      <Name>Vheos.ModdingCore</Name>
+      <Name>Tools.ModdingCore</Name>
       <EmbedInteropTypes>False</EmbedInteropTypes>
       <Private>True</Private>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Tools\TraitEqualizer\Tools.TraitEqualizer.csproj">
+      <Project>{23d233fc-b7d0-4709-baaa-e803fee61930}</Project>
+      <Name>Tools.TraitEqualizer</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

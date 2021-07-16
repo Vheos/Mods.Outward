@@ -9,8 +9,8 @@ using Vheos.Extensions.Math;
 using Vheos.Extensions.UnityObjects;
 using Vheos.Extensions.Collections;
 using Vheos.Extensions.General;
-
-using Random = UnityEngine.Random;
+using Vheos.TraitEqualizer;
+using Random = Vheos.TraitEqualizer.Random;
 
 
 
@@ -505,7 +505,7 @@ namespace ModPack
             }
         }
         static private void RandomizeSeed()
-        => _seed.Value = Random.value.MapFrom01(-1f, +1f).Mul(int.MaxValue).Round();
+        => _seed.Value = UnityEngine.Random.value.MapFrom01(-1f, +1f).Mul(int.MaxValue).Round();
         static private void RandomizeSkills()
         {
             // Quit
@@ -518,7 +518,7 @@ namespace ModPack
             TraitEqualizer<BaseSkillSlot> equalizer = new TraitEqualizer<BaseSkillSlot>(outputTrees.Count, GetTraits(intputTrees).ToArray());
 
             // Randomize (with equalization)
-            Random.InitState(_seed);
+            Random.Initialize(_seed);
             foreach (var slot in GetSlotsFromTrees(intputTrees))
                 equalizer.Add(slot);
 
