@@ -50,7 +50,7 @@ namespace ModPack
                     mod.ResetSettings(true);
             else
                 foreach (var mod in mods)
-                    mod.LoadPreset(preset);
+                    mod.LoadPreset((int)preset);
 
             _presetToLoad.SetSilently(PresetToName(Preset.None));
         }

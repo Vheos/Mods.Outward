@@ -138,10 +138,10 @@ namespace ModPack
            "• Multiply amount of crafted items\n" +
            "• Randomize starting durability of spawned items";
         override protected string SectionOverride
-        => SECTION_SURVIVAL;
-        override public void LoadPreset(Presets.Preset preset)
+        => ModSections.SurvivalAndImmersion;
+        override public void LoadPreset(int preset)
         {
-            switch (preset)
+            switch ((Presets.Preset)preset)
             {
                 case Presets.Preset.Vheos_CoopSurvival:
                     ForceApply();

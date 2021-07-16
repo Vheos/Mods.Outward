@@ -7,6 +7,7 @@ using HarmonyLib;
 using Vheos.ModdingCore;
 using UnityEngine.UI;
 using Vheos.Extensions.Math;
+using Vheos.Extensions.Math.Unity;
 using Vheos.Extensions.General;
 
 
@@ -117,12 +118,12 @@ namespace ModPack
         => "• Change skill trainers' prices\n" +
            "• Set price for learning mutually exclusive skills";
         override protected string SectionOverride
-        => SECTION_SKILLS;
+        => ModSections.Skills;
         override protected string ModName
         => "Prices";
-        override public void LoadPreset(Presets.Preset preset)
+        override public void LoadPreset(int preset)
         {
-            switch (preset)
+            switch ((Presets.Preset)preset)
             {
                 case Presets.Preset.Vheos_CoopSurvival:
                     ForceApply();

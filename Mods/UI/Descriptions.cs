@@ -219,10 +219,10 @@ namespace ModPack
         "• Override durability and freshness bars\n" +
         "(automatic scaling, thickness)";
         override protected string SectionOverride
-        => SECTION_UI;
-        override public void LoadPreset(Presets.Preset preset)
+        => ModSections.UI;
+        override public void LoadPreset(int preset)
         {
-            switch (preset)
+            switch ((Presets.Preset)preset)
             {
                 case Presets.Preset.Vheos_PreferredUI:
                     ForceApply();

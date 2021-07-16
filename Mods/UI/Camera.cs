@@ -6,6 +6,7 @@ using BepInEx.Configuration;
 using HarmonyLib;
 using Vheos.ModdingCore;
 using Vheos.Extensions.Math;
+using Vheos.Extensions.Math.Unity;
 
 
 
@@ -202,10 +203,10 @@ namespace ModPack
            "• Control camera using mouse/gamepad\n" +
            "• Define presets and smoothly interpolate between them";
         override protected string SectionOverride
-        => SECTION_UI;
-        override public void LoadPreset(Presets.Preset preset)
+        => ModSections.UI;
+        override public void LoadPreset(int preset)
         {
-            switch (preset)
+            switch ((Presets.Preset)preset)
             {
                 case Presets.Preset.Vheos_PreferredUI:
                     ForceApply();

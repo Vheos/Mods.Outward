@@ -6,7 +6,6 @@ using BepInEx.Configuration;
 using HarmonyLib;
 using Vheos.ModdingCore;
 using BepInEx;
-using Vheos.Extensions.Math;
 using Vheos.Extensions.General;
 using Vheos.Extensions.Collections;
 
@@ -19,11 +18,56 @@ namespace ModPack
     [BepInPlugin(GUID, NAME, VERSION)]
     public class Main : BaseUnityPlugin
     {
-        // Settings
+        #region SETTINGS
         public const bool IS_DEVELOPMENT_VERSION = false;
         public const string GUID = "com.Vheos.Mods.Outward";
         public const string NAME = "Vheos Mod Pack" + (IS_DEVELOPMENT_VERSION ? " [DEVELOPMENT]" : "");
-        public const string VERSION = "1.12.1";
+        public const string VERSION = "1.13.0";
+        static public Type[] BLACKLIST = { typeof(Debug), typeof(WIP), typeof(PistolTweaks) };
+        static private readonly Type[] MODS_ORDERING_LIST = new[]
+        {
+            // Survival & Immersion
+            typeof(Needs),
+            typeof(Camping),
+            typeof(Crafting),
+            typeof(Durability),
+            typeof(Merchants),
+            typeof(Inns),
+            typeof(SurvivalTools),
+            typeof(Resets),
+            typeof(Interactions),
+            typeof(Revive),
+
+            // Combat
+            typeof(Damage),
+            typeof(Speed),
+            typeof(Targeting),
+            typeof(AI),
+            typeof(Traps),
+            typeof(Quickslots),
+
+            // Skills
+            typeof(SkillEditor),
+            typeof(SkillPrices),
+            typeof(SkillLimits),
+            typeof(SkillTreeRandomizer),
+
+            // UI
+            typeof(GUI),
+            typeof(Descriptions),
+            typeof(Camera),
+            typeof(KeyboardWalk),
+            typeof(Gamepad),
+
+            // Various
+            typeof(Various),
+
+            // Development
+            typeof(Debug),
+            typeof(WIP),
+            typeof(PistolTweaks),
+        };
+        #endregion
 
         // Utility
         private List<Type> _awakeModTypes;
@@ -33,8 +77,7 @@ namespace ModPack
         private void CategorizeModsByInstantiationTime(Type[] whitelist = null, Type[] blacklist = null)
         {
             foreach (var modType in Utility.GetDerivedTypes<AMod>())
-                if ((IS_DEVELOPMENT_VERSION || modType.IsNotAssignableTo<IDevelopmentOnly>())
-                && (blacklist.IsNullOrEmpty() || modType.IsNotContainedIn(blacklist))
+                if ((blacklist.IsNullOrEmpty() || modType.IsNotContainedIn(blacklist))
                 && (whitelist.IsNullOrEmpty() || modType.IsContainedIn(whitelist)))
                     if (modType.IsAssignableTo<IDelayedInit>())
                         _delayedModTypes.Add(modType);
@@ -87,6 +130,7 @@ namespace ModPack
             _updatableMods = new List<IUpdatable>();
             _mods = new List<AMod>();
 
+            AMod.SetOrderingList(MODS_ORDERING_LIST);
             Tools.Initialize(this, Logger);
 
             Tools.Log("Initializing GameInput...");
@@ -95,7 +139,7 @@ namespace ModPack
             Players.Initialize();
 
             Tools.Log("Categorizing mods by instantiation time...");
-            CategorizeModsByInstantiationTime();
+            CategorizeModsByInstantiationTime(null, BLACKLIST);
             Tools.Log("Awake:");
             foreach (var modType in _awakeModTypes)
                 Tools.Log($"\t{modType.Name}");

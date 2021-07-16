@@ -235,9 +235,9 @@ namespace ModPack
             {
                 if (!_reroll)
                     return;
-                Tools.PluginComponent.ExecuteAtTheEndOfFrame
+                Global.Instance.ExecuteAtTheEndOfFrame
                 (
-                    () => Tools.PluginComponent.ExecuteOnceAfterDelay(REROLL_DELAY, RandomizeSkills)
+                    () => Global.Instance.ExecuteOnceAfterDelay(REROLL_DELAY, RandomizeSkills)
                 );
                 _reroll.SetSilently(false);
             });
@@ -343,12 +343,12 @@ namespace ModPack
         override protected string Description
         => "• Randomize skills taught by trainers";
         override protected string SectionOverride
-        => SECTION_SKILLS;
+        => ModSections.Skills;
         override protected string ModName
         => "Tree Randomizer";
-        override public void LoadPreset(Presets.Preset preset)
+        override public void LoadPreset(int preset)
         {
-            switch (preset)
+            switch ((Presets.Preset)preset)
             {
                 case Presets.Preset.Vheos_CoopSurvival:
                     ForceApply();

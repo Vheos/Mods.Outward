@@ -6,6 +6,7 @@ using BepInEx.Configuration;
 using HarmonyLib;
 using Vheos.ModdingCore;
 using Vheos.Extensions.Math;
+using Vheos.Extensions.Math.Unity;
 using Vheos.Extensions.UnityObjects;
 using Vheos.Extensions.General;
 
@@ -266,10 +267,10 @@ namespace ModPack
            "• \"Take item\" animations\n" +
            "• Disallow certain interactions while in combat";
         override protected string SectionOverride
-        => SECTION_SURVIVAL;
-        override public void LoadPreset(Presets.Preset preset)
+        => ModSections.SurvivalAndImmersion;
+        override public void LoadPreset(int preset)
         {
-            switch (preset)
+            switch ((Presets.Preset)preset)
             {
                 case Presets.Preset.Vheos_CoopSurvival:
                     ForceApply();

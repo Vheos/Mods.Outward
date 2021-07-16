@@ -48,10 +48,10 @@ namespace ModPack
         => "• Allows keyboard players to walk\n" +
            "(can be held or toggled)";
         override protected string SectionOverride
-        => SECTION_UI;
-        override public void LoadPreset(Presets.Preset preset)
+        => ModSections.UI;
+        override public void LoadPreset(int preset)
         {
-            switch (preset)
+            switch ((Presets.Preset)preset)
             {
                 case Presets.Preset.Vheos_PreferredUI:
                     IsHidden = true;

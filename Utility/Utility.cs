@@ -169,5 +169,10 @@ namespace ModPack
                 hashSet.IntersectWith(list);
             return hashSet.ToList();
         }
+        static public float GameTime
+        {
+            get => (float)EnvironmentConditions.GameTime;
+            set => EnvironmentConditions.GameTime = value;
+        }
     }
 }

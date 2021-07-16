@@ -127,10 +127,10 @@ namespace ModPack
            "• Toggle between 2 weapons with 1 quickslot\n" +
            "• 16 gamepad quickslots";
         override protected string SectionOverride
-        => SECTION_COMBAT;
-        override public void LoadPreset(Presets.Preset preset)
+        => ModSections.Combat;
+        override public void LoadPreset(int preset)
         {
-            switch (preset)
+            switch ((Presets.Preset)preset)
             {
                 case Presets.Preset.Vheos_CoopSurvival:
                     ForceApply();

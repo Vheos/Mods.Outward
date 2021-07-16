@@ -7,6 +7,7 @@ using HarmonyLib;
 using Vheos.ModdingCore;
 using UnityEngine.UI;
 using Vheos.Extensions.Math;
+using Vheos.Extensions.Math.Unity;
 using Vheos.Extensions.General;
 
 
@@ -299,10 +300,10 @@ namespace ModPack
         => "• Rearrange HUD elements\n" +
            "• Vertical splitscreen (with shop tweaks)";
         override protected string SectionOverride
-        => SECTION_UI;
-        override public void LoadPreset(Presets.Preset preset)
+        => ModSections.UI;
+        override public void LoadPreset(int preset)
         {
-            switch (preset)
+            switch ((Presets.Preset)preset)
             {
                 case Presets.Preset.Vheos_PreferredUI:
                     ForceApply();
@@ -730,7 +731,7 @@ namespace ModPack
             float progress;
             if (statusEffect.TryAs(out Disease disease) && disease.IsReceding)
             {
-                float elapsed = GameTime - disease.m_healedGameTime;
+                float elapsed = Utility.GameTime - disease.m_healedGameTime;
                 float duration = DiseaseLibrary.Instance.GetRecedingTime(disease.m_diseasesType);
                 progress = 1f - elapsed / duration;
             }

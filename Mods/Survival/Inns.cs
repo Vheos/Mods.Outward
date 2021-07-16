@@ -54,13 +54,13 @@ namespace ModPack
             _dontRestoreFoodDrinkOnSleep.Description = "Sleeping in beds will only stop the depletion of food and drink, not restore them";
         }
         override protected string SectionOverride
-        => SECTION_SURVIVAL;
+        => ModSections.SurvivalAndImmersion;
         override protected string Description
         => "• Change rent duration\n" +
            "• Add player stash to each room";
-        override public void LoadPreset(Presets.Preset preset)
+        override public void LoadPreset(int preset)
         {
-            switch (preset)
+            switch ((Presets.Preset)preset)
             {
                 case Presets.Preset.Vheos_CoopSurvival:
                     ForceApply();

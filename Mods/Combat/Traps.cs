@@ -61,10 +61,10 @@ namespace ModPack
            "• Make traps explode in contact with players\n" +
            "• Change trigger size for each trap";
         override protected string SectionOverride
-        => SECTION_COMBAT;
-        override public void LoadPreset(Presets.Preset preset)
+        => ModSections.Combat;
+        override public void LoadPreset(int preset)
         {
-            switch (preset)
+            switch ((Presets.Preset)preset)
             {
                 case Presets.Preset.Vheos_CoopSurvival:
                     ForceApply();

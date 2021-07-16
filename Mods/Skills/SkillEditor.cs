@@ -257,12 +257,12 @@ namespace ModPack
         override protected string Description
         => "• Change effects, costs and cooldown of select skills";
         override protected string SectionOverride
-        => SECTION_SKILLS;
+        => ModSections.Skills;
         override protected string ModName
         => "Editor";
-        override public void LoadPreset(Presets.Preset preset)
+        override public void LoadPreset(int preset)
         {
-            switch (preset)
+            switch ((Presets.Preset)preset)
             {
                 case Presets.Preset.Vheos_CoopSurvival:
                     ForceApply();

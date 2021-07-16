@@ -8,6 +8,7 @@ using Vheos.ModdingCore;
 using UnityEngine.UI;
 using NodeCanvas.Tasks.Conditions;
 using Vheos.Extensions.Math;
+using Vheos.Extensions.Math.Unity;
 using Vheos.Extensions.UnityObjects;
 using Vheos.Extensions.General;
 using Vheos.Extensions.Collections;
@@ -125,12 +126,12 @@ namespace ModPack
         => "• Set limit on how many skills you can learn\n" +
            "• Decide which skills count towards the limit";
         override protected string SectionOverride
-        => SECTION_SKILLS;
+        => ModSections.Skills;
         override protected string ModName
         => "Limits";
-        override public void LoadPreset(Presets.Preset preset)
+        override public void LoadPreset(int preset)
         {
-            switch (preset)
+            switch ((Presets.Preset)preset)
             {
                 case Presets.Preset.Vheos_CoopSurvival:
                     ForceApply();

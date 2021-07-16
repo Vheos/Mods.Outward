@@ -214,9 +214,9 @@ namespace ModPack
         => "• Mods (small and big) that didn't get their own section yet :)";
         override protected string SectionOverride
         => "";
-        override public void LoadPreset(Presets.Preset preset)
+        override public void LoadPreset(int preset)
         {
-            switch (preset)
+            switch ((Presets.Preset)preset)
             {
                 case Presets.Preset.Vheos_CoopSurvival:
                     ForceApply();

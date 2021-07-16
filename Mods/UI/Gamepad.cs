@@ -34,10 +34,10 @@ namespace ModPack
         override protected string Description
         => "• Better stash navigation";
         override protected string SectionOverride
-        => SECTION_UI;
-        override public void LoadPreset(Presets.Preset preset)
+        => ModSections.UI;
+        override public void LoadPreset(int preset)
         {
-            switch (preset)
+            switch ((Presets.Preset)preset)
             {
                 case Presets.Preset.Vheos_PreferredUI:
                     ForceApply();

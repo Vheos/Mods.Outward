@@ -7,6 +7,7 @@ using HarmonyLib;
 using Vheos.ModdingCore;
 using UnityEngine.UI;
 using Vheos.Extensions.Math;
+using Vheos.Extensions.Math.Unity;
 using Vheos.Extensions.General;
 using Random = UnityEngine.Random;
 
@@ -88,10 +89,10 @@ namespace ModPack
            "• Randomize prices based on time, merchant and item\n" +
            "• Set price for learning mutually exclusive skills";
         override protected string SectionOverride
-        => SECTION_SURVIVAL;
-        override public void LoadPreset(Presets.Preset preset)
+        => ModSections.SurvivalAndImmersion;
+        override public void LoadPreset(int preset)
         {
-            switch (preset)
+            switch ((Presets.Preset)preset)
             {
                 case Presets.Preset.Vheos_CoopSurvival:
                     ForceApply();
@@ -141,7 +142,7 @@ namespace ModPack
         {
             int itemSeed = _randomizePricesPerItem ? item.ItemID : 0;
             int areaSeed = _randomizePricesPerArea ? AreaManager.Instance.CurrentArea.ID : 0;
-            int timeSeed = (GameTime / 24f / _randomizePricesPerDays).RoundDown();
+            int timeSeed = (Utility.GameTime / 24f / _randomizePricesPerDays).RoundDown();
             Random.InitState(itemSeed + areaSeed + timeSeed);
 
             return 1f + Random.Range(-_randomizePricesExtent, +_randomizePricesExtent) / 100f;

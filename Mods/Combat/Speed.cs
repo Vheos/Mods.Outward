@@ -87,10 +87,10 @@ namespace ModPack
            "• Override default game speed\n" +
            "• Toggle speedhack with a hotkey";
         override protected string SectionOverride
-        => SECTION_COMBAT;
-        override public void LoadPreset(Presets.Preset preset)
+        => ModSections.Combat;
+        override public void LoadPreset(int preset)
         {
-            switch (preset)
+            switch ((Presets.Preset)preset)
             {
                 case Presets.Preset.Vheos_CoopSurvival:
                     ForceApply();

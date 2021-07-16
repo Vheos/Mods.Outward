@@ -83,12 +83,12 @@ namespace ModPack
            "• Change Waterskin capacity\n" +
            "• Change backpack capacities";
         override protected string SectionOverride
-        => SECTION_SURVIVAL;
+        => ModSections.SurvivalAndImmersion;
         override protected string ModName
         => "Tools";
-        override public void LoadPreset(Presets.Preset preset)
+        override public void LoadPreset(int preset)
         {
-            switch (preset)
+            switch ((Presets.Preset)preset)
             {
                 case Presets.Preset.Vheos_CoopSurvival:
                     ForceApply();

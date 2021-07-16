@@ -220,10 +220,10 @@ namespace ModPack
            "• Gatherable respawns (for each type)\n" +
            "• Merchant restocks";
         override protected string SectionOverride
-        => SECTION_SURVIVAL;
-        override public void LoadPreset(Presets.Preset preset)
+        => ModSections.SurvivalAndImmersion;
+        override public void LoadPreset(int preset)
         {
-            switch (preset)
+            switch ((Presets.Preset)preset)
             {
                 case Presets.Preset.Vheos_CoopSurvival:
                     ForceApply();
@@ -287,8 +287,8 @@ namespace ModPack
             #endregion
 
             // Initialize game time
-            if (GameTime < (float)__instance.GameTime)
-                GameTime = (float)__instance.GameTime;
+            if (Utility.GameTime < (float)__instance.GameTime)
+                Utility.GameTime = (float)__instance.GameTime;
 
             // Persistent areas
             AreaManager.AreaEnum areaEnum = (AreaManager.AreaEnum)AreaManager.Instance.GetAreaFromSceneName(__instance.AreaName).ID;
@@ -296,15 +296,15 @@ namespace ModPack
             bool resetArea = _areasResetLayers.Value.HasFlag(AreasResetLayers.Cities) || !isAreaPermanent;
 
             // Area modes
-            float sinceLastVisit = GameTime - (float)__instance.GameTime;
-            float sinceLastReset = GameTime - __instance.SaveCreationGameTime;
+            float sinceLastVisit = Utility.GameTime - (float)__instance.GameTime;
+            float sinceLastReset = Utility.GameTime - __instance.SaveCreationGameTime;
             resetArea &= _areasMode == ResetMode.Always
                       || _areasMode == ResetMode.Timer
                                     && sinceLastVisit >= _areasTimer * TIME_UNIT
                                     && sinceLastReset >= _areasTimerSinceReset * TIME_UNIT;
             // Execute
             if (resetArea)
-                __instance.SaveCreationGameTime = GameTime.RoundDown();
+                __instance.SaveCreationGameTime = Utility.GameTime.RoundDown();
 
             if (!resetArea || !_areasResetLayers.Value.HasFlag(AreasResetLayers.Enemies))
                 CharacterManager.Instance.LoadAiCharactersFromSave(__instance.CharList.ToArray());
@@ -389,7 +389,7 @@ namespace ModPack
             {
                 __instance.InventoryRefreshRate = _merchantsTimer * TIME_UNIT;
                 if (___m_nextRefreshTime == double.PositiveInfinity)
-                    ___m_nextRefreshTime = GameTime + __instance.InventoryRefreshRate;
+                    ___m_nextRefreshTime = Utility.GameTime + __instance.InventoryRefreshRate;
             }
 
             return true;
