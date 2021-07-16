@@ -46,8 +46,7 @@
       <Private>False</Private>
     </Reference>
     <Reference Include="Assembly-CSharp_publicized">
-      <HintPath>..\..\AssemblyPublicizer\Assembly-CSharp_publicized.dll</HintPath>
-      <Private>False</Private>
+      <HintPath>..\..\..\PublicizedAssembly\Assembly-CSharp_publicized.dll</HintPath>
     </Reference>
     <Reference Include="BepInEx">
       <HintPath>D:\Multiplayer\Outward\BepInEx\core\BepInEx.dll</HintPath>
@@ -140,7 +139,6 @@
     <Compile Include="Utility\TraitEqualizer\TraitList.cs" />
     <Compile Include="Utility\Utility.cs" />
     <Compile Include="Core\Main.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Utility\Snippets\log.snippet" />
@@ -158,6 +156,9 @@
       <Project>{a48747d8-e698-4c2c-bf11-0efed7d79ef0}</Project>
       <Name>Vheos.ModdingCore</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Properties\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
