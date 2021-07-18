@@ -3,11 +3,11 @@ using System.Linq;
 using System.Collections.Generic;
 using UnityEngine;
 using BepInEx.Configuration;
-using Vheos.Extensions.Math;
-using Vheos.Extensions.General;
-using Vheos.Extensions.Collections;
+using Vheos.Tools.Extensions.Math;
+using Vheos.Tools.Extensions.General;
+using Vheos.Tools.Extensions.Collections;
 using HarmonyLib;
-using Vheos.ModdingCore;
+using Vheos.Tools.ModdingCore;
 
 
 

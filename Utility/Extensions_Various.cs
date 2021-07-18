@@ -9,11 +9,11 @@ using System.Globalization;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using System.Reflection;
-using Vheos.ModdingCore;
-using Vheos.Extensions.Math;
-using Vheos.Extensions.UnityObjects;
-using Vheos.Extensions.Collections;
-using Vheos.Extensions.General;
+using Vheos.Tools.ModdingCore;
+using Vheos.Tools.Extensions.Math;
+using Vheos.Tools.Extensions.UnityObjects;
+using Vheos.Tools.Extensions.Collections;
+using Vheos.Tools.Extensions.General;
 
 
 namespace ModPack

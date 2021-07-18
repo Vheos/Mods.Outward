@@ -7,8 +7,8 @@
     <ProjectGuid>{8A6955C4-5D74-4FBF-988E-F8AD12C2FC8C}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Outward</RootNamespace>
-    <AssemblyName>Outward</AssemblyName>
+    <RootNamespace>Mods.Outward</RootNamespace>
+    <AssemblyName>Mods.Outward</AssemblyName>
     <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>

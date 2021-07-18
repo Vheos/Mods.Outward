@@ -4,9 +4,9 @@ using System.Collections.Generic;
 using UnityEngine;
 using BepInEx.Configuration;
 using HarmonyLib;
-using Vheos.ModdingCore;
-using Vheos.Extensions.UnityObjects;
-using Vheos.Extensions.General;
+using Vheos.Tools.ModdingCore;
+using Vheos.Tools.Extensions.UnityObjects;
+using Vheos.Tools.Extensions.General;
 
 
 

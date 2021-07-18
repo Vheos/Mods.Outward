@@ -4,11 +4,11 @@ using System.Collections.Generic;
 using UnityEngine;
 using BepInEx.Configuration;
 using HarmonyLib;
-using Vheos.ModdingCore;
+using Vheos.Tools.ModdingCore;
 using System.Collections;
-using Vheos.Extensions.UnityObjects;
-using Vheos.Extensions.Collections;
-using Vheos.Extensions.General;
+using Vheos.Tools.Extensions.UnityObjects;
+using Vheos.Tools.Extensions.Collections;
+using Vheos.Tools.Extensions.General;
 
 
 namespace ModPack

@@ -4,10 +4,10 @@ using System.Collections.Generic;
 using UnityEngine;
 using BepInEx.Configuration;
 using HarmonyLib;
-using Vheos.ModdingCore;
+using Vheos.Tools.ModdingCore;
 using BepInEx;
-using Vheos.Extensions.General;
-using Vheos.Extensions.Collections;
+using Vheos.Tools.Extensions.General;
+using Vheos.Tools.Extensions.Collections;
 
 
 
@@ -20,7 +20,7 @@ namespace ModPack
     {
         #region SETTINGS
         public const bool IS_DEVELOPMENT_VERSION = false;
-        public const string GUID = "com.Vheos.Mods.Outward";
+        public const string GUID = "Vheos.Mods.Outward";
         public const string NAME = "Vheos Mod Pack" + (IS_DEVELOPMENT_VERSION ? " [DEVELOPMENT]" : "");
         public const string VERSION = "1.13.0";
         static public Type[] BLACKLIST = { typeof(Debug), typeof(WIP), typeof(PistolTweaks) };

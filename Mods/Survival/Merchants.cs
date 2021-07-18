@@ -4,11 +4,11 @@ using System.Collections.Generic;
 using UnityEngine;
 using BepInEx.Configuration;
 using HarmonyLib;
-using Vheos.ModdingCore;
+using Vheos.Tools.ModdingCore;
 using UnityEngine.UI;
-using Vheos.Extensions.Math;
-using Vheos.Extensions.Math.Unity;
-using Vheos.Extensions.General;
+using Vheos.Tools.Extensions.Math;
+using Vheos.Tools.Extensions.Math.Unity;
+using Vheos.Tools.Extensions.General;
 using Random = UnityEngine.Random;
 
 

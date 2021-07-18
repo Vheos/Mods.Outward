@@ -5,9 +5,9 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Collections;
-using Vheos.ModdingCore;
-using Vheos.Extensions.UnityObjects;
-using Vheos.Extensions.Collections;
+using Vheos.Tools.ModdingCore;
+using Vheos.Tools.Extensions.UnityObjects;
+using Vheos.Tools.Extensions.Collections;
 
 
 

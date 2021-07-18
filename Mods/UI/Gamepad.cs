@@ -4,12 +4,12 @@ using System.Collections.Generic;
 using UnityEngine;
 using BepInEx.Configuration;
 using HarmonyLib;
-using Vheos.ModdingCore;
+using Vheos.Tools.ModdingCore;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
-using Vheos.Extensions.UnityObjects;
-using Vheos.Extensions.General;
-using Vheos.Extensions.Collections;
+using Vheos.Tools.Extensions.UnityObjects;
+using Vheos.Tools.Extensions.General;
+using Vheos.Tools.Extensions.Collections;
 
 
 
