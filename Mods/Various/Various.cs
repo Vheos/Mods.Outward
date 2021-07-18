@@ -16,7 +16,7 @@ using Vheos.Tools.Extensions.General;
  * - hide armor extras (like scarf)
  * - prevent dodging right after hitting
  */
-namespace ModPack
+namespace Vheos.Mods.Outward
 {
     public class Various : AMod, IUpdatable
     {

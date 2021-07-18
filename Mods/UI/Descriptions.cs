@@ -14,7 +14,7 @@ using Vheos.Tools.UtilityNS;
 /* TO DO:
  * - extend to more item types (rags, varnishes)
  */
-namespace ModPack
+namespace Vheos.Mods.Outward
 {
     public class Descriptions : AMod, IDelayedInit
     {

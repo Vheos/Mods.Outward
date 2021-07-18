@@ -11,7 +11,7 @@ using Vheos.Tools.Extensions.Collections;
 
 
 
-namespace ModPack
+namespace Vheos.Mods.Outward
 {
     static internal class InternalUtility
     {

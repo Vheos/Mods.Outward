@@ -14,7 +14,7 @@ using SlotList3D = System.Collections.Generic.List<System.Collections.Generic.Li
 
 
 
-namespace ModPack
+namespace Vheos.Mods.Outward
 {
     public class SkillEditor : AMod, IDelayedInit
     {

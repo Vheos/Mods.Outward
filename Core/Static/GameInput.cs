@@ -7,7 +7,7 @@ using HarmonyLib;
 
 
 
-namespace ModPack
+namespace Vheos.Mods.Outward
 {
     static public class GameInput
     {

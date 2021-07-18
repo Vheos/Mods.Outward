@@ -10,7 +10,7 @@ using Vheos.Tools.ModdingCore;
 /* TO DO:
  * - FriendlyFire: include bows, pistols and spells
  */
-namespace ModPack
+namespace Vheos.Mods.Outward
 {
     public class Damage : AMod
     {

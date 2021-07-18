@@ -13,7 +13,7 @@ using Random = UnityEngine.Random;
 
 
 
-namespace ModPack
+namespace Vheos.Mods.Outward
 {
     public class Merchants : AMod
     {

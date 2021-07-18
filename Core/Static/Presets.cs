@@ -11,7 +11,7 @@ using System.Diagnostics;
 
 
 
-namespace ModPack
+namespace Vheos.Mods.Outward
 {
     static public class Presets
     {

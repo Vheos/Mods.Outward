@@ -13,7 +13,7 @@ using Vheos.Tools.Extensions.Collections;
 
 
 
-namespace ModPack
+namespace Vheos.Mods.Outward
 {
     public class Gamepad : AMod, IUpdatable
     {

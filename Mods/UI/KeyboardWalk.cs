@@ -9,7 +9,7 @@ using Vheos.Tools.Extensions.Math;
 
 
 
-namespace ModPack
+namespace Vheos.Mods.Outward
 {
     public class KeyboardWalk : AMod, IUpdatable
     {

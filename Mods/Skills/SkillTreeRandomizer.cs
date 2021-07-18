@@ -14,7 +14,7 @@ using Random = Vheos.Tools.RandomNS.Random;
 
 
 
-namespace ModPack
+namespace Vheos.Mods.Outward
 {
     public class SkillTreeRandomizer : AMod, IDelayedInit
     {

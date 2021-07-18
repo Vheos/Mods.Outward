@@ -12,7 +12,7 @@ using Vheos.Tools.Extensions.General;
 
 
 
-namespace ModPack
+namespace Vheos.Mods.Outward
 {
     public class GUI : AMod, IDelayedInit, IUpdatable
     {

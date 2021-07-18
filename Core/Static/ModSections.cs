@@ -2,7 +2,7 @@
 
 
 
-namespace ModPack
+namespace Vheos.Mods.Outward
 {
     class ModSections
     {

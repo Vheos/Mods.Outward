@@ -15,7 +15,7 @@ using Vheos.Tools.Extensions.Collections;
 
 
 
-namespace ModPack
+namespace Vheos.Mods.Outward
 {
     public class SkillLimits : AMod
     {

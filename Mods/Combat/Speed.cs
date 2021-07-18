@@ -8,7 +8,7 @@ using Vheos.Tools.ModdingCore;
 
 
 
-namespace ModPack
+namespace Vheos.Mods.Outward
 {
     public class Speed : AMod, IUpdatable
     {

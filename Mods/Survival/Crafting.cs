@@ -11,7 +11,7 @@ using Vheos.Tools.ModdingCore;
 
 
 
-namespace ModPack
+namespace Vheos.Mods.Outward
 {
     public class Crafting : AMod, IDelayedInit
     {

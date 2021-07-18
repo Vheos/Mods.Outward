@@ -1,19 +1,9 @@
-﻿using System;
-using System.Linq;
-using System.Collections.Generic;
-using UnityEngine;
-using BepInEx.Configuration;
-using HarmonyLib;
-using Vheos.Tools.ModdingCore;
-using BepInEx;
-using Vheos.Tools.Extensions.General;
-using Vheos.Tools.Extensions.Collections;
-using System.Reflection;
-
-
-
-namespace ModPack
+﻿namespace Vheos.Mods.Outward
 {
+    using System;
+    using Vheos.Tools.ModdingCore;
+    using BepInEx;
+    using System.Reflection;
     [BepInDependency("com.bepis.bepinex.configurationmanager", BepInDependency.DependencyFlags.SoftDependency)]
     [BepInDependency("io.mefino.configurationmanager", BepInDependency.DependencyFlags.SoftDependency)]
     [BepInPlugin(GUID, NAME, VERSION)]
@@ -71,7 +61,7 @@ namespace ModPack
 
         // User logic
         override public Assembly CurrentAssembly
-        => Assembly.GetExecutingAssembly();       
+        => Assembly.GetExecutingAssembly();
         override public void Initialize()
         {
             AMod.SetOrderingList(MODS_ORDERING_LIST);

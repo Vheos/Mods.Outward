@@ -10,7 +10,7 @@ using Vheos.Tools.Extensions.Collections;
 using Vheos.Tools.Extensions.General;
 
 
-namespace ModPack
+namespace Vheos.Mods.Outward
 {
     public class Traps : AMod
     {

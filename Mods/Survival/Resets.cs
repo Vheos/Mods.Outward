@@ -14,7 +14,7 @@ using Vheos.Tools.Extensions.Collections;
  * - include side quests
  * - include unique items and enemies
  */
-namespace ModPack
+namespace Vheos.Mods.Outward
 {
     public class Resets : AMod
     {

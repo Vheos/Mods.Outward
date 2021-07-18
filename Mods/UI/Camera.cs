@@ -10,7 +10,7 @@ using Vheos.Tools.Extensions.Math.Unity;
 
 
 
-namespace ModPack
+namespace Vheos.Mods.Outward
 {
     public class Camera : AMod, IDelayedInit, IUpdatable
     {

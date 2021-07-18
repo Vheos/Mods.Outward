@@ -7,7 +7,7 @@ using HarmonyLib;
 using Vheos.Tools.Extensions.Collections;
 
 
-namespace ModPack
+namespace Vheos.Mods.Outward
 {
     static public class Players
     {

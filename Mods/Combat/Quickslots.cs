@@ -7,7 +7,7 @@ using HarmonyLib;
 using Vheos.Tools.ModdingCore;
 using Vheos.Tools.Extensions.General;
 
-namespace ModPack
+namespace Vheos.Mods.Outward
 {
     public class Quickslots : AMod
     {
