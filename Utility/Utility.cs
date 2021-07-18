@@ -19,8 +19,6 @@ namespace ModPack
         => new StackFrame(2).GetMethod().Name;
         static public Type CallerType
         => new StackFrame(1).GetMethod().DeclaringType;
-        static public IEnumerable<Type> GetDerivedTypes<T>()
-        => Assembly.GetExecutingAssembly().GetTypes().Where(t => t.IsSubclassOf(typeof(T)));
         static public string AssemblyName
         => Assembly.GetCallingAssembly().GetName().Name;
         static public string PluginFolderPath
