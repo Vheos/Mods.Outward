@@ -124,7 +124,7 @@ namespace ModPack
             _itemActionDropOne = CreateSetting(nameof(_displayStashAmount), false);
             _temperatureToggle = CreateSetting(nameof(_temperatureToggle), false);
             _temperatureDataByEnum = new Dictionary<TemperatureSteps, ModSetting<Vector2>>();
-            foreach (var step in Utility.GetEnumValues<TemperatureSteps>())
+            foreach (var step in InternalUtility.GetEnumValues<TemperatureSteps>())
                 if (step != TemperatureSteps.Count)
                     _temperatureDataByEnum.Add(step, CreateSetting(nameof(_temperatureDataByEnum) + step, DEFAULT_TEMPERATURE_DATA_BY_ENUM[step]));
 
@@ -204,7 +204,7 @@ namespace ModPack
                                              "Very Hot   -   75)";
             Indent++;
             {
-                foreach (var step in Utility.GetEnumValues<TemperatureSteps>())
+                foreach (var step in InternalUtility.GetEnumValues<TemperatureSteps>())
                     if (step != TemperatureSteps.Count)
                         _temperatureDataByEnum[step].Format(step.ToString(), _temperatureToggle);
                 Indent--;
@@ -324,7 +324,7 @@ namespace ModPack
             #endregion
 
             if (EnvironmentConditions.Instance.TryNonNull(out var environmentConditions))
-                foreach (var step in Utility.GetEnumValues<TemperatureSteps>())
+                foreach (var step in InternalUtility.GetEnumValues<TemperatureSteps>())
                     if (step != TemperatureSteps.Count)
                     {
                         environmentConditions.BodyTemperatureImpactPerStep[step] = _temperatureDataByEnum[step].Value.x;
@@ -464,7 +464,7 @@ namespace ModPack
             #endregion
 
             var DLCs = new List<OTWStoreAPI.DLCs>();
-            foreach (var flag in Utility.GetEnumValues<TitleScreens>())
+            foreach (var flag in InternalUtility.GetEnumValues<TitleScreens>())
                 if (_titleScreenRandomize.Value.HasFlag(flag))
                     switch (flag)
                     {

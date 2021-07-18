@@ -194,7 +194,7 @@ namespace ModPack
 
             // Initialize
             List<Character.Factions> targetableFactions = new List<Character.Factions>();
-            foreach (var faction in Utility.GetEnumValues<Character.Factions>())
+            foreach (var faction in InternalUtility.GetEnumValues<Character.Factions>())
             {
                 if (faction == Character.Factions.NONE
                 || faction == Character.Factions.COUNT
@@ -223,8 +223,8 @@ namespace ModPack
             foreach (var detection in _charAI.GetComponentsInChildren<AICEnemyDetection>(true))
             {
                 // View angles
-                detection.GoodViewAngle = Utility.Lerp3(0, detection.GoodViewAngle, 90, multiplier / 2);
-                detection.ViewAngle = Utility.Lerp3(0, detection.ViewAngle, 180, multiplier / 2);
+                detection.GoodViewAngle = InternalUtility.Lerp3(0, detection.GoodViewAngle, 90, multiplier / 2);
+                detection.ViewAngle = InternalUtility.Lerp3(0, detection.ViewAngle, 180, multiplier / 2);
 
                 // View ranges
                 detection.ViewRange *= multiplier;

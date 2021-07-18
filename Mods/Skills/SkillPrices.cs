@@ -52,7 +52,7 @@ namespace ModPack
                 ItemName = name;
                 ItemID = Prefabs.ItemIDsByName[name];
                 Amount = amount;
-                Icon = Utility.CreateSpriteFromFile(Utility.PluginFolderPath + ICONS_FOLDER + name + ".PNG");
+                Icon = InternalUtility.CreateSpriteFromFile(InternalUtility.PluginFolderPath + ICONS_FOLDER + name + ".PNG");
             }
         }
         #endregion
@@ -68,7 +68,7 @@ namespace ModPack
         {
             _formulaToggle = CreateSetting(nameof(_formulaToggle), false);
             _formulaCoeffsByLevel = new Dictionary<SlotLevel, ModSetting<Vector4>>();
-            foreach (var level in Utility.GetEnumValues<SlotLevel>())
+            foreach (var level in InternalUtility.GetEnumValues<SlotLevel>())
             {
                 Vector4 initialPrice = Vector4.zero;
                 switch (level)

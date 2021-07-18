@@ -470,7 +470,7 @@ namespace ModPack
                 return;
 
             // Execute
-            Utility.SwapHierarchyPositions(pendingBuy, pendingSell);
+            InternalUtility.SwapHierarchyPositions(pendingBuy, pendingSell);
             pendingBuy.SetAsFirstSibling();
             pendingSell.SetAsFirstSibling();
         }
@@ -731,7 +731,7 @@ namespace ModPack
             float progress;
             if (statusEffect.TryAs(out Disease disease) && disease.IsReceding)
             {
-                float elapsed = Utility.GameTime - disease.m_healedGameTime;
+                float elapsed = InternalUtility.GameTime - disease.m_healedGameTime;
                 float duration = DiseaseLibrary.Instance.GetRecedingTime(disease.m_diseasesType);
                 progress = 1f - elapsed / duration;
             }

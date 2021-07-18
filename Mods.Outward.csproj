@@ -147,7 +147,7 @@
     <Compile Include="Mods\Survival\SurvivalTools.cs" />
     <Compile Include="Mods\Various\Various.cs" />
     <Compile Include="Utility\Extensions_Various.cs" />
-    <Compile Include="Utility\Utility.cs" />
+    <Compile Include="Utility\InternalUtility.cs" />
     <Compile Include="Core\Main.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -173,9 +173,17 @@
       <EmbedInteropTypes>False</EmbedInteropTypes>
       <Private>True</Private>
     </ProjectReference>
+    <ProjectReference Include="..\..\Tools\Random\Tools.Random.csproj">
+      <Project>{f4c8a01e-9df7-4e31-8169-1cf24d2896e7}</Project>
+      <Name>Tools.Random</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\Tools\TraitEqualizer\Tools.TraitEqualizer.csproj">
       <Project>{23d233fc-b7d0-4709-baaa-e803fee61930}</Project>
       <Name>Tools.TraitEqualizer</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Tools\Utility\Tools.Utility.csproj">
+      <Project>{96d2cdb1-5ee9-4666-812d-9ecb8df005c4}</Project>
+      <Name>Tools.Utility</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

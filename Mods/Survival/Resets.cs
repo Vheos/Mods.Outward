@@ -287,8 +287,8 @@ namespace ModPack
             #endregion
 
             // Initialize game time
-            if (Utility.GameTime < (float)__instance.GameTime)
-                Utility.GameTime = (float)__instance.GameTime;
+            if (InternalUtility.GameTime < (float)__instance.GameTime)
+                InternalUtility.GameTime = (float)__instance.GameTime;
 
             // Persistent areas
             AreaManager.AreaEnum areaEnum = (AreaManager.AreaEnum)AreaManager.Instance.GetAreaFromSceneName(__instance.AreaName).ID;
@@ -296,15 +296,15 @@ namespace ModPack
             bool resetArea = _areasResetLayers.Value.HasFlag(AreasResetLayers.Cities) || !isAreaPermanent;
 
             // Area modes
-            float sinceLastVisit = Utility.GameTime - (float)__instance.GameTime;
-            float sinceLastReset = Utility.GameTime - __instance.SaveCreationGameTime;
+            float sinceLastVisit = InternalUtility.GameTime - (float)__instance.GameTime;
+            float sinceLastReset = InternalUtility.GameTime - __instance.SaveCreationGameTime;
             resetArea &= _areasMode == ResetMode.Always
                       || _areasMode == ResetMode.Timer
                                     && sinceLastVisit >= _areasTimer * TIME_UNIT
                                     && sinceLastReset >= _areasTimerSinceReset * TIME_UNIT;
             // Execute
             if (resetArea)
-                __instance.SaveCreationGameTime = Utility.GameTime.RoundDown();
+                __instance.SaveCreationGameTime = InternalUtility.GameTime.RoundDown();
 
             if (!resetArea || !_areasResetLayers.Value.HasFlag(AreasResetLayers.Enemies))
                 CharacterManager.Instance.LoadAiCharactersFromSave(__instance.CharList.ToArray());
@@ -389,7 +389,7 @@ namespace ModPack
             {
                 __instance.InventoryRefreshRate = _merchantsTimer * TIME_UNIT;
                 if (___m_nextRefreshTime == double.PositiveInfinity)
-                    ___m_nextRefreshTime = Utility.GameTime + __instance.InventoryRefreshRate;
+                    ___m_nextRefreshTime = InternalUtility.GameTime + __instance.InventoryRefreshRate;
             }
 
             return true;

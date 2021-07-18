@@ -10,7 +10,7 @@ using Vheos.Tools.Extensions.UnityObjects;
 using Vheos.Tools.Extensions.Collections;
 using Vheos.Tools.Extensions.General;
 using Vheos.Tools.TraitEqualizer;
-using Random = Vheos.Tools.TraitEqualizer.Random;
+using Random = Vheos.Tools.RandomNS.Random;
 
 
 
@@ -413,7 +413,7 @@ namespace ModPack
             foreach (var name in MISSING_ICON_SKILL_NAMES)
             {
                 int id = Prefabs.SkillIDsByName[name];
-                Prefabs.SkillsByID[id].SkillTreeIcon = Utility.CreateSpriteFromFile(Utility.PluginFolderPath + ICONS_FOLDER + name.Replace('/', '_') + ".PNG");
+                Prefabs.SkillsByID[id].SkillTreeIcon = InternalUtility.CreateSpriteFromFile(InternalUtility.PluginFolderPath + ICONS_FOLDER + name.Replace('/', '_') + ".PNG");
             }
         }
         static private void ResetSkillTreeHolders()
@@ -536,7 +536,7 @@ namespace ModPack
             CopyEqualizedSlotsToOutputTrees(equalizer.Results, outputTrees);
         }
         static private void LogResultsToFile(string results)
-        => System.IO.File.WriteAllText(Utility.PluginFolderPath + REROLL_STATS_FILE_NAME, results);
+        => System.IO.File.WriteAllText(InternalUtility.PluginFolderPath + REROLL_STATS_FILE_NAME, results);
         static private void CopyEqualizedSlotsToOutputTrees(IEnumerable<IEnumerable<BaseSkillSlot>> equalizedTrees, IList<SkillSchool> outputTrees)
         {
             foreach (var equalizedTree in equalizedTrees)

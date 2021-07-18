@@ -32,7 +32,7 @@ namespace ModPack
         static private void CreateSetting(List<AMod> mods)
         {
             List<string> names = new List<string>();
-            foreach (var preset in Utility.GetEnumValues<Preset>())
+            foreach (var preset in InternalUtility.GetEnumValues<Preset>())
                 names.Add(PresetToName(preset));
 
             _presetToLoad = new ModSetting<string>("", nameof(_presetToLoad), PresetToName(Preset.None), new AcceptableValueList<string>(names.ToArray()));
@@ -69,7 +69,7 @@ namespace ModPack
         }
         static private Preset NameToPreset(string name)
         {
-            foreach (var preset in Utility.GetEnumValues<Preset>())
+            foreach (var preset in InternalUtility.GetEnumValues<Preset>())
                 if (name == PresetToName(preset))
                     return preset;
             return Preset.None;

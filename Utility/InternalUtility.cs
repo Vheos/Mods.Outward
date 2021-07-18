@@ -13,7 +13,7 @@ using Vheos.Tools.Extensions.Collections;
 
 namespace ModPack
 {
-    static public class Utility
+    static internal class InternalUtility
     {
         static public string CallerName
         => new StackFrame(2).GetMethod().Name;

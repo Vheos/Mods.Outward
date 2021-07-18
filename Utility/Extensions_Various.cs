@@ -367,7 +367,7 @@ namespace ModPack
         {
             List<T> components = new List<T>();
             components.Add(root.GetComponents<T>());
-            Utility.AppendChildrenRecurisvely(root, components);
+            InternalUtility.AppendChildrenRecurisvely(root, components);
             return components;
         }
         static public List<Component> GetAllComponentsInHierarchy<T1, T2>(this Transform root) where T1 : Component where T2 : Component
@@ -375,7 +375,7 @@ namespace ModPack
             List<Component> components = new List<Component>();
             components.Add(root.GetComponents<T1>());
             components.Add(root.GetComponents<T2>());
-            Utility.AppendChildrenRecurisvely(root, components);
+            InternalUtility.AppendChildrenRecurisvely(root, components);
             return components;
         }
         static public List<RaycastResult> GetMouseHits(this GraphicRaycaster t)
@@ -490,15 +490,15 @@ namespace ModPack
         }
 
         static public Coroutine ExecuteAtTheEndOfFrame(this MonoBehaviour monoBehaviour, Action action)
-        => monoBehaviour.StartCoroutine(Utility.CoroutineWaitUntilEndOfFrame(action));
+        => monoBehaviour.StartCoroutine(InternalUtility.CoroutineWaitUntilEndOfFrame(action));
         static public Coroutine ExecuteOnceAfterDelay(this MonoBehaviour monoBehaviour, float delay, Action action)
-        => monoBehaviour.StartCoroutine(Utility.CoroutineWaitForSeconds(delay, action));
+        => monoBehaviour.StartCoroutine(InternalUtility.CoroutineWaitForSeconds(delay, action));
         static public Coroutine ExecuteOnceWhen(this MonoBehaviour monoBehaviour, Func<bool> test, Action action)
-        => monoBehaviour.StartCoroutine(Utility.CoroutineWaitUntil(test, action));
+        => monoBehaviour.StartCoroutine(InternalUtility.CoroutineWaitUntil(test, action));
         static public Coroutine ExecuteWhile(this MonoBehaviour monoBehaviour, Func<bool> test, Action action, Action finalAction = null)
-        => monoBehaviour.StartCoroutine(Utility.CoroutineWhile(test, action, finalAction));
+        => monoBehaviour.StartCoroutine(InternalUtility.CoroutineWhile(test, action, finalAction));
         static public Coroutine ExecuteUntil(this MonoBehaviour monoBehaviour, Func<bool> test, Action action, Action finalAction = null)
-        => monoBehaviour.StartCoroutine(Utility.CoroutineDoUntil(test, action, finalAction));
+        => monoBehaviour.StartCoroutine(InternalUtility.CoroutineDoUntil(test, action, finalAction));
 
         // Dump
         static public void Dump
