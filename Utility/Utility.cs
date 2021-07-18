@@ -65,12 +65,6 @@ namespace ModPack
             }
             return null;
         }
-        static public void Swap<T>(ref T t, ref T a)
-        {
-            T temp = t;
-            t = a;
-            a = temp;
-        }
         static public T[] CreateArray<T>(int count, T value)
         {
             T[] array = new T[count];
