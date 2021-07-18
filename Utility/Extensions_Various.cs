@@ -265,16 +265,6 @@ namespace ModPack
         static public string ToName(this ControlsInput.MenuActions action)
         => ControlsInput.GetMenuActionName(action);
 
-        // Config
-        static public ConfigurationManagerAttributes Attributes(this ConfigEntryBase t)
-        => (t.Description.Tags[0] as ConfigurationManagerAttributes);
-        static private void SetVisibility(this ConfigEntryBase t, bool a)
-        => t.Attributes().Browsable = a;
-        static public void Show(this ConfigEntryBase t)
-        => t.SetVisibility(true);
-        static public void Hide(this ConfigEntryBase t)
-        => t.SetVisibility(false);
-
         // Various
         static public Vector3 ToVector3(this (float X, float Y, float Z) t)
         => new Vector3(t.X, t.Y, t.Z);
