@@ -9,8 +9,8 @@ using Vheos.Tools.Extensions.Math;
 using Vheos.Tools.Extensions.UnityObjects;
 using Vheos.Tools.Extensions.Collections;
 using Vheos.Tools.Extensions.General;
-using Vheos.TraitEqualizer;
-using Random = Vheos.TraitEqualizer.Random;
+using Vheos.Tools.TraitEqualizer;
+using Random = Vheos.Tools.TraitEqualizer.Random;
 
 
 
