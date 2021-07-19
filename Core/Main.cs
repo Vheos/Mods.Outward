@@ -1,18 +1,17 @@
 ﻿namespace Vheos.Mods.Outward
 {
     using System;
-    using Vheos.Tools.ModdingCore;
-    using BepInEx;
     using System.Reflection;
+    using BepInEx;
+    using Vheos.Tools.ModdingCore;
     [BepInDependency("com.bepis.bepinex.configurationmanager", BepInDependency.DependencyFlags.SoftDependency)]
     [BepInDependency("io.mefino.configurationmanager", BepInDependency.DependencyFlags.SoftDependency)]
     [BepInPlugin(GUID, NAME, VERSION)]
     public class Main : BepInExEntryPoint
     {
         #region SETTINGS
-        public const bool IS_DEVELOPMENT_VERSION = false;
         public const string GUID = "Vheos.Mods.Outward";
-        public const string NAME = "Vheos Mod Pack" + (IS_DEVELOPMENT_VERSION ? " [DEVELOPMENT]" : "");
+        public const string NAME = "Vheos Mod Pack";
         public const string VERSION = "1.13.0";
         static private readonly Type[] MODS_ORDERING_LIST = new[]
         {
@@ -65,16 +64,16 @@
         override public void Initialize()
         {
             AMod.SetOrderingList(MODS_ORDERING_LIST);
-           Log.Debug("Initializing GameInput...");
+            Log.Debug("Initializing GameInput...");
             GameInput.Initialize();
-           Log.Debug("Initializing Players...");
+            Log.Debug("Initializing Players...");
             Players.Initialize();
         }
         override public void DelayedInitialize()
         {
-           Log.Debug("Initializing Prefabs...");
+            Log.Debug("Initializing Prefabs...");
             Prefabs.Initialize();
-           Log.Debug("Initializing Presets...");
+            Log.Debug("Initializing Presets...");
             Presets.Initialize(_mods);
         }
         override public bool DelayedInitializeCondition
