@@ -555,7 +555,7 @@ namespace Vheos.Mods.Outward
                     }
 
             // Print
-            Tools.Log(builder.ToString());
+            Log.Debug(builder.ToString());
         }
         static public void Dump
         (

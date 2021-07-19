@@ -125,7 +125,7 @@ namespace Vheos.Mods.Outward
         {
             Character enemy = ai.Character;
             var lastAttackers = enemy.m_lastDealers;
-            //Tools.Log($"{enemy.Name} - enemies:  {lastAttackers.Count}");
+            //Log.Debug($"{enemy.Name} - enemies:  {lastAttackers.Count}");
 
             if (lastAttackers.Count <= 1
             || UnityEngine.Random.value > _changeTargetChancePerCheck / 100f)
@@ -145,22 +145,22 @@ namespace Vheos.Mods.Outward
                     }
                 }
 
-            //Tools.Log($"{enemy.Name} - distance: {currentDistance:F2} / {nearestDistance:F2} = {currentDistance / nearestDistance:F2}");
+            //Log.Debug($"{enemy.Name} - distance: {currentDistance:F2} / {nearestDistance:F2} = {currentDistance / nearestDistance:F2}");
             if (currentDistance / nearestDistance >= _changeTargetCurrentToNearestRatio)
             {
-                //Tools.Log($"\tswitching to {nearestAttacker.Name}");
+                //Log.Debug($"\tswitching to {nearestAttacker.Name}");
                 enemy.TargetingSystem.SwitchTarget(nearestAttacker.LockingPoint);
             }
         }
         static public IEnumerator TryRetargetCoroutine(CharacterAI ai)
         {
-            //Tools.Log($"{ai.name} - START");
+            //Log.Debug($"{ai.name} - START");
             while (true)
             {
                 if (ai.Character.IsDead || ai.Character.IsPetrified
                 || ai.CurrentAiState.IsNotAny<AISCombatMelee, AISCombatRanged>())
                 {
-                    //Tools.Log($"{ai.name} - STOP");
+                    //Log.Debug($"{ai.name} - STOP");
                     yield break;
                 }
 

@@ -65,16 +65,16 @@
         override public void Initialize()
         {
             AMod.SetOrderingList(MODS_ORDERING_LIST);
-            Tools.Log("Initializing GameInput...");
+           Log.Debug("Initializing GameInput...");
             GameInput.Initialize();
-            Tools.Log("Initializing Players...");
+           Log.Debug("Initializing Players...");
             Players.Initialize();
         }
         override public void DelayedInitialize()
         {
-            Tools.Log("Initializing Prefabs...");
+           Log.Debug("Initializing Prefabs...");
             Prefabs.Initialize();
-            Tools.Log("Initializing Presets...");
+           Log.Debug("Initializing Presets...");
             Presets.Initialize(_mods);
         }
         override public bool DelayedInitializeCondition

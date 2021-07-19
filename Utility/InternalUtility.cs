@@ -50,7 +50,7 @@ namespace Vheos.Mods.Outward
             }
 
             // print
-            Tools.Log(text);
+            Log.Debug(text);
         }
         static public Sprite CreateSpriteFromFile(string filePath)
         {

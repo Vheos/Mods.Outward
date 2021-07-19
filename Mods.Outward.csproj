@@ -107,11 +107,11 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Core\Static\ModSections.cs" />
-    <Compile Include="Core\Static\Players.cs" />
-    <Compile Include="Core\Static\Prefabs.cs" />
-    <Compile Include="Core\Static\GameInput.cs" />
-    <Compile Include="Core\Static\Presets.cs" />
+    <Compile Include="Core\ModSections.cs" />
+    <Compile Include="Core\Players.cs" />
+    <Compile Include="Core\Prefabs.cs" />
+    <Compile Include="Core\GameInput.cs" />
+    <Compile Include="Core\Presets.cs" />
     <Compile Include="Mods\Survival\Crafting.cs" />
     <Compile Include="Mods\Survival\AI.cs" />
     <Compile Include="Mods\Survival\Inns.cs" />

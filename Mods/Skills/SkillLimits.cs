@@ -355,7 +355,7 @@ namespace Vheos.Mods.Outward
  */
 
 /*
- *             Tools.Log($"{skill.DisplayName}\t{skill.ItemID}\t{skill.SchoolIndex}\t{(TryGetSkillTree(skill, out SkillSchool tree) ? tree.Name : "")}\n" +
+ *             Log.Debug($"{skill.DisplayName}\t{skill.ItemID}\t{skill.SchoolIndex}\t{(TryGetSkillTree(skill, out SkillSchool tree) ? tree.Name : "")}\n" +
                 $"{IsBasic(skill)}\t{IsBreakthrough(skill)}\t{IsAdvanced(skill)}\t{IsSide(skill)}\t{IsLimited(__instance.LocalCharacter, skill)}\n");
  */
 

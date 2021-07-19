@@ -514,7 +514,7 @@ namespace Vheos.Mods.Outward
 
             if (state)
             {
-                Tools.IsConfigOpen = false;
+                ConfigHelper.IsConfigOpen = false;
                 SetupHUDElements(player);
                 _hudEditFocus.Transform = null;
             }

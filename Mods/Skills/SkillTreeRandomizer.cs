@@ -753,21 +753,21 @@ namespace Vheos.Mods.Outward
 
 /*
  *             // Log
-            Tools.Log($"");
-            Tools.Log($"TRAITS");
+            Log.Debug($"");
+            Log.Debug($"TRAITS");
             foreach (var trait in equalizer.Traits)
-                Tools.Log($"\t{trait.Name}");
+                Log.Debug($"\t{trait.Name}");
 
             int counter = 0;
             foreach (var tree in equalizer.Results)
             {
-                Tools.Log($"");
-                Tools.Log($"TREE #{counter++}");
+                Log.Debug($"");
+                Log.Debug($"TREE #{counter++}");
 
                 List<BaseSkillSlot> sortedList = tree.ToList();
                 sortedList.Sort((a, b) => GetSlotLevel(a).CompareTo(GetSlotLevel(b)));
                 foreach (var slot in sortedList)
-                    Tools.Log($"\t{GetSlotLevel(slot)} / {slot.ParentBranch.ParentTree.Name} / {slot.name}");
+                    Log.Debug($"\t{GetSlotLevel(slot)} / {slot.ParentBranch.ParentTree.Name} / {slot.name}");
             }
 */
 
