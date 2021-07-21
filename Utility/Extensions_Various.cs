@@ -18,53 +18,6 @@ using Vheos.Tools.Extensions.General;
 
 namespace Vheos.Mods.Outward
 {
-
-    #region enum
-    [Flags]
-    public enum Data
-    {
-        None = 0,
-        Names = 1 << 1,
-        Types = 1 << 2,
-        Values = 1 << 3,
-        NamesAndTypes = Names | Types,
-        NamesAndValues = Names | Values,
-        TypesAndValues = Types | Values,
-        All = Names | Types | Values,
-    }
-
-    [Flags]
-    public enum Members
-    {
-        None = 0,
-        Fields = 1 << 1,
-        Properties = 1 << 2,
-        Methods = 1 << 3,
-        FieldsAndProperties = Fields | Properties,
-        FieldsAndMethods = Fields | Methods,
-        PropertiesAndMethods = Properties | Methods,
-        All = Fields | Properties | Methods,
-    }
-
-    [Flags]
-    public enum ScopeModifiers
-    {
-        None = 0,
-        Instance = 1 << 1,
-        Static = 1 << 2,
-        All = Instance | Static,
-    }
-
-    [Flags]
-    public enum AccessModifiers
-    {
-        None = 0,
-        Private = 1 << 1,
-        Public = 1 << 2,
-        All = Private | Public,
-    }
-    #endregion
-
     static public class Extensions_Various
     {
         // Game
@@ -453,14 +406,6 @@ namespace Vheos.Mods.Outward
         static public void GOToggle(this Component t)
         => t.GOSetActive(!t.GOActive());
 
-        static public bool Pressed(this KeyCode t)
-        => Input.GetKeyDown(t);
-        static public bool Released(this KeyCode t)
-        => Input.GetKeyUp(t);
-        static public bool Held(this KeyCode t)
-        => Input.GetKey(t);
-
-
         static public bool IsEmpty(this string text)
         => string.IsNullOrEmpty(text);
         static public bool IsNotEmpty(this string text)
@@ -499,96 +444,5 @@ namespace Vheos.Mods.Outward
         => monoBehaviour.StartCoroutine(InternalUtility.CoroutineWhile(test, action, finalAction));
         static public Coroutine ExecuteUntil(this MonoBehaviour monoBehaviour, Func<bool> test, Action action, Action finalAction = null)
         => monoBehaviour.StartCoroutine(InternalUtility.CoroutineDoUntil(test, action, finalAction));
-
-        // Dump
-        static public void Dump
-        (
-            this object instance,
-            Type type = null,
-            string[] blacklist = null,
-            Data data = Data.Values,
-            Members members = Members.FieldsAndProperties,
-            ScopeModifiers scopeModifiers = ScopeModifiers.Instance,
-            AccessModifiers accessModifiers = AccessModifiers.All
-        )
-        {
-            // Cache
-            if (type == null)
-                type = instance.GetType();
-            BindingFlags bindingFlags = accessModifiers.ToBindingFlags() | scopeModifiers.ToBindingFlags();
-            StringBuilder builder = new StringBuilder();
-
-            // Fields
-            if (members.HasFlag(Members.Fields))
-                foreach (var fieldInfo in type.GetFields(bindingFlags))
-                    if (blacklist == null || !fieldInfo.Name.IsContainedIn(blacklist))
-                    {
-                        if (data.HasFlag(Data.Names))
-                            builder.Append(fieldInfo.Name, "\t");
-                        if (data.HasFlag(Data.Types))
-                            builder.Append(fieldInfo.FieldType.Name, "\t");
-                        if (data.HasFlag(Data.Values))
-                        {
-                            object value = fieldInfo.GetValue(instance);
-                            builder.Append((value != null ? value.ToString() : "null"), "\t");
-                        }
-                    }
-
-            // Properties
-            if (members.HasFlag(Members.Properties))
-                foreach (var propInfo in type.GetProperties(bindingFlags))
-                    if (blacklist == null || !propInfo.Name.IsContainedIn(blacklist))
-                    {
-                        if (data.HasFlag(Data.Names))
-                            builder.Append(propInfo.Name, "\t");
-                        if (data.HasFlag(Data.Types))
-                            builder.Append(propInfo.PropertyType.Name, "\t");
-                        if (data.HasFlag(Data.Values))
-                        {
-                            object value;
-                            try
-                            { value = propInfo.GetValue(instance); }
-                            catch
-                            { value = "[EXCEPTION]"; }
-                            builder.Append((value != null ? value.ToString() : "null"), "\t");
-                        }
-                    }
-
-            // Print
-            Log.Debug(builder.ToString());
-        }
-        static public void Dump
-        (
-            this Type type,
-            string[] blacklist = null,
-            Data data = Data.NamesAndTypes,
-            Members members = Members.FieldsAndProperties,
-            ScopeModifiers scopeModifiers = ScopeModifiers.Instance,
-            AccessModifiers accessModifiers = AccessModifiers.All
-        )
-        {
-            Dump(null, type, blacklist, data, members, scopeModifiers, accessModifiers);
-        }
-
-        // Utility
-        static public BindingFlags ToBindingFlags(this AccessModifiers accessModifiers)
-        {
-            BindingFlags flags = 0;
-            if (accessModifiers.HasFlag(AccessModifiers.Private))
-                flags |= BindingFlags.NonPublic;
-            if (accessModifiers.HasFlag(AccessModifiers.Public))
-                flags |= BindingFlags.Public;
-            return flags;
-        }
-        static public BindingFlags ToBindingFlags(this ScopeModifiers scopeModifiers)
-        {
-            BindingFlags flags = 0;
-            if (scopeModifiers.HasFlag(ScopeModifiers.Instance))
-                flags |= BindingFlags.Instance;
-            if (scopeModifiers.HasFlag(ScopeModifiers.Static))
-                flags |= BindingFlags.Static;
-            return flags;
-        }
-
     }
 }
