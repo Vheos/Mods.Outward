@@ -9,7 +9,7 @@ using UnityEngine.UI;
 using System.Collections;
 using Vheos.Tools.Extensions.Math;
 using Vheos.Tools.Extensions.General;
-
+using Vheos.Tools.Extensions.General.Unity;
 
 
 /* TO DO:

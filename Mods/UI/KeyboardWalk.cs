@@ -6,7 +6,7 @@ using BepInEx.Configuration;
 using HarmonyLib;
 using Vheos.Tools.ModdingCore;
 using Vheos.Tools.Extensions.Math;
-
+using Vheos.Tools.Extensions.General.Unity;
 
 
 namespace Vheos.Mods.Outward
