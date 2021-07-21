@@ -157,13 +157,6 @@
     <Compile Include="Core\Main.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Utility\Snippets\log.snippet" />
-    <None Include="Utility\Snippets\postfix.snippet" />
-    <None Include="Utility\Snippets\prefixsafe.snippet" />
-    <None Include="Utility\Snippets\tempstate.snippet" />
-    <None Include="Utility\Snippets\prefix.snippet" />
-  </ItemGroup>
-  <ItemGroup>
     <Folder Include="Properties\" />
   </ItemGroup>
   <ItemGroup>
@@ -197,7 +190,8 @@
     <PostBuildEvent>start "" "D:\Multiplayer\Outward\Outward.exe"</PostBuildEvent>
   </PropertyGroup>
   <PropertyGroup>
-    <PreBuildEvent>taskkill /im Outward.exe</PreBuildEvent>
+    <PreBuildEvent>
+    </PreBuildEvent>
   </PropertyGroup>
   <Target Name="PreBuildEvent" Condition="'$(PreBuildEvent)'!=''" DependsOnTargets="$(PreBuildEventDependsOn)">
     <Exec WorkingDirectory="$(OutDir)" Command="$(PreBuildEvent)" ContinueOnError="true" />
