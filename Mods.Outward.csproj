@@ -37,7 +37,7 @@
     <RunPostBuildEvent>OnOutputUpdated</RunPostBuildEvent>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release %28.NET 3.5%29|AnyCPU'">
-    <OutputPath>bin\Release %28.NET 3.5%29\</OutputPath>
+    <OutputPath>D:\Multiplayer\Outward\BepInEx\plugins\Vheos\</OutputPath>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <Optimize>true</Optimize>
     <DebugType>pdbonly</DebugType>
