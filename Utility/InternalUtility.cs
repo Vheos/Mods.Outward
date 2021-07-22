@@ -15,43 +15,12 @@ namespace Vheos.Mods.Outward
 {
     static internal class InternalUtility
     {
-        static public string CallerName
-        => new StackFrame(2).GetMethod().Name;
         static public Type CallerType
         => new StackFrame(1).GetMethod().DeclaringType;
         static public string AssemblyName
         => Assembly.GetCallingAssembly().GetName().Name;
         static public string PluginFolderPath
         => @"BepInEx\plugins\Vheos\";
-        static public void PrintStack(bool skipCurrent = true)
-        {
-            // initialize
-            StackFrame[] stackFrames = new StackTrace(skipCurrent ? 2 : 1).GetFrames();
-            string text = "Stack:\n";
-
-            // find longest type
-            int longestType = 0;
-            foreach (var frame in stackFrames)
-            {
-                MethodBase method = frame.GetMethod();
-                int typeLength = method.DeclaringType.ToString().Length + (method.IsStatic ? 7 : 0);
-                if (typeLength > longestType)
-                    longestType = typeLength;
-            }
-
-            // append methods
-            foreach (var frame in stackFrames)
-            {
-                MethodBase method = frame.GetMethod();
-                string typeText = (method.IsStatic ? "static " : "");
-                typeText += method.DeclaringType;
-                typeText = typeText.PadLeft(longestType, ' ');
-                text += typeText + "." + method.Name + "\n";
-            }
-
-            // print
-            Log.Debug(text);
-        }
         static public Sprite CreateSpriteFromFile(string filePath)
         {
             if (System.IO.File.Exists(filePath))
