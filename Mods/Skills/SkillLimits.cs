@@ -8,7 +8,7 @@ using Vheos.Tools.ModdingCore;
 using UnityEngine.UI;
 using NodeCanvas.Tasks.Conditions;
 using Vheos.Tools.Extensions.Math;
-using Vheos.Tools.Extensions.Math.Unity;
+using Vheos.Tools.Extensions.Math;
 using Vheos.Tools.Extensions.UnityObjects;
 using Vheos.Tools.Extensions.General;
 using Vheos.Tools.Extensions.Collections;

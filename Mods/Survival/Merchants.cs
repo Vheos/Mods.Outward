@@ -7,7 +7,7 @@ using HarmonyLib;
 using Vheos.Tools.ModdingCore;
 using UnityEngine.UI;
 using Vheos.Tools.Extensions.Math;
-using Vheos.Tools.Extensions.Math.Unity;
+using Vheos.Tools.Extensions.Math;
 using Vheos.Tools.Extensions.General;
 using Random = UnityEngine.Random;
 

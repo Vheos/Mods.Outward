@@ -7,9 +7,8 @@ using HarmonyLib;
 using Vheos.Tools.ModdingCore;
 using UnityEngine.UI;
 using Vheos.Tools.Extensions.Math;
-using Vheos.Tools.Extensions.Math.Unity;
 using Vheos.Tools.Extensions.General;
-using Vheos.Tools.Extensions.General.Unity;
+
 
 
 namespace Vheos.Mods.Outward
