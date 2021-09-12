@@ -10,7 +10,7 @@ using Vheos.Tools.Extensions.UnityObjects;
 using Vheos.Tools.Extensions.Collections;
 using Vheos.Tools.Extensions.General;
 using Vheos.Tools.TraitEqualizer;
-using Random = Vheos.Tools.RandomNS.Random;
+using Random = Vheos.Tools.RandomN.Random;
 
 
 
