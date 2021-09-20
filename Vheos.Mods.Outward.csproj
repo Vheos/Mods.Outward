@@ -18,7 +18,7 @@
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>D:\Multiplayer\Outward\BepInEx\plugins\Vheos\</OutputPath>
+    <OutputPath>bin\Debug\</OutputPath>
     <DefineConstants>
     </DefineConstants>
     <ErrorReport>prompt</ErrorReport>
@@ -150,29 +150,29 @@
     <Folder Include="Properties\" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\Tools\Extensions\Tools.Extensions.csproj">
+    <ProjectReference Include="..\..\Tools\Extensions\Vheos.Tools.Extensions.csproj">
       <Project>{4afe5e8c-29c0-4389-aaa0-55584146becf}</Project>
-      <Name>Tools.Extensions</Name>
+      <Name>Vheos.Tools.Extensions</Name>
       <EmbedInteropTypes>False</EmbedInteropTypes>
       <Private>True</Private>
     </ProjectReference>
-    <ProjectReference Include="..\..\Tools\ModdingCore\Tools.ModdingCore.csproj">
+    <ProjectReference Include="..\..\Tools\ModdingCore\Vheos.Tools.ModdingCore.csproj">
       <Project>{a48747d8-e698-4c2c-bf11-0efed7d79ef0}</Project>
-      <Name>Tools.ModdingCore</Name>
+      <Name>Vheos.Tools.ModdingCore</Name>
       <EmbedInteropTypes>False</EmbedInteropTypes>
       <Private>True</Private>
     </ProjectReference>
-    <ProjectReference Include="..\..\Tools\Random\Tools.Random.csproj">
+    <ProjectReference Include="..\..\Tools\Random\Vheos.Tools.Random.csproj">
       <Project>{f4c8a01e-9df7-4e31-8169-1cf24d2896e7}</Project>
-      <Name>Tools.Random</Name>
+      <Name>Vheos.Tools.Random</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\Tools\TraitEqualizer\Tools.TraitEqualizer.csproj">
+    <ProjectReference Include="..\..\Tools\TraitEqualizer\Vheos.Tools.TraitEqualizer.csproj">
       <Project>{23d233fc-b7d0-4709-baaa-e803fee61930}</Project>
-      <Name>Tools.TraitEqualizer</Name>
+      <Name>Vheos.Tools.TraitEqualizer</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\Tools\Utility\Tools.Utility.csproj">
+    <ProjectReference Include="..\..\Tools\Utility\Vheos.Tools.Utility.csproj">
       <Project>{96d2cdb1-5ee9-4666-812d-9ecb8df005c4}</Project>
-      <Name>Tools.Utility</Name>
+      <Name>Vheos.Tools.Utility</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
