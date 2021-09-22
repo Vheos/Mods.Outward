@@ -1,17 +1,10 @@
-﻿using System;
-using System.Linq;
-using System.Collections.Generic;
-using UnityEngine;
-using BepInEx.Configuration;
-using HarmonyLib;
-using Vheos.Tools.ModdingCore;
-using Vheos.Tools.Extensions.Math;
-using Vheos.Tools.Extensions.Math;
-
-
-
-namespace Vheos.Mods.Outward
+﻿namespace Vheos.Mods.Outward
 {
+    using System;
+    using UnityEngine;
+    using HarmonyLib;
+    using Tools.ModdingCore;
+    using Tools.Extensions.Math;
     public class Camera : AMod, IDelayedInit, IUpdatable
     {
         #region const

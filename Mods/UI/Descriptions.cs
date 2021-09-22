@@ -1,21 +1,17 @@
-﻿using System;
-using System.Linq;
-using System.Collections.Generic;
-using UnityEngine;
-using BepInEx.Configuration;
-using HarmonyLib;
-using Vheos.Tools.ModdingCore;
-using Vheos.Tools.Extensions.Math;
-using Vheos.Tools.Extensions.Collections;
-using Vheos.Tools.Extensions.General;
-using Vheos.Tools.UtilityN;
-
-
-/* TO DO:
+﻿/* TO DO:
  * - extend to more item types (rags, varnishes)
  */
 namespace Vheos.Mods.Outward
 {
+    using System;
+    using System.Collections.Generic;
+    using UnityEngine;
+    using HarmonyLib;
+    using Tools.ModdingCore;
+    using Tools.Extensions.Math;
+    using Tools.Extensions.Collections;
+    using Tools.Extensions.General;
+    using Tools.UtilityN;
     public class Descriptions : AMod, IDelayedInit
     {
         #region const

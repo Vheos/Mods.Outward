@@ -1,19 +1,13 @@
-﻿using System;
-using System.Linq;
-using System.Collections.Generic;
-using UnityEngine;
-using BepInEx.Configuration;
-using HarmonyLib;
-using Vheos.Tools.ModdingCore;
-using UnityEngine.UI;
-using Vheos.Tools.Extensions.Math;
-using Vheos.Tools.Extensions.Math;
-using Vheos.Tools.Extensions.General;
-
-
-
-namespace Vheos.Mods.Outward
+﻿namespace Vheos.Mods.Outward
 {
+    using System.Linq;
+    using System.Collections.Generic;
+    using UnityEngine;
+    using UnityEngine.UI;
+    using HarmonyLib;
+    using Tools.ModdingCore;
+    using Tools.Extensions.Math;
+    using Tools.Extensions.General;
     public class SkillPrices : AMod
     {
         #region const

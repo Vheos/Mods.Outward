@@ -1,21 +1,14 @@
-﻿using System;
-using System.Linq;
-using System.Collections.Generic;
-using UnityEngine;
-using BepInEx.Configuration;
-using HarmonyLib;
-using Vheos.Tools.ModdingCore;
-using Vheos.Tools.Extensions.Math;
-using Vheos.Tools.Extensions.Math;
-using Vheos.Tools.Extensions.UnityObjects;
-using Vheos.Tools.Extensions.General;
-using Vheos.Tools.UtilityN;
-using Random = UnityEngine.Random;
-
-
-
-namespace Vheos.Mods.Outward
+﻿namespace Vheos.Mods.Outward
 {
+    using System;
+    using UnityEngine;
+    using HarmonyLib;
+    using Tools.ModdingCore;
+    using Tools.Extensions.Math;
+    using Tools.Extensions.UnityObjects;
+    using Tools.Extensions.General;
+    using Tools.UtilityN;
+    using Random = UnityEngine.Random;
     public class Interactions : AMod, IDelayedInit
     {
         #region const

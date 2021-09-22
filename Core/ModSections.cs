@@ -1,8 +1,4 @@
-﻿using System;
-
-
-
-namespace Vheos.Mods.Outward
+﻿namespace Vheos.Mods.Outward
 {
     class ModSections
     {

@@ -1,18 +1,14 @@
-﻿using System;
-using System.Linq;
-using System.Collections.Generic;
-using UnityEngine;
-using BepInEx.Configuration;
-using HarmonyLib;
-using Vheos.Tools.ModdingCore;
-using System.Collections;
-using Vheos.Tools.Extensions.UnityObjects;
-using Vheos.Tools.Extensions.Collections;
-using Vheos.Tools.Extensions.General;
-
-
-namespace Vheos.Mods.Outward
+﻿namespace Vheos.Mods.Outward
 {
+    using System;
+    using System.Collections;
+    using System.Collections.Generic;
+    using UnityEngine;
+    using HarmonyLib;
+    using Tools.ModdingCore;
+    using Tools.Extensions.UnityObjects;
+    using Tools.Extensions.Collections;
+    using Tools.Extensions.General;
     public class AI : AMod
     {
         #region const

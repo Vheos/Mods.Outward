@@ -1,18 +1,14 @@
-﻿using System;
-using UnityEngine;
-using System.Reflection;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Collections;
-using Vheos.Tools.ModdingCore;
-using Vheos.Tools.Extensions.UnityObjects;
-using Vheos.Tools.Extensions.Collections;
-
-
-
-namespace Vheos.Mods.Outward
+﻿namespace Vheos.Mods.Outward
 {
+    using System;
+    using System.Reflection;
+    using System.Collections.Generic;
+    using System.Diagnostics;
+    using System.Linq;
+    using System.Collections;
+    using UnityEngine;
+    using Tools.Extensions.UnityObjects;
+    using Tools.Extensions.Collections;
     static internal class InternalUtility
     {
         static public Type CallerType

@@ -1,22 +1,16 @@
-﻿using System;
-using System.Linq;
-using System.Collections.Generic;
-using UnityEngine;
-using BepInEx.Configuration;
-using HarmonyLib;
-using Vheos.Tools.ModdingCore;
-using UnityEngine.UI;
-using NodeCanvas.Tasks.Conditions;
-using Vheos.Tools.Extensions.Math;
-using Vheos.Tools.Extensions.Math;
-using Vheos.Tools.Extensions.UnityObjects;
-using Vheos.Tools.Extensions.General;
-using Vheos.Tools.Extensions.Collections;
-
-
-
-namespace Vheos.Mods.Outward
+﻿namespace Vheos.Mods.Outward
 {
+    using System;
+    using System.Collections.Generic;
+    using UnityEngine;
+    using UnityEngine.UI;
+    using NodeCanvas.Tasks.Conditions;
+    using HarmonyLib;
+    using Tools.ModdingCore;
+    using Tools.Extensions.Math;
+    using Tools.Extensions.UnityObjects;
+    using Tools.Extensions.General;
+    using Tools.Extensions.Collections;
     public class SkillLimits : AMod
     {
         #region const

@@ -1,20 +1,15 @@
-﻿using System;
-using System.Linq;
-using System.Collections.Generic;
-using UnityEngine;
-using BepInEx.Configuration;
-using HarmonyLib;
-using Vheos.Tools.ModdingCore;
-using UnityEngine.UI;
-using UnityEngine.EventSystems;
-using Vheos.Tools.Extensions.UnityObjects;
-using Vheos.Tools.Extensions.General;
-using Vheos.Tools.Extensions.Collections;
-
-
-
-namespace Vheos.Mods.Outward
+﻿namespace Vheos.Mods.Outward
 {
+    using System.Linq;
+    using System.Collections.Generic;
+    using UnityEngine;
+    using UnityEngine.UI;
+    using UnityEngine.EventSystems;
+    using HarmonyLib;
+    using Tools.ModdingCore;
+    using Tools.Extensions.UnityObjects;
+    using Tools.Extensions.General;
+    using Tools.Extensions.Collections;
     public class Gamepad : AMod, IUpdatable
     {
         // Setting

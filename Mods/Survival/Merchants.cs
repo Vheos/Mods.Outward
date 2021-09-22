@@ -1,20 +1,11 @@
-﻿using System;
-using System.Linq;
-using System.Collections.Generic;
-using UnityEngine;
-using BepInEx.Configuration;
-using HarmonyLib;
-using Vheos.Tools.ModdingCore;
-using UnityEngine.UI;
-using Vheos.Tools.Extensions.Math;
-using Vheos.Tools.Extensions.Math;
-using Vheos.Tools.Extensions.General;
-using Random = UnityEngine.Random;
-
-
-
-namespace Vheos.Mods.Outward
+﻿namespace Vheos.Mods.Outward
 {
+    using UnityEngine;
+    using HarmonyLib;
+    using Tools.ModdingCore;
+    using Tools.Extensions.Math;
+    using Tools.Extensions.General;
+    using Random = UnityEngine.Random;
     public class Merchants : AMod
     {
         #region const

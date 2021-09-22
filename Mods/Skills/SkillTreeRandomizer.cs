@@ -1,21 +1,17 @@
-﻿using System;
-using System.Linq;
-using System.Collections.Generic;
-using UnityEngine;
-using BepInEx.Configuration;
-using HarmonyLib;
-using Vheos.Tools.ModdingCore;
-using Vheos.Tools.Extensions.Math;
-using Vheos.Tools.Extensions.UnityObjects;
-using Vheos.Tools.Extensions.Collections;
-using Vheos.Tools.Extensions.General;
-using Vheos.Tools.TraitEqualizer;
-using Random = Vheos.Tools.RandomN.Random;
-
-
-
-namespace Vheos.Mods.Outward
+﻿namespace Vheos.Mods.Outward
 {
+    using System;
+    using System.Linq;
+    using System.Collections.Generic;
+    using UnityEngine;
+    using HarmonyLib;
+    using Tools.ModdingCore;
+    using Tools.Extensions.Math;
+    using Tools.Extensions.UnityObjects;
+    using Tools.Extensions.Collections;
+    using Tools.Extensions.General;
+    using Tools.TraitEqualizer;
+    using Random = Tools.RandomN.Random;
     public class SkillTreeRandomizer : AMod, IDelayedInit
     {
         #region const

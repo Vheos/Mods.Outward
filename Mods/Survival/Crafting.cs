@@ -1,18 +1,12 @@
-﻿using System;
-using System.Linq;
-using System.Collections.Generic;
-using UnityEngine;
-using BepInEx.Configuration;
-using Vheos.Tools.Extensions.Math;
-using Vheos.Tools.Extensions.General;
-using Vheos.Tools.Extensions.Collections;
-using HarmonyLib;
-using Vheos.Tools.ModdingCore;
-
-
-
-namespace Vheos.Mods.Outward
+﻿namespace Vheos.Mods.Outward
 {
+    using System;
+    using System.Collections.Generic;
+    using HarmonyLib;
+    using Tools.ModdingCore;
+    using Tools.Extensions.Math;
+    using Tools.Extensions.General;
+    using Tools.Extensions.Collections;
     public class Crafting : AMod, IDelayedInit
     {
         #region const

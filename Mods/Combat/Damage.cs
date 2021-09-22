@@ -1,17 +1,10 @@
-﻿using System;
-using System.Linq;
-using System.Collections.Generic;
-using UnityEngine;
-using BepInEx.Configuration;
-using HarmonyLib;
-using Vheos.Tools.ModdingCore;
-
-
-/* TO DO:
+﻿/* TO DO:
  * - FriendlyFire: include bows, pistols and spells
  */
 namespace Vheos.Mods.Outward
 {
+    using HarmonyLib;
+    using Tools.ModdingCore;
     public class Damage : AMod
     {
         // Config

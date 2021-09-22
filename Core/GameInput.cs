@@ -1,14 +1,8 @@
-﻿using System;
-using System.Linq;
-using System.Collections.Generic;
-using UnityEngine;
-using BepInEx.Configuration;
-using HarmonyLib;
-
-
-
-namespace Vheos.Mods.Outward
+﻿namespace Vheos.Mods.Outward
 {
+    using System.Collections.Generic;
+    using UnityEngine;
+    using HarmonyLib;
     static public class GameInput
     {
         #region const

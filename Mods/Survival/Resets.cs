@@ -1,21 +1,16 @@
-﻿using System;
-using System.Linq;
-using System.Collections.Generic;
-using UnityEngine;
-using BepInEx.Configuration;
-using Vheos.Tools.Extensions.Math;
-using HarmonyLib;
-using Vheos.Tools.ModdingCore;
-using Vheos.Tools.Extensions.Collections;
-
-
-
-/* TO DO:
+﻿/* TO DO:
  * - include side quests
  * - include unique items and enemies
  */
 namespace Vheos.Mods.Outward
 {
+    using System;
+    using System.Linq;
+    using System.Collections.Generic;
+    using HarmonyLib;
+    using Tools.ModdingCore;
+    using Tools.Extensions.Math;
+    using Tools.Extensions.Collections;
     public class Resets : AMod
     {
         #region const

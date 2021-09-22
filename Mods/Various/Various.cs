@@ -1,23 +1,17 @@
-﻿using System;
-using System.Linq;
-using System.Collections.Generic;
-using UnityEngine;
-using BepInEx.Configuration;
-using HarmonyLib;
-using Vheos.Tools.ModdingCore;
-using UnityEngine.UI;
-using System.Collections;
-using Vheos.Tools.Extensions.Math;
-using Vheos.Tools.Extensions.General;
-
-
-
-/* TO DO:
+﻿/* TO DO:
  * - hide armor extras (like scarf)
  * - prevent dodging right after hitting
  */
 namespace Vheos.Mods.Outward
 {
+    using System;
+    using System.Collections;
+    using System.Collections.Generic;
+    using UnityEngine;
+    using HarmonyLib;
+    using Tools.ModdingCore;
+    using Tools.Extensions.Math;
+    using Tools.Extensions.General;
     public class Various : AMod, IUpdatable
     {
         #region const

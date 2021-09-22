@@ -1,18 +1,8 @@
-﻿using System;
-using System.Linq;
-using System.Collections.Generic;
-using UnityEngine;
-using BepInEx.Configuration;
-using HarmonyLib;
-using Vheos.Tools.ModdingCore;
-using BepInEx;
-using BepInEx.Logging;
-using System.Diagnostics;
-
-
-
-namespace Vheos.Mods.Outward
+﻿namespace Vheos.Mods.Outward
 {
+    using System.Collections.Generic;
+    using BepInEx.Configuration;
+    using Tools.ModdingCore;
     static public class Presets
     {
         #region enum
