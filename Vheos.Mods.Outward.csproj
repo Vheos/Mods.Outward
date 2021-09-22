@@ -114,7 +114,7 @@
     <Compile Include="Core\GameInput.cs" />
     <Compile Include="Core\Presets.cs" />
     <Compile Include="Mods\Survival\Crafting.cs" />
-    <Compile Include="Mods\Survival\AI.cs" />
+    <Compile Include="Mods\Combat\AI.cs" />
     <Compile Include="Mods\Survival\Inns.cs" />
     <Compile Include="Mods\Development\WIP.cs" />
     <Compile Include="Mods\Survival\Durability.cs" />
