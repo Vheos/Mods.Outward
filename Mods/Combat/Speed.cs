@@ -3,7 +3,7 @@
     using UnityEngine;
     using HarmonyLib;
     using Tools.ModdingCore;
-    using Tools.Extensions.General;
+    using Tools.Extensions.UnityObjects;
     public class Speed : AMod, IUpdatable
     {
         #region const

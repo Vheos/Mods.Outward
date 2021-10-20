@@ -9,6 +9,8 @@
     using Tools.ModdingCore;
     using Tools.Extensions.Math;
     using Tools.Extensions.General;
+    using Tools.Extensions.UnityObjects;
+
     public class GUI : AMod, IDelayedInit, IUpdatable
     {
         #region const

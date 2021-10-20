@@ -12,6 +12,8 @@ namespace Vheos.Mods.Outward
     using Tools.ModdingCore;
     using Tools.Extensions.Math;
     using Tools.Extensions.General;
+    using Tools.Extensions.UnityObjects;
+
     public class Various : AMod, IUpdatable
     {
         #region const

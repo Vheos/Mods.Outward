@@ -5,6 +5,8 @@
     using Tools.ModdingCore;
     using Tools.Extensions.Math;
     using Tools.Extensions.General;
+    using Tools.Extensions.UnityObjects;
+
     public class KeyboardWalk : AMod, IUpdatable
     {
         // Setting
