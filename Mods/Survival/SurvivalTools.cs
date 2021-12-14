@@ -101,7 +101,7 @@
         }
 
         // Hooks
-#pragma warning disable IDE0051 // Remove unused private members
+#pragma warning disable IDE0051, IDE0060, IDE1006
         // More gathering tools
         [HarmonyPatch(typeof(GatherableInteraction), "GetValidItem"), HarmonyPrefix]
         static bool GatherableInteraction_GetValidItem_Pre(GatherableInteraction __instance, ref Item __result, Character _character)

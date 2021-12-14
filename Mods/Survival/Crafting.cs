@@ -100,17 +100,16 @@
         {
             _preserveDurability.Format("Preserve durability ratios");
             _preserveDurability.Description = "Crafted items' durability will be based on the average of all ingredients (instead of 100%)";
-            Indent++;
+            using(Indent)
             {
                 _restoreMissingDurability.Format("Restore % of missing durability", _preserveDurability);
                 _restoreMissingDurability.Description = "Increase to make broken/rotten ingredients still useful (instead of just lowering the durability ratio)";
-                Indent--;
             }
 
             _limitedManualCrafting.Format("Limited manual crafting");
             _limitedManualCrafting.Description = "Manual crafting will be limited to 1 ingredient\n" +
                                                  "Advanced crafting will require learning recipes first";
-            Indent++;
+            using(Indent)
             {
 
                 _limitedManulCraftingExceptions.Format("Exceptions", _limitedManualCrafting);
@@ -119,7 +118,6 @@
                 _autoLearnCrystalPowderRecipe.Format("Auto-learn \"Crystal Powder\" recipe", _limitedManualCrafting);
                 _autoLearnCrystalPowderRecipe.Description = "Normally, \"Crystal Powder\" recipe can only be learned via crafting\n" +
                                                             "This will give you the recipe when you interact with the alchemy kit";
-                Indent--;
             }
             _extraResultsMultiplier.Format("Extra results multiplier");
             _extraResultsMultiplier.Description = "Multiplies the extra (over one) amount of crafting results\n" +
@@ -203,7 +201,7 @@
         => 1 + (result.Quantity - 1f).Mul(_extraResultsMultiplier / 100f).Round();
 
         // Hooks
-#pragma warning disable IDE0051 // Remove unused private members
+#pragma warning disable IDE0051, IDE0060, IDE1006
         [HarmonyPatch(typeof(CraftingMenu), "CraftingDone"), HarmonyPrefix]
         static bool CraftingMenu_CraftingDone_Pre(CraftingMenu __instance, ref List<Item> __state)
         {

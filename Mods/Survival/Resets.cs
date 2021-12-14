@@ -167,7 +167,7 @@ namespace Vheos.Mods.Outward
         {
             _areasToggle.Format("Areas");
             _areasToggle.Description = "Change areas (scenes) reset settings";
-            Indent++;
+            using(Indent)
             {
                 _areasMode.Format("Reset mode", _areasToggle);
                 _areasTimer.Format("Days since last visit", _areasMode, ResetMode.Timer);
@@ -176,18 +176,16 @@ namespace Vheos.Mods.Outward
                 _areasResetLayers.Description = "Cities  -  makes cities reset just like any other area";
                 _fixUnarmedBandits.Format("Fix unarmed bandits", _areasResetLayers, AreasResetLayers.Enemies);
                 _fixUnarmedBandits.IsAdvanced = true;
-                Indent++;
+                using(Indent)
                 {
                     _fixUnarmedBanditsDurabilityRatio.Format("New weapons' durability", _fixUnarmedBandits, WeaponSet.Disabled, false);
                     _fixUnarmedBanditsDurabilityRatio.IsAdvanced = true;
-                    Indent--;
                 }
-                Indent--;
             }
 
             _gatherablesToggle.Format("Gatherables");
             _gatherablesToggle.Description = "Change gatherables respawn settings";
-            Indent++;
+            using(Indent)
             {
                 _gatheringMode.Format("Gathering spots", _gatherablesToggle);
                 _gatheringMode.Description = "Gatherables that don't require any tool";
@@ -198,16 +196,14 @@ namespace Vheos.Mods.Outward
                 _fishingMode.Format("Fishing spots", _gatherablesToggle);
                 _fishingMode.Description = "Gatherables that require Fishing Harpoon";
                 _fishingTimer.Format("", _fishingMode, ResetMode.Timer);
-                Indent--;
             }
 
             _merchantsToggle.Format("Merchants");
             _merchantsToggle.Description = "Change merchant restock settings";
-            Indent++;
+            using(Indent)
             {
                 _merchantsMode.Format("", _merchantsToggle);
                 _merchantsTimer.Format("", _merchantsMode, ResetMode.Timer);
-                Indent--;
             }
         }
         override protected string Description
@@ -271,7 +267,7 @@ namespace Vheos.Mods.Outward
         }
 
         // Hooks
-#pragma warning disable IDE0051 // Remove unused private members
+#pragma warning disable IDE0051, IDE0060, IDE1006
         // Areas
         [HarmonyPatch(typeof(EnvironmentSave), "ApplyData"), HarmonyPrefix]
         static bool EnvironmentSave_ApplyData_Pre(EnvironmentSave __instance)

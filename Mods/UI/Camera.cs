@@ -144,7 +144,7 @@
                 // Settings
                 tmp._toggle.Format($"Player {i + 1}");
                 tmp._toggle.Description = $"Change settings for local player {i + 1}";
-                Indent++;
+                using(Indent)
                 {
                     tmp._zoomControlAmount.Format("Zoom amount", tmp._toggle);
                     tmp._zoomControlAmount.Description = "-1  -  max zoom out\n" +
@@ -154,7 +154,7 @@
                     tmp._zoomControlSpeed.Description = "How quickly you want to zoom using mouse/gamepad\n" +
                         "Mouse: use mouse scroll wheel\n" +
                         "Gamepad: use right stick while holding defined actions";
-                    Indent++;
+                    using(Indent)
                     {
                         tmp._gamepadInputs.Format("Gamepad hotkey", tmp._zoomControlSpeed, () => tmp._zoomControlSpeed > 0);
                         tmp._gamepadInputs.Description = "Gamepad actions you need to hold to control camera. Defaults:\n" +
@@ -162,16 +162,14 @@
                                                          "RightQS = RT\n" +
                                                          "Sprint = LB\n" +
                                                          "Block = RB";
-                        Indent--;
                     }
                     tmp._offsetToggle.Format("Offset", tmp._toggle);
                     tmp._offsetToggle.Description = "Change camera position (XYZ) presets";
-                    Indent++;
+                    using(Indent)
                     {
                         tmp._offsetMin.Format("at zoom =  -1", tmp._offsetToggle);
                         tmp._offsetAvg.Format("at zoom =  0", tmp._offsetToggle);
                         tmp._offsetMax.Format("at zoom = +1", tmp._offsetToggle);
-                        Indent--;
                     }
 
                     tmp._variousToggle.Format("FOV, FollowSpeed, Sensitivity", tmp._toggle);
@@ -179,14 +177,12 @@
                         "X  -  field of view (vertical)\n" +
                         "Y  -  how quickly camera follows your character\n" +
                         "Z  -  how quickly camera rotates";
-                    Indent++;
+                    using(Indent)
                     {
                         tmp._variousMin.Format("at zoom =  -1", tmp._variousToggle);
                         tmp._variousAvg.Format("at zoom =  0", tmp._variousToggle);
                         tmp._variousMax.Format("at zoom = +1", tmp._variousToggle);
-                        Indent--;
                     }
-                    Indent--;
                 }
             }
         }
@@ -287,7 +283,7 @@
         }
 
         // Hooks
-#pragma warning disable IDE0051 // Remove unused private members
+#pragma warning disable IDE0051, IDE0060, IDE1006
         [HarmonyPatch(typeof(SplitScreenManager), "DelayedRefreshSplitScreen"), HarmonyPostfix]
         static void SplitScreenManager_DelayedRefreshSplitScreen_Post()
         {

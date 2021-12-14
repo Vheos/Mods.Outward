@@ -76,7 +76,7 @@
         override protected void SetFormatting()
         {
             _lossMultipliers.Format("Durability loss multipliers");
-            Indent++;
+            using(Indent)
             {
                 _lossWeapons.Format("Weapons", _lossMultipliers);
                 _lossWeapons.Description = "Includes shields";
@@ -84,10 +84,9 @@
                 _lossLights.Format("Lights", _lossMultipliers);
                 _lossLights.Description = "Torches and lanterns";
                 _lossIngestibles.Format("Food", _lossMultipliers);
-                Indent--;
             }
             _campingRepairToggle.Format("Camping repair");
-            Indent++;
+            using(Indent)
             {
                 _repairDurabilityPerHour.Format("Durability per hour", _campingRepairToggle);
                 _repairDurabilityPercentPerHour.Format("Durability % per hour", _campingRepairToggle);
@@ -99,27 +98,24 @@
                                                     "Divide value among items   -   the repair value will be divided by the number of equipped items\n" +
                                                     "Try to equalize values   -   repair item with the lowest durabilty value\n" +
                                                     "Try to equalize ratios   -   repair item with the lowest durabilty ratio";
-                Indent--;
             }
 
             _effectivenessAffectsAllStats.Format("Durability affects all stats");
             _effectivenessAffectsAllStats.Description = "Normally, durability affects only damages, resistances (impact only for shields) and protection\n" +
                                                         "This will make all* equipment stats decrease with durability\n" +
                                                         "( * currently all except damage bonuses)";
-            Indent++;
+            using(Indent)
             {
                 _effectivenessAffectsPenalties.Format("affect penalties", _effectivenessAffectsAllStats);
                 _effectivenessAffectsPenalties.Description = "Stat penalties (like negative movement speed on heavy armors) will also decrease with durability";
-                Indent--;
             }
             _linearEffectiveness.Format("Smooth durability effects");
             _linearEffectiveness.Description = "Normally, equipment stats change only when durability reaches certain thresholds (50%, 25% and 0%)\n" +
                                                "This will update the stats smoothly, without any thersholds";
-            Indent++;
+            using(Indent)
             {
                 _minNonBrokenEffectiveness.Format("when nearing zero durability", _linearEffectiveness);
                 _brokenEffectiveness.Format("when broken", _linearEffectiveness);
-                Indent--;
             }
             _smithRepairsOnlyEquipped.Format("Smith repairs only equipped items");
             _smithRepairsOnlyEquipped.Description = "Blacksmith will not repair items in your pouch and bag";
@@ -192,7 +188,7 @@
         }
 
         // Hooks
-#pragma warning disable IDE0051 // Remove unused private members
+#pragma warning disable IDE0051, IDE0060, IDE1006
         [HarmonyPatch(typeof(Item), "ReduceDurability"), HarmonyPrefix]
         static bool Item_ReduceDurability_Pre(Item __instance, ref float _durabilityLost)
         {

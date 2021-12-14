@@ -31,25 +31,23 @@ namespace Vheos.Mods.Outward
         {
             _playersToggle.Format("Players");
             _playersToggle.Description = "Set multipliers for damage dealt by players";
-            Indent++;
+            using(Indent)
             {
                 _playersHealthDamage.Format("Health", _playersToggle);
                 _playersStabilityDamage.Format("Stability", _playersToggle);
                 _playersFriendlyFireToggle.Format("Friendly fire", _playersToggle);
                 _playersFriendlyFireToggle.Description = "Set multipliers for damage dealt by players to other players\n" +
                                                          "(multiplicative with above values)";
-                Indent++;
+                using(Indent)
                 {
                     _playersFriendlyFireHealthDamage.Format("Health", _playersFriendlyFireToggle);
                     _playersFriendlyFireStabilityDamage.Format("Stability", _playersFriendlyFireToggle);
-                    Indent--;
                 }
-                Indent--;
             }
 
             _enemiesToggle.Format("Enemies");
             _enemiesToggle.Description = "Set multipliers for damage dealt by enemies";
-            Indent++;
+            using(Indent)
             {
                 _enemiesHealthDamage.Format("Health", _enemiesToggle);
                 _enemiesStabilityDamage.Format("Stability", _enemiesToggle);
@@ -57,13 +55,11 @@ namespace Vheos.Mods.Outward
                 _enemiesFriendlyFireToggle.Description = "Set multipliers for damage dealt by enemies to other enemies\n" +
                                                          "Decrease to prevent enemies from killing each other before you meet them\n" +
                                                          "(multiplicative with above values)";
-                Indent++;
+                using(Indent)
                 {
                     _enemiesFriendlyFireHealthDamage.Format("Health", _enemiesFriendlyFireToggle);
                     _enemiesFriendlyFireStabilityDamage.Format("Stability", _enemiesFriendlyFireToggle);
-                    Indent--;
                 }
-                Indent--;
             }
         }
         override protected string Description
@@ -104,7 +100,7 @@ namespace Vheos.Mods.Outward
         }
 
         // Hooks
-#pragma warning disable IDE0051 // Remove unused private members
+#pragma warning disable IDE0051, IDE0060, IDE1006
         [HarmonyPatch(typeof(Weapon), "ElligibleFaction", new[] { typeof(Character) }), HarmonyPostfix]
         static void Weapon_ElligibleFaction_Post(Weapon __instance, ref bool __result, Character _character)
         {

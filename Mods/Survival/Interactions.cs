@@ -238,7 +238,7 @@
                                               "Pull levers   -   open gates, ride elevators, etc.";
             _highlightsToggle.Format("Highlights");
             _highlightsToggle.Description = "Change settings of the glowing orbs that highlight most interactive objects";
-            Indent++;
+            using(Indent)
             {
                 _highlightsIntensity.Format("Intensity", _highlightsToggle);
                 _highlightsIntensity.Description = "Brightness and size of the highlights";
@@ -250,7 +250,6 @@
                                                  "Consumable   -   green\n" +
                                                  "Other items   -   cyan\n" +
                                                  "Containers and levers   -   purple";
-                Indent--;
             }
 
         }
@@ -342,7 +341,7 @@
         }
 
         // Hooks
-#pragma warning disable IDE0051 // Remove unused private members
+#pragma warning disable IDE0051, IDE0060, IDE1006
         [HarmonyPatch(typeof(InteractionBase), "HoldActivationTime", MethodType.Getter), HarmonyPrefix]
         static bool InteractionBase_HoldActivationTime_Getter_Post(ref float __result, ref float ___m_holdActivationTimeOverride)
         {
@@ -466,12 +465,11 @@ _mobileDrinkSpeed = CreateSetting(nameof(_mobileDrinkSpeed), 50, IntRange(0, 100
 _mobileInfuseSpeed = CreateSetting(nameof(_mobileInfuseSpeed), 50, IntRange(0, 100));
 
 _mobileUseToggle.Format("Use items while moving");
-Indent++;
+using(Indent)
 {
     _mobileEatSpeed.Format("Eat move speed", _mobileUseToggle);
     _mobileDrinkSpeed.Format("Drink move speed", _mobileUseToggle);
     _mobileInfuseSpeed.Format("Infuse move speed", _mobileUseToggle);
-    Indent--;
 }
 
 static private void TryUpdateMobileUse()

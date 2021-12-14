@@ -254,7 +254,7 @@
         {
             _reroll.Format("Reroll");
             _reroll.DisplayResetButton = false;
-            Indent++;
+            using(Indent)
             {
                 _rerollOnGameStart.Format("on game start");
                 _rerollOnGameStart.Description = "Automatically randomize skill trees when you start the game\n" +
@@ -265,7 +265,6 @@
                                                 "Use it to double-check if there aren't any broken/unwanted trees, " +
                                                 "like a tree with only post-breakthrough skills, only passives, or only 1 skill";
                 _rerollLogResults.DisplayResetButton = false;
-                Indent--;
             }
 
             AModSetting[] inputOutputSettings =
@@ -314,13 +313,12 @@
             _randomizeBreakthroughSkills.Format("Randomize breakthroughs");
             _randomizeBreakthroughSkills.Description = "Breakthroughs will be randomized along with advanced skills\n" +
                                                        "Every tree will get a new breakthrough - chosen at random from all assigned advanced skills";
-            Indent++;
+            using(Indent)
             {
                 _preferPassiveBreakthroughs.Format("prefer passives", _randomizeBreakthroughSkills);
                 _preferPassiveBreakthroughs.Description = "If possible, the new breakthrough will be a passive skill";
                 _avoidChoiceBreakthroughs.Format("avoid choices", _randomizeBreakthroughSkills);
                 _avoidChoiceBreakthroughs.Description = "If possible, the new breakthrough won't be a choice between 2 skills";
-                Indent--;
             }
             _treatWeaponMasterAsAdvanced.Format("Treat weapon master as advanced", _theThreeBrothersInput, TheThreeBrothersInput.WeaponMaster);
             _treatWeaponMasterAsAdvanced.Description = "Weapon master skills will be treated as advanced instead of basic\n" +
@@ -329,11 +327,10 @@
             _seed.Description = "The same number will always result in the same setup\n" +
                                 "If you change it mid-playthrough, all trees will be rerolled\n" +
                                 "(might result in lost breakthrough points if you're using \"Randomize breakthroughs\")";
-            Indent++;
+            using(Indent)
             {
                 _seedRandomize.Format("randomize");
                 _seedRandomize.DisplayResetButton = false;
-                Indent--;
             }
         }
         override protected string Description
@@ -418,7 +415,7 @@
             foreach (var sideSkillTree in _sideSkillTrees)
             {
                 sideSkillTree.Unparent();
-                _sideSkillTrees.DestroyObjects();
+                _sideSkillTrees.DestroyObject();
             }
 
             // Destroy real SkillTreeHolder
@@ -490,11 +487,11 @@
             foreach (var tree in trees)
             {
                 var childObjects = new List<GameObject>();
-                foreach (var child in tree.GetChildren())
+                foreach (var child in tree.GetChildGameObjects())
                     if (_randomizeBreakthroughSkills || !child.GetComponent<SkillBranch>().IsBreakthrough)
                         childObjects.Add(child);
 
-                childObjects.Destroy(true);
+                childObjects.DestroyInstantly();
                 tree.m_skillSlots.Clear();
                 tree.m_branches.Clear();
                 tree.m_breakthroughSkillIndex = -1;
@@ -600,7 +597,7 @@
                 }
 
                 // Initialize branches and tree
-                foreach (var branchHolder in randomOutputTree.GetChildren())
+                foreach (var branchHolder in randomOutputTree.GetChildGameObjects())
                     if (!branchHolder.HasComponent<SkillBranch>())
                         branchHolder.AddComponent<SkillBranch>();
                 randomOutputTree.Start();
@@ -708,7 +705,7 @@
         => slot is SkillSlotFork;
 
         // Hooks
-#pragma warning disable IDE0051 // Remove unused private members
+#pragma warning disable IDE0051, IDE0060, IDE1006
         [HarmonyPatch(typeof(SkillTreeDisplay), "RefreshSkillsPosition"), HarmonyPrefix]
         static bool SkillTreeDisplay_RefreshSkillsPosition_Pre(SkillTreeDisplay __instance)
         {

@@ -82,7 +82,7 @@
             _changeTargetWhenTooFar.Format("Change target when too far");
             _changeTargetWhenTooFar.Description = "When enemy's current target retreats too far, the enemy will change to a closer one\n" +
                                                   "Only detected characters and actual attackers are taken into account";
-            Indent++;
+            using(Indent)
             {
                 _changeTargetCheckFrequency.Format("Check frequency", _changeTargetWhenTooFar);
                 _changeTargetCheckFrequency.Description = "How many times per second should the enemy try to change target";
@@ -92,8 +92,7 @@
                 _changeTargetCurrentToNearestRatio.Description = "Enemies will try to change target only if their current target is this many times further away then their nearest attacker";
                 _changeTargetDetectAllPlayers.Format("Detect all players", _changeTargetWhenTooFar);
                 _changeTargetDetectAllPlayers.Description = "When enemies detect any player, they will become aware of other players as well";
-                Indent--;
-            }
+                            }
         }
         override protected string SectionOverride
         => ModSections.Combat;
@@ -166,7 +165,7 @@
         }
 
         // Hooks
-#pragma warning disable IDE0051 // Remove unused private members
+#pragma warning disable IDE0051, IDE0060, IDE1006
 
         // Prevent infighting
         [HarmonyPatch(typeof(TargetingSystem), "InitTargetableFaction"), HarmonyPrefix]

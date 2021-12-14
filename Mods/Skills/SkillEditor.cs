@@ -84,7 +84,7 @@
                 else
                     _toggle.Format(_skillName);
 
-                _mod.Indent++;
+                using(Indent)
                 {
                     // Effects description
                     string text = "";
@@ -107,7 +107,6 @@
                     _otherCosts.Description = "X   -   Durability\n" +
                                               "Y   -   Durability %\n" +
                                               "Z   -   Cooldown";
-                    _mod.Indent--;
                 }
             }
 
@@ -121,8 +120,8 @@
             }
 
             // Utility
-            private SkillEditor _mod;
-            private string _skillName;
+            private readonly SkillEditor _mod;
+            private readonly string _skillName;
             private string _effectX, _effectY, _effectZ;
             private Action<Skill, float> _applyEffectX, _applyEffectY, _applyEffectZ;
             private void TryApplyEffectsToPrefab(Skill prefab)
@@ -212,26 +211,24 @@
         override protected void SetFormatting()
         {
             _daggerToggle.Format("Dagger");
-            Indent++;
+            using(Indent)
             {
                 _daggerSlash.FormatSettings(_daggerToggle);
                 _backstab.FormatSettings(_daggerToggle);
                 _opportunistStab.FormatSettings(_daggerToggle);
                 _serpentsParry.FormatSettings(_daggerToggle);
-                Indent--;
             }
 
             _bowToggle.Format("Bow");
-            Indent++;
+            using(Indent)
             {
                 _evasionShot.FormatSettings(_bowToggle);
                 _sniperShot.FormatSettings(_bowToggle);
                 _piercingShot.FormatSettings(_bowToggle);
-                Indent--;
             }
 
             _runesToggle.Format("Runes");
-            Indent++;
+            using(Indent)
             {
                 _dez.FormatSettings(_runesToggle);
                 _egoth.FormatSettings(_runesToggle);
@@ -241,7 +238,6 @@
                 _runeSoundEffectVolume.Description = "If the runes are too loud for your ears";
                 _runicLanternIntensity.Format("Runic Lantern intensity", _runesToggle);
                 _runicLanternIntensity.Description = "If the glowing orb is too bright for your eyes";
-                Indent--;
             }
         }
         override protected string Description
@@ -308,7 +304,7 @@
         }
 
         // Hooks
-#pragma warning disable IDE0051 // Remove unused private members
+#pragma warning disable IDE0051, IDE0060, IDE1006
         [HarmonyPatch(typeof(AddStatusEffect), "ActivateLocally"), HarmonyPrefix]
         static bool AddStatusEffect_ActivateLocally_Pre(AddStatusEffect __instance)
         {

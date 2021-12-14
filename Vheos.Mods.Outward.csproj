@@ -154,14 +154,10 @@
     <ProjectReference Include="..\..\Tools\Extensions\Vheos.Tools.Extensions.csproj">
       <Project>{4afe5e8c-29c0-4389-aaa0-55584146becf}</Project>
       <Name>Vheos.Tools.Extensions</Name>
-      <EmbedInteropTypes>False</EmbedInteropTypes>
-      <Private>True</Private>
     </ProjectReference>
     <ProjectReference Include="..\..\Tools\ModdingCore\Vheos.Tools.ModdingCore.csproj">
       <Project>{a48747d8-e698-4c2c-bf11-0efed7d79ef0}</Project>
       <Name>Vheos.Tools.ModdingCore</Name>
-      <EmbedInteropTypes>False</EmbedInteropTypes>
-      <Private>True</Private>
     </ProjectReference>
     <ProjectReference Include="..\..\Tools\Random\Vheos.Tools.Random.csproj">
       <Project>{f4c8a01e-9df7-4e31-8169-1cf24d2896e7}</Project>

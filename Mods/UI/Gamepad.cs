@@ -206,7 +206,7 @@
         => stashPanel.Find("Content/TopPanel/Shop PanelTop/lblShopName");
 
         // Hooks
-#pragma warning disable IDE0051 // Remove unused private members
+#pragma warning disable IDE0051, IDE0060, IDE1006
         [HarmonyPatch(typeof(StashPanel), "Show"), HarmonyPostfix]
         static void StashPanel_Show_Post(StashPanel __instance)
         => UpdateStashName(Players.GetLocal(__instance));

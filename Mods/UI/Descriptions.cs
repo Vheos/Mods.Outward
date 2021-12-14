@@ -78,7 +78,7 @@ namespace Vheos.Mods.Outward
             public string Prefix;
 
             // Private
-            private string _content;
+            private readonly string _content;
             private Color _color;
 
             // Constructors
@@ -111,7 +111,7 @@ namespace Vheos.Mods.Outward
             }
 
             // Privates
-            private Dictionary<int, List<Row>> _rowsByItem;
+            private readonly Dictionary<int, List<Row>> _rowsByItem;
             private void CacheItemRows(Item item)
             {
                 List<Row> rows = new List<Row>();
@@ -175,7 +175,7 @@ namespace Vheos.Mods.Outward
 
             _details.Format("Details to display");
             _equipmentToggle.Format("Equipment");
-            Indent++;
+            using(Indent)
             {
                 _displayRelativeAttackSpeed.Format("Display relative attack speed", _equipmentToggle);
                 _displayRelativeAttackSpeed.Description = "Attack speed will be displayedas +/- X%\n" +
@@ -186,11 +186,10 @@ namespace Vheos.Mods.Outward
                 _moveBarrierBelowProtection.Description = "Barrier will be displayed right under protection instead of between resistances and impact resistance";
                 _hideNumericalDurability.Format("Hide numerical durability display", _equipmentToggle);
                 _hideNumericalDurability.Description = "Hides the \"Durability: XXX/YYY\" row so the only indicator is the durability bar";
-                Indent--;
             }
             _barsToggle.Format("Bars");
             _barsToggle.Description = "Change sizes of durability and freshness progress bars";
-            Indent++;
+            using(Indent)
             {
                 _durabilityTiedToMax.Format("Durability proportional to max", _barsToggle);
                 _durabilityTiedToMax.Description = "Items that are hard to break will have a longer bar\n" +
@@ -203,7 +202,6 @@ namespace Vheos.Mods.Outward
                 _freshnessBarSize.Format("Freshness length", _freshnessTiedToLifespan, false);
                 _freshnessBarSize.Description = "Displayed on food and drinks";
                 _barThickness.Format("Thickness", _barsToggle);
-                Indent--;
             }
 
             _addBackgrounds.Format("Add backgrounds to foods/drinks");
@@ -447,7 +445,7 @@ namespace Vheos.Mods.Outward
         }
 
         // Hooks
-#pragma warning disable IDE0051 // Remove unused private members
+#pragma warning disable IDE0051, IDE0060, IDE1006
         [HarmonyPatch(typeof(ItemDetailsDisplay), "ShowDetails"), HarmonyPrefix]
         static bool ItemDetailsDisplay_ShowDetails_Pre(ItemDetailsDisplay __instance)
         {

@@ -313,23 +313,19 @@
         }
         static public List<T> GetAllComponentsInHierarchy<T>(this Transform root) where T : Component
         {
-            List<T> components = new List<T>();
-            components.Add(root.GetComponents<T>());
+            List<T> components = new List<T> { root.GetComponents<T>() };
             InternalUtility.AppendChildrenRecurisvely(root, components);
             return components;
         }
         static public List<Component> GetAllComponentsInHierarchy<T1, T2>(this Transform root) where T1 : Component where T2 : Component
         {
-            List<Component> components = new List<Component>();
-            components.Add(root.GetComponents<T1>());
-            components.Add(root.GetComponents<T2>());
+            List<Component> components = new List<Component> { root.GetComponents<T1>(), root.GetComponents<T2>() };
             InternalUtility.AppendChildrenRecurisvely(root, components);
             return components;
         }
         static public List<RaycastResult> GetMouseHits(this GraphicRaycaster t)
         {
-            PointerEventData eventData = new PointerEventData(null);
-            eventData.position = Input.mousePosition;
+            PointerEventData eventData = new PointerEventData(null) { position = Input.mousePosition };
             List<RaycastResult> hits = new List<RaycastResult>();
             t.Raycast(eventData, hits);
             return hits;

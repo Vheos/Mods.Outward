@@ -93,7 +93,7 @@
         {
             _separateLimits.Format("Separate passive/active limits");
             _separateLimits.Description = "Define different limits for passive and active skills";
-            Indent++;
+            using(Indent)
             {
                 _skillsLimit.Format("Skills limit", _separateLimits, false);
                 _skillsLimit.Description = "Only skills defined in \"Limited skill types\" count towards limit";
@@ -101,7 +101,6 @@
                 _passiveSkillsLimit.Description = "Only passive skills defined in \"Limited skill types\" count towards this limit";
                 _activeSkillsLimit.Format("Active skills limit", _separateLimits);
                 _activeSkillsLimit.Description = "Only active skills defined in \"Limited skill types\" count towards this limit";
-                Indent--;
             }
             _limitedSkillTypes.Format("Limited skill types");
             _limitedSkillTypes.Description = "Decide which skill types count towards limit:\n" +
@@ -109,11 +108,10 @@
                                              "Advanced - above breakthrough in a skill tree\n" +
                                              "Side - not found in any vanilla skill tree\n" +
                                              "(weapon skills, boons, hexes and Flamethrower)";
-            Indent++;
+            using(Indent)
             {
                 _freePostBreakthroughBasicSkills.Format("Basic skills are free post-break", _limitedSkillTypes, LimitedSkillTypes.Basic);
                 _freePostBreakthroughBasicSkills.Description = "After you learn a breakthrough skill, basic skills from the same tree no longer count towards limit";
-                Indent--;
             }
         }
         override protected string Description
@@ -230,7 +228,7 @@
         }
 
         // Hooks
-#pragma warning disable IDE0051 // Remove unused private members
+#pragma warning disable IDE0051, IDE0060, IDE1006
         [HarmonyPatch(typeof(ItemDisplayOptionPanel), "GetActiveActions"), HarmonyPostfix]
         static void ItemDisplayOptionPanel_GetActiveActions_Post(ItemDisplayOptionPanel __instance, ref List<int> __result)
         {

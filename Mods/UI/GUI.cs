@@ -239,24 +239,23 @@
 
                 tmp._toggle.Format($"Player {i + 1}");
                 tmp._toggle.Description = $"Change settings for local player {i + 1}";
-                Indent++;
+                using(Indent)
                 {
                     tmp._copySettings.Format($"Copy settings from player {1 - i + 1}", tmp._toggle);
                     tmp._copySettings.IsAdvanced = true;
                     tmp._rearrangeHUD.Format("Rearrange HUD", tmp._toggle);
                     tmp._rearrangeHUD.Description = "Change HUD elements position and scale";
-                    Indent++;
+                    using(Indent)
                     {
                         tmp._startHUDEditor.Format("Edit mode", tmp._rearrangeHUD);
                         tmp._startHUDEditor.Description = "Pause the game and start rearranging HUD elements:\n" +
                                                           "Left mouse button - move\n" +
                                                           "Right muse button - scale\n" +
                                                           "Open ConfigManager - save settings";
-                        Indent--;
                     }
                     tmp._hudTransparency.Format("HUD transparency", tmp._toggle);
                     tmp._fadingStatusEffectIcons.Format("Fading status effect icons", tmp._toggle);
-                    Indent++;
+                    using(Indent)
                     {
                         tmp._statusIconMaxSize.Format("Max size", tmp._fadingStatusEffectIcons);
                         tmp._statusIconMaxSize.Description = "Icon size at maximum status effect duration";
@@ -264,7 +263,6 @@
                         tmp._statusIconMinSize.Description = "Icon size right before the status effect expires";
                         tmp._statusIconMinAlpha.Format("Min opacity", tmp._fadingStatusEffectIcons);
                         tmp._statusIconMinAlpha.Description = "Icon opacity right before the status effect expires";
-                        Indent--;
                     }
                     tmp._hideQuickslotHints.Format("Hide quickslot hints", tmp._toggle);
                     tmp._hideQuickslotHints.Description = "Keyboard - hides the key names above quickslots\n" +
@@ -282,14 +280,12 @@
                     tmp._swapPendingBuySellPanels.Format("Swap pending buy/sell panels", tmp._separateBuySellPanels, SeperatePanelsMode.Disabled);
                     tmp._swapPendingBuySellPanels.Description = "Items you're buying will be shown above the merchant's stock\n" +
                                                                 "Items you're selling will be shown above your pouch";
-                    Indent++;
+                    using(Indent)
                     {
                         tmp._buySellToggle.Format("Toggle buy/sell panels", tmp._separateBuySellPanels, SeperatePanelsMode.Toggle);
                         tmp._switchToBuy.Format("Switch to buy panel", tmp._separateBuySellPanels, SeperatePanelsMode.TwoButtons);
                         tmp._switchToSell.Format("Switch to sell panel", tmp._separateBuySellPanels, SeperatePanelsMode.TwoButtons);
-                        Indent--;
                     }
-                    Indent--;
                 }
             }
         }
@@ -622,7 +618,7 @@
         => hudHolder.Find("MainCharacterBars/Mana");
 
         // Hooks
-#pragma warning disable IDE0051 // Remove unused private members
+#pragma warning disable IDE0051, IDE0060, IDE1006
         [HarmonyPatch(typeof(LocalCharacterControl), "RetrieveComponents"), HarmonyPostfix]
         static void LocalCharacterControl_RetrieveComponents_Post(LocalCharacterControl __instance)
         {

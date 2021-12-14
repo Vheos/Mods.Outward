@@ -141,7 +141,7 @@
         }
 
         // Hooks
-#pragma warning disable IDE0051 // Remove unused private members
+#pragma warning disable IDE0051, IDE0060, IDE1006
         [HarmonyPatch(typeof(EnvironmentSave), "ApplyData"), HarmonyPostfix]
         static void EnvironmentSave_ApplyData_Post(EnvironmentSave __instance)
         {

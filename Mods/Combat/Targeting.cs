@@ -101,7 +101,7 @@
         => character.LeftHandEquipment != null && character.LeftHandEquipment.IKType == Equipment.IKMode.Lexicon;
 
         // Hooks
-#pragma warning disable IDE0051 // Remove unused private members
+#pragma warning disable IDE0051, IDE0060, IDE1006
         [HarmonyPatch(typeof(CharacterCamera), "LateUpdate"), HarmonyPostfix]
         static void CharacterCamera_LateUpdate_Post(CharacterCamera __instance)
         {

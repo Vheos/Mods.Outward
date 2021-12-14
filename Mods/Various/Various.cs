@@ -13,6 +13,7 @@ namespace Vheos.Mods.Outward
     using Tools.Extensions.Math;
     using Tools.Extensions.General;
     using Tools.Extensions.UnityObjects;
+    using Tools.Extensions.Collections;
 
     public class Various : AMod, IUpdatable
     {
@@ -135,10 +136,9 @@ namespace Vheos.Mods.Outward
         override protected void SetFormatting()
         {
             _enableCheats.Format("Enable cheats");
-            Indent++;
+            using(Indent)
             {
                 _enableCheatsHotkey.Format("Hotkey");
-                Indent--;
             }
             _enableCheats.Description = "aka Debug Mode";
             _skipStartupVideos.Format("Skip startup videos");
@@ -156,25 +156,23 @@ namespace Vheos.Mods.Outward
             _multiplicativeStacking.Format("Multiplicative stacking");
             _multiplicativeStacking.Description = "Some stats will stack multiplicatively instead of additvely\n" +
                                                   "(movement speed, stamina cost, mana cost)";
-            Indent++;
+            using(Indent)
             {
                 _armorTrainingPenaltyReduction.Format("\"Armor Training\" penalty reduction", _multiplicativeStacking);
                 _armorTrainingPenaltyReduction.Description = "How much of equipment's movement speed and stamina cost penalties should \"Armor Training\" ignore";
                 _applyArmorTrainingToManaCost.Format("\"Armor Training\" affects mana cost", _multiplicativeStacking);
                 _applyArmorTrainingToManaCost.Description = "\"Armor Training\" will also lower equipment's mana cost penalties";
-                Indent--;
             }
             _loadArrowsFromInventory.Format("Load arrows from inventory");
             _loadArrowsFromInventory.Description = "Whenever you shoot your bow, the lost arrow is instantly replaced with one from your backpack or pouch (in that order)";
             _baseStaminaRegen.Format("Base stamina regen");
             _titleScreenRandomize.Format("Randomize title screen");
             _titleScreenRandomize.Description = "Every time you start the game, one of the chosen title screens will be loaded at random (untick all for default)";
-            Indent++;
+            using(Indent)
             {
                 _titleScreenHideCharacters.Format("Characters");
                 _titleScreenHideCharacters.Description = "If you think the character are ruining the view :)\n" +
                                                          "(requires game restart)";
-                Indent--;
             }
             _craftFromStash.Format("Craft with stashed items");
             _craftFromStash.Description = "When you're crafting in a city, you can use items from you stash";
@@ -198,12 +196,11 @@ namespace Vheos.Mods.Outward
                                              "Neutral   -   50\n" +
                                              "Hot   -   60\n" +
                                              "Very Hot   -   75)";
-            Indent++;
+            using(Indent)
             {
                 foreach (var step in InternalUtility.GetEnumValues<TemperatureSteps>())
                     if (step != TemperatureSteps.Count)
                         _temperatureDataByEnum[step].Format(step.ToString(), _temperatureToggle);
-                Indent--;
             }
         }
         override protected string Description
@@ -355,7 +352,7 @@ namespace Vheos.Mods.Outward
         }
 
         // Hooks
-#pragma warning disable IDE0051 // Remove unused private members
+#pragma warning disable IDE0051, IDE0060, IDE1006
         // Reset static scene data
         [HarmonyPatch(typeof(NetworkLevelLoader), "UnPauseGameplay"), HarmonyPostfix]
         static void NetworkLevelLoader_UnPauseGameplay_Post(NetworkLevelLoader __instance)
@@ -696,11 +693,10 @@ _pouchCapacity = CreateSetting(nameof(_pouchCapacity), POUCH_CAPACITY.Round(), I
 _allowOverCapacity = CreateSetting(nameof(_allowOverCapacity), true);
 
 _pouchToggle.Format("Pouch");
-Indent++;
+using(Indent)
 {
     _pouchCapacity.Format("Pouch size", _pouchToggle);
     _allowOverCapacity.Format("Allow over capacity", _pouchToggle);
-    Indent--;
 }
 
 [HarmonyPatch(typeof(CharacterInventory), "ProcessStart"), HarmonyPostfix]

@@ -59,9 +59,9 @@
         #endregion
 
         // User logic
-        override public Assembly CurrentAssembly
+        override protected Assembly CurrentAssembly
         => Assembly.GetExecutingAssembly();
-        override public void Initialize()
+        override protected void Initialize()
         {
             AMod.SetOrderingList(MODS_ORDERING_LIST);
             Log.Debug("Initializing GameInput...");
@@ -69,16 +69,16 @@
             Log.Debug("Initializing Players...");
             Players.Initialize();
         }
-        override public void DelayedInitialize()
+        override protected void DelayedInitialize()
         {
             Log.Debug("Initializing Prefabs...");
             Prefabs.Initialize();
             Log.Debug("Initializing Presets...");
             Presets.Initialize(_mods);
         }
-        override public bool DelayedInitializeCondition
+        override protected bool DelayedInitializeCondition
         => ResourcesPrefabManager.Instance.Loaded && UIUtilities.m_instance != null;
-        override public Type[] Blacklist
+        override protected Type[] Blacklist
         => new[] { typeof(Debug), typeof(WIP), typeof(PistolTweaks) };
     }
 }

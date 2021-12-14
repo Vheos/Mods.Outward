@@ -33,11 +33,10 @@
             _walkSpeed.Description = "% of current movement speed when walking";
             _doubleTapToToggle.Format("Double-tap to toggle");
             _doubleTapToToggle.Description = "Toggle default movement mode (between running and walking) by double-tapping the chosen key";
-            Indent++;
+            using(Indent)
             {
                 _doubleTapWaitTime.Format("Wait time", _doubleTapToToggle);
                 _doubleTapWaitTime.Description = "Max interval between two key presses (in milliseconds)";
-                Indent--;
             }
         }
         override protected string Description
@@ -82,7 +81,7 @@
         => Time.unscaledTime - _lastKeyPressTime;
 
         // Hooks
-#pragma warning disable IDE0051 // Remove unused private members
+#pragma warning disable IDE0051, IDE0060, IDE1006
         [HarmonyPatch(typeof(ControlsInput), "MoveHorizontal"), HarmonyPostfix]
         static void ControlsInput_MoveHorizontal_Post(ref float __result, ref int _playerID)
         {

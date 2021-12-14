@@ -51,7 +51,7 @@
             _randomizePricesExtent.Format("Randomize prices");
             _randomizePricesExtent.Description = "Prices will range from [100% - X%] to [100% + X%]\n" +
                                                  "and depend on current time, merchant and/or item";
-            Indent++;
+            using(Indent)
             {
                 _randomizePricesPerDays.Format("per days", _randomizePricesExtent, () => _randomizePricesExtent > 0);
                 _randomizePricesPerDays.Description = "All price modifiers will be rolled every X days";
@@ -59,17 +59,15 @@
                 _randomizePricesPerArea.Description = "Every city (and area) will have its own randomized price modifier";
                 _randomizePricesPerItem.Format("per item", _randomizePricesExtent, () => _randomizePricesExtent > 0);
                 _randomizePricesPerItem.Description = "Every item will have its own randomized price";
-                Indent--;
             }
             _pricesPerTypeToggle.Format("Prices by item type");
-            Indent++;
+            using(Indent)
             {
                 _pricesWeapons.Format("Weapons", _pricesPerTypeToggle);
                 _pricesArmors.Format("Armors", _pricesPerTypeToggle);
                 _pricesIngestibles.Format("Food", _pricesPerTypeToggle);
                 _pricesRecipes.Format("Recipes", _pricesPerTypeToggle);
                 _pricesOther.Format("Other items", _pricesPerTypeToggle);
-                Indent--;
             }
             _pricesGold.Format("Gold");
             _pricesGold.Description = "X   -   Gold ingot's buying price\n" +
@@ -187,7 +185,7 @@
         => price = isSelling ? _pricesGold.Value.y : _pricesGold.Value.x;
 
         // Hooks
-#pragma warning disable IDE0051 // Remove unused private members
+#pragma warning disable IDE0051, IDE0060, IDE1006
         [HarmonyPatch(typeof(Item), "GetBuyValue"), HarmonyPrefix]
         static bool Item_GetBuyValue_Pre(Item __instance, ref int __result, ref Character _player, ref Merchant _merchant)
         {

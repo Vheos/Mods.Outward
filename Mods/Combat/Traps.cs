@@ -41,11 +41,10 @@
         {
             _trapsArmDelay.Format("Traps arming delay");
             _trapsArmDelay.Description = "How long the trap has to stay on ground before it can explode (in seconds)";
-            Indent++;
+            using(Indent)
             {
                 _trapsFriendlyFire.Format("Friendly fire", _trapsArmDelay, () => _trapsArmDelay > 0);
                 _trapsFriendlyFire.Description = "The trap will also explode in contact with you and other players";
-                Indent--;
             }
             _wireTrapDepth.Format("Tripwire trap trigger depth");
             _pressureTrapRadius.Format("Presure plate trigger radius");
@@ -92,7 +91,7 @@
         => __instance.CurrentVisual.FindChild("TrapVisual").GetComponentInChildren<MeshRenderer>().material;
 
         // Hooks
-#pragma warning disable IDE0051 // Remove unused private members
+#pragma warning disable IDE0051, IDE0060, IDE1006
         [HarmonyPatch(typeof(DeployableTrap), "StartInit"), HarmonyPostfix]
         static void DeployableTrap_StartInit_Post(DeployableTrap __instance)
         {

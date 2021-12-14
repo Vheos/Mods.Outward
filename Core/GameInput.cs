@@ -66,7 +66,7 @@
         }
 
         // Hooks
-#pragma warning disable IDE0051 // Remove unused private members
+#pragma warning disable IDE0051, IDE0060, IDE1006
         [HarmonyPatch(typeof(CharacterUI), "IsMenuFocused", MethodType.Getter), HarmonyPrefix]
         static bool CharacterUI_IsMenuFocused_Getter_Pre(ref bool __result)
         {

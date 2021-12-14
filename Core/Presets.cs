@@ -25,6 +25,7 @@
             foreach (var preset in InternalUtility.GetEnumValues<Preset>())
                 names.Add(PresetToName(preset));
 
+            
             _presetToLoad = new ModSetting<string>("", nameof(_presetToLoad), PresetToName(Preset.None), new AcceptableValueList<string>(names.ToArray()));
             _presetToLoad.Format("Load preset");
             _presetToLoad.IsAdvanced = true;

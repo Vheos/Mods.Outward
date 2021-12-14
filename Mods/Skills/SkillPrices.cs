@@ -84,7 +84,7 @@
         {
             _formulaToggle.Format("Formulas");
             _formulaToggle.Description = "Define a price formula for skills of each level";
-            Indent++;
+            using(Indent)
             {
                 foreach (var priceCoeffByLevel in _formulaCoeffsByLevel)
                     priceCoeffByLevel.Value.Format(priceCoeffByLevel.Key.ToString(), _formulaToggle);
@@ -97,15 +97,13 @@
                                        "B   -   number of all unlocked skills\n" +
                                        "C   -   number of unlocked skills at current trainer\n" +
                                        "D   -   number of used breakthrough points";
-                Indent--;
             }
             _learnMutuallyExclusiveSkills.Format("Learn mutually exclusive skills");
             _learnMutuallyExclusiveSkills.Description = "Allows you to learn both skills that are normally mutually exclusive at defined price";
-            Indent++;
+            using(Indent)
             {
                 _exclusiveSkillCostsTsar.Format("at the cost of a Tsar Stone", _learnMutuallyExclusiveSkills);
                 _exclusiveSkillCostMultiplier.Format("at normal price multiplied by (%)", _exclusiveSkillCostsTsar, false);
-                Indent--;
             }
         }
         override protected string Description
@@ -171,7 +169,7 @@
         }
 
         // Hooks
-#pragma warning disable IDE0051 // Remove unused private members
+#pragma warning disable IDE0051, IDE0060, IDE1006
         [HarmonyPatch(typeof(TrainerPanel), "OnSkillSlotSelected"), HarmonyPrefix]
         static bool TrainerPanel_OnSkillSlotSelected_Pre(TrainerPanel __instance, SkillTreeSlotDisplay _display)
         {
