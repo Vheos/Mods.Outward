@@ -14,23 +14,35 @@
     <Deterministic>true</Deterministic>
     <TargetFrameworkProfile />
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == '-|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
+    <OutputPath>bin\-\</OutputPath>
     <DefineConstants>
     </DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <Prefer32Bit>false</Prefer32Bit>
+    <DocumentationFile>bin\-\Vheos.Mods.Outward.xml</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup>
     <RunPostBuildEvent>OnOutputUpdated</RunPostBuildEvent>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release_UNITY_2018|AnyCPU'">
-    <OutputPath>D:\Multiplayer\Outward\BepInEx\plugins\Vheos\</OutputPath>
-    <DefineConstants>TRACE;UNITY, UNITY2018</DefineConstants>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'RELEASE_UNITY_2018|AnyCPU' ">
+    <OutputPath>bin\UNITY_2018\</OutputPath>
+    <DefineConstants>TRACE;RELEASE, UNITY, UNITY2018</DefineConstants>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <LangVersion>7.3</LangVersion>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'DEBUG_UNITY_2018|AnyCPU' ">
+    <OutputPath>bin\UNITY_2018\</OutputPath>
+    <DefineConstants>TRACE;DEBUG, UNITY, UNITY2018</DefineConstants>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <Optimize>true</Optimize>
     <DebugType>pdbonly</DebugType>
