@@ -1,14 +1,12 @@
-﻿using System;
-using System.Linq;
-using System.Collections.Generic;
-using UnityEngine;
-using BepInEx.Configuration;
-using HarmonyLib;
-
-
-
-namespace ModPack
+﻿namespace Vheos.Mods.Outward
 {
+    using System;
+    using System.Collections.Generic;
+    using HarmonyLib;
+    using Tools.ModdingCore;
+    using Tools.Extensions.Math;
+    using Tools.Extensions.General;
+    using Tools.Extensions.Collections;
     public class Crafting : AMod, IDelayedInit
     {
         #region const
@@ -102,17 +100,16 @@ namespace ModPack
         {
             _preserveDurability.Format("Preserve durability ratios");
             _preserveDurability.Description = "Crafted items' durability will be based on the average of all ingredients (instead of 100%)";
-            Indent++;
+            using(Indent)
             {
                 _restoreMissingDurability.Format("Restore % of missing durability", _preserveDurability);
                 _restoreMissingDurability.Description = "Increase to make broken/rotten ingredients still useful (instead of just lowering the durability ratio)";
-                Indent--;
             }
 
             _limitedManualCrafting.Format("Limited manual crafting");
             _limitedManualCrafting.Description = "Manual crafting will be limited to 1 ingredient\n" +
                                                  "Advanced crafting will require learning recipes first";
-            Indent++;
+            using(Indent)
             {
 
                 _limitedManulCraftingExceptions.Format("Exceptions", _limitedManualCrafting);
@@ -121,7 +118,6 @@ namespace ModPack
                 _autoLearnCrystalPowderRecipe.Format("Auto-learn \"Crystal Powder\" recipe", _limitedManualCrafting);
                 _autoLearnCrystalPowderRecipe.Description = "Normally, \"Crystal Powder\" recipe can only be learned via crafting\n" +
                                                             "This will give you the recipe when you interact with the alchemy kit";
-                Indent--;
             }
             _extraResultsMultiplier.Format("Extra results multiplier");
             _extraResultsMultiplier.Description = "Multiplies the extra (over one) amount of crafting results\n" +
@@ -134,12 +130,12 @@ namespace ModPack
            "• Multiply amount of crafted items\n" +
            "• Randomize starting durability of spawned items";
         override protected string SectionOverride
-        => SECTION_SURVIVAL;
-        override public void LoadPreset(Presets.Preset preset)
+        => ModSections.SurvivalAndImmersion;
+        override protected void LoadPreset(string presetName)
         {
-            switch (preset)
+            switch (presetName)
             {
-                case Presets.Preset.Vheos_CoopSurvival:
+                case nameof(Preset.Vheos_CoopSurvival):
                     ForceApply();
                     _preserveDurability.Value = true;
                     _restoreMissingDurability.Value = 50;
@@ -165,9 +161,9 @@ namespace ModPack
         {
             List<Item> destructibleIngredients = new List<Item>();
             foreach (var ingredientSelector in craftingMenu.m_ingredientSelectors)
-                if (ingredientSelector.AssignedIngredient.TryAssign(out var ingredient))
+                if (ingredientSelector.AssignedIngredient.TryNonNull(out var ingredient))
                     foreach (var itemAmountByUID in ingredient.GetConsumedItems(false, out _))
-                        if (ItemManager.Instance.GetItem(itemAmountByUID.Key).TryAssign(out var item)
+                        if (ItemManager.Instance.GetItem(itemAmountByUID.Key).TryNonNull(out var item)
                         && item.MaxDurability > 0)
                             destructibleIngredients.TryAddUnique(item);
             return destructibleIngredients;
@@ -184,7 +180,7 @@ namespace ModPack
             {
                 Recipe recipe = craftingMenu.m_allRecipes[recipeIndex];
                 foreach (var result in recipe.Results)
-                    if (result.RefItem.TryAssign(out var item)
+                    if (result.RefItem.TryNonNull(out var item)
                     && item.MaxDurability > 0)
                         desctructibleResults.TryAddUnique(item);
             }
@@ -205,14 +201,14 @@ namespace ModPack
         => 1 + (result.Quantity - 1f).Mul(_extraResultsMultiplier / 100f).Round();
 
         // Hooks
-#pragma warning disable IDE0051 // Remove unused private members
+#pragma warning disable IDE0051, IDE0060, IDE1006
         [HarmonyPatch(typeof(CraftingMenu), "CraftingDone"), HarmonyPrefix]
         static bool CraftingMenu_CraftingDone_Pre(CraftingMenu __instance, ref List<Item> __state)
         {
             List<Item> ingredients = GetDestructibleIngredients(__instance);
             List<Item> results = GetDestructibleResults(__instance);
             #region quit
-            if (!_preserveDurability || ingredients.IsEmpty() || ingredients.IsEmpty())
+            if (!_preserveDurability || ingredients.IsNullOrEmpty() || ingredients.IsNullOrEmpty())
                 return true;
             #endregion
 
@@ -222,7 +218,7 @@ namespace ModPack
             averageRatio /= ingredients.Count;
 
             foreach (var item in results)
-                if (item.Stats.TryAssign(out var stats))
+                if (item.Stats.TryNonNull(out var stats))
                     stats.StartingDurability = (stats.MaxDurability * averageRatio.Lerp(1f, _restoreMissingDurability / 100f)).Round();
 
             __state = results;
@@ -238,7 +234,7 @@ namespace ModPack
             #endregion
 
             foreach (var item in __state)
-                if (item.Stats.TryAssign(out var stats))
+                if (item.Stats.TryNonNull(out var stats))
                     stats.StartingDurability = -1;
         }
 

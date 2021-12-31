@@ -1,15 +1,13 @@
-﻿using System;
-using System.Linq;
-using System.Collections.Generic;
-using UnityEngine;
-using BepInEx.Configuration;
-using HarmonyLib;
-using Random = UnityEngine.Random;
-
-
-
-namespace ModPack
+﻿namespace Vheos.Mods.Outward
 {
+    using System;
+    using System.Collections.Generic;
+    using UnityEngine;
+    using HarmonyLib;
+    using Tools.ModdingCore;
+    using Tools.Extensions.Math;
+    using Tools.Extensions.General;
+    using Random = UnityEngine.Random;
     public class Camping : AMod
     {
         #region const
@@ -94,12 +92,12 @@ namespace ModPack
            "• Change butterfly zones spawn chance and radius\n" +
            "• Customize repairing mechanic";
         override protected string SectionOverride
-        => SECTION_SURVIVAL;
-        override public void LoadPreset(Presets.Preset preset)
+        => ModSections.SurvivalAndImmersion;
+        override protected void LoadPreset(string presetName)
         {
-            switch (preset)
+            switch (presetName)
             {
-                case Presets.Preset.Vheos_CoopSurvival:
+                case nameof(Preset.Vheos_CoopSurvival):
                     ForceApply();
                     _campingSpots.Value = CampingSpots.Butterflies | CampingSpots.Dungeons;
                     _butterfliesSpawnChance.Value = 50;
@@ -143,7 +141,7 @@ namespace ModPack
         }
 
         // Hooks
-#pragma warning disable IDE0051 // Remove unused private members
+#pragma warning disable IDE0051, IDE0060, IDE1006
         [HarmonyPatch(typeof(EnvironmentSave), "ApplyData"), HarmonyPostfix]
         static void EnvironmentSave_ApplyData_Post(EnvironmentSave __instance)
         {

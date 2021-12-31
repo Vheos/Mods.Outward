@@ -1,14 +1,12 @@
-﻿using System;
-using System.Linq;
-using System.Collections.Generic;
-using UnityEngine;
-using BepInEx.Configuration;
-using HarmonyLib;
-
-
-
-namespace ModPack
+﻿namespace Vheos.Mods.Outward
 {
+    using UnityEngine;
+    using HarmonyLib;
+    using Tools.ModdingCore;
+    using Tools.Extensions.Math;
+    using Tools.Extensions.General;
+    using Tools.Extensions.UnityObjects;
+
     public class KeyboardWalk : AMod, IUpdatable
     {
         // Setting
@@ -35,23 +33,22 @@ namespace ModPack
             _walkSpeed.Description = "% of current movement speed when walking";
             _doubleTapToToggle.Format("Double-tap to toggle");
             _doubleTapToToggle.Description = "Toggle default movement mode (between running and walking) by double-tapping the chosen key";
-            Indent++;
+            using(Indent)
             {
                 _doubleTapWaitTime.Format("Wait time", _doubleTapToToggle);
                 _doubleTapWaitTime.Description = "Max interval between two key presses (in milliseconds)";
-                Indent--;
             }
         }
         override protected string Description
         => "• Allows keyboard players to walk\n" +
            "(can be held or toggled)";
         override protected string SectionOverride
-        => SECTION_UI;
-        override public void LoadPreset(Presets.Preset preset)
+        => ModSections.UI;
+        override protected void LoadPreset(string presetName)
         {
-            switch (preset)
+            switch (presetName)
             {
-                case Presets.Preset.Vheos_PreferredUI:
+                case nameof(Preset.Vheos_PreferredUI):
                     IsHidden = true;
                     break;
             }
@@ -84,7 +81,7 @@ namespace ModPack
         => Time.unscaledTime - _lastKeyPressTime;
 
         // Hooks
-#pragma warning disable IDE0051 // Remove unused private members
+#pragma warning disable IDE0051, IDE0060, IDE1006
         [HarmonyPatch(typeof(ControlsInput), "MoveHorizontal"), HarmonyPostfix]
         static void ControlsInput_MoveHorizontal_Post(ref float __result, ref int _playerID)
         {

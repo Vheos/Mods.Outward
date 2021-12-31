@@ -1,14 +1,10 @@
-﻿using System;
-using System.Linq;
-using System.Collections.Generic;
-using UnityEngine;
-using BepInEx.Configuration;
-using HarmonyLib;
-
-
-
-namespace ModPack
+﻿namespace Vheos.Mods.Outward
 {
+    using System;
+    using UnityEngine;
+    using HarmonyLib;
+    using Tools.ModdingCore;
+    using Tools.Extensions.Math;
     public class Camera : AMod, IDelayedInit, IUpdatable
     {
         #region const
@@ -148,7 +144,7 @@ namespace ModPack
                 // Settings
                 tmp._toggle.Format($"Player {i + 1}");
                 tmp._toggle.Description = $"Change settings for local player {i + 1}";
-                Indent++;
+                using(Indent)
                 {
                     tmp._zoomControlAmount.Format("Zoom amount", tmp._toggle);
                     tmp._zoomControlAmount.Description = "-1  -  max zoom out\n" +
@@ -158,24 +154,22 @@ namespace ModPack
                     tmp._zoomControlSpeed.Description = "How quickly you want to zoom using mouse/gamepad\n" +
                         "Mouse: use mouse scroll wheel\n" +
                         "Gamepad: use right stick while holding defined actions";
-                    Indent++;
+                    using(Indent)
                     {
-                        tmp._gamepadInputs.Format("Gamepad hotkey", tmp._zoomControlSpeed, () => tmp._zoomControlSpeed > 0);
+                        tmp._gamepadInputs.Format("Gamepad hotkey", tmp._zoomControlSpeed, t => t > 0);
                         tmp._gamepadInputs.Description = "Gamepad actions you need to hold to control camera. Defaults:\n" +
                                                          "LeftQS = LT\n" +
                                                          "RightQS = RT\n" +
                                                          "Sprint = LB\n" +
                                                          "Block = RB";
-                        Indent--;
                     }
                     tmp._offsetToggle.Format("Offset", tmp._toggle);
                     tmp._offsetToggle.Description = "Change camera position (XYZ) presets";
-                    Indent++;
+                    using(Indent)
                     {
                         tmp._offsetMin.Format("at zoom =  -1", tmp._offsetToggle);
                         tmp._offsetAvg.Format("at zoom =  0", tmp._offsetToggle);
                         tmp._offsetMax.Format("at zoom = +1", tmp._offsetToggle);
-                        Indent--;
                     }
 
                     tmp._variousToggle.Format("FOV, FollowSpeed, Sensitivity", tmp._toggle);
@@ -183,14 +177,12 @@ namespace ModPack
                         "X  -  field of view (vertical)\n" +
                         "Y  -  how quickly camera follows your character\n" +
                         "Z  -  how quickly camera rotates";
-                    Indent++;
+                    using(Indent)
                     {
                         tmp._variousMin.Format("at zoom =  -1", tmp._variousToggle);
                         tmp._variousAvg.Format("at zoom =  0", tmp._variousToggle);
                         tmp._variousMax.Format("at zoom = +1", tmp._variousToggle);
-                        Indent--;
                     }
-                    Indent--;
                 }
             }
         }
@@ -200,12 +192,12 @@ namespace ModPack
            "• Control camera using mouse/gamepad\n" +
            "• Define presets and smoothly interpolate between them";
         override protected string SectionOverride
-        => SECTION_UI;
-        override public void LoadPreset(Presets.Preset preset)
+        => ModSections.UI;
+        override protected void LoadPreset(string presetName)
         {
-            switch (preset)
+            switch (presetName)
             {
-                case Presets.Preset.Vheos_PreferredUI:
+                case nameof(Preset.Vheos_PreferredUI):
                     ForceApply();
                     foreach (var settings in _perPlayerSettings)
                     {
@@ -291,7 +283,7 @@ namespace ModPack
         }
 
         // Hooks
-#pragma warning disable IDE0051 // Remove unused private members
+#pragma warning disable IDE0051, IDE0060, IDE1006
         [HarmonyPatch(typeof(SplitScreenManager), "DelayedRefreshSplitScreen"), HarmonyPostfix]
         static void SplitScreenManager_DelayedRefreshSplitScreen_Post()
         {

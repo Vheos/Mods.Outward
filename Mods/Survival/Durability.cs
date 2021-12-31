@@ -1,15 +1,14 @@
-﻿using System;
-using System.Linq;
-using System.Collections.Generic;
-using UnityEngine;
-using BepInEx.Configuration;
-using HarmonyLib;
-using Random = UnityEngine.Random;
-
-
-
-namespace ModPack
+﻿namespace Vheos.Mods.Outward
 {
+    using System.Linq;
+    using System.Collections.Generic;
+    using UnityEngine;
+    using HarmonyLib;
+    using Tools.ModdingCore;
+    using Tools.Extensions.Math;
+    using Tools.Extensions.Collections;
+    using Tools.Extensions.General;
+    using Random = UnityEngine.Random;
     public class Durability : AMod
     {
         #region const
@@ -77,7 +76,7 @@ namespace ModPack
         override protected void SetFormatting()
         {
             _lossMultipliers.Format("Durability loss multipliers");
-            Indent++;
+            using(Indent)
             {
                 _lossWeapons.Format("Weapons", _lossMultipliers);
                 _lossWeapons.Description = "Includes shields";
@@ -85,42 +84,38 @@ namespace ModPack
                 _lossLights.Format("Lights", _lossMultipliers);
                 _lossLights.Description = "Torches and lanterns";
                 _lossIngestibles.Format("Food", _lossMultipliers);
-                Indent--;
             }
             _campingRepairToggle.Format("Camping repair");
-            Indent++;
+            using(Indent)
             {
                 _repairDurabilityPerHour.Format("Durability per hour", _campingRepairToggle);
                 _repairDurabilityPercentPerHour.Format("Durability % per hour", _campingRepairToggle);
                 _repairDurabilityPercentPerHour.Description = "By default, % of max durability (can be changed below)";
-                _repairPercentReference.Format("", _repairDurabilityPercentPerHour, () => _repairDurabilityPercentPerHour > 0);
+                _repairPercentReference.Format("", _repairDurabilityPercentPerHour, t => t > 0);
                 _fastMaintenanceMultiplier.Format("\"Fast Maintenance\" repair multiplier", _campingRepairToggle);
                 _multiRepairBehaviour.Format("When repairing multiple items", _campingRepairToggle);
                 _multiRepairBehaviour.Description = "Use fixed value for all items   -   the same repair value will be used for all items\n" +
                                                     "Divide value among items   -   the repair value will be divided by the number of equipped items\n" +
                                                     "Try to equalize values   -   repair item with the lowest durabilty value\n" +
                                                     "Try to equalize ratios   -   repair item with the lowest durabilty ratio";
-                Indent--;
             }
 
             _effectivenessAffectsAllStats.Format("Durability affects all stats");
             _effectivenessAffectsAllStats.Description = "Normally, durability affects only damages, resistances (impact only for shields) and protection\n" +
                                                         "This will make all* equipment stats decrease with durability\n" +
                                                         "( * currently all except damage bonuses)";
-            Indent++;
+            using(Indent)
             {
                 _effectivenessAffectsPenalties.Format("affect penalties", _effectivenessAffectsAllStats);
                 _effectivenessAffectsPenalties.Description = "Stat penalties (like negative movement speed on heavy armors) will also decrease with durability";
-                Indent--;
             }
             _linearEffectiveness.Format("Smooth durability effects");
             _linearEffectiveness.Description = "Normally, equipment stats change only when durability reaches certain thresholds (50%, 25% and 0%)\n" +
                                                "This will update the stats smoothly, without any thersholds";
-            Indent++;
+            using(Indent)
             {
                 _minNonBrokenEffectiveness.Format("when nearing zero durability", _linearEffectiveness);
                 _brokenEffectiveness.Format("when broken", _linearEffectiveness);
-                Indent--;
             }
             _smithRepairsOnlyEquipped.Format("Smith repairs only equipped items");
             _smithRepairsOnlyEquipped.Description = "Blacksmith will not repair items in your pouch and bag";
@@ -135,12 +130,12 @@ namespace ModPack
            "• Change how durability affects equipment stats\n" +
            "• Randomize starting durability of spawned items";
         override protected string SectionOverride
-        => SECTION_SURVIVAL;
-        override public void LoadPreset(Presets.Preset preset)
+        => ModSections.SurvivalAndImmersion;
+        override protected void LoadPreset(string presetName)
         {
-            switch (preset)
+            switch (presetName)
             {
-                case Presets.Preset.Vheos_CoopSurvival:
+                case nameof(Preset.Vheos_CoopSurvival):
                     ForceApply();
                     _lossMultipliers.Value = true;
                     {
@@ -193,7 +188,7 @@ namespace ModPack
         }
 
         // Hooks
-#pragma warning disable IDE0051 // Remove unused private members
+#pragma warning disable IDE0051, IDE0060, IDE1006
         [HarmonyPatch(typeof(Item), "ReduceDurability"), HarmonyPrefix]
         static bool Item_ReduceDurability_Pre(Item __instance, ref float _durabilityLost)
         {
@@ -231,7 +226,7 @@ namespace ModPack
                 && slot.EquippedItem.RepairedInRest && !slot.EquippedItem.IsIndestructible && slot.EquippedItem.DurabilityRatio < 1f)
                     equippedItems.Add(slot.EquippedItem);
 
-            if (equippedItems.IsEmpty())
+            if (equippedItems.IsNullOrEmpty())
                 return false;
 
             // Repair values
@@ -296,8 +291,8 @@ namespace ModPack
         {
             #region quit
             if (_minStartingDurability >= 100
-            || !_itemDrop.DroppedItem.TryAssign(out var item) || !Prefabs.ItemsByID[item.ItemIDString].TryAssign(out var prefab)
-            || !prefab.Stats.TryAssign(out var prefabStats) || prefabStats.MaxDurability <= 0)
+            || !_itemDrop.DroppedItem.TryNonNull(out var item) || !Prefabs.ItemsByID[item.ItemIDString].TryNonNull(out var prefab)
+            || !prefab.Stats.TryNonNull(out var prefabStats) || prefabStats.MaxDurability <= 0)
                 return true;
             #endregion
 

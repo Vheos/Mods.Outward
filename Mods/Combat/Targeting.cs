@@ -1,14 +1,10 @@
-﻿using System;
-using System.Linq;
-using System.Collections.Generic;
-using UnityEngine;
-using BepInEx.Configuration;
-using HarmonyLib;
-
-
-
-namespace ModPack
+﻿namespace Vheos.Mods.Outward
 {
+    using System;
+    using UnityEngine;
+    using HarmonyLib;
+    using Tools.ModdingCore;
+    using Tools.Extensions.General;
     public class Targeting : AMod
     {
         #region const
@@ -70,12 +66,12 @@ namespace ModPack
            "• Auto-target on specific actions\n" +
            "• Tilt targeting camera";
         override protected string SectionOverride
-        => SECTION_COMBAT;
-        override public void LoadPreset(Presets.Preset preset)
+        => ModSections.Combat;
+        override protected void LoadPreset(string presetName)
         {
-            switch (preset)
+            switch (presetName)
             {
-                case Presets.Preset.Vheos_CoopSurvival:
+                case nameof(Preset.Vheos_CoopSurvival):
                     ForceApply();
                     _meleeDistance.Value = 20;
                     _rangedDistance.Value = 30;
@@ -105,7 +101,7 @@ namespace ModPack
         => character.LeftHandEquipment != null && character.LeftHandEquipment.IKType == Equipment.IKMode.Lexicon;
 
         // Hooks
-#pragma warning disable IDE0051 // Remove unused private members
+#pragma warning disable IDE0051, IDE0060, IDE1006
         [HarmonyPatch(typeof(CharacterCamera), "LateUpdate"), HarmonyPostfix]
         static void CharacterCamera_LateUpdate_Post(CharacterCamera __instance)
         {

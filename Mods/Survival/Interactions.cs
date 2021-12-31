@@ -1,15 +1,14 @@
-﻿using System;
-using System.Linq;
-using System.Collections.Generic;
-using UnityEngine;
-using BepInEx.Configuration;
-using HarmonyLib;
-using Random = UnityEngine.Random;
-
-
-
-namespace ModPack
+﻿namespace Vheos.Mods.Outward
 {
+    using System;
+    using UnityEngine;
+    using HarmonyLib;
+    using Tools.ModdingCore;
+    using Tools.Extensions.Math;
+    using Tools.Extensions.UnityObjects;
+    using Tools.Extensions.General;
+    using Tools.UtilityN;
+    using Random = UnityEngine.Random;
     public class Interactions : AMod, IDelayedInit
     {
         #region const
@@ -239,7 +238,7 @@ namespace ModPack
                                               "Pull levers   -   open gates, ride elevators, etc.";
             _highlightsToggle.Format("Highlights");
             _highlightsToggle.Description = "Change settings of the glowing orbs that highlight most interactive objects";
-            Indent++;
+            using(Indent)
             {
                 _highlightsIntensity.Format("Intensity", _highlightsToggle);
                 _highlightsIntensity.Description = "Brightness and size of the highlights";
@@ -251,7 +250,6 @@ namespace ModPack
                                                  "Consumable   -   green\n" +
                                                  "Other items   -   cyan\n" +
                                                  "Containers and levers   -   purple";
-                Indent--;
             }
 
         }
@@ -261,12 +259,12 @@ namespace ModPack
            "• \"Take item\" animations\n" +
            "• Disallow certain interactions while in combat";
         override protected string SectionOverride
-        => SECTION_SURVIVAL;
-        override public void LoadPreset(Presets.Preset preset)
+        => ModSections.SurvivalAndImmersion;
+        override protected void LoadPreset(string presetName)
         {
-            switch (preset)
+            switch (presetName)
             {
-                case Presets.Preset.Vheos_CoopSurvival:
+                case nameof(Preset.Vheos_CoopSurvival):
                     ForceApply();
                     _groundInteractions.Value = GroundInteractions.All;
                     _singleHoldsToPresses.Value = true;
@@ -343,7 +341,7 @@ namespace ModPack
         }
 
         // Hooks
-#pragma warning disable IDE0051 // Remove unused private members
+#pragma warning disable IDE0051, IDE0060, IDE1006
         [HarmonyPatch(typeof(InteractionBase), "HoldActivationTime", MethodType.Getter), HarmonyPrefix]
         static bool InteractionBase_HoldActivationTime_Getter_Post(ref float __result, ref float ___m_holdActivationTimeOverride)
         {
@@ -367,7 +365,7 @@ namespace ModPack
             #region quit
             if (_character == null || !_character.InCombat
             || !__instance.CurrentTriggerManager.TryAs<InteractionActivator>(out var activator)
-            || !activator.BasicInteraction.TryAssign(out var interaction)
+            || !activator.BasicInteraction.TryNonNull(out var interaction)
             || (interaction.IsNot<InteractionOpenContainer>() || !flags.HasFlag(DisallowedInCombat.Loot))
             && (interaction.IsNot<InteractionSwitchArea>() || !flags.HasFlag(DisallowedInCombat.Travel))
             && (interaction.IsNot<InteractionWarp>() || !flags.HasFlag(DisallowedInCombat.Warp))
@@ -387,7 +385,7 @@ namespace ModPack
             #region quit
             if (!_highlightsToggle
             || !__instance.m_renderer.TryAs(out ParticleSystemRenderer renderer)
-            || !renderer.GetComponent<ParticleSystem>().TryAssign(out var particleSystem))
+            || !renderer.GetComponent<ParticleSystem>().TryNonNull(out var particleSystem))
                 return true;
             #endregion
 
@@ -406,7 +404,7 @@ namespace ModPack
                 if (__instance.TryAs(out ItemHighlight itemHighlight))
                 {
                     newColor = HIGHLIGHT_COLOR_OTHER_ITEM;
-                    if (itemHighlight.Item.TryAssign(out var item))
+                    if (itemHighlight.Item.TryNonNull(out var item))
                         if (item is Equipment)
                             newColor = HIGHLIGHT_COLOR_EQUIP;
                         else if (item is ItemContainer)
@@ -434,7 +432,7 @@ namespace ModPack
             main.startColor = newColor;
 
             // Apply distance
-            if (particleSystem.GetComponent<DisableParticlesWhenFar>().TryAssign(out var disableParticlesWhenFar))
+            if (particleSystem.GetComponent<DisableParticlesWhenFar>().TryNonNull(out var disableParticlesWhenFar))
                 disableParticlesWhenFar.m_sqrDist = _highlightsDistance.Value.Pow(2);
 
             // Finalize
@@ -467,12 +465,11 @@ _mobileDrinkSpeed = CreateSetting(nameof(_mobileDrinkSpeed), 50, IntRange(0, 100
 _mobileInfuseSpeed = CreateSetting(nameof(_mobileInfuseSpeed), 50, IntRange(0, 100));
 
 _mobileUseToggle.Format("Use items while moving");
-Indent++;
+using(Indent)
 {
     _mobileEatSpeed.Format("Eat move speed", _mobileUseToggle);
     _mobileDrinkSpeed.Format("Drink move speed", _mobileUseToggle);
     _mobileInfuseSpeed.Format("Infuse move speed", _mobileUseToggle);
-    Indent--;
 }
 
 static private void TryUpdateMobileUse()

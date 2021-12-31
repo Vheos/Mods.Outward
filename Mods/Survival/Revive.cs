@@ -1,14 +1,10 @@
-﻿using System;
-using System.Linq;
-using System.Collections.Generic;
-using UnityEngine;
-using BepInEx.Configuration;
-using HarmonyLib;
-
-
-
-namespace ModPack
+﻿namespace Vheos.Mods.Outward
 {
+    using UnityEngine;
+    using HarmonyLib;
+    using Tools.ModdingCore;
+    using Tools.Extensions.Math;
+    using Tools.Extensions.General;
     public class Revive : AMod
     {
         #region const       
@@ -55,7 +51,7 @@ namespace ModPack
         override protected void SetFormatting()
         {
             _interactionToggle.Format("Interaction settings");
-            Indent++;
+            using(Indent)
             {
                 _interactionDuration.Format("Duration", _interactionToggle);
                 _interactionDuration.Description = "How long you need to hold the interaction button to revive a player";
@@ -63,40 +59,36 @@ namespace ModPack
                 _interactionDistance.Description = "From how far away you can start reviving";
                 _interactionPrioritize.Format("Prioritize", _interactionToggle);
                 _interactionPrioritize.Description = "Ignore other interactions if a dead player is nearby";
-                Indent--;
             }
 
             _maxVitalsToggle.Format("Max Vitals");
             _maxVitalsToggle.Description = "% of current max vital\n" +
                                            "(example: -10% setting and 50 max health before death will result in 5 Max Health lost after revive)";
-            Indent++;
+            using(Indent)
             {
                 _maxHealthLost.Format("Max health", _maxVitalsToggle);
                 _maxStaminaLost.Format("Max stamina", _maxVitalsToggle);
                 _maxManaLost.Format("Max mana", _maxVitalsToggle);
-                Indent--;
             }
 
             _vitalsToggle.Format("Vitals");
             _vitalsToggle.Description = "% of max vital, after revive changes\n" +
                                         "Health and stamina are set to a new value regardless of what they were before death, while mana is changed relative to its previous value";
-            Indent++;
+            using(Indent)
             {
                 _newHealth.Format("Health (new) ", _vitalsToggle);
                 _newStamina.Format("Stamina (new)", _vitalsToggle);
                 _manaLost.Format("Mana", _vitalsToggle);
-                Indent--;
             }
 
             _needsToggle.Format("Needs & Corruption");
             _needsToggle.Description = "% of remaining need / missing corruption";
-            Indent++;
+            using(Indent)
             {
                 _foodLost.Format("Food", _needsToggle);
                 _drinkLost.Format("Drink", _needsToggle);
                 _sleepLost.Format("Sleep", _needsToggle);
                 _corruptionGained.Format("Corruption", _needsToggle);
-                Indent--;
             }
         }
         override protected string Description
@@ -105,12 +97,12 @@ namespace ModPack
            "• Change stats after revive\n" +
            "(vitals, max vitals, needs, corruption)";
         override protected string SectionOverride
-        => SECTION_SURVIVAL;
-        override public void LoadPreset(Presets.Preset preset)
+        => ModSections.SurvivalAndImmersion;
+        override protected void LoadPreset(string presetName)
         {
-            switch (preset)
+            switch (presetName)
             {
-                case Presets.Preset.Vheos_CoopSurvival:
+                case nameof(Preset.Vheos_CoopSurvival):
                     ForceApply();
                     _interactionToggle.Value = true;
                     {
@@ -142,7 +134,7 @@ namespace ModPack
         }
 
         // Hooks
-#pragma warning disable IDE0051 // Remove unused private members
+#pragma warning disable IDE0051, IDE0060, IDE1006
         [HarmonyPatch(typeof(Character), "UpdateReviveInteraction"), HarmonyPostfix]
         static void Character_UpdateReviveInteraction_Pre(Character __instance)
         {

@@ -1,16 +1,13 @@
-﻿using System;
-using System.Linq;
-using System.Collections.Generic;
-using UnityEngine;
-using BepInEx.Configuration;
-using HarmonyLib;
-using UnityEngine.UI;
-
-
-
-
-namespace ModPack
+﻿namespace Vheos.Mods.Outward
 {
+    using System.Linq;
+    using System.Collections.Generic;
+    using UnityEngine;
+    using UnityEngine.UI;
+    using HarmonyLib;
+    using Tools.ModdingCore;
+    using Tools.Extensions.Math;
+    using Tools.Extensions.General;
     public class SkillPrices : AMod
     {
         #region const
@@ -49,7 +46,7 @@ namespace ModPack
                 ItemName = name;
                 ItemID = Prefabs.ItemIDsByName[name];
                 Amount = amount;
-                Icon = Utility.CreateSpriteFromFile(Utility.PluginFolderPath + ICONS_FOLDER + name + ".PNG");
+                Icon = InternalUtility.CreateSpriteFromFile(InternalUtility.PluginFolderPath + ICONS_FOLDER + name + ".PNG");
             }
         }
         #endregion
@@ -65,7 +62,7 @@ namespace ModPack
         {
             _formulaToggle = CreateSetting(nameof(_formulaToggle), false);
             _formulaCoeffsByLevel = new Dictionary<SlotLevel, ModSetting<Vector4>>();
-            foreach (var level in Utility.GetEnumValues<SlotLevel>())
+            foreach (var level in InternalUtility.GetEnumValues<SlotLevel>())
             {
                 Vector4 initialPrice = Vector4.zero;
                 switch (level)
@@ -87,7 +84,7 @@ namespace ModPack
         {
             _formulaToggle.Format("Formulas");
             _formulaToggle.Description = "Define a price formula for skills of each level";
-            Indent++;
+            using(Indent)
             {
                 foreach (var priceCoeffByLevel in _formulaCoeffsByLevel)
                     priceCoeffByLevel.Value.Format(priceCoeffByLevel.Key.ToString(), _formulaToggle);
@@ -100,29 +97,27 @@ namespace ModPack
                                        "B   -   number of all unlocked skills\n" +
                                        "C   -   number of unlocked skills at current trainer\n" +
                                        "D   -   number of used breakthrough points";
-                Indent--;
             }
             _learnMutuallyExclusiveSkills.Format("Learn mutually exclusive skills");
             _learnMutuallyExclusiveSkills.Description = "Allows you to learn both skills that are normally mutually exclusive at defined price";
-            Indent++;
+            using(Indent)
             {
                 _exclusiveSkillCostsTsar.Format("at the cost of a Tsar Stone", _learnMutuallyExclusiveSkills);
                 _exclusiveSkillCostMultiplier.Format("at normal price multiplied by (%)", _exclusiveSkillCostsTsar, false);
-                Indent--;
             }
         }
         override protected string Description
         => "• Change skill trainers' prices\n" +
            "• Set price for learning mutually exclusive skills";
         override protected string SectionOverride
-        => SECTION_SKILLS;
+        => ModSections.Skills;
         override protected string ModName
         => "Prices";
-        override public void LoadPreset(Presets.Preset preset)
+        override protected void LoadPreset(string presetName)
         {
-            switch (preset)
+            switch (presetName)
             {
-                case Presets.Preset.Vheos_CoopSurvival:
+                case nameof(Preset.Vheos_CoopSurvival):
                     ForceApply();
                     _formulaToggle.Value = true;
                     {
@@ -143,7 +138,7 @@ namespace ModPack
         => skillSlot.SiblingSlot != null && skillSlot.SiblingSlot.HasSkill(character);
         static private SlotLevel GetLevel(BaseSkillSlot slot)
         {
-            if (!slot.ParentBranch.ParentTree.BreakthroughSkill.TryAssign(out var breakthroughSlot))
+            if (!slot.ParentBranch.ParentTree.BreakthroughSkill.TryNonNull(out var breakthroughSlot))
                 return SlotLevel.Basic;
 
             switch (slot.ParentBranch.Index.CompareTo(breakthroughSlot.ParentBranch.Index))
@@ -174,7 +169,7 @@ namespace ModPack
         }
 
         // Hooks
-#pragma warning disable IDE0051 // Remove unused private members
+#pragma warning disable IDE0051, IDE0060, IDE1006
         [HarmonyPatch(typeof(TrainerPanel), "OnSkillSlotSelected"), HarmonyPrefix]
         static bool TrainerPanel_OnSkillSlotSelected_Pre(TrainerPanel __instance, SkillTreeSlotDisplay _display)
         {

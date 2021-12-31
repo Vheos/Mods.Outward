@@ -1,15 +1,16 @@
-﻿using System;
-using System.Linq;
-using System.Collections.Generic;
-using UnityEngine;
-using BepInEx.Configuration;
-using HarmonyLib;
-using UnityEngine.UI;
-
-
-
-namespace ModPack
+﻿namespace Vheos.Mods.Outward
 {
+    using System;
+    using System.Linq;
+    using System.Collections.Generic;
+    using UnityEngine;
+    using UnityEngine.UI;
+    using HarmonyLib;
+    using Tools.ModdingCore;
+    using Tools.Extensions.Math;
+    using Tools.Extensions.General;
+    using Tools.Extensions.UnityObjects;
+
     public class GUI : AMod, IDelayedInit, IUpdatable
     {
         #region const
@@ -238,24 +239,23 @@ namespace ModPack
 
                 tmp._toggle.Format($"Player {i + 1}");
                 tmp._toggle.Description = $"Change settings for local player {i + 1}";
-                Indent++;
+                using(Indent)
                 {
                     tmp._copySettings.Format($"Copy settings from player {1 - i + 1}", tmp._toggle);
                     tmp._copySettings.IsAdvanced = true;
                     tmp._rearrangeHUD.Format("Rearrange HUD", tmp._toggle);
                     tmp._rearrangeHUD.Description = "Change HUD elements position and scale";
-                    Indent++;
+                    using(Indent)
                     {
                         tmp._startHUDEditor.Format("Edit mode", tmp._rearrangeHUD);
                         tmp._startHUDEditor.Description = "Pause the game and start rearranging HUD elements:\n" +
                                                           "Left mouse button - move\n" +
                                                           "Right muse button - scale\n" +
                                                           "Open ConfigManager - save settings";
-                        Indent--;
                     }
                     tmp._hudTransparency.Format("HUD transparency", tmp._toggle);
                     tmp._fadingStatusEffectIcons.Format("Fading status effect icons", tmp._toggle);
-                    Indent++;
+                    using(Indent)
                     {
                         tmp._statusIconMaxSize.Format("Max size", tmp._fadingStatusEffectIcons);
                         tmp._statusIconMaxSize.Description = "Icon size at maximum status effect duration";
@@ -263,7 +263,6 @@ namespace ModPack
                         tmp._statusIconMinSize.Description = "Icon size right before the status effect expires";
                         tmp._statusIconMinAlpha.Format("Min opacity", tmp._fadingStatusEffectIcons);
                         tmp._statusIconMinAlpha.Description = "Icon opacity right before the status effect expires";
-                        Indent--;
                     }
                     tmp._hideQuickslotHints.Format("Hide quickslot hints", tmp._toggle);
                     tmp._hideQuickslotHints.Description = "Keyboard - hides the key names above quickslots\n" +
@@ -281,14 +280,12 @@ namespace ModPack
                     tmp._swapPendingBuySellPanels.Format("Swap pending buy/sell panels", tmp._separateBuySellPanels, SeperatePanelsMode.Disabled);
                     tmp._swapPendingBuySellPanels.Description = "Items you're buying will be shown above the merchant's stock\n" +
                                                                 "Items you're selling will be shown above your pouch";
-                    Indent++;
+                    using(Indent)
                     {
                         tmp._buySellToggle.Format("Toggle buy/sell panels", tmp._separateBuySellPanels, SeperatePanelsMode.Toggle);
                         tmp._switchToBuy.Format("Switch to buy panel", tmp._separateBuySellPanels, SeperatePanelsMode.TwoButtons);
                         tmp._switchToSell.Format("Switch to sell panel", tmp._separateBuySellPanels, SeperatePanelsMode.TwoButtons);
-                        Indent--;
                     }
-                    Indent--;
                 }
             }
         }
@@ -296,12 +293,12 @@ namespace ModPack
         => "• Rearrange HUD elements\n" +
            "• Vertical splitscreen (with shop tweaks)";
         override protected string SectionOverride
-        => SECTION_UI;
-        override public void LoadPreset(Presets.Preset preset)
+        => ModSections.UI;
+        override protected void LoadPreset(string presetName)
         {
-            switch (preset)
+            switch (presetName)
             {
-                case Presets.Preset.Vheos_PreferredUI:
+                case nameof(Preset.Vheos_PreferredUI):
                     ForceApply();
                     _verticalSplitscreen.Value = true;
                     _textScale.Value = 110;
@@ -466,7 +463,7 @@ namespace ModPack
                 return;
 
             // Execute
-            Utility.SwapHierarchyPositions(pendingBuy, pendingSell);
+            InternalUtility.SwapHierarchyPositions(pendingBuy, pendingSell);
             pendingBuy.SetAsFirstSibling();
             pendingSell.SetAsFirstSibling();
         }
@@ -510,7 +507,7 @@ namespace ModPack
 
             if (state)
             {
-                Tools.IsConfigOpen = false;
+                ConfigHelper.IsConfigOpen = false;
                 SetupHUDElements(player);
                 _hudEditFocus.Transform = null;
             }
@@ -621,7 +618,7 @@ namespace ModPack
         => hudHolder.Find("MainCharacterBars/Mana");
 
         // Hooks
-#pragma warning disable IDE0051 // Remove unused private members
+#pragma warning disable IDE0051, IDE0060, IDE1006
         [HarmonyPatch(typeof(LocalCharacterControl), "RetrieveComponents"), HarmonyPostfix]
         static void LocalCharacterControl_RetrieveComponents_Post(LocalCharacterControl __instance)
         {
@@ -727,7 +724,7 @@ namespace ModPack
             float progress;
             if (statusEffect.TryAs(out Disease disease) && disease.IsReceding)
             {
-                float elapsed = GameTime - disease.m_healedGameTime;
+                float elapsed = InternalUtility.GameTime - disease.m_healedGameTime;
                 float duration = DiseaseLibrary.Instance.GetRecedingTime(disease.m_diseasesType);
                 progress = 1f - elapsed / duration;
             }

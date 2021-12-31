@@ -1,16 +1,11 @@
-﻿using System;
-using System.Linq;
-using System.Collections.Generic;
-using UnityEngine;
-using BepInEx.Configuration;
-using HarmonyLib;
-using UnityEngine.UI;
-using Random = UnityEngine.Random;
-
-
-
-namespace ModPack
+﻿namespace Vheos.Mods.Outward
 {
+    using UnityEngine;
+    using HarmonyLib;
+    using Tools.ModdingCore;
+    using Tools.Extensions.Math;
+    using Tools.Extensions.General;
+    using Random = UnityEngine.Random;
     public class Merchants : AMod
     {
         #region const
@@ -56,25 +51,23 @@ namespace ModPack
             _randomizePricesExtent.Format("Randomize prices");
             _randomizePricesExtent.Description = "Prices will range from [100% - X%] to [100% + X%]\n" +
                                                  "and depend on current time, merchant and/or item";
-            Indent++;
+            using(Indent)
             {
-                _randomizePricesPerDays.Format("per days", _randomizePricesExtent, () => _randomizePricesExtent > 0);
+                _randomizePricesPerDays.Format("per days", _randomizePricesExtent, t => t > 0);
                 _randomizePricesPerDays.Description = "All price modifiers will be rolled every X days";
-                _randomizePricesPerArea.Format("per city", _randomizePricesExtent, () => _randomizePricesExtent > 0);
+                _randomizePricesPerArea.Format("per city", _randomizePricesExtent, t => t > 0);
                 _randomizePricesPerArea.Description = "Every city (and area) will have its own randomized price modifier";
-                _randomizePricesPerItem.Format("per item", _randomizePricesExtent, () => _randomizePricesExtent > 0);
+                _randomizePricesPerItem.Format("per item", _randomizePricesExtent, t => t > 0);
                 _randomizePricesPerItem.Description = "Every item will have its own randomized price";
-                Indent--;
             }
             _pricesPerTypeToggle.Format("Prices by item type");
-            Indent++;
+            using(Indent)
             {
                 _pricesWeapons.Format("Weapons", _pricesPerTypeToggle);
                 _pricesArmors.Format("Armors", _pricesPerTypeToggle);
                 _pricesIngestibles.Format("Food", _pricesPerTypeToggle);
                 _pricesRecipes.Format("Recipes", _pricesPerTypeToggle);
                 _pricesOther.Format("Other items", _pricesPerTypeToggle);
-                Indent--;
             }
             _pricesGold.Format("Gold");
             _pricesGold.Description = "X   -   Gold ingot's buying price\n" +
@@ -85,12 +78,12 @@ namespace ModPack
            "• Randomize prices based on time, merchant and item\n" +
            "• Set price for learning mutually exclusive skills";
         override protected string SectionOverride
-        => SECTION_SURVIVAL;
-        override public void LoadPreset(Presets.Preset preset)
+        => ModSections.SurvivalAndImmersion;
+        override protected void LoadPreset(string presetName)
         {
-            switch (preset)
+            switch (presetName)
             {
-                case Presets.Preset.Vheos_CoopSurvival:
+                case nameof(Preset.Vheos_CoopSurvival):
                     ForceApply();
                     _pricesCurve.Value = 90;
                     _sellModifier.Value = 20;
@@ -138,7 +131,7 @@ namespace ModPack
         {
             int itemSeed = _randomizePricesPerItem ? item.ItemID : 0;
             int areaSeed = _randomizePricesPerArea ? AreaManager.Instance.CurrentArea.ID : 0;
-            int timeSeed = (GameTime / 24f / _randomizePricesPerDays).RoundDown();
+            int timeSeed = (InternalUtility.GameTime / 24f / _randomizePricesPerDays).RoundDown();
             Random.InitState(itemSeed + areaSeed + timeSeed);
 
             return 1f + Random.Range(-_randomizePricesExtent, +_randomizePricesExtent) / 100f;
@@ -165,8 +158,8 @@ namespace ModPack
 
             // Color
             if (!changePriceColor
-            || !item.m_refItemDisplay.TryAssign(out var itemDisplay)
-            || !itemDisplay.m_lblValue.TryAssign(out var priceText))
+            || !item.m_refItemDisplay.TryNonNull(out var itemDisplay)
+            || !itemDisplay.m_lblValue.TryNonNull(out var priceText))
                 return;
 
             float relativeIncrease = price == 0 ? 0f : 1f;
@@ -192,7 +185,7 @@ namespace ModPack
         => price = isSelling ? _pricesGold.Value.y : _pricesGold.Value.x;
 
         // Hooks
-#pragma warning disable IDE0051 // Remove unused private members
+#pragma warning disable IDE0051, IDE0060, IDE1006
         [HarmonyPatch(typeof(Item), "GetBuyValue"), HarmonyPrefix]
         static bool Item_GetBuyValue_Pre(Item __instance, ref int __result, ref Character _player, ref Merchant _merchant)
         {

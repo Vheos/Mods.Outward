@@ -1,18 +1,16 @@
-﻿using System;
-using System.Linq;
-using System.Collections.Generic;
-using UnityEngine;
-using BepInEx.Configuration;
-using HarmonyLib;
-
-
-
-/* TO DO:
+﻿/* TO DO:
  * - include side quests
  * - include unique items and enemies
  */
-namespace ModPack
+namespace Vheos.Mods.Outward
 {
+    using System;
+    using System.Linq;
+    using System.Collections.Generic;
+    using HarmonyLib;
+    using Tools.ModdingCore;
+    using Tools.Extensions.Math;
+    using Tools.Extensions.Collections;
     public class Resets : AMod
     {
         #region const
@@ -169,7 +167,7 @@ namespace ModPack
         {
             _areasToggle.Format("Areas");
             _areasToggle.Description = "Change areas (scenes) reset settings";
-            Indent++;
+            using(Indent)
             {
                 _areasMode.Format("Reset mode", _areasToggle);
                 _areasTimer.Format("Days since last visit", _areasMode, ResetMode.Timer);
@@ -178,18 +176,16 @@ namespace ModPack
                 _areasResetLayers.Description = "Cities  -  makes cities reset just like any other area";
                 _fixUnarmedBandits.Format("Fix unarmed bandits", _areasResetLayers, AreasResetLayers.Enemies);
                 _fixUnarmedBandits.IsAdvanced = true;
-                Indent++;
+                using(Indent)
                 {
                     _fixUnarmedBanditsDurabilityRatio.Format("New weapons' durability", _fixUnarmedBandits, WeaponSet.Disabled, false);
                     _fixUnarmedBanditsDurabilityRatio.IsAdvanced = true;
-                    Indent--;
                 }
-                Indent--;
             }
 
             _gatherablesToggle.Format("Gatherables");
             _gatherablesToggle.Description = "Change gatherables respawn settings";
-            Indent++;
+            using(Indent)
             {
                 _gatheringMode.Format("Gathering spots", _gatherablesToggle);
                 _gatheringMode.Description = "Gatherables that don't require any tool";
@@ -200,16 +196,14 @@ namespace ModPack
                 _fishingMode.Format("Fishing spots", _gatherablesToggle);
                 _fishingMode.Description = "Gatherables that require Fishing Harpoon";
                 _fishingTimer.Format("", _fishingMode, ResetMode.Timer);
-                Indent--;
             }
 
             _merchantsToggle.Format("Merchants");
             _merchantsToggle.Description = "Change merchant restock settings";
-            Indent++;
+            using(Indent)
             {
                 _merchantsMode.Format("", _merchantsToggle);
                 _merchantsTimer.Format("", _merchantsMode, ResetMode.Timer);
-                Indent--;
             }
         }
         override protected string Description
@@ -217,12 +211,12 @@ namespace ModPack
            "• Gatherable respawns (for each type)\n" +
            "• Merchant restocks";
         override protected string SectionOverride
-        => SECTION_SURVIVAL;
-        override public void LoadPreset(Presets.Preset preset)
+        => ModSections.SurvivalAndImmersion;
+        override protected void LoadPreset(string presetName)
         {
-            switch (preset)
+            switch (presetName)
             {
-                case Presets.Preset.Vheos_CoopSurvival:
+                case nameof(Preset.Vheos_CoopSurvival):
                     ForceApply();
                     _areasToggle.Value = true;
                     {
@@ -273,7 +267,7 @@ namespace ModPack
         }
 
         // Hooks
-#pragma warning disable IDE0051 // Remove unused private members
+#pragma warning disable IDE0051, IDE0060, IDE1006
         // Areas
         [HarmonyPatch(typeof(EnvironmentSave), "ApplyData"), HarmonyPrefix]
         static bool EnvironmentSave_ApplyData_Pre(EnvironmentSave __instance)
@@ -284,8 +278,8 @@ namespace ModPack
             #endregion
 
             // Initialize game time
-            if (GameTime < (float)__instance.GameTime)
-                GameTime = (float)__instance.GameTime;
+            if (InternalUtility.GameTime < (float)__instance.GameTime)
+                InternalUtility.GameTime = (float)__instance.GameTime;
 
             // Persistent areas
             AreaManager.AreaEnum areaEnum = (AreaManager.AreaEnum)AreaManager.Instance.GetAreaFromSceneName(__instance.AreaName).ID;
@@ -293,15 +287,15 @@ namespace ModPack
             bool resetArea = _areasResetLayers.Value.HasFlag(AreasResetLayers.Cities) || !isAreaPermanent;
 
             // Area modes
-            float sinceLastVisit = GameTime - (float)__instance.GameTime;
-            float sinceLastReset = GameTime - __instance.SaveCreationGameTime;
+            float sinceLastVisit = InternalUtility.GameTime - (float)__instance.GameTime;
+            float sinceLastReset = InternalUtility.GameTime - __instance.SaveCreationGameTime;
             resetArea &= _areasMode == ResetMode.Always
                       || _areasMode == ResetMode.Timer
                                     && sinceLastVisit >= _areasTimer * TIME_UNIT
                                     && sinceLastReset >= _areasTimerSinceReset * TIME_UNIT;
             // Execute
             if (resetArea)
-                __instance.SaveCreationGameTime = GameTime.RoundDown();
+                __instance.SaveCreationGameTime = InternalUtility.GameTime.RoundDown();
 
             if (!resetArea || !_areasResetLayers.Value.HasFlag(AreasResetLayers.Enemies))
                 CharacterManager.Instance.LoadAiCharactersFromSave(__instance.CharList.ToArray());
@@ -386,7 +380,7 @@ namespace ModPack
             {
                 __instance.InventoryRefreshRate = _merchantsTimer * TIME_UNIT;
                 if (___m_nextRefreshTime == double.PositiveInfinity)
-                    ___m_nextRefreshTime = GameTime + __instance.InventoryRefreshRate;
+                    ___m_nextRefreshTime = InternalUtility.GameTime + __instance.InventoryRefreshRate;
             }
 
             return true;

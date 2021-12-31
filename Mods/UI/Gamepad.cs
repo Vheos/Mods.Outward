@@ -1,16 +1,15 @@
-﻿using System;
-using System.Linq;
-using System.Collections.Generic;
-using UnityEngine;
-using BepInEx.Configuration;
-using HarmonyLib;
-using UnityEngine.UI;
-using UnityEngine.EventSystems;
-
-
-
-namespace ModPack
+﻿namespace Vheos.Mods.Outward
 {
+    using System.Linq;
+    using System.Collections.Generic;
+    using UnityEngine;
+    using UnityEngine.UI;
+    using UnityEngine.EventSystems;
+    using HarmonyLib;
+    using Tools.ModdingCore;
+    using Tools.Extensions.UnityObjects;
+    using Tools.Extensions.General;
+    using Tools.Extensions.Collections;
     public class Gamepad : AMod, IUpdatable
     {
         // Setting
@@ -30,12 +29,12 @@ namespace ModPack
         override protected string Description
         => "• Better stash navigation";
         override protected string SectionOverride
-        => SECTION_UI;
-        override public void LoadPreset(Presets.Preset preset)
+        => ModSections.UI;
+        override protected void LoadPreset(string presetName)
         {
-            switch (preset)
+            switch (presetName)
             {
-                case Presets.Preset.Vheos_PreferredUI:
+                case nameof(Preset.Vheos_PreferredUI):
                     ForceApply();
                     _betterStashNavigation.Value = true;
                     break;
@@ -80,14 +79,14 @@ namespace ModPack
             else if (currentID >= 0)
             {
                 int nextID = currentID + bagItems.Count / 2;
-                if (bagItems.IsIndexValid(nextID))
+                if (bagItems.IsValid(nextID))
                     bagItems[nextID].OnSelect();
                 else
                     bagItems.Last().OnSelect();
             }
-            else if (bagItems.IsNotEmpty())
+            else if (bagItems.IsNotNullOrEmpty())
                 bagItems.First().OnSelect();
-            else if (pouchItems.IsNotEmpty())
+            else if (pouchItems.IsNotNullOrEmpty())
                 pouchItems.First().OnSelect();
         }
         static private void SwitchToStash(Players.Data player)
@@ -107,12 +106,12 @@ namespace ModPack
             else if (currentID >= 0)
             {
                 int nextID = currentID + chestItems.Count / 2;
-                if (chestItems.IsIndexValid(nextID))
+                if (chestItems.IsValid(nextID))
                     chestItems[nextID].OnSelect();
                 else
                     chestItems.Last().OnSelect();
             }
-            else if (chestItems.IsNotEmpty())
+            else if (chestItems.IsNotNullOrEmpty())
                 chestItems.First().OnSelect();
         }
         static private void ChangeSorting(Players.Data player)
@@ -207,7 +206,7 @@ namespace ModPack
         => stashPanel.Find("Content/TopPanel/Shop PanelTop/lblShopName");
 
         // Hooks
-#pragma warning disable IDE0051 // Remove unused private members
+#pragma warning disable IDE0051, IDE0060, IDE1006
         [HarmonyPatch(typeof(StashPanel), "Show"), HarmonyPostfix]
         static void StashPanel_Show_Post(StashPanel __instance)
         => UpdateStashName(Players.GetLocal(__instance));

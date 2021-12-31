@@ -1,17 +1,17 @@
-﻿using System;
-using System.Linq;
-using System.Collections.Generic;
-using UnityEngine;
-using BepInEx.Configuration;
-using HarmonyLib;
-
-
-
-/* TO DO:
+﻿/* TO DO:
  * - extend to more item types (rags, varnishes)
  */
-namespace ModPack
+namespace Vheos.Mods.Outward
 {
+    using System;
+    using System.Collections.Generic;
+    using UnityEngine;
+    using HarmonyLib;
+    using Tools.ModdingCore;
+    using Tools.Extensions.Math;
+    using Tools.Extensions.Collections;
+    using Tools.Extensions.General;
+    using Tools.UtilityN;
     public class Descriptions : AMod, IDelayedInit
     {
         #region const
@@ -78,7 +78,7 @@ namespace ModPack
             public string Prefix;
 
             // Private
-            private string _content;
+            private readonly string _content;
             private Color _color;
 
             // Constructors
@@ -111,7 +111,7 @@ namespace ModPack
             }
 
             // Privates
-            private Dictionary<int, List<Row>> _rowsByItem;
+            private readonly Dictionary<int, List<Row>> _rowsByItem;
             private void CacheItemRows(Item item)
             {
                 List<Row> rows = new List<Row>();
@@ -175,7 +175,7 @@ namespace ModPack
 
             _details.Format("Details to display");
             _equipmentToggle.Format("Equipment");
-            Indent++;
+            using(Indent)
             {
                 _displayRelativeAttackSpeed.Format("Display relative attack speed", _equipmentToggle);
                 _displayRelativeAttackSpeed.Description = "Attack speed will be displayedas +/- X%\n" +
@@ -186,11 +186,10 @@ namespace ModPack
                 _moveBarrierBelowProtection.Description = "Barrier will be displayed right under protection instead of between resistances and impact resistance";
                 _hideNumericalDurability.Format("Hide numerical durability display", _equipmentToggle);
                 _hideNumericalDurability.Description = "Hides the \"Durability: XXX/YYY\" row so the only indicator is the durability bar";
-                Indent--;
             }
             _barsToggle.Format("Bars");
             _barsToggle.Description = "Change sizes of durability and freshness progress bars";
-            Indent++;
+            using(Indent)
             {
                 _durabilityTiedToMax.Format("Durability proportional to max", _barsToggle);
                 _durabilityTiedToMax.Description = "Items that are hard to break will have a longer bar\n" +
@@ -203,7 +202,6 @@ namespace ModPack
                 _freshnessBarSize.Format("Freshness length", _freshnessTiedToLifespan, false);
                 _freshnessBarSize.Description = "Displayed on food and drinks";
                 _barThickness.Format("Thickness", _barsToggle);
-                Indent--;
             }
 
             _addBackgrounds.Format("Add backgrounds to foods/drinks");
@@ -215,12 +213,12 @@ namespace ModPack
         "• Override durability and freshness bars\n" +
         "(automatic scaling, thickness)";
         override protected string SectionOverride
-        => SECTION_UI;
-        override public void LoadPreset(Presets.Preset preset)
+        => ModSections.UI;
+        override protected void LoadPreset(string presetName)
         {
-            switch (preset)
+            switch (presetName)
             {
-                case Presets.Preset.Vheos_PreferredUI:
+                case nameof(Preset.Vheos_PreferredUI):
                     ForceApply();
                     _details.Value = Details.All;
                     _equipmentToggle.Value = true;
@@ -248,9 +246,9 @@ namespace ModPack
         {
             if (_impactIcon == null
             && characterUI.m_menus[(int)CharacterUI.MenuScreens.Equipment].TryAs(out EquipmentMenu equipmentMenu)
-            && equipmentMenu.transform.GetFirstComponentsInHierarchy<EquipmentOverviewPanel>().TryAssign(out var equipmentOverview)
-            && equipmentOverview.m_lblImpactAtk.TryAssign(out var impactDisplay)
-            && impactDisplay.m_imgIcon.TryAssign(out var impactImage))
+            && equipmentMenu.transform.GetFirstComponentsInHierarchy<EquipmentOverviewPanel>().TryNonNull(out var equipmentOverview)
+            && equipmentOverview.m_lblImpactAtk.TryNonNull(out var impactDisplay)
+            && impactDisplay.m_imgIcon.TryNonNull(out var impactImage))
                 _impactIcon = impactImage.sprite;
         }
         static private void SetBackgrounds(bool state)
@@ -335,7 +333,7 @@ namespace ModPack
                         return statusName;
 
                     StatusData.EffectData firstEffectData = statusEffect.GetDatas()[0];
-                    if (firstEffectData.Data.IsEmpty())
+                    if (firstEffectData.Data.IsNullOrEmpty())
                         return statusName;
 
                     string firstValue = firstEffectData.Data[0];
@@ -447,19 +445,19 @@ namespace ModPack
         }
 
         // Hooks
-#pragma warning disable IDE0051 // Remove unused private members
+#pragma warning disable IDE0051, IDE0060, IDE1006
         [HarmonyPatch(typeof(ItemDetailsDisplay), "ShowDetails"), HarmonyPrefix]
         static bool ItemDetailsDisplay_ShowDetails_Pre(ItemDetailsDisplay __instance)
         {
             TrySwapProtectionWithResistances(__instance.m_lastItem);
 
             #region quit
-            if (_details.Value == Details.None || !__instance.m_lastItem.TryAssign(out var item) || !item.IsIngestible() && item.IsNot<Skill>())
+            if (_details.Value == Details.None || !__instance.m_lastItem.TryNonNull(out var item) || !item.IsIngestible() && item.IsNot<Skill>())
                 return true;
             #endregion
 
             if (item.TryAs(out WaterContainer waterskin)
-            && waterskin.GetWaterItem().TryAssign(out var waterItem))
+            && waterskin.GetWaterItem().TryNonNull(out var waterItem))
                 item = waterItem;
 
             int rowIndex = 0;

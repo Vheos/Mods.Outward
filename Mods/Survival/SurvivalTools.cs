@@ -1,14 +1,13 @@
-﻿using System;
-using System.Linq;
-using System.Collections.Generic;
-using UnityEngine;
-using BepInEx.Configuration;
-using HarmonyLib;
-
-
-
-namespace ModPack
+﻿namespace Vheos.Mods.Outward
 {
+    using System.Linq;
+    using System.Collections.Generic;
+    using UnityEngine;
+    using HarmonyLib;
+    using Tools.ModdingCore;
+    using Tools.Extensions.Math;
+    using Tools.Extensions.General;
+    using Tools.Extensions.Collections;
     public class SurvivalTools : AMod
     {
         #region const
@@ -79,14 +78,14 @@ namespace ModPack
            "• Change Waterskin capacity\n" +
            "• Change backpack capacities";
         override protected string SectionOverride
-        => SECTION_SURVIVAL;
+        => ModSections.SurvivalAndImmersion;
         override protected string ModName
         => "Tools";
-        override public void LoadPreset(Presets.Preset preset)
+        override protected void LoadPreset(string presetName)
         {
-            switch (preset)
+            switch (presetName)
             {
-                case Presets.Preset.Vheos_CoopSurvival:
+                case nameof(Preset.Vheos_CoopSurvival):
                     ForceApply();
                     _remapBackpackCapacities.Value = new Vector2(20, 60);
                     _waterskinCapacity.Value = 9;
@@ -102,13 +101,13 @@ namespace ModPack
         }
 
         // Hooks
-#pragma warning disable IDE0051 // Remove unused private members
+#pragma warning disable IDE0051, IDE0060, IDE1006
         // More gathering tools
         [HarmonyPatch(typeof(GatherableInteraction), "GetValidItem"), HarmonyPrefix]
         static bool GatherableInteraction_GetValidItem_Pre(GatherableInteraction __instance, ref Item __result, Character _character)
         {
             #region quit
-            if (!_moreGatheringTools || !__instance.Gatherable.RequiredItem.TryAssign(out var requiredItem)
+            if (!_moreGatheringTools || !__instance.Gatherable.RequiredItem.TryNonNull(out var requiredItem)
             || requiredItem.ItemID != "Mining Pick".ItemID() && requiredItem.ItemID != "Fishing Harpoon".ItemID())
                 return true;
             #endregion
@@ -119,26 +118,26 @@ namespace ModPack
 
             // Search bag & pouch
             List<ItemContainer> containers = new List<ItemContainer>();
-            if (_character.Inventory.EquippedBag.TryAssign(out var bag))
+            if (_character.Inventory.EquippedBag.TryNonNull(out var bag))
                 containers.Add(bag.m_container);
-            if (_character.Inventory.Pouch.TryAssign(out var pouch))
+            if (_character.Inventory.Pouch.TryNonNull(out var pouch))
                 containers.Add(pouch);
 
             foreach (var container in containers)
-                if (potentialTools.IsEmpty())
+                if (potentialTools.IsNullOrEmpty())
                     foreach (var item in container.GetContainedItems())
                         if (item.TryAs(out Weapon weapon) && weapon.Type == requiredType && weapon.DurabilityRatio > 0)
                             potentialTools.Add(item);
 
             // Search equipment
-            if (potentialTools.IsEmpty()
+            if (potentialTools.IsNullOrEmpty()
             && _character.Inventory.Equipment.m_equipmentSlots[(int)EquipmentSlot.EquipmentSlotIDs.RightHand].EquippedItem.TryAs(out Weapon mainWeapon)
             && mainWeapon.Type == requiredType && mainWeapon.DurabilityRatio > 0)
                 potentialTools.Add(mainWeapon);
 
             // Choose tool
             Item chosenTool = null;
-            if (potentialTools.IsNotEmpty())
+            if (potentialTools.IsNotNullOrEmpty())
             {
                 int minValue = potentialTools.Min(tool => tool.RawCurrentValue);
                 chosenTool = potentialTools.First(tool => tool.RawCurrentValue == minValue);
@@ -156,7 +155,7 @@ namespace ModPack
         static bool GatherableInteraction_CharSpellTakeItem_Pre(GatherableInteraction __instance)
         {
             #region quit
-            if (!__instance.m_validItem.TryAssign(out var item))
+            if (!__instance.m_validItem.TryNonNull(out var item))
                 return true;
             #endregion
 
@@ -213,7 +212,7 @@ namespace ModPack
         static void TemperatureSource_Start_Post(TemperatureSource __instance)
         {
             #region quit
-            if (!__instance.m_item.TryAssign(out var item) || item.ItemID.IsNotContainedIn(TORCH_IDS))
+            if (!__instance.m_item.TryNonNull(out var item) || item.ItemID.IsNotContainedIn(TORCH_IDS))
                 return;
             #endregion
 

@@ -1,14 +1,13 @@
-﻿using System;
-using System.Linq;
-using System.Collections.Generic;
-using UnityEngine;
-using BepInEx.Configuration;
-using HarmonyLib;
-
-
-
-namespace ModPack
+﻿namespace Vheos.Mods.Outward
 {
+    using System.Collections.Generic;
+    using UnityEngine;
+    using BepInEx.Configuration;
+    using Vheos.Tools.Extensions.Math;
+    using HarmonyLib;
+    using Tools.ModdingCore;
+    using Tools.Extensions.UnityObjects;
+    using Tools.Extensions.General;
     public class Needs : AMod, IDelayedInit
     {
         #region const
@@ -198,7 +197,7 @@ namespace ModPack
 
                 tmp._toggle.Format(data.Need.ToString());
                 tmp._toggle.Description = $"Change {data.Need}-related settings";
-                Indent++;
+                using (Indent)
                 {
                     tmp._thresholds.Format("Thresholds", tmp._toggle);
                     tmp._thresholds.Description = $"When your {data.Need} falls below Y%, you become {data.NegativeName}\n" +
@@ -210,19 +209,17 @@ namespace ModPack
                     tmp._fulfilledLimit.Description = $"Allows your {data.Need} to go over 100%\n" +
                                                      $"You will receive a special status effect that {decOrInc} your {data.AffectedStat} but " +
                                                      $"prevents you from {data.ActionName} until your {data.Need} falls below 100% again";
-                    Indent++;
+                    using (Indent)
                     {
-                        tmp._fulfilledEffectValue.Format(data.AffectedStat, tmp._fulfilledLimit, () => tmp._fulfilledLimit > 100);
+                        tmp._fulfilledEffectValue.Format(data.AffectedStat, tmp._fulfilledLimit, t => t > 100);
                         if (data.Need == Need.Sleep)
                         {
-                            _sleepNegativeEffect.Format("mana / min", tmp._fulfilledLimit, () => tmp._fulfilledLimit > 100);
-                            Indent++;
+                            _sleepNegativeEffect.Format("mana / min", tmp._fulfilledLimit, t => t > 100);
+                            using (Indent)
                             {
-                                _sleepNegativeEffectIsPercent.Format("is % of max mana", tmp._fulfilledLimit, () => tmp._fulfilledLimit > 100);
+                                _sleepNegativeEffectIsPercent.Format("is % of max mana", tmp._fulfilledLimit, t => t > 100);
                             }
-                            Indent--;
                         }
-                        Indent--;
                     }
 
                     if (data.Need == Need.Sleep)
@@ -236,28 +233,25 @@ namespace ModPack
                     {
                         _overrideDrinkValues.Format("Items' drink values", tmp._toggle);
                         _overrideDrinkValues.Description = "Set how much drink is restored by each drink type";
-                        Indent++;
+                        using (Indent)
                         {
                             _drinkValuesPotions.Format("Potions", _overrideDrinkValues);
                             _drinkValuesPotions.Description = "potions, great potions, elixirs, Gep's Drink\n" +
                                                               "antidote, hex cleaner, invigorating potion, panacea";
                             _drinkValuesOther.Format("Other", _overrideDrinkValues);
                             _drinkValuesOther.Description = "teas, milks, gaberry wine";
-                            Indent--;
                         }
                     }
-                    Indent--;
                 }
             }
 
             _allowCuresWhileOverlimited.Format("Allow cures while overlimited");
             _allowCuresWhileOverlimited.Description = "Allows eating/drinking when over 100%, but only if it cures a negative status effect you have\n" +
                                                       "(receding diseases cannot be cured again)";
-            Indent++;
+            using (Indent)
             {
                 _allowOnlyDOTCures.Format("Only allow DoT cures", _allowCuresWhileOverlimited);
                 _allowOnlyDOTCures.Description = "Same as above, but limited to curing status effects that damage you over time";
-                Indent--;
             }
             _dontRestoreNeedsOnTravel.Format("Don't restore needs when travelling");
             _dontRestoreNeedsOnTravel.Description = "Normally, travelling restores 100% needs and resets temperature\n" +
@@ -270,12 +264,12 @@ namespace ModPack
            "• Override needs depletion rates\n" +
            "• Override drink values and sleep buffs duration";
         override protected string SectionOverride
-        => SECTION_SURVIVAL;
-        override public void LoadPreset(Presets.Preset preset)
+        => ModSections.SurvivalAndImmersion;
+        override protected void LoadPreset(string presetName)
         {
-            switch (preset)
+            switch (presetName)
             {
-                case Presets.Preset.Vheos_CoopSurvival:
+                case nameof(Preset.Vheos_CoopSurvival):
                     ForceApply();
                     foreach (var data in NEEDS_DATA)
                     {
@@ -345,7 +339,7 @@ namespace ModPack
                 StatusEffect statusEffect = element.Value.StatusEffect;
                 statusEffect.m_nameLocKey = element.Value.Name;
                 statusEffect.m_descriptionLocKey = element.Value.Description;
-                statusEffect.OverrideIcon = Utility.CreateSpriteFromFile(Utility.PluginFolderPath + ICONS_FOLDER + element.Key + ".PNG");
+                statusEffect.OverrideIcon = InternalUtility.CreateSpriteFromFile(InternalUtility.PluginFolderPath + ICONS_FOLDER + element.Key + ".PNG");
                 statusEffect.IsMalusEffect = false;
                 statusEffect.RefreshRate = 1f;
             }
@@ -486,6 +480,7 @@ namespace ModPack
         }
         static private void DisplayPreventedNotification(Character character, Need need)
         => character.CharacterUI.ShowInfoNotification(_fulfilledDataByNeed[need].PreventedNotification);
+
         // Thresholds
         static private float DeathThreshold(Need need)
         => 0f;
@@ -499,6 +494,7 @@ namespace ModPack
         => _settingsByNeed[need]._fulfilledLimit;
         static private float MaxNeedValue(Need need)
         => FulfilledThreshold(need) * 10f;
+
         // Checks
         static private bool HasDOT(Character character)
         {
@@ -542,7 +538,7 @@ namespace ModPack
         => _fulfilledDataByNeed[need].StatusEffect;
 
         // Hooks
-#pragma warning disable IDE0051 // Remove unused private members
+#pragma warning disable IDE0051, IDE0060, IDE1006
         // Initialize
         [HarmonyPatch(typeof(PlayerCharacterStats), "OnStart"), HarmonyPostfix]
         static private void PlayerCharacterStats_OnAwake_Post(PlayerCharacterStats __instance)

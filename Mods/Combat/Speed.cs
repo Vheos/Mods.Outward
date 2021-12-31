@@ -1,14 +1,9 @@
-﻿using System;
-using System.Linq;
-using System.Collections.Generic;
-using UnityEngine;
-using BepInEx.Configuration;
-using HarmonyLib;
-
-
-
-namespace ModPack
+﻿namespace Vheos.Mods.Outward
 {
+    using UnityEngine;
+    using HarmonyLib;
+    using Tools.ModdingCore;
+    using Tools.Extensions.UnityObjects;
     public class Speed : AMod, IUpdatable
     {
         #region const
@@ -44,7 +39,7 @@ namespace ModPack
         {
             _gameToggle.Format("Game");
             _gameToggle.Description = "Set multipliers (%) for the whole game world";
-            Indent++;
+            using(Indent)
             {
                 _defaultGameSpeed.Format("Default game speed", _gameToggle);
                 _speedHackMultiplier.Format("SpeedHack multiplier", _gameToggle);
@@ -52,30 +47,27 @@ namespace ModPack
                 _speedHackKey.Format("SpeedHack key", _gameToggle);
                 _speedHackKey.Description = "Use UnityEngine.KeyCode enum values\n" +
                                             "(https://docs.unity3d.com/ScriptReference/KeyCode.html)";
-                Indent--;
             }
 
             _playersToggle.Format("Players");
             _playersToggle.Description = "Set multipliers (%) players' speeds";
-            Indent++;
+            using(Indent)
             {
                 _playersAnimationSpeed.Format("All animations", _playersToggle);
                 _playersAnimationSpeed.Description = "Includes animations other than moving and attacking\n" +
                                                      "(using skills, using items, dodging, gathering)";
                 _playersMovementSpeed.Format("Movement", _playersToggle);
                 _playersAttackSpeed.Format("Attack", _playersToggle);
-                Indent--;
             }
 
             _enemiesToggle.Format("NPCs");
             _enemiesToggle.Description = "Set multipliers (%) NPCs' speeds";
-            Indent++;
+            using(Indent)
             {
                 _enemiesAnimationSpeed.Format("All animations", _enemiesToggle);
                 _enemiesAnimationSpeed.Description = _playersAnimationSpeed.Description;
                 _enemiesMovementSpeed.Format("Movement", _enemiesToggle);
                 _enemiesAttackSpeed.Format("Attack", _enemiesToggle);
-                Indent--;
             }
 
         }
@@ -86,12 +78,12 @@ namespace ModPack
            "• Override default game speed\n" +
            "• Toggle speedhack with a hotkey";
         override protected string SectionOverride
-        => SECTION_COMBAT;
-        override public void LoadPreset(Presets.Preset preset)
+        => ModSections.Combat;
+        override protected void LoadPreset(string presetName)
         {
-            switch (preset)
+            switch (presetName)
             {
-                case Presets.Preset.Vheos_CoopSurvival:
+                case nameof(Preset.Vheos_CoopSurvival):
                     ForceApply();
                     _gameToggle.Value = true;
                     {
@@ -154,7 +146,7 @@ namespace ModPack
         }
 
         // Hooks
-#pragma warning disable IDE0051 // Remove unused private members
+#pragma warning disable IDE0051, IDE0060, IDE1006
         [HarmonyPatch(typeof(Character), "LateUpdate"), HarmonyPostfix]
         static void Character_LateUpdate_Post(Character __instance)
         => TryUpdateAnimationSpeed(__instance);

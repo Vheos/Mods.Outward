@@ -1,15 +1,12 @@
-﻿using System;
-using System.Linq;
-using System.Collections.Generic;
-using UnityEngine;
-using BepInEx.Configuration;
-using HarmonyLib;
-
-
-
-
-namespace ModPack
+﻿namespace Vheos.Mods.Outward
 {
+    using System;
+    using UnityEngine;
+    using HarmonyLib;
+    using Tools.ModdingCore;
+    using Tools.Extensions.UnityObjects;
+    using Tools.Extensions.Collections;
+    using Tools.Extensions.General;
     public class Traps : AMod
     {
         #region const
@@ -44,11 +41,10 @@ namespace ModPack
         {
             _trapsArmDelay.Format("Traps arming delay");
             _trapsArmDelay.Description = "How long the trap has to stay on ground before it can explode (in seconds)";
-            Indent++;
+            using(Indent)
             {
-                _trapsFriendlyFire.Format("Friendly fire", _trapsArmDelay, () => _trapsArmDelay > 0);
+                _trapsFriendlyFire.Format("Friendly fire", _trapsArmDelay, t => t > 0);
                 _trapsFriendlyFire.Description = "The trap will also explode in contact with you and other players";
-                Indent--;
             }
             _wireTrapDepth.Format("Tripwire trap trigger depth");
             _pressureTrapRadius.Format("Presure plate trigger radius");
@@ -59,12 +55,12 @@ namespace ModPack
            "• Make traps explode in contact with players\n" +
            "• Change trigger size for each trap";
         override protected string SectionOverride
-        => SECTION_COMBAT;
-        override public void LoadPreset(Presets.Preset preset)
+        => ModSections.Combat;
+        override protected void LoadPreset(string presetName)
         {
-            switch (preset)
+            switch (presetName)
             {
-                case Presets.Preset.Vheos_CoopSurvival:
+                case nameof(Preset.Vheos_CoopSurvival):
                     ForceApply();
                     _trapsArmDelay.Value = 5;
                     _trapsFriendlyFire.Value = false;
@@ -95,7 +91,7 @@ namespace ModPack
         => __instance.CurrentVisual.FindChild("TrapVisual").GetComponentInChildren<MeshRenderer>().material;
 
         // Hooks
-#pragma warning disable IDE0051 // Remove unused private members
+#pragma warning disable IDE0051, IDE0060, IDE1006
         [HarmonyPatch(typeof(DeployableTrap), "StartInit"), HarmonyPostfix]
         static void DeployableTrap_StartInit_Post(DeployableTrap __instance)
         {
@@ -136,7 +132,7 @@ namespace ModPack
             __instance.ExecuteUntil
             (
                 () => Time.time - setupTime >= _trapsArmDelay,
-                () => particleSystemMain.startColor = Utility.Lerp3(RUNIC_TRAP_START_COLOR, RUNIC_TRAP_TRANSITION_COLOR, RUNIC_TRAP_ARMED_COLOR, (Time.time - setupTime) / _trapsArmDelay),
+                () => particleSystemMain.startColor = InternalUtility.Lerp3(RUNIC_TRAP_START_COLOR, RUNIC_TRAP_TRANSITION_COLOR, RUNIC_TRAP_ARMED_COLOR, (Time.time - setupTime) / _trapsArmDelay),
                 () => { particleSystemMain.startColor = RUNIC_TRAP_ARMED_COLOR; collider.enabled = true; }
             );
         }
@@ -167,7 +163,7 @@ namespace ModPack
             __instance.ExecuteUntil
             (
                 () => Time.time - setupTime >= _trapsArmDelay,
-                () => material.color = Utility.Lerp3(TRAP_START_COLOR, TRAP_TRANSITION_COLOR, TRAP_ARMED_COLOR, (Time.time - setupTime) / _trapsArmDelay),
+                () => material.color = InternalUtility.Lerp3(TRAP_START_COLOR, TRAP_TRANSITION_COLOR, TRAP_ARMED_COLOR, (Time.time - setupTime) / _trapsArmDelay),
                 () => { material.color = TRAP_ARMED_COLOR; collider.enabled = true; }
             );
         }

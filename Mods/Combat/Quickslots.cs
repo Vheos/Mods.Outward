@@ -1,14 +1,13 @@
-﻿using System;
-using System.Linq;
-using System.Collections.Generic;
-using UnityEngine;
-using BepInEx.Configuration;
-using HarmonyLib;
-
-
-
-namespace ModPack
+﻿namespace Vheos.Mods.Outward
 {
+    using System.Linq;
+    using System.Collections.Generic;
+    using UnityEngine;
+    using HarmonyLib;
+    using Tools.ModdingCore;
+    using Tools.Extensions.General;
+    using Tools.Extensions.Collections;
+
     public class Quickslots : AMod
     {
         #region const
@@ -127,12 +126,12 @@ namespace ModPack
            "• Toggle between 2 weapons with 1 quickslot\n" +
            "• 16 gamepad quickslots";
         override protected string SectionOverride
-        => SECTION_COMBAT;
-        override public void LoadPreset(Presets.Preset preset)
+        => ModSections.Combat;
+        override protected void LoadPreset(string presetName)
         {
-            switch (preset)
+            switch (presetName)
             {
-                case Presets.Preset.Vheos_CoopSurvival:
+                case nameof(Preset.Vheos_CoopSurvival):
                     ForceApply();
                     _contextualSkillQuickslots.Value = true;
                     _replaceQuickslotsOnEquip.Value = true;
@@ -270,7 +269,7 @@ namespace ModPack
         => ui.transform.Find("Canvas/GameplayPanels/Menus/CharacterMenus/MainPanel/Content/MiddlePanel/QuickSlotPanel/PanelSwitcher/Controller/LT-RT");
 
         // Hooks
-#pragma warning disable IDE0051 // Remove unused private members
+#pragma warning disable IDE0051, IDE0060, IDE1006
         [HarmonyPatch(typeof(Item), "PerformEquip"), HarmonyPrefix]
         static bool Item_PerformEquip_Pre2(Item __instance, EquipmentSlot _slot)
         {
@@ -285,10 +284,10 @@ namespace ModPack
 
             foreach (var quickslot in character.QuickSlotMngr.m_quickSlots)
                 if (quickslot.ActiveItem.TryAs(out Skill quickslotSkill)
-                && _skillContextsByID.TryAssign(quickslotSkill.ItemID, out var context)
-                && SKILL_CONTEXT_GROUPS.TryAssign(context, out var contextSkillGroup)
-                && contextSkillGroup.TryAssign(currentType, out var newContextSkillID)
-                && GetLearnedSkillByID(character, newContextSkillID).TryAssign(out var newContextSkill))
+                && _skillContextsByID.TryGet(quickslotSkill.ItemID, out var context)
+                && SKILL_CONTEXT_GROUPS.TryGet(context, out var contextSkillGroup)
+                && contextSkillGroup.TryGet(currentType, out var newContextSkillID)
+                && GetLearnedSkillByID(character, newContextSkillID).TryNonNull(out var newContextSkill))
                     quickslot.SetQuickSlot(newContextSkill, true);
 
             return true;
@@ -306,7 +305,7 @@ namespace ModPack
             if (__instance.TryAs(out Weapon weapon) && weapon.TwoHanded)
             {
                 EquipmentSlot[] slots = character.Inventory.Equipment.EquipmentSlots;
-                if (!slots[(int)EquipmentSlot.EquipmentSlotIDs.RightHand].EquippedItem.TryAssign(out var rightHandWeapon)
+                if (!slots[(int)EquipmentSlot.EquipmentSlotIDs.RightHand].EquippedItem.TryNonNull(out var rightHandWeapon)
                 || HasItemAssignedToAnyQuickslot(character, rightHandWeapon))
                     previousItem = slots[(int)EquipmentSlot.EquipmentSlotIDs.LeftHand].EquippedItem;
             }
@@ -335,7 +334,7 @@ namespace ModPack
             Character character = __instance.OwnerCharacter;
             EquipmentSlot[] slots = character.Inventory.Equipment.EquipmentSlots;
             foreach (var slotID in new[] { EquipmentSlot.EquipmentSlotIDs.RightHand, EquipmentSlot.EquipmentSlotIDs.LeftHand })
-                if (slots[(int)slotID].EquippedItem.TryAssign(out var item) && !HasItemAssignedToAnyQuickslot(character, item))
+                if (slots[(int)slotID].EquippedItem.TryNonNull(out var item) && !HasItemAssignedToAnyQuickslot(character, item))
                 {
                     __instance.SetQuickSlot(item);
                     break;

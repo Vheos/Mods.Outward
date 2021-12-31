@@ -1,16 +1,16 @@
-﻿using System;
-using System.Linq;
-using System.Collections.Generic;
-using UnityEngine;
-using BepInEx.Configuration;
-using HarmonyLib;
-using UnityEngine.UI;
-using NodeCanvas.Tasks.Conditions;
-
-
-
-namespace ModPack
+﻿namespace Vheos.Mods.Outward
 {
+    using System;
+    using System.Collections.Generic;
+    using UnityEngine;
+    using UnityEngine.UI;
+    using NodeCanvas.Tasks.Conditions;
+    using HarmonyLib;
+    using Tools.ModdingCore;
+    using Tools.Extensions.Math;
+    using Tools.Extensions.UnityObjects;
+    using Tools.Extensions.General;
+    using Tools.Extensions.Collections;
     public class SkillLimits : AMod
     {
         #region const
@@ -93,7 +93,7 @@ namespace ModPack
         {
             _separateLimits.Format("Separate passive/active limits");
             _separateLimits.Description = "Define different limits for passive and active skills";
-            Indent++;
+            using(Indent)
             {
                 _skillsLimit.Format("Skills limit", _separateLimits, false);
                 _skillsLimit.Description = "Only skills defined in \"Limited skill types\" count towards limit";
@@ -101,7 +101,6 @@ namespace ModPack
                 _passiveSkillsLimit.Description = "Only passive skills defined in \"Limited skill types\" count towards this limit";
                 _activeSkillsLimit.Format("Active skills limit", _separateLimits);
                 _activeSkillsLimit.Description = "Only active skills defined in \"Limited skill types\" count towards this limit";
-                Indent--;
             }
             _limitedSkillTypes.Format("Limited skill types");
             _limitedSkillTypes.Description = "Decide which skill types count towards limit:\n" +
@@ -109,25 +108,24 @@ namespace ModPack
                                              "Advanced - above breakthrough in a skill tree\n" +
                                              "Side - not found in any vanilla skill tree\n" +
                                              "(weapon skills, boons, hexes and Flamethrower)";
-            Indent++;
+            using(Indent)
             {
                 _freePostBreakthroughBasicSkills.Format("Basic skills are free post-break", _limitedSkillTypes, LimitedSkillTypes.Basic);
                 _freePostBreakthroughBasicSkills.Description = "After you learn a breakthrough skill, basic skills from the same tree no longer count towards limit";
-                Indent--;
             }
         }
         override protected string Description
         => "• Set limit on how many skills you can learn\n" +
            "• Decide which skills count towards the limit";
         override protected string SectionOverride
-        => SECTION_SKILLS;
+        => ModSections.Skills;
         override protected string ModName
         => "Limits";
-        override public void LoadPreset(Presets.Preset preset)
+        override protected void LoadPreset(string presetName)
         {
-            switch (preset)
+            switch (presetName)
             {
-                case Presets.Preset.Vheos_CoopSurvival:
+                case nameof(Preset.Vheos_CoopSurvival):
                     ForceApply();
                     _separateLimits.Value = true;
                     {
@@ -230,7 +228,7 @@ namespace ModPack
         }
 
         // Hooks
-#pragma warning disable IDE0051 // Remove unused private members
+#pragma warning disable IDE0051, IDE0060, IDE1006
         [HarmonyPatch(typeof(ItemDisplayOptionPanel), "GetActiveActions"), HarmonyPostfix]
         static void ItemDisplayOptionPanel_GetActiveActions_Post(ItemDisplayOptionPanel __instance, ref List<int> __result)
         {
@@ -349,7 +347,7 @@ namespace ModPack
  */
 
 /*
- *             Tools.Log($"{skill.DisplayName}\t{skill.ItemID}\t{skill.SchoolIndex}\t{(TryGetSkillTree(skill, out SkillSchool tree) ? tree.Name : "")}\n" +
+ *             Log.Debug($"{skill.DisplayName}\t{skill.ItemID}\t{skill.SchoolIndex}\t{(TryGetSkillTree(skill, out SkillSchool tree) ? tree.Name : "")}\n" +
                 $"{IsBasic(skill)}\t{IsBreakthrough(skill)}\t{IsAdvanced(skill)}\t{IsSide(skill)}\t{IsLimited(__instance.LocalCharacter, skill)}\n");
  */
 

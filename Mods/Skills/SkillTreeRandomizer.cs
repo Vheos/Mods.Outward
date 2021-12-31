@@ -1,15 +1,17 @@
-﻿using System;
-using System.Linq;
-using System.Collections.Generic;
-using UnityEngine;
-using BepInEx.Configuration;
-using HarmonyLib;
-using Random = UnityEngine.Random;
-
-
-
-namespace ModPack
+﻿namespace Vheos.Mods.Outward
 {
+    using System;
+    using System.Linq;
+    using System.Collections.Generic;
+    using UnityEngine;
+    using HarmonyLib;
+    using Tools.ModdingCore;
+    using Tools.Extensions.Math;
+    using Tools.Extensions.UnityObjects;
+    using Tools.Extensions.Collections;
+    using Tools.Extensions.General;
+    using Tools.TraitEqualizer;
+    using Random = Tools.RandomN.Random;
     public class SkillTreeRandomizer : AMod, IDelayedInit
     {
         #region const
@@ -229,9 +231,9 @@ namespace ModPack
             {
                 if (!_reroll)
                     return;
-                Tools.PluginComponent.ExecuteAtTheEndOfFrame
+                Global.Instance.ExecuteAtTheEndOfFrame
                 (
-                    () => Tools.PluginComponent.ExecuteOnceAfterDelay(REROLL_DELAY, RandomizeSkills)
+                    () => Global.Instance.ExecuteOnceAfterDelay(REROLL_DELAY, RandomizeSkills)
                 );
                 _reroll.SetSilently(false);
             });
@@ -252,7 +254,7 @@ namespace ModPack
         {
             _reroll.Format("Reroll");
             _reroll.DisplayResetButton = false;
-            Indent++;
+            using(Indent)
             {
                 _rerollOnGameStart.Format("on game start");
                 _rerollOnGameStart.Description = "Automatically randomize skill trees when you start the game\n" +
@@ -263,7 +265,6 @@ namespace ModPack
                                                 "Use it to double-check if there aren't any broken/unwanted trees, " +
                                                 "like a tree with only post-breakthrough skills, only passives, or only 1 skill";
                 _rerollLogResults.DisplayResetButton = false;
-                Indent--;
             }
 
             AModSetting[] inputOutputSettings =
@@ -312,13 +313,12 @@ namespace ModPack
             _randomizeBreakthroughSkills.Format("Randomize breakthroughs");
             _randomizeBreakthroughSkills.Description = "Breakthroughs will be randomized along with advanced skills\n" +
                                                        "Every tree will get a new breakthrough - chosen at random from all assigned advanced skills";
-            Indent++;
+            using(Indent)
             {
                 _preferPassiveBreakthroughs.Format("prefer passives", _randomizeBreakthroughSkills);
                 _preferPassiveBreakthroughs.Description = "If possible, the new breakthrough will be a passive skill";
                 _avoidChoiceBreakthroughs.Format("avoid choices", _randomizeBreakthroughSkills);
                 _avoidChoiceBreakthroughs.Description = "If possible, the new breakthrough won't be a choice between 2 skills";
-                Indent--;
             }
             _treatWeaponMasterAsAdvanced.Format("Treat weapon master as advanced", _theThreeBrothersInput, TheThreeBrothersInput.WeaponMaster);
             _treatWeaponMasterAsAdvanced.Description = "Weapon master skills will be treated as advanced instead of basic\n" +
@@ -327,24 +327,23 @@ namespace ModPack
             _seed.Description = "The same number will always result in the same setup\n" +
                                 "If you change it mid-playthrough, all trees will be rerolled\n" +
                                 "(might result in lost breakthrough points if you're using \"Randomize breakthroughs\")";
-            Indent++;
+            using(Indent)
             {
                 _seedRandomize.Format("randomize");
                 _seedRandomize.DisplayResetButton = false;
-                Indent--;
             }
         }
         override protected string Description
         => "• Randomize skills taught by trainers";
         override protected string SectionOverride
-        => SECTION_SKILLS;
+        => ModSections.Skills;
         override protected string ModName
         => "Tree Randomizer";
-        override public void LoadPreset(Presets.Preset preset)
+        override protected void LoadPreset(string presetName)
         {
-            switch (preset)
+            switch (presetName)
             {
-                case Presets.Preset.Vheos_CoopSurvival:
+                case nameof(Preset.Vheos_CoopSurvival):
                     ForceApply();
                     _vanillaInput.Value = (VanillaInput)~0;
                     _theSoroboreansInput.Value = (TheSoroboreansInput)~0;
@@ -380,17 +379,21 @@ namespace ModPack
         }
         static private void CreateSideSkillTrees()
         {
+            Log.Debug($"CreateSideSkillTrees()");
             _sideSkillTrees = new List<SkillSchool>();
             foreach (var (Name, IDs) in SIDE_SKILLS)
             {
+                Log.Debug($"{Name} / {IDs.Length}");
                 GameObject skillTreeHolder = new GameObject(Name);
                 skillTreeHolder.BecomeChildOf(_cachedSkillTreeHolder);
                 GameObject skillBranchHolder = new GameObject("0");
                 skillBranchHolder.BecomeChildOf(skillTreeHolder);
 
+                Log.Debug($"foreach...");
                 foreach (var id in IDs)
                 {
                     Skill skill = Prefabs.SkillsByID[id];
+                    Log.Debug($"{Name} / {id}   -   {skill != null}");
                     GameObject skillSlotHolder = new GameObject(skill.Name);
                     skillSlotHolder.BecomeChildOf(skillBranchHolder);
                     skillSlotHolder.AddComponent<SkillSlot>().m_skill = skill;
@@ -407,7 +410,7 @@ namespace ModPack
             foreach (var name in MISSING_ICON_SKILL_NAMES)
             {
                 int id = Prefabs.SkillIDsByName[name];
-                Prefabs.SkillsByID[id].SkillTreeIcon = Utility.CreateSpriteFromFile(Utility.PluginFolderPath + ICONS_FOLDER + name.Replace('/', '_') + ".PNG");
+                Prefabs.SkillsByID[id].SkillTreeIcon = InternalUtility.CreateSpriteFromFile(InternalUtility.PluginFolderPath + ICONS_FOLDER + name.Replace('/', '_') + ".PNG");
             }
         }
         static private void ResetSkillTreeHolders()
@@ -416,7 +419,7 @@ namespace ModPack
             foreach (var sideSkillTree in _sideSkillTrees)
             {
                 sideSkillTree.Unparent();
-                _sideSkillTrees.DestroyObjects();
+                _sideSkillTrees.DestroyObject();
             }
 
             // Destroy real SkillTreeHolder
@@ -488,23 +491,23 @@ namespace ModPack
             foreach (var tree in trees)
             {
                 var childObjects = new List<GameObject>();
-                foreach (var child in tree.GetChildren())
+                foreach (var child in tree.GetChildGameObjects())
                     if (_randomizeBreakthroughSkills || !child.GetComponent<SkillBranch>().IsBreakthrough)
                         childObjects.Add(child);
 
-                childObjects.DestroyImmediately();
+                childObjects.DestroyInstantly();
                 tree.m_skillSlots.Clear();
                 tree.m_branches.Clear();
                 tree.m_breakthroughSkillIndex = -1;
             }
         }
         static private void RandomizeSeed()
-        => _seed.Value = Random.value.MapFrom01(-1f, +1f).Mul(int.MaxValue).Round();
+        => _seed.Value = UnityEngine.Random.value.MapFrom01(-1f, +1f).Mul(int.MaxValue).Round();
         static private void RandomizeSkills()
         {
             // Quit
             List<SkillSchool> outputTrees = GetOutputSkillTrees().ToList();
-            if (outputTrees.IsEmpty())
+            if (outputTrees.IsNullOrEmpty())
                 return;
 
             // Initialize
@@ -512,7 +515,7 @@ namespace ModPack
             TraitEqualizer<BaseSkillSlot> equalizer = new TraitEqualizer<BaseSkillSlot>(outputTrees.Count, GetTraits(intputTrees).ToArray());
 
             // Randomize (with equalization)
-            Random.InitState(_seed);
+            Random.Initialize(_seed);
             foreach (var slot in GetSlotsFromTrees(intputTrees))
                 equalizer.Add(slot);
 
@@ -530,7 +533,7 @@ namespace ModPack
             CopyEqualizedSlotsToOutputTrees(equalizer.Results, outputTrees);
         }
         static private void LogResultsToFile(string results)
-        => System.IO.File.WriteAllText(Utility.PluginFolderPath + REROLL_STATS_FILE_NAME, results);
+        => System.IO.File.WriteAllText(InternalUtility.PluginFolderPath + REROLL_STATS_FILE_NAME, results);
         static private void CopyEqualizedSlotsToOutputTrees(IEnumerable<IEnumerable<BaseSkillSlot>> equalizedTrees, IList<SkillSchool> outputTrees)
         {
             foreach (var equalizedTree in equalizedTrees)
@@ -580,7 +583,7 @@ namespace ModPack
                     ref int index = ref (isAdvanced ? ref advancedIndex : ref basicIndex);
 
                     // Ignore skills
-                    if (!SLOT_POSITIONS.IsIndexValid(index))
+                    if (!SLOT_POSITIONS.IsValid(index))
                         continue;
 
                     // Initialize slot
@@ -598,7 +601,7 @@ namespace ModPack
                 }
 
                 // Initialize branches and tree
-                foreach (var branchHolder in randomOutputTree.GetChildren())
+                foreach (var branchHolder in randomOutputTree.GetChildGameObjects())
                     if (!branchHolder.HasComponent<SkillBranch>())
                         branchHolder.AddComponent<SkillBranch>();
                 randomOutputTree.Start();
@@ -627,7 +630,7 @@ namespace ModPack
         {
             slot.m_columnIndex = column;
             string rowName = row.ToString();
-            if (!tree.FindChild(rowName).TryAssign(out var branchHolder))
+            if (!tree.FindChild(rowName).TryNonNull(out var branchHolder))
             {
                 branchHolder = new GameObject(rowName);
                 branchHolder.BecomeChildOf(tree);
@@ -640,7 +643,7 @@ namespace ModPack
         static private SkillSchool FlagToSkillTree(Enum flag, bool fromCache = false)
         {
             SkillTreeHolder skillTreeHolder = fromCache ? _cachedSkillTreeHolder : SkillTreeHolder.Instance;
-            if (!FlagToSkillTreeName(Convert.ToInt32(flag)).TryAssign(out var treeName)
+            if (!FlagToSkillTreeName(Convert.ToInt32(flag)).TryNonNull(out var treeName)
             || !skillTreeHolder.transform.TryFind(treeName, out var treeTransform)
             || !treeTransform.TryGetComponent(out SkillSchool tree))
                 return null;
@@ -689,7 +692,7 @@ namespace ModPack
             && GetVanillaTree(slot) == FlagToSkillTree(TheThreeBrothersInput.WeaponMaster, true))
                 return SlotLevel.Advanced;
 
-            if (!slot.ParentBranch.ParentTree.BreakthroughSkill.TryAssign(out var breakthroughSlot))
+            if (!slot.ParentBranch.ParentTree.BreakthroughSkill.TryNonNull(out var breakthroughSlot))
                 return SlotLevel.Basic;
 
             switch (slot.ParentBranch.Index.CompareTo(breakthroughSlot.ParentBranch.Index))
@@ -706,7 +709,7 @@ namespace ModPack
         => slot is SkillSlotFork;
 
         // Hooks
-#pragma warning disable IDE0051 // Remove unused private members
+#pragma warning disable IDE0051, IDE0060, IDE1006
         [HarmonyPatch(typeof(SkillTreeDisplay), "RefreshSkillsPosition"), HarmonyPrefix]
         static bool SkillTreeDisplay_RefreshSkillsPosition_Pre(SkillTreeDisplay __instance)
         {
@@ -747,21 +750,21 @@ namespace ModPack
 
 /*
  *             // Log
-            Tools.Log($"");
-            Tools.Log($"TRAITS");
+            Log.Debug($"");
+            Log.Debug($"TRAITS");
             foreach (var trait in equalizer.Traits)
-                Tools.Log($"\t{trait.Name}");
+                Log.Debug($"\t{trait.Name}");
 
             int counter = 0;
             foreach (var tree in equalizer.Results)
             {
-                Tools.Log($"");
-                Tools.Log($"TREE #{counter++}");
+                Log.Debug($"");
+                Log.Debug($"TREE #{counter++}");
 
                 List<BaseSkillSlot> sortedList = tree.ToList();
                 sortedList.Sort((a, b) => GetSlotLevel(a).CompareTo(GetSlotLevel(b)));
                 foreach (var slot in sortedList)
-                    Tools.Log($"\t{GetSlotLevel(slot)} / {slot.ParentBranch.ParentTree.Name} / {slot.name}");
+                    Log.Debug($"\t{GetSlotLevel(slot)} / {slot.ParentBranch.ParentTree.Name} / {slot.name}");
             }
 */
 

@@ -1,0 +1,229 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{8A6955C4-5D74-4FBF-988E-F8AD12C2FC8C}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Vheos.Mods.Outward</RootNamespace>
+    <AssemblyName>Vheos.Mods.Outward</AssemblyName>
+    <TargetFrameworkVersion>v4.7.1</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <Deterministic>true</Deterministic>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == '-|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\-\</OutputPath>
+    <DefineConstants>
+    </DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
+    <DocumentationFile>bin\-\Vheos.Mods.Outward.xml</DocumentationFile>
+  </PropertyGroup>
+  <PropertyGroup>
+    <RunPostBuildEvent>OnOutputUpdated</RunPostBuildEvent>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'RELEASE_UNITY_2018|AnyCPU' ">
+    <OutputPath>bin\UNITY_2018\</OutputPath>
+    <DefineConstants>TRACE;RELEASE, UNITY, UNITY2018</DefineConstants>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <LangVersion>7.3</LangVersion>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'DEBUG_UNITY_2018|AnyCPU' ">
+    <OutputPath>bin\UNITY_2018\</OutputPath>
+    <DefineConstants>TRACE;DEBUG, UNITY, UNITY2018</DefineConstants>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <LangVersion>7.3</LangVersion>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="0Harmony">
+      <HintPath>..\..\Libraries\BepInEx (v5.4.11)\0Harmony.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Assembly-CSharp-firstpass">
+      <HintPath>D:\Multiplayer\Outward\Outward_Data\Managed\Assembly-CSharp-firstpass.dll</HintPath>
+      <EmbedInteropTypes>False</EmbedInteropTypes>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Assembly-CSharp_publicized">
+      <HintPath>Private\Assembly-CSharp_publicized.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="BepInEx">
+      <HintPath>..\..\Libraries\BepInEx (v5.4.11)\BepInEx.dll</HintPath>
+      <EmbedInteropTypes>False</EmbedInteropTypes>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="System">
+      <EmbedInteropTypes>False</EmbedInteropTypes>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine">
+      <HintPath>D:\Multiplayer\Outward\Outward_Data\Managed\UnityEngine.dll</HintPath>
+      <EmbedInteropTypes>False</EmbedInteropTypes>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.AnimationModule">
+      <HintPath>D:\Multiplayer\Outward\Outward_Data\Managed\UnityEngine.AnimationModule.dll</HintPath>
+      <EmbedInteropTypes>False</EmbedInteropTypes>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.CoreModule">
+      <HintPath>D:\Multiplayer\Outward\Outward_Data\Managed\UnityEngine.CoreModule.dll</HintPath>
+      <EmbedInteropTypes>False</EmbedInteropTypes>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.ImageConversionModule">
+      <HintPath>D:\Multiplayer\Outward\Outward_Data\Managed\UnityEngine.ImageConversionModule.dll</HintPath>
+      <EmbedInteropTypes>False</EmbedInteropTypes>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.ParticleSystemModule">
+      <HintPath>D:\Multiplayer\Outward\Outward_Data\Managed\UnityEngine.ParticleSystemModule.dll</HintPath>
+      <EmbedInteropTypes>False</EmbedInteropTypes>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.PhysicsModule">
+      <HintPath>D:\Multiplayer\Outward\Outward_Data\Managed\UnityEngine.PhysicsModule.dll</HintPath>
+      <EmbedInteropTypes>False</EmbedInteropTypes>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.TextRenderingModule">
+      <HintPath>D:\Multiplayer\Outward\Outward_Data\Managed\UnityEngine.TextRenderingModule.dll</HintPath>
+      <EmbedInteropTypes>False</EmbedInteropTypes>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.UI">
+      <HintPath>D:\Multiplayer\Outward\Outward_Data\Managed\UnityEngine.UI.dll</HintPath>
+      <EmbedInteropTypes>False</EmbedInteropTypes>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.UIModule">
+      <HintPath>D:\Multiplayer\Outward\Outward_Data\Managed\UnityEngine.UIModule.dll</HintPath>
+      <EmbedInteropTypes>False</EmbedInteropTypes>
+      <Private>False</Private>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Core\ModSections.cs" />
+    <Compile Include="Core\Players.cs" />
+    <Compile Include="Core\Prefabs.cs" />
+    <Compile Include="Core\GameInput.cs" />
+    <Compile Include="Core\Presets.cs" />
+    <Compile Include="Mods\Survival\Crafting.cs" />
+    <Compile Include="Mods\Combat\AI.cs" />
+    <Compile Include="Mods\Survival\Inns.cs" />
+    <Compile Include="Mods\Development\WIP.cs" />
+    <Compile Include="Mods\Survival\Durability.cs" />
+    <Compile Include="Mods\Survival\Camping.cs" />
+    <Compile Include="Mods\Combat\Quickslots.cs" />
+    <Compile Include="Mods\UI\Gamepad.cs" />
+    <Compile Include="Mods\Skills\SkillPrices.cs" />
+    <Compile Include="Mods\Survival\Merchants.cs" />
+    <Compile Include="Mods\Skills\SkillLimits.cs" />
+    <Compile Include="Mods\Skills\SkillTreeRandomizer.cs" />
+    <Compile Include="Mods\Combat\Targeting.cs" />
+    <Compile Include="Mods\UI\GUI.cs" />
+    <Compile Include="Mods\UI\KeyboardWalk.cs" />
+    <Compile Include="Mods\Development\Debug.cs" />
+    <Compile Include="Mods\UI\Descriptions.cs" />
+    <Compile Include="Mods\Combat\Speed.cs" />
+    <Compile Include="Mods\UI\Camera.cs" />
+    <Compile Include="Mods\Development\PistolTweaks.cs" />
+    <Compile Include="Mods\Survival\Resets.cs" />
+    <Compile Include="Mods\Combat\Damage.cs" />
+    <Compile Include="Mods\Survival\Revive.cs" />
+    <Compile Include="Mods\Survival\Needs.cs" />
+    <Compile Include="Mods\Survival\Interactions.cs" />
+    <Compile Include="Mods\Skills\SkillEditor.cs" />
+    <Compile Include="Mods\Combat\Traps.cs" />
+    <Compile Include="Mods\Survival\SurvivalTools.cs" />
+    <Compile Include="Mods\Various\Various.cs" />
+    <Compile Include="Utility\Extensions_Various.cs" />
+    <Compile Include="Utility\InternalUtility.cs" />
+    <Compile Include="Core\Main.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Properties\" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\Tools\Extensions\Vheos.Tools.Extensions.csproj">
+      <Project>{4afe5e8c-29c0-4389-aaa0-55584146becf}</Project>
+      <Name>Vheos.Tools.Extensions</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Tools\ModdingCore\Vheos.Tools.ModdingCore.csproj">
+      <Project>{a48747d8-e698-4c2c-bf11-0efed7d79ef0}</Project>
+      <Name>Vheos.Tools.ModdingCore</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Tools\Random\Vheos.Tools.Random.csproj">
+      <Project>{f4c8a01e-9df7-4e31-8169-1cf24d2896e7}</Project>
+      <Name>Vheos.Tools.Random</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Tools\TraitEqualizer\Vheos.Tools.TraitEqualizer.csproj">
+      <Project>{23d233fc-b7d0-4709-baaa-e803fee61930}</Project>
+      <Name>Vheos.Tools.TraitEqualizer</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Tools\Utility\Vheos.Tools.Utility.csproj">
+      <Project>{96d2cdb1-5ee9-4666-812d-9ecb8df005c4}</Project>
+      <Name>Vheos.Tools.Utility</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PostBuildEvent>:: Global settings
+set Releases_Global=E:\Creativity\Programs\C#\Mods\Outward\Private\Releases\
+set Plugins_Local=BepInEx\Plugins\Vheos\
+set Version_Suffix=_vX.Y.Z
+set TempCopy=$(ProjectDir)\bin\.tmpcpy\
+rd /s /q %25TempCopy%25
+xcopy /y $(TargetDir)$(TargetName).dll %25TempCopy%25
+xcopy /y $(TargetDir)Vheos.Tools.ModdingCore.dll %25TempCopy%25
+xcopy /y $(TargetDir)Vheos.Tools.Extensions.dll %25TempCopy%25
+xcopy /y $(TargetDir)Vheos.Tools.Utility.dll %25TempCopy%25
+
+    :: Project settings
+    set Game_Global=D:\Multiplayer\Outward\
+    set Game_EXE=Outward.exe
+    set Zip_Name=VMP
+    set GitHubNexus_Global=%25Releases_Global%25\GitHubNexus\%25Plugins_Local%25
+    set Thunderstore_Global=%25Releases_Global%25\Thunderstore\%25Plugins_Local%25
+    xcopy /y $(TargetDir)Vheos.Tools.TraitEqualizer.dll %25TempCopy%25
+    xcopy /y $(TargetDir)Vheos.Tools.Random.dll %25TempCopy%25
+
+    if $(DefineConstants.Contains('DEBUG'))==True (
+        :: Debug
+        rd /s /q %25Game_Global%25%25Plugins_Local%25 
+        xcopy /e /y %25TempCopy%25 %25Game_Global%25%25Plugins_Local%25
+        start "" %25Game_Global%25%25Game_EXE%25
+
+    ) else if $(DefineConstants.Contains('RELEASE'))==True (
+        :: Release
+        rd /s /q %25GitHubNexus_Global%25 
+        xcopy /e /y %25TempCopy%25 %25GitHubNexus_Global%25
+        powershell Compress-Archive -Path %25Releases_Global%25\GitHubNexus_Global\BepInEx -DestinationPath %25Releases_Global%25\%25Zip_Name%25%25Version_Suffix%25.zip -Force
+    )</PostBuildEvent>
+  </PropertyGroup>
+  <PropertyGroup>
+    <PreBuildEvent>
+    </PreBuildEvent>
+  </PropertyGroup>
+  <Target Name="PreBuildEvent" Condition="'$(PreBuildEvent)'!=''" DependsOnTargets="$(PreBuildEventDependsOn)">
+    <Exec WorkingDirectory="$(OutDir)" Command="$(PreBuildEvent)" ContinueOnError="true" />
+  </Target>
+</Project>

@@ -1,18 +1,11 @@
-﻿using System;
-using System.Linq;
-using System.Collections.Generic;
-using UnityEngine;
-using BepInEx.Configuration;
-using HarmonyLib;
-using Random = UnityEngine.Random;
-using SlotList = System.Collections.Generic.List<BaseSkillSlot>;
-using SlotList2D = System.Collections.Generic.List<System.Collections.Generic.List<BaseSkillSlot>>;
-using SlotList3D = System.Collections.Generic.List<System.Collections.Generic.List<System.Collections.Generic.List<BaseSkillSlot>>>;
-
-
-
-namespace ModPack
+﻿namespace Vheos.Mods.Outward
 {
+    using System.Linq;
+    using UnityEngine;
+    using HarmonyLib;
+    using Tools.ModdingCore;
+    using Tools.Extensions.Math;
+    using Tools.Extensions.Collections;
     public class SkillEditor : AMod, IDelayedInit
     {
         #region const
@@ -91,7 +84,7 @@ namespace ModPack
                 else
                     _toggle.Format(_skillName);
 
-                _mod.Indent++;
+                using(Indent)
                 {
                     // Effects description
                     string text = "";
@@ -114,7 +107,6 @@ namespace ModPack
                     _otherCosts.Description = "X   -   Durability\n" +
                                               "Y   -   Durability %\n" +
                                               "Z   -   Cooldown";
-                    _mod.Indent--;
                 }
             }
 
@@ -128,8 +120,8 @@ namespace ModPack
             }
 
             // Utility
-            private SkillEditor _mod;
-            private string _skillName;
+            private readonly SkillEditor _mod;
+            private readonly string _skillName;
             private string _effectX, _effectY, _effectZ;
             private Action<Skill, float> _applyEffectX, _applyEffectY, _applyEffectZ;
             private void TryApplyEffectsToPrefab(Skill prefab)
@@ -219,26 +211,24 @@ namespace ModPack
         override protected void SetFormatting()
         {
             _daggerToggle.Format("Dagger");
-            Indent++;
+            using(Indent)
             {
                 _daggerSlash.FormatSettings(_daggerToggle);
                 _backstab.FormatSettings(_daggerToggle);
                 _opportunistStab.FormatSettings(_daggerToggle);
                 _serpentsParry.FormatSettings(_daggerToggle);
-                Indent--;
             }
 
             _bowToggle.Format("Bow");
-            Indent++;
+            using(Indent)
             {
                 _evasionShot.FormatSettings(_bowToggle);
                 _sniperShot.FormatSettings(_bowToggle);
                 _piercingShot.FormatSettings(_bowToggle);
-                Indent--;
             }
 
             _runesToggle.Format("Runes");
-            Indent++;
+            using(Indent)
             {
                 _dez.FormatSettings(_runesToggle);
                 _egoth.FormatSettings(_runesToggle);
@@ -248,20 +238,19 @@ namespace ModPack
                 _runeSoundEffectVolume.Description = "If the runes are too loud for your ears";
                 _runicLanternIntensity.Format("Runic Lantern intensity", _runesToggle);
                 _runicLanternIntensity.Description = "If the glowing orb is too bright for your eyes";
-                Indent--;
             }
         }
         override protected string Description
         => "• Change effects, costs and cooldown of select skills";
         override protected string SectionOverride
-        => SECTION_SKILLS;
+        => ModSections.Skills;
         override protected string ModName
         => "Editor";
-        override public void LoadPreset(Presets.Preset preset)
+        override protected void LoadPreset(string presetName)
         {
-            switch (preset)
+            switch (presetName)
             {
-                case Presets.Preset.Vheos_CoopSurvival:
+                case nameof(Preset.Vheos_CoopSurvival):
                     ForceApply();
                     _daggerToggle.Value = true;
                     {
@@ -315,7 +304,7 @@ namespace ModPack
         }
 
         // Hooks
-#pragma warning disable IDE0051 // Remove unused private members
+#pragma warning disable IDE0051, IDE0060, IDE1006
         [HarmonyPatch(typeof(AddStatusEffect), "ActivateLocally"), HarmonyPrefix]
         static bool AddStatusEffect_ActivateLocally_Pre(AddStatusEffect __instance)
         {
@@ -342,7 +331,7 @@ namespace ModPack
         static bool PlaySoundEffect_ActivateLocally_Pre(PlaySoundEffect __instance)
         {
             #region quit
-            if (!_runesToggle || __instance.Sounds.IsEmpty() || __instance.Sounds.First() != GlobalAudioManager.Sounds.SFX_SKILL_RuneSpell)
+            if (!_runesToggle || __instance.Sounds.IsNullOrEmpty() || __instance.Sounds.First() != GlobalAudioManager.Sounds.SFX_SKILL_RuneSpell)
                 return true;
             #endregion
 

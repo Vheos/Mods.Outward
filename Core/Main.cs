@@ -1,126 +1,86 @@
-﻿using System;
-using System.Linq;
-using System.Collections.Generic;
-using UnityEngine;
-using BepInEx.Configuration;
-using HarmonyLib;
-using BepInEx;
-
-
-
-namespace ModPack
+﻿namespace Vheos.Mods.Outward
 {
+    using System;
+    using System.Linq;
+    using System.Reflection;
+    using BepInEx;
+    using Tools.ModdingCore;
+    using Utility = Tools.UtilityN.Utility;
+
     [BepInDependency("com.bepis.bepinex.configurationmanager", BepInDependency.DependencyFlags.SoftDependency)]
     [BepInDependency("io.mefino.configurationmanager", BepInDependency.DependencyFlags.SoftDependency)]
     [BepInPlugin(GUID, NAME, VERSION)]
-    public class Main : BaseUnityPlugin
+    public class Main : BepInExEntryPoint
     {
-        // Settings
-        public const bool IS_DEVELOPMENT_VERSION = false;
-        public const string GUID = "com.Vheos.ModPack";
-        public const string NAME = "Vheos Mod Pack" + (IS_DEVELOPMENT_VERSION ? " [DEVELOPMENT]" : "");
-        public const string VERSION = "1.12.1";
-
-        // Utility
-        private List<Type> _awakeModTypes;
-        private List<Type> _delayedModTypes;
-        private List<IUpdatable> _updatableMods;
-        private List<AMod> _mods;
-        private void CategorizeModsByInstantiationTime(Type[] whitelist = null, Type[] blacklist = null)
+        #region SETTINGS
+        public const string GUID = "Vheos.Mods.Outward";
+        public const string NAME = "Vheos Mod Pack";
+        public const string VERSION = "1.13.0";
+        static private readonly Type[] MODS_ORDERING_LIST = new[]
         {
-            foreach (var modType in Utility.GetDerivedTypes<AMod>())
-                if ((IS_DEVELOPMENT_VERSION || modType.IsNotAssignableTo<IDevelopmentOnly>())
-                && (blacklist.IsEmpty() || modType.IsNotContainedIn(blacklist))
-                && (whitelist.IsEmpty() || modType.IsContainedIn(whitelist)))
-                    if (modType.IsAssignableTo<IDelayedInit>())
-                        _delayedModTypes.Add(modType);
-                    else
-                        _awakeModTypes.Add(modType);
-        }
-        private void TryDelayedInitialize()
+            // Survival & Immersion
+            typeof(Needs),
+            typeof(Camping),
+            typeof(Crafting),
+            typeof(Durability),
+            typeof(Merchants),
+            typeof(Inns),
+            typeof(SurvivalTools),
+            typeof(Resets),
+            typeof(Interactions),
+            typeof(Revive),
+
+            // Combat
+            typeof(Damage),
+            typeof(Speed),
+            typeof(Targeting),
+            typeof(AI),
+            typeof(Traps),
+            typeof(Quickslots),
+
+            // Skills
+            typeof(SkillEditor),
+            typeof(SkillPrices),
+            typeof(SkillLimits),
+            typeof(SkillTreeRandomizer),
+
+            // UI
+            typeof(GUI),
+            typeof(Descriptions),
+            typeof(Camera),
+            typeof(KeyboardWalk),
+            typeof(Gamepad),
+
+            // Various
+            typeof(Various),
+
+            // Development
+            typeof(Debug),
+            typeof(WIP),
+            typeof(PistolTweaks),
+        };
+        #endregion
+
+        // User logic
+        override protected Assembly CurrentAssembly
+        => Assembly.GetExecutingAssembly();
+        override protected void Initialize()
         {
-            if (Prefabs.IsInitialized || !IsGameInitialized)
-                return;
-
-            Tools.Log($"Finished waiting ({Tools.ElapsedMilliseconds}ms)");
-            Tools.Log("");
-
-            Tools.Log("Initializing prefabs...");
-            Prefabs.Initialize();
-            Tools.Log("Instantiating delayed mods...");
-            InstantiateMods(_delayedModTypes);
-
-            Tools.Log("Initializing Presets...");
-            Presets.Initialize(_mods);
-
-            Tools.Log($"Finished DelayedInit ({Tools.ElapsedMilliseconds}ms)");
-            Tools.Log("");
-            Tools.IsStopwatchActive = false;
-        }
-        private void InstantiateMods(ICollection<Type> modTypes)
-        {
-            foreach (var modType in modTypes)
-                InstantiateMod(modType);
-        }
-        private void InstantiateMod(Type modType)
-        {
-            AMod newMod = (AMod)Activator.CreateInstance(modType);
-            _mods.Add(newMod);
-            if (modType.IsAssignableTo<IUpdatable>())
-                _updatableMods.Add(newMod as IUpdatable);
-        }
-        private void UpdateMods(ICollection<IUpdatable> updatableMods)
-        {
-            foreach (var updatableMod in updatableMods)
-                UpdateMod(updatableMod);
-        }
-        private void UpdateMod(IUpdatable updatableMod)
-        {
-            if (updatableMod.IsEnabled)
-                updatableMod.OnUpdate();
-        }
-        private bool IsGameInitialized
-        => ResourcesPrefabManager.Instance.Loaded && UIUtilities.m_instance != null;
-
-        // Mono
-#pragma warning disable IDE0051 // Remove unused private members
-        private void Awake()
-        {
-            _awakeModTypes = new List<Type>();
-            _delayedModTypes = new List<Type>();
-            _updatableMods = new List<IUpdatable>();
-            _mods = new List<AMod>();
-
-            Tools.Initialize(this, Logger);
-            Tools.IsStopwatchActive = true;
-
-            Tools.Log("Initializing GameInput...");
+            Log.Debug("Initializing GameInput...");
             GameInput.Initialize();
-            Tools.Log("Initializing Players...");
+            Log.Debug("Initializing Players...");
             Players.Initialize();
-
-            Tools.Log("Categorizing mods by instantiation time...");
-            CategorizeModsByInstantiationTime();
-            Tools.Log("Awake:");
-            foreach (var modType in _awakeModTypes)
-                Tools.Log($"\t{modType.Name}");
-            Tools.Log("Delayed:");
-            foreach (var modType in _delayedModTypes)
-                Tools.Log($"\t{modType.Name}");
-
-            Tools.Log("Instantiating awake mods...");
-            InstantiateMods(_awakeModTypes);
-
-            Tools.Log($"Finished AwakeInit ({Tools.ElapsedMilliseconds}ms)");
-            Tools.Log("");
-
-            Tools.Log($"Waiting for game initialization...");
         }
-        private void Update()
+        override protected void DelayedInitialize()
         {
-            TryDelayedInitialize();
-            UpdateMods(_updatableMods);
-            Tools.TryRedrawConfigWindow();
+            Log.Debug("Initializing Prefabs...");
+            Prefabs.Initialize();
         }
+        override protected bool DelayedInitializeCondition
+        => ResourcesPrefabManager.Instance.Loaded && UIUtilities.m_instance != null;
+        override protected Type[] Blacklist
+        => new[] { typeof(Debug), typeof(WIP), typeof(PistolTweaks) };
+        override protected string[] PresetNames
+        => Utility.GetEnumValuesAsStrings<Preset>().ToArray();
     }
 }

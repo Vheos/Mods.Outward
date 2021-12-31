@@ -1,14 +1,11 @@
-﻿using System;
-using System.Linq;
-using System.Collections.Generic;
-using UnityEngine;
-using BepInEx.Configuration;
-using HarmonyLib;
-
-
-
-namespace ModPack
+﻿namespace Vheos.Mods.Outward
 {
+    using System.Collections.Generic;
+    using UnityEngine;
+    using HarmonyLib;
+    using Tools.ModdingCore;
+    using Tools.Extensions.UnityObjects;
+    using Tools.Extensions.General;
     public class Inns : AMod
     {
         #region const
@@ -51,15 +48,15 @@ namespace ModPack
             _dontRestoreFoodDrinkOnSleep.Description = "Sleeping in beds will only stop the depletion of food and drink, not restore them";
         }
         override protected string SectionOverride
-        => SECTION_SURVIVAL;
+        => ModSections.SurvivalAndImmersion;
         override protected string Description
         => "• Change rent duration\n" +
            "• Add player stash to each room";
-        override public void LoadPreset(Presets.Preset preset)
+        override protected void LoadPreset(string presetName)
         {
-            switch (preset)
+            switch (presetName)
             {
-                case Presets.Preset.Vheos_CoopSurvival:
+                case nameof(Preset.Vheos_CoopSurvival):
                     ForceApply();
                     _rentDuration.Value = 120;
                     _stashes.Value = true;
@@ -69,13 +66,13 @@ namespace ModPack
         }
 
         // Hooks
-#pragma warning disable IDE0051 // Remove unused private members
+#pragma warning disable IDE0051, IDE0060, IDE1006
         // Inn Stash
         [HarmonyPatch(typeof(NetworkLevelLoader), "UnPauseGameplay"), HarmonyPostfix]
         static void NetworkLevelLoader_UnPauseGameplay_Post(NetworkLevelLoader __instance, string _identifier)
         {
             #region quit
-            if (!_stashes || _identifier != "Loading" || !AreaManager.Instance.CurrentArea.TryAssign(out var currentArea)
+            if (!_stashes || _identifier != "Loading" || !AreaManager.Instance.CurrentArea.TryNonNull(out var currentArea)
             || !STASH_DATA_BY_CITY.ContainsKey((AreaManager.AreaEnum)currentArea.ID))
                 return;
             #endregion
@@ -114,7 +111,7 @@ namespace ModPack
         static bool InteractionOpenChest_OnActivate_Pre(InteractionOpenChest __instance)
         {
             #region quit
-            if (!_stashes || !__instance.m_chest.TryAssign(out var chest))
+            if (!_stashes || !__instance.m_chest.TryNonNull(out var chest))
                 return true;
             #endregion
 

@@ -1,20 +1,20 @@
-﻿using System;
-using System.Linq;
-using System.Collections.Generic;
-using UnityEngine;
-using BepInEx.Configuration;
-using HarmonyLib;
-using UnityEngine.UI;
-using System.Collections;
-
-
-
-/* TO DO:
+﻿/* TO DO:
  * - hide armor extras (like scarf)
  * - prevent dodging right after hitting
  */
-namespace ModPack
+namespace Vheos.Mods.Outward
 {
+    using System;
+    using System.Collections;
+    using System.Collections.Generic;
+    using UnityEngine;
+    using HarmonyLib;
+    using Tools.ModdingCore;
+    using Tools.Extensions.Math;
+    using Tools.Extensions.General;
+    using Tools.Extensions.UnityObjects;
+    using Tools.Extensions.Collections;
+
     public class Various : AMod, IUpdatable
     {
         #region const
@@ -121,7 +121,7 @@ namespace ModPack
             _itemActionDropOne = CreateSetting(nameof(_displayStashAmount), false);
             _temperatureToggle = CreateSetting(nameof(_temperatureToggle), false);
             _temperatureDataByEnum = new Dictionary<TemperatureSteps, ModSetting<Vector2>>();
-            foreach (var step in Utility.GetEnumValues<TemperatureSteps>())
+            foreach (var step in InternalUtility.GetEnumValues<TemperatureSteps>())
                 if (step != TemperatureSteps.Count)
                     _temperatureDataByEnum.Add(step, CreateSetting(nameof(_temperatureDataByEnum) + step, DEFAULT_TEMPERATURE_DATA_BY_ENUM[step]));
 
@@ -136,10 +136,9 @@ namespace ModPack
         override protected void SetFormatting()
         {
             _enableCheats.Format("Enable cheats");
-            Indent++;
+            using(Indent)
             {
                 _enableCheatsHotkey.Format("Hotkey");
-                Indent--;
             }
             _enableCheats.Description = "aka Debug Mode";
             _skipStartupVideos.Format("Skip startup videos");
@@ -157,25 +156,23 @@ namespace ModPack
             _multiplicativeStacking.Format("Multiplicative stacking");
             _multiplicativeStacking.Description = "Some stats will stack multiplicatively instead of additvely\n" +
                                                   "(movement speed, stamina cost, mana cost)";
-            Indent++;
+            using(Indent)
             {
                 _armorTrainingPenaltyReduction.Format("\"Armor Training\" penalty reduction", _multiplicativeStacking);
                 _armorTrainingPenaltyReduction.Description = "How much of equipment's movement speed and stamina cost penalties should \"Armor Training\" ignore";
                 _applyArmorTrainingToManaCost.Format("\"Armor Training\" affects mana cost", _multiplicativeStacking);
                 _applyArmorTrainingToManaCost.Description = "\"Armor Training\" will also lower equipment's mana cost penalties";
-                Indent--;
             }
             _loadArrowsFromInventory.Format("Load arrows from inventory");
             _loadArrowsFromInventory.Description = "Whenever you shoot your bow, the lost arrow is instantly replaced with one from your backpack or pouch (in that order)";
             _baseStaminaRegen.Format("Base stamina regen");
             _titleScreenRandomize.Format("Randomize title screen");
             _titleScreenRandomize.Description = "Every time you start the game, one of the chosen title screens will be loaded at random (untick all for default)";
-            Indent++;
+            using(Indent)
             {
                 _titleScreenHideCharacters.Format("Characters");
                 _titleScreenHideCharacters.Description = "If you think the character are ruining the view :)\n" +
                                                          "(requires game restart)";
-                Indent--;
             }
             _craftFromStash.Format("Craft with stashed items");
             _craftFromStash.Description = "When you're crafting in a city, you can use items from you stash";
@@ -199,23 +196,22 @@ namespace ModPack
                                              "Neutral   -   50\n" +
                                              "Hot   -   60\n" +
                                              "Very Hot   -   75)";
-            Indent++;
+            using(Indent)
             {
-                foreach (var step in Utility.GetEnumValues<TemperatureSteps>())
+                foreach (var step in InternalUtility.GetEnumValues<TemperatureSteps>())
                     if (step != TemperatureSteps.Count)
                         _temperatureDataByEnum[step].Format(step.ToString(), _temperatureToggle);
-                Indent--;
             }
         }
         override protected string Description
         => "• Mods (small and big) that didn't get their own section yet :)";
         override protected string SectionOverride
         => "";
-        override public void LoadPreset(Presets.Preset preset)
+        override protected void LoadPreset(string presetName)
         {
-            switch (preset)
+            switch (presetName)
             {
-                case Presets.Preset.Vheos_CoopSurvival:
+                case nameof(Preset.Vheos_CoopSurvival):
                     ForceApply();
                     _enableCheats.Value = false;
                     _enableCheatsHotkey.Value = KeyCode.Keypad0.ToString();
@@ -261,8 +257,8 @@ namespace ModPack
             get
             {
                 if (_playerStash == null
-                && AreaManager.Instance.CurrentArea.TryAssign(out var currentArea)
-                && STASH_UIDS_BY_CITY.TryAssign((AreaManager.AreaEnum)currentArea.ID, out var uid))
+                && AreaManager.Instance.CurrentArea.TryNonNull(out var currentArea)
+                && STASH_UIDS_BY_CITY.TryGet((AreaManager.AreaEnum)currentArea.ID, out var uid))
                     _playerStash = (TreasureChest)ItemManager.Instance.GetItem(uid);
                 return _playerStash;
             }
@@ -273,8 +269,8 @@ namespace ModPack
             get
             {
                 if (_soroboreanCaravanner == null
-                && AreaManager.Instance.CurrentArea.TryAssign(out var currentArea)
-                && SOROBOREAN_CARAVANNER_UIDS_BY_CITY.TryAssign((AreaManager.AreaEnum)currentArea.ID, out var uid)
+                && AreaManager.Instance.CurrentArea.TryNonNull(out var currentArea)
+                && SOROBOREAN_CARAVANNER_UIDS_BY_CITY.TryGet((AreaManager.AreaEnum)currentArea.ID, out var uid)
                 && Merchant.m_sceneMerchants.ContainsKey(uid))
                     _soroboreanCaravanner = Merchant.m_sceneMerchants[uid];
                 return _soroboreanCaravanner;
@@ -320,8 +316,8 @@ namespace ModPack
                 return;
             #endregion
 
-            if (EnvironmentConditions.Instance.TryAssign(out var environmentConditions))
-                foreach (var step in Utility.GetEnumValues<TemperatureSteps>())
+            if (EnvironmentConditions.Instance.TryNonNull(out var environmentConditions))
+                foreach (var step in InternalUtility.GetEnumValues<TemperatureSteps>())
                     if (step != TemperatureSteps.Count)
                     {
                         environmentConditions.BodyTemperatureImpactPerStep[step] = _temperatureDataByEnum[step].Value.x;
@@ -332,8 +328,8 @@ namespace ModPack
         {
             #region quit
             if (!_displayStashAmount || PlayerStash == null
-            || !itemDisplay.m_lblQuantity.TryAssign(out var quantity)
-            || !itemDisplay.RefItem.TryAssign(out var item)
+            || !itemDisplay.m_lblQuantity.TryNonNull(out var quantity)
+            || !itemDisplay.RefItem.TryNonNull(out var item)
             || item.OwnerCharacter == null
             && item.ParentContainer.IsNot<MerchantPouch>()
             && itemDisplay.IsNot<RecipeResultDisplay>())
@@ -346,7 +342,7 @@ namespace ModPack
 
             if (itemDisplay.IsNot<RecipeResultDisplay>())
                 quantity.text = itemDisplay.m_lastQuantity.ToString();
-            else if (itemDisplay.m_dBarUses.TryAssign(out var dotBar) && dotBar.GOActive())
+            else if (itemDisplay.m_dBarUses.TryNonNull(out var dotBar) && dotBar.GOActive())
                 quantity.text = "1";
 
             int fontSize = (quantity.fontSize * 0.75f).Round();
@@ -356,7 +352,7 @@ namespace ModPack
         }
 
         // Hooks
-#pragma warning disable IDE0051 // Remove unused private members
+#pragma warning disable IDE0051, IDE0060, IDE1006
         // Reset static scene data
         [HarmonyPatch(typeof(NetworkLevelLoader), "UnPauseGameplay"), HarmonyPostfix]
         static void NetworkLevelLoader_UnPauseGameplay_Post(NetworkLevelLoader __instance)
@@ -371,9 +367,9 @@ namespace ModPack
         {
             #region quit
             if (!_displayPricesInStash
-            || !__instance.CharacterUI.TryAssign(out var characterUI) || !characterUI.GetIsMenuDisplayed(CharacterUI.MenuScreens.Stash)
-            || !__instance.RefItem.TryAssign(out var item) || item.OwnerCharacter != null
-            || !__instance.m_lblValue.TryAssign(out var priceText)
+            || !__instance.CharacterUI.TryNonNull(out var characterUI) || !characterUI.GetIsMenuDisplayed(CharacterUI.MenuScreens.Stash)
+            || !__instance.RefItem.TryNonNull(out var item) || item.OwnerCharacter != null
+            || !__instance.m_lblValue.TryNonNull(out var priceText)
             || SoroboreanCaravanner == null)
                 return true;
             #endregion
@@ -389,9 +385,9 @@ namespace ModPack
         static void ItemDisplayOptionPanel_GetActiveActions_Post(ItemDisplayOptionPanel __instance, ref List<int> __result)
         {
             #region quit
-            //!itemDisplay.RefItem.TryAssign(out var item) || item.MoveStackAsOne  
+            //!itemDisplay.RefItem.TryNonNull(out var item) || item.MoveStackAsOne  
             if (!_itemActionDropOne || __instance == null ||
-            !__instance.m_activatedItemDisplay.TryAssign(out var itemDisplay)
+            !__instance.m_activatedItemDisplay.TryNonNull(out var itemDisplay)
             || itemDisplay.StackCount <= 1)
                 return;
             #endregion
@@ -461,7 +457,7 @@ namespace ModPack
             #endregion
 
             var DLCs = new List<OTWStoreAPI.DLCs>();
-            foreach (var flag in Utility.GetEnumValues<TitleScreens>())
+            foreach (var flag in InternalUtility.GetEnumValues<TitleScreens>())
                 if (_titleScreenRandomize.Value.HasFlag(flag))
                     switch (flag)
                     {
@@ -697,11 +693,10 @@ _pouchCapacity = CreateSetting(nameof(_pouchCapacity), POUCH_CAPACITY.Round(), I
 _allowOverCapacity = CreateSetting(nameof(_allowOverCapacity), true);
 
 _pouchToggle.Format("Pouch");
-Indent++;
+using(Indent)
 {
     _pouchCapacity.Format("Pouch size", _pouchToggle);
     _allowOverCapacity.Format("Allow over capacity", _pouchToggle);
-    Indent--;
 }
 
 [HarmonyPatch(typeof(CharacterInventory), "ProcessStart"), HarmonyPostfix]
