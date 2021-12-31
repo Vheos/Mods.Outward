@@ -53,11 +53,11 @@
                                                  "and depend on current time, merchant and/or item";
             using(Indent)
             {
-                _randomizePricesPerDays.Format("per days", _randomizePricesExtent, () => _randomizePricesExtent > 0);
+                _randomizePricesPerDays.Format("per days", _randomizePricesExtent, t => t > 0);
                 _randomizePricesPerDays.Description = "All price modifiers will be rolled every X days";
-                _randomizePricesPerArea.Format("per city", _randomizePricesExtent, () => _randomizePricesExtent > 0);
+                _randomizePricesPerArea.Format("per city", _randomizePricesExtent, t => t > 0);
                 _randomizePricesPerArea.Description = "Every city (and area) will have its own randomized price modifier";
-                _randomizePricesPerItem.Format("per item", _randomizePricesExtent, () => _randomizePricesExtent > 0);
+                _randomizePricesPerItem.Format("per item", _randomizePricesExtent, t => t > 0);
                 _randomizePricesPerItem.Description = "Every item will have its own randomized price";
             }
             _pricesPerTypeToggle.Format("Prices by item type");
@@ -79,11 +79,11 @@
            "• Set price for learning mutually exclusive skills";
         override protected string SectionOverride
         => ModSections.SurvivalAndImmersion;
-        override public void LoadPreset(int preset)
+        override protected void LoadPreset(string presetName)
         {
-            switch ((Presets.Preset)preset)
+            switch (presetName)
             {
-                case Presets.Preset.Vheos_CoopSurvival:
+                case nameof(Preset.Vheos_CoopSurvival):
                     ForceApply();
                     _pricesCurve.Value = 90;
                     _sellModifier.Value = 20;

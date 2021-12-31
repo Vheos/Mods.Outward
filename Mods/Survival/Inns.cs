@@ -52,11 +52,11 @@
         override protected string Description
         => "• Change rent duration\n" +
            "• Add player stash to each room";
-        override public void LoadPreset(int preset)
+        override protected void LoadPreset(string presetName)
         {
-            switch ((Presets.Preset)preset)
+            switch (presetName)
             {
-                case Presets.Preset.Vheos_CoopSurvival:
+                case nameof(Preset.Vheos_CoopSurvival):
                     ForceApply();
                     _rentDuration.Value = 120;
                     _stashes.Value = true;

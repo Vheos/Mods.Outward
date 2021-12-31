@@ -1,9 +1,12 @@
 ﻿namespace Vheos.Mods.Outward
 {
     using System;
+    using System.Linq;
     using System.Reflection;
     using BepInEx;
-    using Vheos.Tools.ModdingCore;
+    using Tools.ModdingCore;
+    using Utility = Tools.UtilityN.Utility;
+
     [BepInDependency("com.bepis.bepinex.configurationmanager", BepInDependency.DependencyFlags.SoftDependency)]
     [BepInDependency("io.mefino.configurationmanager", BepInDependency.DependencyFlags.SoftDependency)]
     [BepInPlugin(GUID, NAME, VERSION)]
@@ -63,7 +66,6 @@
         => Assembly.GetExecutingAssembly();
         override protected void Initialize()
         {
-            AMod.SetOrderingList(MODS_ORDERING_LIST);
             Log.Debug("Initializing GameInput...");
             GameInput.Initialize();
             Log.Debug("Initializing Players...");
@@ -73,12 +75,12 @@
         {
             Log.Debug("Initializing Prefabs...");
             Prefabs.Initialize();
-            Log.Debug("Initializing Presets...");
-            Presets.Initialize(_mods);
         }
         override protected bool DelayedInitializeCondition
         => ResourcesPrefabManager.Instance.Loaded && UIUtilities.m_instance != null;
         override protected Type[] Blacklist
         => new[] { typeof(Debug), typeof(WIP), typeof(PistolTweaks) };
+        override protected string[] PresetNames
+        => Utility.GetEnumValuesAsStrings<Preset>().ToArray();
     }
 }

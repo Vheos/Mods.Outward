@@ -43,7 +43,7 @@
             _trapsArmDelay.Description = "How long the trap has to stay on ground before it can explode (in seconds)";
             using(Indent)
             {
-                _trapsFriendlyFire.Format("Friendly fire", _trapsArmDelay, () => _trapsArmDelay > 0);
+                _trapsFriendlyFire.Format("Friendly fire", _trapsArmDelay, t => t > 0);
                 _trapsFriendlyFire.Description = "The trap will also explode in contact with you and other players";
             }
             _wireTrapDepth.Format("Tripwire trap trigger depth");
@@ -56,11 +56,11 @@
            "• Change trigger size for each trap";
         override protected string SectionOverride
         => ModSections.Combat;
-        override public void LoadPreset(int preset)
+        override protected void LoadPreset(string presetName)
         {
-            switch ((Presets.Preset)preset)
+            switch (presetName)
             {
-                case Presets.Preset.Vheos_CoopSurvival:
+                case nameof(Preset.Vheos_CoopSurvival):
                     ForceApply();
                     _trapsArmDelay.Value = 5;
                     _trapsFriendlyFire.Value = false;

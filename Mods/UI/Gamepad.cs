@@ -30,11 +30,11 @@
         => "• Better stash navigation";
         override protected string SectionOverride
         => ModSections.UI;
-        override public void LoadPreset(int preset)
+        override protected void LoadPreset(string presetName)
         {
-            switch ((Presets.Preset)preset)
+            switch (presetName)
             {
-                case Presets.Preset.Vheos_PreferredUI:
+                case nameof(Preset.Vheos_PreferredUI):
                     ForceApply();
                     _betterStashNavigation.Value = true;
                     break;

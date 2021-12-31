@@ -81,11 +81,11 @@
         => ModSections.SurvivalAndImmersion;
         override protected string ModName
         => "Tools";
-        override public void LoadPreset(int preset)
+        override protected void LoadPreset(string presetName)
         {
-            switch ((Presets.Preset)preset)
+            switch (presetName)
             {
-                case Presets.Preset.Vheos_CoopSurvival:
+                case nameof(Preset.Vheos_CoopSurvival):
                     ForceApply();
                     _remapBackpackCapacities.Value = new Vector2(20, 60);
                     _waterskinCapacity.Value = 9;

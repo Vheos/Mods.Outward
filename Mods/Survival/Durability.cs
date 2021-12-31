@@ -91,7 +91,7 @@
                 _repairDurabilityPerHour.Format("Durability per hour", _campingRepairToggle);
                 _repairDurabilityPercentPerHour.Format("Durability % per hour", _campingRepairToggle);
                 _repairDurabilityPercentPerHour.Description = "By default, % of max durability (can be changed below)";
-                _repairPercentReference.Format("", _repairDurabilityPercentPerHour, () => _repairDurabilityPercentPerHour > 0);
+                _repairPercentReference.Format("", _repairDurabilityPercentPerHour, t => t > 0);
                 _fastMaintenanceMultiplier.Format("\"Fast Maintenance\" repair multiplier", _campingRepairToggle);
                 _multiRepairBehaviour.Format("When repairing multiple items", _campingRepairToggle);
                 _multiRepairBehaviour.Description = "Use fixed value for all items   -   the same repair value will be used for all items\n" +
@@ -131,11 +131,11 @@
            "• Randomize starting durability of spawned items";
         override protected string SectionOverride
         => ModSections.SurvivalAndImmersion;
-        override public void LoadPreset(int preset)
+        override protected void LoadPreset(string presetName)
         {
-            switch ((Presets.Preset)preset)
+            switch (presetName)
             {
-                case Presets.Preset.Vheos_CoopSurvival:
+                case nameof(Preset.Vheos_CoopSurvival):
                     ForceApply();
                     _lossMultipliers.Value = true;
                     {

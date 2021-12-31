@@ -156,7 +156,7 @@
                         "Gamepad: use right stick while holding defined actions";
                     using(Indent)
                     {
-                        tmp._gamepadInputs.Format("Gamepad hotkey", tmp._zoomControlSpeed, () => tmp._zoomControlSpeed > 0);
+                        tmp._gamepadInputs.Format("Gamepad hotkey", tmp._zoomControlSpeed, t => t > 0);
                         tmp._gamepadInputs.Description = "Gamepad actions you need to hold to control camera. Defaults:\n" +
                                                          "LeftQS = LT\n" +
                                                          "RightQS = RT\n" +
@@ -193,11 +193,11 @@
            "• Define presets and smoothly interpolate between them";
         override protected string SectionOverride
         => ModSections.UI;
-        override public void LoadPreset(int preset)
+        override protected void LoadPreset(string presetName)
         {
-            switch ((Presets.Preset)preset)
+            switch (presetName)
             {
-                case Presets.Preset.Vheos_PreferredUI:
+                case nameof(Preset.Vheos_PreferredUI):
                     ForceApply();
                     foreach (var settings in _perPlayerSettings)
                     {

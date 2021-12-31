@@ -79,11 +79,11 @@
            "• Toggle speedhack with a hotkey";
         override protected string SectionOverride
         => ModSections.Combat;
-        override public void LoadPreset(int preset)
+        override protected void LoadPreset(string presetName)
         {
-            switch ((Presets.Preset)preset)
+            switch (presetName)
             {
-                case Presets.Preset.Vheos_CoopSurvival:
+                case nameof(Preset.Vheos_CoopSurvival):
                     ForceApply();
                     _gameToggle.Value = true;
                     {

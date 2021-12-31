@@ -339,11 +339,11 @@
         => ModSections.Skills;
         override protected string ModName
         => "Tree Randomizer";
-        override public void LoadPreset(int preset)
+        override protected void LoadPreset(string presetName)
         {
-            switch ((Presets.Preset)preset)
+            switch (presetName)
             {
-                case Presets.Preset.Vheos_CoopSurvival:
+                case nameof(Preset.Vheos_CoopSurvival):
                     ForceApply();
                     _vanillaInput.Value = (VanillaInput)~0;
                     _theSoroboreansInput.Value = (TheSoroboreansInput)~0;
@@ -379,17 +379,21 @@
         }
         static private void CreateSideSkillTrees()
         {
+            Log.Debug($"CreateSideSkillTrees()");
             _sideSkillTrees = new List<SkillSchool>();
             foreach (var (Name, IDs) in SIDE_SKILLS)
             {
+                Log.Debug($"{Name} / {IDs.Length}");
                 GameObject skillTreeHolder = new GameObject(Name);
                 skillTreeHolder.BecomeChildOf(_cachedSkillTreeHolder);
                 GameObject skillBranchHolder = new GameObject("0");
                 skillBranchHolder.BecomeChildOf(skillTreeHolder);
 
+                Log.Debug($"foreach...");
                 foreach (var id in IDs)
                 {
                     Skill skill = Prefabs.SkillsByID[id];
+                    Log.Debug($"{Name} / {id}   -   {skill != null}");
                     GameObject skillSlotHolder = new GameObject(skill.Name);
                     skillSlotHolder.BecomeChildOf(skillBranchHolder);
                     skillSlotHolder.AddComponent<SkillSlot>().m_skill = skill;

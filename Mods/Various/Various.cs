@@ -207,11 +207,11 @@ namespace Vheos.Mods.Outward
         => "• Mods (small and big) that didn't get their own section yet :)";
         override protected string SectionOverride
         => "";
-        override public void LoadPreset(int preset)
+        override protected void LoadPreset(string presetName)
         {
-            switch ((Presets.Preset)preset)
+            switch (presetName)
             {
-                case Presets.Preset.Vheos_CoopSurvival:
+                case nameof(Preset.Vheos_CoopSurvival):
                     ForceApply();
                     _enableCheats.Value = false;
                     _enableCheatsHotkey.Value = KeyCode.Keypad0.ToString();

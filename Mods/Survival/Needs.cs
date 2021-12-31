@@ -211,13 +211,13 @@
                                                      $"prevents you from {data.ActionName} until your {data.Need} falls below 100% again";
                     using (Indent)
                     {
-                        tmp._fulfilledEffectValue.Format(data.AffectedStat, tmp._fulfilledLimit, () => tmp._fulfilledLimit > 100);
+                        tmp._fulfilledEffectValue.Format(data.AffectedStat, tmp._fulfilledLimit, t => t > 100);
                         if (data.Need == Need.Sleep)
                         {
-                            _sleepNegativeEffect.Format("mana / min", tmp._fulfilledLimit, () => tmp._fulfilledLimit > 100);
+                            _sleepNegativeEffect.Format("mana / min", tmp._fulfilledLimit, t => t > 100);
                             using (Indent)
                             {
-                                _sleepNegativeEffectIsPercent.Format("is % of max mana", tmp._fulfilledLimit, () => tmp._fulfilledLimit > 100);
+                                _sleepNegativeEffectIsPercent.Format("is % of max mana", tmp._fulfilledLimit, t => t > 100);
                             }
                         }
                     }
@@ -265,11 +265,11 @@
            "• Override drink values and sleep buffs duration";
         override protected string SectionOverride
         => ModSections.SurvivalAndImmersion;
-        override public void LoadPreset(int preset)
+        override protected void LoadPreset(string presetName)
         {
-            switch ((Presets.Preset)preset)
+            switch (presetName)
             {
-                case Presets.Preset.Vheos_CoopSurvival:
+                case nameof(Preset.Vheos_CoopSurvival):
                     ForceApply();
                     foreach (var data in NEEDS_DATA)
                     {
