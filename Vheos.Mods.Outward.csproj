@@ -62,7 +62,7 @@
       <Private>False</Private>
     </Reference>
     <Reference Include="Assembly-CSharp_publicized">
-      <HintPath>[] DATA\Assembly-CSharp_publicized.dll</HintPath>
+      <HintPath>Private\Assembly-CSharp_publicized.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="BepInEx">
@@ -186,7 +186,38 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>start "" "D:\Multiplayer\Outward\Outward.exe"</PostBuildEvent>
+    <PostBuildEvent>:: Global settings
+set Releases_Global=E:\Creativity\Programs\C#\Mods\Outward\Private\Releases\
+set Plugins_Local=BepInEx\Plugins\Vheos\
+set Version_Suffix=_vX.Y.Z
+set TempCopy=$(ProjectDir)\bin\.tmpcpy\
+rd /s /q %25TempCopy%25
+xcopy /y $(TargetDir)$(TargetName).dll %25TempCopy%25
+xcopy /y $(TargetDir)Vheos.Tools.ModdingCore.dll %25TempCopy%25
+xcopy /y $(TargetDir)Vheos.Tools.Extensions.dll %25TempCopy%25
+xcopy /y $(TargetDir)Vheos.Tools.Utility.dll %25TempCopy%25
+
+    :: Project settings
+    set Game_Global=D:\Multiplayer\Outward\
+    set Game_EXE=Outward.exe
+    set Zip_Name=VMP
+    set GitHubNexus_Global=%25Releases_Global%25\GitHubNexus\%25Plugins_Local%25
+    set Thunderstore_Global=%25Releases_Global%25\Thunderstore\%25Plugins_Local%25
+    xcopy /y $(TargetDir)Vheos.Tools.TraitEqualizer.dll %25TempCopy%25
+    xcopy /y $(TargetDir)Vheos.Tools.Random.dll %25TempCopy%25
+
+    if $(DefineConstants.Contains('DEBUG'))==True (
+        :: Debug
+        rd /s /q %25Game_Global%25%25Plugins_Local%25 
+        xcopy /e /y %25TempCopy%25 %25Game_Global%25%25Plugins_Local%25
+        start "" %25Game_Global%25%25Game_EXE%25
+
+    ) else if $(DefineConstants.Contains('RELEASE'))==True (
+        :: Release
+        rd /s /q %25GitHubNexus_Global%25 
+        xcopy /e /y %25TempCopy%25 %25GitHubNexus_Global%25
+        powershell Compress-Archive -Path %25Releases_Global%25\GitHubNexus_Global\BepInEx -DestinationPath %25Releases_Global%25\%25Zip_Name%25%25Version_Suffix%25.zip -Force
+    )</PostBuildEvent>
   </PropertyGroup>
   <PropertyGroup>
     <PreBuildEvent>
