@@ -6,7 +6,7 @@
     using UnityEngine.UI;
     using UnityEngine.EventSystems;
     using HarmonyLib;
-    using Tools.ModdingCore;
+    using Mods.Core;
     using Tools.Extensions.UnityObjects;
     using Tools.Extensions.General;
     using Tools.Extensions.Collections;

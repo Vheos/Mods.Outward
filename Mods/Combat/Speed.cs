@@ -2,7 +2,7 @@
 {
     using UnityEngine;
     using HarmonyLib;
-    using Tools.ModdingCore;
+    using Mods.Core;
     using Tools.Extensions.UnityObjects;
     public class Speed : AMod, IUpdatable
     {

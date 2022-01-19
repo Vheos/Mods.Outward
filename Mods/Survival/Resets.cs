@@ -8,7 +8,7 @@ namespace Vheos.Mods.Outward
     using System.Linq;
     using System.Collections.Generic;
     using HarmonyLib;
-    using Tools.ModdingCore;
+    using Mods.Core;
     using Tools.Extensions.Math;
     using Tools.Extensions.Collections;
     public class Resets : AMod

@@ -3,7 +3,7 @@
     using System;
     using UnityEngine;
     using HarmonyLib;
-    using Tools.ModdingCore;
+    using Mods.Core;
     using Tools.Extensions.General;
     public class Targeting : AMod
     {

@@ -3,7 +3,7 @@
     using System;
     using System.Collections.Generic;
     using HarmonyLib;
-    using Tools.ModdingCore;
+    using Mods.Core;
     using Tools.Extensions.Math;
     using Tools.Extensions.General;
     using Tools.Extensions.Collections;

@@ -4,7 +4,7 @@
 namespace Vheos.Mods.Outward
 {
     using HarmonyLib;
-    using Tools.ModdingCore;
+    using Mods.Core;
     public class Damage : AMod
     {
         // Config
