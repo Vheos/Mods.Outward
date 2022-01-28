@@ -11,7 +11,7 @@ namespace Vheos.Mods.Outward
     using Tools.Extensions.Math;
     using Tools.Extensions.Collections;
     using Tools.Extensions.General;
-    using Tools.UtilityN;
+    using Tools.Utilities;
     public class Descriptions : AMod, IDelayedInit
     {
         #region const
