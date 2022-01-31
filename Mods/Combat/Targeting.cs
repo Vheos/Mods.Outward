@@ -1,8 +1,8 @@
 ﻿namespace Vheos.Mods.Outward
 {
     using System;
-    using UnityEngine;
     using HarmonyLib;
+    using UnityEngine;
     using Mods.Core;
     using Tools.Extensions.General;
     public class Targeting : AMod

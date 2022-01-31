@@ -1,8 +1,8 @@
 ﻿namespace Vheos.Mods.Outward
 {
     using System.Collections.Generic;
-    using UnityEngine;
     using HarmonyLib;
+    using UnityEngine;
     static public class GameInput
     {
         #region const
