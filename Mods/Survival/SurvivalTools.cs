@@ -108,6 +108,7 @@
         {
             #region quit
             if (!_moreGatheringTools || !__instance.Gatherable.RequiredItem.TryNonNull(out var requiredItem)
+            || !__instance.m_pendingAnims.TryGetValue(_character.UID, out var gatherInstance)
             || requiredItem.ItemID != "Mining Pick".ItemID() && requiredItem.ItemID != "Fishing Harpoon".ItemID())
                 return true;
             #endregion
@@ -144,18 +145,19 @@
             }
 
             // Finalize
-            __instance.m_validItem = chosenTool;
-            __instance.m_isCurrentWeapon = chosenTool != null && chosenTool.IsEquipped;
+            gatherInstance.ValidItem = chosenTool;
+            gatherInstance.IsCurrentWeapon = chosenTool != null && chosenTool.IsEquipped;
             __result = chosenTool;
             return false;
         }
 
         // Gathering durability cost
         [HarmonyPatch(typeof(GatherableInteraction), nameof(GatherableInteraction.CharSpellTakeItem)), HarmonyPrefix]
-        static bool GatherableInteraction_CharSpellTakeItem_Pre(GatherableInteraction __instance)
+        static bool GatherableInteraction_CharSpellTakeItem_Pre(GatherableInteraction __instance, Character _character)
         {
             #region quit
-            if (!__instance.m_validItem.TryNonNull(out var item))
+            if (!__instance.m_pendingAnims.TryGetValue(_character.UID, out var gatherInstance)
+            || !gatherInstance.ValidItem.TryNonNull(out var item))
                 return true;
             #endregion
 

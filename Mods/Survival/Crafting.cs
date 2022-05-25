@@ -269,7 +269,7 @@
         {
             #region quit
             if (!_limitedManualCrafting
-            || __instance.m_craftingStationType != Recipe.CraftingType.Alchemy
+            || __instance.m_craftingStation.StationType != Recipe.CraftingType.Alchemy
             || HasLearnedRecipe(__instance.LocalCharacter, _crystalPowderRecipe))
                 return true;
             #endregion
