@@ -19,7 +19,8 @@
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'UNITY|AnyCPU' ">
     <OutputPath>bin\UNITY\</OutputPath>
-    <DocumentationFile>bin\UNITY\Vheos.Tools.Outward.xml</DocumentationFile>
+    <DocumentationFile>
+    </DocumentationFile>
     <DefineConstants>DEBUG;UNITY</DefineConstants>
     <LangVersion>9.0</LangVersion>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
@@ -387,6 +388,28 @@
       <HintPath>..\..\packages\UnityEngine.Modules.2022.2.0-alpha.13\lib\net45\UnityEngine.XRModule.dll</HintPath>
       <Private>False</Private>
     </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\Tools\Extensions\Vheos.Tools.Extensions.csproj">
+      <Project>{4afe5e8c-29c0-4389-aaa0-55584146becf}</Project>
+      <Name>Vheos.Tools.Extensions</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Tools\Random\Vheos.Tools.Random.csproj">
+      <Project>{f4c8a01e-9df7-4e31-8169-1cf24d2896e7}</Project>
+      <Name>Vheos.Tools.Random</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Tools\TraitEqualizer\Vheos.Tools.TraitEqualizer.csproj">
+      <Project>{23d233fc-b7d0-4709-baaa-e803fee61930}</Project>
+      <Name>Vheos.Tools.TraitEqualizer</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Tools\Utilities\Vheos.Tools.Utilities.csproj">
+      <Project>{96d2cdb1-5ee9-4666-812d-9ecb8df005c4}</Project>
+      <Name>Vheos.Tools.Utilities</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Core\Vheos.Mods.Core.csproj">
+      <Project>{a48747d8-e698-4c2c-bf11-0efed7d79ef0}</Project>
+      <Name>Vheos.Mods.Core</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
