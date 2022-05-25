@@ -12,11 +12,37 @@
     [BepInPlugin(GUID, NAME, VERSION)]
     public class Main : BepInExEntryPoint
     {
-        #region SETTINGS
+        // Metadata
         public const string GUID = "Vheos.Mods.Outward";
         public const string NAME = "Vheos Mod Pack";
         public const string VERSION = "1.13.0";
-        static private readonly Type[] MODS_ORDERING_LIST = new[]
+
+        // User logic
+        override protected Assembly CurrentAssembly
+        => Assembly.GetExecutingAssembly();
+        override protected void Initialize()
+        {
+            Log.Debug("Initializing GameInput...");
+            GameInput.Initialize();
+            Log.Debug("Initializing Players...");
+            Players.Initialize();
+        }
+        override protected void DelayedInitialize()
+        {
+            Log.Debug("Initializing Prefabs...");
+            Prefabs.Initialize();
+        }
+        override protected bool DelayedInitializeCondition
+        => ResourcesPrefabManager.Instance.Loaded && UIUtilities.m_instance != null;
+        override protected string[] PresetNames
+        => Utility.GetEnumValuesAsStrings<Preset>().ToArray();
+        override protected Type[] Blacklist => new[]
+        {
+            typeof(Debug),
+            typeof(WIP),
+            typeof(PistolTweaks)
+        };
+        override protected Type[] ModsOrderingList => new[]
         {
             // Survival & Immersion
             typeof(Needs),
@@ -59,28 +85,5 @@
             typeof(WIP),
             typeof(PistolTweaks),
         };
-        #endregion
-
-        // User logic
-        override protected Assembly CurrentAssembly
-        => Assembly.GetExecutingAssembly();
-        override protected void Initialize()
-        {
-            Log.Debug("Initializing GameInput...");
-            GameInput.Initialize();
-            Log.Debug("Initializing Players...");
-            Players.Initialize();
-        }
-        override protected void DelayedInitialize()
-        {
-            Log.Debug("Initializing Prefabs...");
-            Prefabs.Initialize();
-        }
-        override protected bool DelayedInitializeCondition
-        => ResourcesPrefabManager.Instance.Loaded && UIUtilities.m_instance != null;
-        override protected Type[] Blacklist
-        => new[] { typeof(Debug), typeof(WIP), typeof(PistolTweaks) };
-        override protected string[] PresetNames
-        => Utility.GetEnumValuesAsStrings<Preset>().ToArray();
     }
 }
