@@ -199,7 +199,7 @@
         }
 
         // Remap backpack capacities
-        [HarmonyPatch(typeof(ItemContainer), "ContainerCapacity", MethodType.Getter), HarmonyPostfix]
+        [HarmonyPatch(typeof(ItemContainer), nameof(ItemContainer.ContainerCapacity), MethodType.Getter), HarmonyPostfix]
         static void ItemContainer_ContainerCapacity_Post(ItemContainer __instance, ref float __result)
         {
             if (__instance.RefBag == null || __instance.m_baseContainerCapacity <= 0)

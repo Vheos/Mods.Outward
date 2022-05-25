@@ -612,7 +612,7 @@
             ___m_maxSleep.m_currentValue = DEFAULT_MAX_NEED_VALUE;
         }
 
-        [HarmonyPatch(typeof(PlayerCharacterStats), "Food", MethodType.Setter), HarmonyPrefix]
+        [HarmonyPatch(typeof(PlayerCharacterStats), nameof(PlayerCharacterStats.Food), MethodType.Setter), HarmonyPrefix]
         static bool PlayerCharacterStats_Food_Setter_Pre(ref float value, ref float ___m_food)
         {
             #region quit
@@ -624,7 +624,7 @@
             return false;
         }
 
-        [HarmonyPatch(typeof(PlayerCharacterStats), "Drink", MethodType.Setter), HarmonyPrefix]
+        [HarmonyPatch(typeof(PlayerCharacterStats), nameof(PlayerCharacterStats.Drink), MethodType.Setter), HarmonyPrefix]
         static bool PlayerCharacterStats_Drink_Setter_Pre(ref float value, ref float ___m_drink)
         {
             #region quit
@@ -636,7 +636,7 @@
             return false;
         }
 
-        [HarmonyPatch(typeof(PlayerCharacterStats), "Sleep", MethodType.Setter), HarmonyPrefix]
+        [HarmonyPatch(typeof(PlayerCharacterStats), nameof(PlayerCharacterStats.Sleep), MethodType.Setter), HarmonyPrefix]
         static bool PlayerCharacterStats_Sleep_Setter_Pre(ref float value, ref float ___m_sleep)
         {
             #region quit

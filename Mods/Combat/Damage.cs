@@ -101,7 +101,7 @@ namespace Vheos.Mods.Outward
 
         // Hooks
 #pragma warning disable IDE0051, IDE0060, IDE1006
-        [HarmonyPatch(typeof(Weapon), "ElligibleFaction", new[] { typeof(Character) }), HarmonyPostfix]
+        [HarmonyPatch(typeof(Weapon), nameof(Weapon.ElligibleFaction), new[] { typeof(Character) }), HarmonyPostfix]
         static void Weapon_ElligibleFaction_Post(Weapon __instance, ref bool __result, Character _character)
         {
             #region quit
@@ -112,7 +112,7 @@ namespace Vheos.Mods.Outward
             __result |= _character.IsAlly() && !_character.IsOwnerOf(__instance);
         }
 
-        [HarmonyPatch(typeof(MeleeHitDetector), "ElligibleFaction", new[] { typeof(Character) }), HarmonyPostfix]
+        [HarmonyPatch(typeof(MeleeHitDetector), nameof(MeleeHitDetector.ElligibleFaction), new[] { typeof(Character) }), HarmonyPostfix]
         static void MeleeHitDetector_ElligibleFaction_Post(MeleeHitDetector __instance, ref bool __result, Character _character)
         {
             #region quit

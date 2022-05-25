@@ -342,7 +342,7 @@
 
         // Hooks
 #pragma warning disable IDE0051, IDE0060, IDE1006
-        [HarmonyPatch(typeof(InteractionBase), "HoldActivationTime", MethodType.Getter), HarmonyPrefix]
+        [HarmonyPatch(typeof(InteractionBase), nameof(InteractionBase.HoldActivationTime), MethodType.Getter), HarmonyPrefix]
         static bool InteractionBase_HoldActivationTime_Getter_Post(ref float __result, ref float ___m_holdActivationTimeOverride)
         {
             __result = ___m_holdActivationTimeOverride != -1 ? ___m_holdActivationTimeOverride : _holdInteractionsDuration;
@@ -358,7 +358,7 @@
         }
 
         // Disallow interactions in combat
-        [HarmonyPatch(typeof(InteractionTriggerBase), "TryActivateBasicAction", new[] { typeof(Character), typeof(int) }), HarmonyPrefix]
+        [HarmonyPatch(typeof(InteractionTriggerBase), nameof(InteractionTriggerBase.TryActivateBasicAction), new[] { typeof(Character), typeof(int) }), HarmonyPrefix]
         static bool InteractionTriggerBase_TryActivate_Pre(InteractionTriggerBase __instance, ref Character _character)
         {
             DisallowedInCombat flags = _disallowedInCombat.Value;
@@ -447,7 +447,7 @@ static private ModSetting<bool> _overrideIsInCombat;
 _overrideIsInCombat = CreateSetting(nameof(_overrideIsInCombat), false);
 _overrideIsInCombat.Format("Override \"InCombat\"");
 
-[HarmonyPatch(typeof(Character), "InCombat", MethodType.Getter), HarmonyPrefix]
+[HarmonyPatch(typeof(Character), nameof(Character.InCombat), MethodType.Getter), HarmonyPrefix]
 static bool Character_InCombat_Pre(Character __instance, ref bool __result)
 {
     __result = _overrideIsInCombat;

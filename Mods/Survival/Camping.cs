@@ -170,7 +170,7 @@
             SetButterfliesRadius();
         }
 
-        [HarmonyPatch(typeof(BasicDeployable), "TryDeploying", new[] { typeof(Character) }), HarmonyPrefix]
+        [HarmonyPatch(typeof(BasicDeployable), nameof(BasicDeployable.TryDeploying), new[] { typeof(Character) }), HarmonyPrefix]
         static bool BasicDeployable_TryDeploying_Pre(BasicDeployable __instance, Character _usingCharacter)
         => !__instance.Item.IsSleepKit || IsCampingAllowed(_usingCharacter, __instance.transform.position);
 
@@ -178,7 +178,7 @@
         static bool Sleepable_OnReceiveSleepRequestResult_Pre(Sleepable __instance, Character _character)
         => __instance.IsInnsBed || IsCampingAllowed(_character, __instance.transform.position);
 
-        [HarmonyPatch(typeof(OrientOnTerrain), "IsValid", MethodType.Getter), HarmonyPrefix]
+        [HarmonyPatch(typeof(OrientOnTerrain), nameof(OrientOnTerrain.IsValid), MethodType.Getter), HarmonyPrefix]
         static bool OrientOnTerrain_IsValid_Pre(OrientOnTerrain __instance)
         {
             AreaManager.AreaEnum currentArea = (AreaManager.AreaEnum)AreaManager.Instance.CurrentArea.ID;

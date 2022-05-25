@@ -264,7 +264,7 @@
             SetSingleIngredientCrafting(__instance, !isMulti);
         }
 
-        [HarmonyPatch(typeof(CraftingMenu), "Show", new Type[] { }), HarmonyPrefix]
+        [HarmonyPatch(typeof(CraftingMenu), nameof(CraftingMenu.Show), new Type[] { }), HarmonyPrefix]
         static bool CraftingMenu_Show_Post(CraftingMenu __instance)
         {
             #region quit

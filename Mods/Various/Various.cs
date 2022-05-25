@@ -420,7 +420,7 @@ namespace Vheos.Mods.Outward
         }
 
         // Craft from stash
-        [HarmonyPatch(typeof(CharacterInventory), "InventoryIngredients",
+        [HarmonyPatch(typeof(CharacterInventory), nameof(CharacterInventory.InventoryIngredients),
             new[] { typeof(Tag), typeof(DictionaryExt<int, CompatibleIngredient>) },
             new[] { ArgumentType.Normal, ArgumentType.Ref }),
             HarmonyPostfix]
@@ -448,7 +448,7 @@ namespace Vheos.Mods.Outward
         => TryDisplayStashAmount(__instance);
 
         // Override title screen
-        [HarmonyPatch(typeof(TitleScreenLoader), "LoadTitleScreen", new[] { typeof(OTWStoreAPI.DLCs) }), HarmonyPrefix]
+        [HarmonyPatch(typeof(TitleScreenLoader), nameof(TitleScreenLoader.LoadTitleScreen), new[] { typeof(OTWStoreAPI.DLCs) }), HarmonyPrefix]
         static bool TitleScreenLoader_LoadTitleScreen_Pre(TitleScreenLoader __instance, ref OTWStoreAPI.DLCs _dlc)
         {
             #region quit

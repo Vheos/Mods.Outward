@@ -155,7 +155,7 @@
         static bool Character_TempSlowDown_Pre(Character __instance)
         => TryUpdateAnimationSpeed(__instance);
 
-        [HarmonyPatch(typeof(CharacterStats), "MovementSpeed", MethodType.Getter), HarmonyPostfix]
+        [HarmonyPatch(typeof(CharacterStats), nameof(CharacterStats.MovementSpeed), MethodType.Getter), HarmonyPostfix]
         static void CharacterStats_MovementSpeed_Getter_Post(CharacterStats __instance, ref float __result)
         {
             Character character = __instance.m_character;

@@ -44,7 +44,7 @@
 #pragma warning disable IDE0051, IDE0060, IDE1006
 
         // Temperature multiplier
-        [HarmonyPatch(typeof(CharacterStats), "TemperatureModifier", MethodType.Getter), HarmonyPostfix]
+        [HarmonyPatch(typeof(CharacterStats), nameof(CharacterStats.TemperatureModifier), MethodType.Getter), HarmonyPostfix]
         static void CharacterStats_TemperatureModifier_Getter_Post(PlayerCharacterStats __instance, ref float __result)
         {
             float progress = __instance.Temperature.DistanceTo(50f).Div(50f);
@@ -81,7 +81,7 @@
         }
 
         // Dodge animation cancelling
-        [HarmonyPatch(typeof(Character), "DodgeInput", new[] { typeof(Vector3) }), HarmonyPrefix]
+        [HarmonyPatch(typeof(Character), nameof(Character.DodgeInput), new[] { typeof(Vector3) }), HarmonyPrefix]
         static bool Character_SpellCastAnim_Post(ref int ___m_dodgeAllowedInAction, ref Character.HurtType ___m_hurtType)
         {
             #region quit
@@ -95,7 +95,7 @@
         }
 
         // Push kick removal
-        [HarmonyPatch(typeof(CharacterSave), "IsValid", MethodType.Getter), HarmonyPrefix]
+        [HarmonyPatch(typeof(CharacterSave), nameof(CharacterSave.IsValid), MethodType.Getter), HarmonyPrefix]
         static bool CharacterSave_IsValid_Getter_Pre(ref bool __result)
         {
             #region quit
@@ -108,7 +108,7 @@
         }
 
         // Target other players
-        [HarmonyPatch(typeof(TargetingSystem), "IsTargetable", new[] { typeof(Character) }), HarmonyPrefix]
+        [HarmonyPatch(typeof(TargetingSystem), nameof(TargetingSystem.IsTargetable), new[] { typeof(Character) }), HarmonyPrefix]
         static bool TargetingSystem_IsTargetable_Pre(TargetingSystem __instance, ref bool __result, ref Character _char)
         {
             #region quit

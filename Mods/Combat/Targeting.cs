@@ -109,7 +109,7 @@
                 __instance.m_cameraVertHolder.rotation *= Quaternion.Euler(_targetingPitchOffset, 0, 0);
         }
 
-        [HarmonyPatch(typeof(TargetingSystem), "TrueRange", MethodType.Getter), HarmonyPrefix]
+        [HarmonyPatch(typeof(TargetingSystem), nameof(TargetingSystem.TrueRange), MethodType.Getter), HarmonyPrefix]
         static bool TargetingSystem_TrueRange_Pre(TargetingSystem __instance, ref float __result)
         {
             Character character = __instance.m_character;
@@ -160,7 +160,7 @@
             localCharacterControl.AcquireTarget();
         }
 
-        [HarmonyPatch(typeof(Character), "DodgeInput", new[] { typeof(Vector3) }), HarmonyPostfix]
+        [HarmonyPatch(typeof(Character), nameof(Character.DodgeInput), new[] { typeof(Vector3) }), HarmonyPostfix]
         static void Character_DodgeInput_Post(Character __instance)
         {
             #region quit
