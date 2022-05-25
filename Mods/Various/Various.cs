@@ -62,13 +62,6 @@ namespace Vheos.Mods.Outward
             Chest = 1 << 2,
             Feet = 1 << 3,
         }
-        [Flags]
-        private enum TitleScreens
-        {
-            Vanilla = 1 << 1,
-            TheSoroboreans = 1 << 2,
-            TheThreeBrothers = 1 << 3,
-        }
         private enum TitleScreenCharacterVisibility
         {
             Enable = 1,
@@ -82,7 +75,6 @@ namespace Vheos.Mods.Outward
         static private ModSetting<bool> _enableCheats;
         static private ModSetting<string> _enableCheatsHotkey;
         static private ModSetting<bool> _skipStartupVideos;
-        static private ModSetting<TitleScreens> _titleScreenRandomize;
         static private ModSetting<TitleScreenCharacterVisibility> _titleScreenHideCharacters;
         static private ModSetting<ArmorSlots> _armorSlotsToHide;
         static private ModSetting<bool> _removeCoopScaling;
@@ -113,7 +105,6 @@ namespace Vheos.Mods.Outward
             _applyArmorTrainingToManaCost = CreateSetting(nameof(_applyArmorTrainingToManaCost), false);
             _loadArrowsFromInventory = CreateSetting(nameof(_loadArrowsFromInventory), false);
             _baseStaminaRegen = CreateSetting(nameof(_baseStaminaRegen), 2.4f, FloatRange(0, 10));
-            _titleScreenRandomize = CreateSetting(nameof(_titleScreenRandomize), (TitleScreens)0);
             _titleScreenHideCharacters = CreateSetting(nameof(_titleScreenHideCharacters), TitleScreenCharacterVisibility.Enable);
             _craftFromStash = CreateSetting(nameof(_craftFromStash), false);
             _displayStashAmount = CreateSetting(nameof(_displayStashAmount), false);
@@ -136,7 +127,7 @@ namespace Vheos.Mods.Outward
         override protected void SetFormatting()
         {
             _enableCheats.Format("Enable cheats");
-            using(Indent)
+            using (Indent)
             {
                 _enableCheatsHotkey.Format("Hotkey");
             }
@@ -156,7 +147,7 @@ namespace Vheos.Mods.Outward
             _multiplicativeStacking.Format("Multiplicative stacking");
             _multiplicativeStacking.Description = "Some stats will stack multiplicatively instead of additvely\n" +
                                                   "(movement speed, stamina cost, mana cost)";
-            using(Indent)
+            using (Indent)
             {
                 _armorTrainingPenaltyReduction.Format("\"Armor Training\" penalty reduction", _multiplicativeStacking);
                 _armorTrainingPenaltyReduction.Description = "How much of equipment's movement speed and stamina cost penalties should \"Armor Training\" ignore";
@@ -166,14 +157,10 @@ namespace Vheos.Mods.Outward
             _loadArrowsFromInventory.Format("Load arrows from inventory");
             _loadArrowsFromInventory.Description = "Whenever you shoot your bow, the lost arrow is instantly replaced with one from your backpack or pouch (in that order)";
             _baseStaminaRegen.Format("Base stamina regen");
-            _titleScreenRandomize.Format("Randomize title screen");
-            _titleScreenRandomize.Description = "Every time you start the game, one of the chosen title screens will be loaded at random (untick all for default)";
-            using(Indent)
-            {
-                _titleScreenHideCharacters.Format("Characters");
-                _titleScreenHideCharacters.Description = "If you think the character are ruining the view :)\n" +
-                                                         "(requires game restart)";
-            }
+            _titleScreenHideCharacters.Format("Characters");
+            _titleScreenHideCharacters.Description = "If you think the character are ruining the view :)\n" +
+                                                     "(requires game restart)";
+
             _craftFromStash.Format("Craft with stashed items");
             _craftFromStash.Description = "When you're crafting in a city, you can use items from you stash";
             _displayStashAmount.Format("Display stashed item amounts");
@@ -196,7 +183,7 @@ namespace Vheos.Mods.Outward
                                              "Neutral   -   50\n" +
                                              "Hot   -   60\n" +
                                              "Very Hot   -   75)";
-            using(Indent)
+            using (Indent)
             {
                 foreach (var step in InternalUtility.GetEnumValues<TemperatureSteps>())
                     if (step != TemperatureSteps.Count)
@@ -216,7 +203,6 @@ namespace Vheos.Mods.Outward
                     _enableCheats.Value = false;
                     _enableCheatsHotkey.Value = KeyCode.Keypad0.ToString();
                     _skipStartupVideos.Value = true;
-                    _titleScreenRandomize.Value = (TitleScreens)~0;
                     _titleScreenHideCharacters.Value = TitleScreenCharacterVisibility.Randomize;
                     _removeCoopScaling.Value = true;
                     _removeDodgeInvulnerability.Value = true;
@@ -446,29 +432,6 @@ namespace Vheos.Mods.Outward
         [HarmonyPatch(typeof(RecipeResultDisplay), nameof(RecipeResultDisplay.UpdateQuantityDisplay)), HarmonyPostfix]
         static void RecipeResultDisplay_UpdateQuantityDisplay_Post(RecipeResultDisplay __instance)
         => TryDisplayStashAmount(__instance);
-
-        // Override title screen
-        [HarmonyPatch(typeof(TitleScreenLoader), nameof(TitleScreenLoader.LoadTitleScreen), new[] { typeof(OTWStoreAPI.DLCs) }), HarmonyPrefix]
-        static bool TitleScreenLoader_LoadTitleScreen_Pre(TitleScreenLoader __instance, ref OTWStoreAPI.DLCs _dlc)
-        {
-            #region quit
-            if (_titleScreenRandomize.Value == 0)
-                return true;
-            #endregion
-
-            var DLCs = new List<OTWStoreAPI.DLCs>();
-            foreach (var flag in InternalUtility.GetEnumValues<TitleScreens>())
-                if (_titleScreenRandomize.Value.HasFlag(flag))
-                    switch (flag)
-                    {
-                        case TitleScreens.Vanilla: DLCs.Add(OTWStoreAPI.DLCs.None); break;
-                        case TitleScreens.TheSoroboreans: DLCs.Add(OTWStoreAPI.DLCs.Soroboreans); break;
-                        case TitleScreens.TheThreeBrothers: DLCs.Add(OTWStoreAPI.DLCs.DLC2); break;
-                    }
-
-            _dlc = DLCs.Random();
-            return true;
-        }
 
         [HarmonyPatch(typeof(TitleScreenLoader), nameof(TitleScreenLoader.LoadTitleScreenCoroutine)), HarmonyPostfix]
         static IEnumerator TitleScreenLoader_LoadTitleScreenCoroutine_Post(IEnumerator original, TitleScreenLoader __instance)
