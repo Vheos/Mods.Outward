@@ -270,7 +270,7 @@
 
         // Hooks
 #pragma warning disable IDE0051, IDE0060, IDE1006
-        [HarmonyPatch(typeof(Item), "PerformEquip"), HarmonyPrefix]
+        [HarmonyPatch(typeof(Item), nameof(Item.PerformEquip)), HarmonyPrefix]
         static bool Item_PerformEquip_Pre2(Item __instance, EquipmentSlot _slot)
         {
             Character character = _slot.Character;
@@ -293,7 +293,7 @@
             return true;
         }
 
-        [HarmonyPatch(typeof(Item), "PerformEquip"), HarmonyPrefix]
+        [HarmonyPatch(typeof(Item), nameof(Item.PerformEquip)), HarmonyPrefix]
         static bool Item_PerformEquip_Pre(Item __instance, EquipmentSlot _slot)
         {
             Character character = _slot.Character;
@@ -323,7 +323,7 @@
             return true;
         }
 
-        [HarmonyPatch(typeof(QuickSlot), "Activate"), HarmonyPostfix]
+        [HarmonyPatch(typeof(QuickSlot), nameof(QuickSlot.Activate)), HarmonyPostfix]
         static void QuickSlot_Activate_Post(QuickSlot __instance)
         {
             #region quit
@@ -342,27 +342,27 @@
         }
 
         // 16 controller quickslots
-        [HarmonyPatch(typeof(ControlsInput), "Sheathe"), HarmonyPostfix]
+        [HarmonyPatch(typeof(ControlsInput), nameof(ControlsInput.Sheathe)), HarmonyPostfix]
         static void ControlsInput_Sheathe_Post(ref bool __result, ref int _playerID)
         => TryOverrideVanillaQuickslotInput(ref __result, _playerID);
 
-        [HarmonyPatch(typeof(ControlsInput), "ToggleMap"), HarmonyPostfix]
+        [HarmonyPatch(typeof(ControlsInput), nameof(ControlsInput.ToggleMap)), HarmonyPostfix]
         static void ControlsInput_ToggleMap_Post(ref bool __result, ref int _playerID)
         => TryOverrideVanillaQuickslotInput(ref __result, _playerID);
 
-        [HarmonyPatch(typeof(ControlsInput), "ToggleLights"), HarmonyPostfix]
+        [HarmonyPatch(typeof(ControlsInput), nameof(ControlsInput.ToggleLights)), HarmonyPostfix]
         static void ControlsInput_ToggleLights_Post(ref bool __result, ref int _playerID)
         => TryOverrideVanillaQuickslotInput(ref __result, _playerID);
 
-        [HarmonyPatch(typeof(ControlsInput), "HandleBackpack"), HarmonyPostfix]
+        [HarmonyPatch(typeof(ControlsInput), nameof(ControlsInput.HandleBackpack)), HarmonyPostfix]
         static void ControlsInput_HandleBackpack_Post(ref bool __result, ref int _playerID)
         => TryOverrideVanillaQuickslotInput(ref __result, _playerID);
 
-        [HarmonyPatch(typeof(LocalCharacterControl), "UpdateQuickSlots"), HarmonyPostfix]
+        [HarmonyPatch(typeof(LocalCharacterControl), nameof(LocalCharacterControl.UpdateQuickSlots)), HarmonyPostfix]
         static void LocalCharacterControl_UpdateQuickSlots_Pre(ref Character ___m_character)
         => TryHandleCustomQuickslotInput(___m_character);
 
-        [HarmonyPatch(typeof(SplitScreenManager), "Awake"), HarmonyPostfix]
+        [HarmonyPatch(typeof(SplitScreenManager), nameof(SplitScreenManager.Awake)), HarmonyPostfix]
         static void SplitScreenManager_Awake_Post(SplitScreenManager __instance)
         {
             #region quit
@@ -375,7 +375,7 @@
             SetupQuickslotPanels(charUIPrefab);
         }
 
-        [HarmonyPatch(typeof(CharacterQuickSlotManager), "Awake"), HarmonyPrefix]
+        [HarmonyPatch(typeof(CharacterQuickSlotManager), nameof(CharacterQuickSlotManager.Awake)), HarmonyPrefix]
         static bool CharacterQuickSlotManager_Awake_Pre(CharacterQuickSlotManager __instance)
         {
             #region quit

@@ -147,11 +147,11 @@
 
         // Hooks
 #pragma warning disable IDE0051, IDE0060, IDE1006
-        [HarmonyPatch(typeof(Character), "LateUpdate"), HarmonyPostfix]
+        [HarmonyPatch(typeof(Character), nameof(Character.LateUpdate)), HarmonyPostfix]
         static void Character_LateUpdate_Post(Character __instance)
         => TryUpdateAnimationSpeed(__instance);
 
-        [HarmonyPatch(typeof(Character), "TempSlowDown"), HarmonyPrefix]
+        [HarmonyPatch(typeof(Character), nameof(Character.TempSlowDown)), HarmonyPrefix]
         static bool Character_TempSlowDown_Pre(Character __instance)
         => TryUpdateAnimationSpeed(__instance);
 
@@ -165,7 +165,7 @@
                 __result *= _enemiesMovementSpeed / 100f;
         }
 
-        [HarmonyPatch(typeof(Weapon), "GetAttackSpeed"), HarmonyPostfix]
+        [HarmonyPatch(typeof(Weapon), nameof(Weapon.GetAttackSpeed)), HarmonyPostfix]
         static void Weapon_GetAttackSpeed_Post(Weapon __instance, ref float __result)
         {
             Character owner = __instance.OwnerCharacter;
@@ -189,7 +189,7 @@ _pauseKey.Description = _speedHackKey.Description;
 if (Input.GetKeyDown(_pauseKey.Value.ToKeyCode()))
     PauseMenu.Pause(!Global.GamePaused);
 
-[HarmonyPatch(typeof(PauseMenu), "Pause"), HarmonyPostfix]
+[HarmonyPatch(typeof(PauseMenu), nameof(PauseMenu.Pause)), HarmonyPostfix]
 static void PauseMenu_Pause_Post()
 {
     #region quit
@@ -200,7 +200,7 @@ static void PauseMenu_Pause_Post()
     UpdateDefaultGameSpeed();
 }
 
-[HarmonyPatch(typeof(PauseMenu), "TogglePause"), HarmonyPostfix]
+[HarmonyPatch(typeof(PauseMenu), nameof(PauseMenu.TogglePause)), HarmonyPostfix]
 static void PauseMenu_TogglePause_Post()
 {
     #region quit

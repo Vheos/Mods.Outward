@@ -446,7 +446,7 @@ namespace Vheos.Mods.Outward
 
         // Hooks
 #pragma warning disable IDE0051, IDE0060, IDE1006
-        [HarmonyPatch(typeof(ItemDetailsDisplay), "ShowDetails"), HarmonyPrefix]
+        [HarmonyPatch(typeof(ItemDetailsDisplay), nameof(ItemDetailsDisplay.ShowDetails)), HarmonyPrefix]
         static bool ItemDetailsDisplay_ShowDetails_Pre(ItemDetailsDisplay __instance)
         {
             TrySwapProtectionWithResistances(__instance.m_lastItem);
@@ -472,7 +472,7 @@ namespace Vheos.Mods.Outward
             return false;
         }
 
-        [HarmonyPatch(typeof(ItemDetailsDisplay), "RefreshDetails"), HarmonyPostfix]
+        [HarmonyPatch(typeof(ItemDetailsDisplay), nameof(ItemDetailsDisplay.RefreshDetails)), HarmonyPostfix]
         static void ItemDetailsDisplay_RefreshDetails_Post(ItemDetailsDisplay __instance)
         {
             Item item = __instance.m_lastItem;
@@ -508,7 +508,7 @@ namespace Vheos.Mods.Outward
             rectTransform.localScale = new Vector2(1f + sizeOffset, _barThickness / 100f * BAR_MAX_SIZE.y);
         }
 
-        [HarmonyPatch(typeof(ItemDetailsDisplay), "RefreshDetail"), HarmonyPrefix]
+        [HarmonyPatch(typeof(ItemDetailsDisplay), nameof(ItemDetailsDisplay.RefreshDetail)), HarmonyPrefix]
         static bool ItemDetailsDisplay_RefreshDetail_Post(ItemDetailsDisplay __instance, ref bool __result, int _rowIndex, ItemDetailsDisplay.DisplayedInfos _infoType)
         {
             if (_infoType == ItemDetailsDisplay.DisplayedInfos.AttackSpeed

@@ -540,7 +540,7 @@
         // Hooks
 #pragma warning disable IDE0051, IDE0060, IDE1006
         // Initialize
-        [HarmonyPatch(typeof(PlayerCharacterStats), "OnStart"), HarmonyPostfix]
+        [HarmonyPatch(typeof(PlayerCharacterStats), nameof(PlayerCharacterStats.OnStart)), HarmonyPostfix]
         static private void PlayerCharacterStats_OnAwake_Post(PlayerCharacterStats __instance)
         {
             UpdateThresholds(__instance);
@@ -548,7 +548,7 @@
         }
 
         // Prevent use
-        [HarmonyPatch(typeof(Item), "TryUse"), HarmonyPrefix]
+        [HarmonyPatch(typeof(Item), nameof(Item.TryUse)), HarmonyPrefix]
         static bool Item_TryUse_Pre(Item __instance, ref bool __result, Character _character)
         {
             if (!_character.IsPlayer() || !__instance.IsIngestible() || CanIngest(_character, __instance))
@@ -559,7 +559,7 @@
             return false;
         }
 
-        [HarmonyPatch(typeof(Item), "TryQuickSlotUse"), HarmonyPrefix]
+        [HarmonyPatch(typeof(Item), nameof(Item.TryQuickSlotUse)), HarmonyPrefix]
         static bool Item_TryQuickSlotUse_Pre(Item __instance)
         {
             Character character = __instance.OwnerCharacter;
@@ -570,7 +570,7 @@
             return false;
         }
 
-        [HarmonyPatch(typeof(Sleepable), "OnReceiveSleepRequestResult"), HarmonyPrefix]
+        [HarmonyPatch(typeof(Sleepable), nameof(Sleepable.OnReceiveSleepRequestResult)), HarmonyPrefix]
         static bool Sleepable_OnReceiveSleepRequestResult_Pre(ref Character _character)
         {
             if (!_character.IsPlayer() || !IsLimited(_character, Need.Sleep))
@@ -580,7 +580,7 @@
             return false;
         }
 
-        [HarmonyPatch(typeof(DrinkWaterInteraction), "OnActivate"), HarmonyPrefix]
+        [HarmonyPatch(typeof(DrinkWaterInteraction), nameof(DrinkWaterInteraction.OnActivate)), HarmonyPrefix]
         static bool DrinkWaterInteraction_OnActivate_Pre(DrinkWaterInteraction __instance)
         {
             Character character = __instance.LastCharacter;
@@ -592,7 +592,7 @@
         }
 
         // New limits
-        [HarmonyPatch(typeof(PlayerCharacterStats), "UpdateNeeds"), HarmonyPrefix]
+        [HarmonyPatch(typeof(PlayerCharacterStats), nameof(PlayerCharacterStats.UpdateNeeds)), HarmonyPrefix]
         static bool PlayerCharacterStats_UpdateNeeds_Pre(ref Stat ___m_maxFood, ref Stat ___m_maxDrink, ref Stat ___m_maxSleep)
         {
             if (_settingsByNeed[Need.Food].LimitingEnabled)
@@ -604,7 +604,7 @@
             return true;
         }
 
-        [HarmonyPatch(typeof(PlayerCharacterStats), "UpdateNeeds"), HarmonyPostfix]
+        [HarmonyPatch(typeof(PlayerCharacterStats), nameof(PlayerCharacterStats.UpdateNeeds)), HarmonyPostfix]
         static void PlayerCharacterStats_UpdateNeeds_Post(ref Stat ___m_maxFood, ref Stat ___m_maxDrink, ref Stat ___m_maxSleep)
         {
             ___m_maxFood.m_currentValue = DEFAULT_MAX_NEED_VALUE;
@@ -649,7 +649,7 @@
         }
 
         // Don't restore needs when travelling
-        [HarmonyPatch(typeof(FastTravelMenu), "OnConfirmFastTravel"), HarmonyPrefix]
+        [HarmonyPatch(typeof(FastTravelMenu), nameof(FastTravelMenu.OnConfirmFastTravel)), HarmonyPrefix]
         static bool FastTravelMenu_OnConfirmFastTravel_Pre(FastTravelMenu __instance)
         {
             #region quit
@@ -665,7 +665,7 @@
 
 /*
 // No food/drink overlimit after bed sleep
-[HarmonyPatch(typeof(PlayerCharacterStats), "UpdateStatsAfterRest"), HarmonyPostfix]
+[HarmonyPatch(typeof(PlayerCharacterStats), nameof(PlayerCharacterStats.UpdateStatsAfterRest)), HarmonyPostfix]
 static void PlayerCharacterStats_UpdateStatsAfterRest_Post(PlayerCharacterStats __instance)
 {
     #region MyRegion

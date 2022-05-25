@@ -135,7 +135,7 @@
 
         // Hooks
 #pragma warning disable IDE0051, IDE0060, IDE1006
-        [HarmonyPatch(typeof(Character), "UpdateReviveInteraction"), HarmonyPostfix]
+        [HarmonyPatch(typeof(Character), nameof(Character.UpdateReviveInteraction)), HarmonyPostfix]
         static void Character_UpdateReviveInteraction_Pre(Character __instance)
         {
             #region quit
@@ -159,7 +159,7 @@
             }
         }
 
-        [HarmonyPatch(typeof(InteractionRevive), "OnActivate"), HarmonyPrefix]
+        [HarmonyPatch(typeof(InteractionRevive), nameof(InteractionRevive.OnActivate)), HarmonyPrefix]
         static bool InteractionRevive_OnActivate_Pre(ref Character __state, ref Character ___m_character)
         {
             // send m_character to postix and null it during original method
@@ -168,7 +168,7 @@
             return true;
         }
 
-        [HarmonyPatch(typeof(InteractionRevive), "OnActivate"), HarmonyPostfix]
+        [HarmonyPatch(typeof(InteractionRevive), nameof(InteractionRevive.OnActivate)), HarmonyPostfix]
         static void InteractionRevive_OnActivate_Post(ref Character __state, ref Character ___m_character)
         {
             // receive m_character from prefix

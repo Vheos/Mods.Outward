@@ -102,7 +102,7 @@
 
         // Hooks
 #pragma warning disable IDE0051, IDE0060, IDE1006
-        [HarmonyPatch(typeof(CharacterCamera), "LateUpdate"), HarmonyPostfix]
+        [HarmonyPatch(typeof(CharacterCamera), nameof(CharacterCamera.LateUpdate)), HarmonyPostfix]
         static void CharacterCamera_LateUpdate_Post(CharacterCamera __instance)
         {
             if (__instance.m_targetCharacter.TargetingSystem.LockedCharacter != null)
@@ -124,7 +124,7 @@
         }
 
         // Auto-target
-        [HarmonyPatch(typeof(Character), "AttackInput"), HarmonyPostfix]
+        [HarmonyPatch(typeof(Character), nameof(Character.AttackInput)), HarmonyPostfix]
         static void Character_AttackInput_Post(Character __instance)
         {
             #region quit
@@ -136,7 +136,7 @@
             localCharacterControl.AcquireTarget();
         }
 
-        [HarmonyPatch(typeof(Character), "SetLastUsedSkill"), HarmonyPostfix]
+        [HarmonyPatch(typeof(Character), nameof(Character.SetLastUsedSkill)), HarmonyPostfix]
         static void Character_SetLastUsedSkill_Post(Character __instance, ref Skill _skill)
         {
             #region quit
@@ -148,7 +148,7 @@
             localCharacterControl.AcquireTarget();
         }
 
-        [HarmonyPatch(typeof(Character), "BlockInput"), HarmonyPostfix]
+        [HarmonyPatch(typeof(Character), nameof(Character.BlockInput)), HarmonyPostfix]
         static void Character_BlockInput_Post(Character __instance, ref bool _active)
         {
             #region quit

@@ -269,7 +269,7 @@ namespace Vheos.Mods.Outward
         // Hooks
 #pragma warning disable IDE0051, IDE0060, IDE1006
         // Areas
-        [HarmonyPatch(typeof(EnvironmentSave), "ApplyData"), HarmonyPrefix]
+        [HarmonyPatch(typeof(EnvironmentSave), nameof(EnvironmentSave.ApplyData)), HarmonyPrefix]
         static bool EnvironmentSave_ApplyData_Pre(EnvironmentSave __instance)
         {
             #region quit
@@ -319,7 +319,7 @@ namespace Vheos.Mods.Outward
         }
 
         // Gatherables
-        [HarmonyPatch(typeof(Gatherable), "StartInit"), HarmonyPostfix]
+        [HarmonyPatch(typeof(Gatherable), nameof(Gatherable.StartInit)), HarmonyPostfix]
         static void Gatherable_StartInit_Post(Gatherable __instance)
         {
             #region quit
@@ -364,7 +364,7 @@ namespace Vheos.Mods.Outward
         }
 
         // Merchants
-        [HarmonyPatch(typeof(MerchantPouch), "RefreshInventory"), HarmonyPrefix]
+        [HarmonyPatch(typeof(MerchantPouch), nameof(MerchantPouch.RefreshInventory)), HarmonyPrefix]
         static bool MerchantPouch_RefreshInventory_Pre(MerchantPouch __instance, ref double ___m_nextRefreshTime)
         {
             #region quit
@@ -387,7 +387,7 @@ namespace Vheos.Mods.Outward
         }
 
         // Bandits fix
-        [HarmonyPatch(typeof(AISCombat), "UpdateMed"), HarmonyPrefix]
+        [HarmonyPatch(typeof(AISCombat), nameof(AISCombat.UpdateMed)), HarmonyPrefix]
         static bool AISCombat_UpdateMed_Pre(AISCombat __instance)
         {
             Character character = __instance.m_character;

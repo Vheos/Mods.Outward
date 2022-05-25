@@ -103,7 +103,7 @@
         // Hooks
 #pragma warning disable IDE0051, IDE0060, IDE1006
         // More gathering tools
-        [HarmonyPatch(typeof(GatherableInteraction), "GetValidItem"), HarmonyPrefix]
+        [HarmonyPatch(typeof(GatherableInteraction), nameof(GatherableInteraction.GetValidItem)), HarmonyPrefix]
         static bool GatherableInteraction_GetValidItem_Pre(GatherableInteraction __instance, ref Item __result, Character _character)
         {
             #region quit
@@ -151,7 +151,7 @@
         }
 
         // Gathering durability cost
-        [HarmonyPatch(typeof(GatherableInteraction), "CharSpellTakeItem"), HarmonyPrefix]
+        [HarmonyPatch(typeof(GatherableInteraction), nameof(GatherableInteraction.CharSpellTakeItem)), HarmonyPrefix]
         static bool GatherableInteraction_CharSpellTakeItem_Pre(GatherableInteraction __instance)
         {
             #region quit
@@ -164,7 +164,7 @@
         }
 
         // Chance to break Flint and Steel
-        [HarmonyPatch(typeof(Item), "OnUse"), HarmonyPostfix]
+        [HarmonyPatch(typeof(Item), nameof(Item.OnUse)), HarmonyPostfix]
         static void Item_OnUse_Post(Item __instance)
         {
             #region quit
@@ -178,14 +178,14 @@
         }
 
         // Waterskin capacity
-        [HarmonyPatch(typeof(WaterContainer), "RefreshDisplay"), HarmonyPrefix]
+        [HarmonyPatch(typeof(WaterContainer), nameof(WaterContainer.RefreshDisplay)), HarmonyPrefix]
         static bool WaterContainer_RefreshDisplay_Pre(WaterContainer __instance)
         {
             __instance.m_stackable.m_maxStackAmount = _waterskinCapacity;
             return true;
         }
 
-        [HarmonyPatch(typeof(Item), "OnAwake"), HarmonyPostfix]
+        [HarmonyPatch(typeof(Item), nameof(Item.OnAwake)), HarmonyPostfix]
         static void Item_Awake_Post(Item __instance)
         {
             #region quit
@@ -208,7 +208,7 @@
         }
 
         // Torches temperature radius
-        [HarmonyPatch(typeof(TemperatureSource), "Start"), HarmonyPostfix]
+        [HarmonyPatch(typeof(TemperatureSource), nameof(TemperatureSource.Start)), HarmonyPostfix]
         static void TemperatureSource_Start_Post(TemperatureSource __instance)
         {
             #region quit
@@ -226,7 +226,7 @@
         }
 
         // Lights intensity
-        [HarmonyPatch(typeof(ItemLanternVisual), "Awake"), HarmonyPostfix]
+        [HarmonyPatch(typeof(ItemLanternVisual), nameof(ItemLanternVisual.Awake)), HarmonyPostfix]
         static void ItemLanternVisual_Awake_Post(ItemLanternVisual __instance)
         {
             float modifier = _lightsRange / 100f;
@@ -234,7 +234,7 @@
         }
 
         // Tents capacity
-        [HarmonyPatch(typeof(Sleepable), "RequestSleepableRoom"), HarmonyPrefix]
+        [HarmonyPatch(typeof(Sleepable), nameof(Sleepable.RequestSleepableRoom)), HarmonyPrefix]
         static bool Sleepable_RequestSleepableRoom_Pre(Sleepable __instance)
         {
             #region quit

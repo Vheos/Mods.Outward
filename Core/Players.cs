@@ -129,11 +129,11 @@
 
         // Hooks
 #pragma warning disable IDE0051, IDE0060, IDE1006
-        [HarmonyPatch(typeof(LocalCharacterControl), "RetrieveComponents"), HarmonyPostfix]
+        [HarmonyPatch(typeof(LocalCharacterControl), nameof(LocalCharacterControl.RetrieveComponents)), HarmonyPostfix]
         static void LocalCharacterControl_RetrieveComponents_Post()
         => Recache();
 
-        [HarmonyPatch(typeof(RPCManager), "SendPlayerHasLeft"), HarmonyPostfix]
+        [HarmonyPatch(typeof(RPCManager), nameof(RPCManager.SendPlayerHasLeft)), HarmonyPostfix]
         static void RPCManager_SendPlayerHasLeft_Post()
         => Recache();
     }

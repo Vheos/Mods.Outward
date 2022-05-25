@@ -82,7 +82,7 @@
 
         // Hooks
 #pragma warning disable IDE0051, IDE0060, IDE1006
-        [HarmonyPatch(typeof(ControlsInput), "MoveHorizontal"), HarmonyPostfix]
+        [HarmonyPatch(typeof(ControlsInput), nameof(ControlsInput.MoveHorizontal)), HarmonyPostfix]
         static void ControlsInput_MoveHorizontal_Post(ref float __result, ref int _playerID)
         {
             if (!GameInput.IsUsingGamepad(_playerID))
@@ -94,7 +94,7 @@
             }
         }
 
-        [HarmonyPatch(typeof(ControlsInput), "MoveVertical"), HarmonyPostfix]
+        [HarmonyPatch(typeof(ControlsInput), nameof(ControlsInput.MoveVertical)), HarmonyPostfix]
         static void ControlsInput_MoveVertical_Post(ref float __result, ref int _playerID)
         {
             if (!GameInput.IsUsingGamepad(_playerID))

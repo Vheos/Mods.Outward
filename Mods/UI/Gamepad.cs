@@ -207,7 +207,7 @@
 
         // Hooks
 #pragma warning disable IDE0051, IDE0060, IDE1006
-        [HarmonyPatch(typeof(StashPanel), "Show"), HarmonyPostfix]
+        [HarmonyPatch(typeof(StashPanel), nameof(StashPanel.Show)), HarmonyPostfix]
         static void StashPanel_Show_Post(StashPanel __instance)
         => UpdateStashName(Players.GetLocal(__instance));
     }

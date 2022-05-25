@@ -291,7 +291,7 @@ return ResourcesPrefabManager.Instance.m_itemVisualsBundle.LoadAsset<GameObject>
         }
 
         // Hooks
-        [HarmonyPatch(typeof(LocalCharacterControl), "RetrieveComponents"), HarmonyPostfix]
+        [HarmonyPatch(typeof(LocalCharacterControl), nameof(LocalCharacterControl.RetrieveComponents)), HarmonyPostfix]
         static void LocalCharacterControl_RetrieveComponents_Post(LocalCharacterControl __instance)
         {
             if (_customBar != null)

@@ -189,7 +189,7 @@
 
         // Hooks
 #pragma warning disable IDE0051, IDE0060, IDE1006
-        [HarmonyPatch(typeof(Item), "ReduceDurability"), HarmonyPrefix]
+        [HarmonyPatch(typeof(Item), nameof(Item.ReduceDurability)), HarmonyPrefix]
         static bool Item_ReduceDurability_Pre(Item __instance, ref float _durabilityLost)
         {
             #region quit
@@ -211,7 +211,7 @@
             return true;
         }
 
-        [HarmonyPatch(typeof(CharacterEquipment), "RepairEquipmentAfterRest"), HarmonyPrefix]
+        [HarmonyPatch(typeof(CharacterEquipment), nameof(CharacterEquipment.RepairEquipmentAfterRest)), HarmonyPrefix]
         static bool CharacterEquipment_RepairEquipmentAfterRest_Pre(CharacterEquipment __instance)
         {
             #region quit
@@ -265,7 +265,7 @@
             return false;
         }
 
-        [HarmonyPatch(typeof(ItemContainer), "RepairContainedEquipment"), HarmonyPrefix]
+        [HarmonyPatch(typeof(ItemContainer), nameof(ItemContainer.RepairContainedEquipment)), HarmonyPrefix]
         static bool ItemContainer_RepairContainedEquipment_Pre(ItemContainer __instance)
         => !_smithRepairsOnlyEquipped;
 
@@ -286,7 +286,7 @@
             return false;
         }
 
-        [HarmonyPatch(typeof(ItemDropper), "GenerateItem"), HarmonyPrefix]
+        [HarmonyPatch(typeof(ItemDropper), nameof(ItemDropper.GenerateItem)), HarmonyPrefix]
         static bool ItemDropper_GenerateItem_Pre(ItemDropper __instance, ref Item __state, ItemContainer _container, BasicItemDrop _itemDrop, int _spawnAmount)
         {
             #region quit
@@ -301,7 +301,7 @@
             return true;
         }
 
-        [HarmonyPatch(typeof(ItemDropper), "GenerateItem"), HarmonyPostfix]
+        [HarmonyPatch(typeof(ItemDropper), nameof(ItemDropper.GenerateItem)), HarmonyPostfix]
         static void ItemDropper_GenerateItem_Post(ItemDropper __instance, ref Item __state)
         {
             #region quit
@@ -313,7 +313,7 @@
         }
 
         // Affect all stats
-        [HarmonyPatch(typeof(ItemDetailsDisplay), "GetPenaltyDisplay"), HarmonyPrefix]
+        [HarmonyPatch(typeof(ItemDetailsDisplay), nameof(ItemDetailsDisplay.GetPenaltyDisplay)), HarmonyPrefix]
         static bool ItemDetailsDisplay_GetPenaltyDisplay_Pre(ItemDetailsDisplay __instance, ref string __result, float _value, bool _negativeIsPositive, bool _showPercent)
         {
             #region quit

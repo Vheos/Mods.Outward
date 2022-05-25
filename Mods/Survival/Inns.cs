@@ -68,7 +68,7 @@
         // Hooks
 #pragma warning disable IDE0051, IDE0060, IDE1006
         // Inn Stash
-        [HarmonyPatch(typeof(NetworkLevelLoader), "UnPauseGameplay"), HarmonyPostfix]
+        [HarmonyPatch(typeof(NetworkLevelLoader), nameof(NetworkLevelLoader.UnPauseGameplay)), HarmonyPostfix]
         static void NetworkLevelLoader_UnPauseGameplay_Post(NetworkLevelLoader __instance, string _identifier)
         {
             #region quit
@@ -107,7 +107,7 @@
             }
         }
 
-        [HarmonyPatch(typeof(InteractionOpenChest), "OnActivate"), HarmonyPrefix]
+        [HarmonyPatch(typeof(InteractionOpenChest), nameof(InteractionOpenChest.OnActivate)), HarmonyPrefix]
         static bool InteractionOpenChest_OnActivate_Pre(InteractionOpenChest __instance)
         {
             #region quit
@@ -120,7 +120,7 @@
         }
 
         // Inn rent duration
-        [HarmonyPatch(typeof(QuestEventData), "HasExpired"), HarmonyPrefix]
+        [HarmonyPatch(typeof(QuestEventData), nameof(QuestEventData.HasExpired)), HarmonyPrefix]
         static bool QuestEventData_HasExpired_Pre(QuestEventData __instance, ref int _gameHourAllowed)
         {
             if (__instance.m_signature.ParentSection.Name == INNS_QUEST_FAMILY_NAME)
@@ -129,11 +129,11 @@
         }
 
         // Don't restore food/drink when sleeping
-        [HarmonyPatch(typeof(CharacterResting), "GetFoodRestored"), HarmonyPrefix]
+        [HarmonyPatch(typeof(CharacterResting), nameof(CharacterResting.GetFoodRestored)), HarmonyPrefix]
         static bool CharacterResting_GetFoodRestored_Pre(CharacterResting __instance)
         => !_dontRestoreFoodDrinkOnSleep;
 
-        [HarmonyPatch(typeof(CharacterResting), "GetDrinkRestored"), HarmonyPrefix]
+        [HarmonyPatch(typeof(CharacterResting), nameof(CharacterResting.GetDrinkRestored)), HarmonyPrefix]
         static bool CharacterResting_GetDrinkRestored_Pre(CharacterResting __instance)
         => !_dontRestoreFoodDrinkOnSleep;
     }

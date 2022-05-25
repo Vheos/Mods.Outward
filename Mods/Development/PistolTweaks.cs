@@ -75,7 +75,7 @@ namespace Vheos.Mods.Outward
 
         // Hooks
 #pragma warning disable IDE0051, IDE0060, IDE1006
-        [HarmonyPatch(typeof(WeaponLoadoutItem), "Load"), HarmonyPrefix]
+        [HarmonyPatch(typeof(WeaponLoadoutItem), nameof(WeaponLoadoutItem.Load)), HarmonyPrefix]
         static bool WeaponLoadoutItem_Load_Pre(WeaponLoadoutItem __instance)
         {
             if (__instance.CompatibleAmmunition.ItemID == BULLET_ID)
@@ -83,7 +83,7 @@ namespace Vheos.Mods.Outward
             return true;
         }
 
-        [HarmonyPatch(typeof(Character), "PerformSpellCast"), HarmonyPrefix]
+        [HarmonyPatch(typeof(Character), nameof(Character.PerformSpellCast)), HarmonyPrefix]
         static bool Character_PerformSpellCast_Pre(Character __instance)
         {
             _overrideSpeed = float.NaN;
@@ -100,7 +100,7 @@ namespace Vheos.Mods.Outward
             return true;
         }
 
-        [HarmonyPatch(typeof(Character), "CastDone"), HarmonyPrefix]
+        [HarmonyPatch(typeof(Character), nameof(Character.CastDone)), HarmonyPrefix]
         static bool Character_CastDone_Pre(Character __instance)
         {
             if (!_overrideSpeed.IsNaN())

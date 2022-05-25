@@ -229,7 +229,7 @@
 
         // Hooks
 #pragma warning disable IDE0051, IDE0060, IDE1006
-        [HarmonyPatch(typeof(ItemDisplayOptionPanel), "GetActiveActions"), HarmonyPostfix]
+        [HarmonyPatch(typeof(ItemDisplayOptionPanel), nameof(ItemDisplayOptionPanel.GetActiveActions)), HarmonyPostfix]
         static void ItemDisplayOptionPanel_GetActiveActions_Post(ItemDisplayOptionPanel __instance, ref List<int> __result)
         {
             #region quit
@@ -240,7 +240,7 @@
             __result.Add(UNLEARN_ACTION_ID);
         }
 
-        [HarmonyPatch(typeof(ItemDisplayOptionPanel), "GetActionText"), HarmonyPrefix]
+        [HarmonyPatch(typeof(ItemDisplayOptionPanel), nameof(ItemDisplayOptionPanel.GetActionText)), HarmonyPrefix]
         static bool ItemDisplayOptionPanel_GetActionText_Pre(ItemDisplayOptionPanel __instance, ref string __result, ref int _actionID)
         {
             #region quit
@@ -252,7 +252,7 @@
             return false;
         }
 
-        [HarmonyPatch(typeof(ItemDisplayOptionPanel), "ActionHasBeenPressed"), HarmonyPrefix]
+        [HarmonyPatch(typeof(ItemDisplayOptionPanel), nameof(ItemDisplayOptionPanel.ActionHasBeenPressed)), HarmonyPrefix]
         static bool ItemDisplayOptionPanel_ActionHasBeenPressed_Pre(ItemDisplayOptionPanel __instance, ref int _actionID)
         {
             #region quit
@@ -267,7 +267,7 @@
             return false;
         }
 
-        [HarmonyPatch(typeof(ItemDisplay), "RefreshEnchantedIcon"), HarmonyPrefix]
+        [HarmonyPatch(typeof(ItemDisplay), nameof(ItemDisplay.RefreshEnchantedIcon)), HarmonyPrefix]
         static bool ItemDisplay_RefreshEnchantedIcon_Pre(ItemDisplay __instance)
         {
             #region quit
@@ -299,11 +299,11 @@
             return false;
         }
 
-        [HarmonyPatch(typeof(TrainerPanel), "Show"), HarmonyPostfix]
+        [HarmonyPatch(typeof(TrainerPanel), nameof(TrainerPanel.Show)), HarmonyPostfix]
         static void TrainerPanel_Show_Post(TrainerPanel __instance)
         => InitializeCacheOfAllSkills(__instance.m_trainerTree);
 
-        [HarmonyPatch(typeof(TrainerPanel), "OnSkillSlotClicked"), HarmonyPrefix]
+        [HarmonyPatch(typeof(TrainerPanel), nameof(TrainerPanel.OnSkillSlotClicked)), HarmonyPrefix]
         static bool TrainerPanel_OnSkillSlotClicked_Pre(TrainerPanel __instance, ref SkillTreeSlotDisplay _slotDisplay)
         {
             Skill skill = _slotDisplay.FocusedSkillSlot.Skill;
@@ -319,7 +319,7 @@
             return true;
         }
 
-        [HarmonyPatch(typeof(Condition_KnowSkill), "OnCheck"), HarmonyPostfix]
+        [HarmonyPatch(typeof(Condition_KnowSkill), nameof(Condition_KnowSkill.OnCheck)), HarmonyPostfix]
         static void Condition_KnowSkill_OnCheck_Post(Condition_KnowSkill __instance, ref bool __result)
         {
             Character character = __instance.character.value;

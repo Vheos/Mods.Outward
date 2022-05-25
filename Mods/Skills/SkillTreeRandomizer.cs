@@ -710,7 +710,7 @@
 
         // Hooks
 #pragma warning disable IDE0051, IDE0060, IDE1006
-        [HarmonyPatch(typeof(SkillTreeDisplay), "RefreshSkillsPosition"), HarmonyPrefix]
+        [HarmonyPatch(typeof(SkillTreeDisplay), nameof(SkillTreeDisplay.RefreshSkillsPosition)), HarmonyPrefix]
         static bool SkillTreeDisplay_RefreshSkillsPosition_Pre(SkillTreeDisplay __instance)
         {
             int basicCount = 0, advancedCount = 0;

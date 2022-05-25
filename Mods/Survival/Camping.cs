@@ -142,7 +142,7 @@
 
         // Hooks
 #pragma warning disable IDE0051, IDE0060, IDE1006
-        [HarmonyPatch(typeof(EnvironmentSave), "ApplyData"), HarmonyPostfix]
+        [HarmonyPatch(typeof(EnvironmentSave), nameof(EnvironmentSave.ApplyData)), HarmonyPostfix]
         static void EnvironmentSave_ApplyData_Post(EnvironmentSave __instance)
         {
             _safeZoneColliders.Clear();
@@ -174,7 +174,7 @@
         static bool BasicDeployable_TryDeploying_Pre(BasicDeployable __instance, Character _usingCharacter)
         => !__instance.Item.IsSleepKit || IsCampingAllowed(_usingCharacter, __instance.transform.position);
 
-        [HarmonyPatch(typeof(Sleepable), "OnReceiveSleepRequestResult"), HarmonyPrefix]
+        [HarmonyPatch(typeof(Sleepable), nameof(Sleepable.OnReceiveSleepRequestResult)), HarmonyPrefix]
         static bool Sleepable_OnReceiveSleepRequestResult_Pre(Sleepable __instance, Character _character)
         => __instance.IsInnsBed || IsCampingAllowed(_character, __instance.transform.position);
 
@@ -193,7 +193,7 @@
             return IsNearButterflies(__instance.transform.position);
         }
 
-        [HarmonyPatch(typeof(RestingMenu), "Show"), HarmonyPostfix]
+        [HarmonyPatch(typeof(RestingMenu), nameof(RestingMenu.Show)), HarmonyPostfix]
         static void RestingMenu_Show_Post(RestingMenu __instance)
         {
             foreach (Transform child in __instance.m_restingActivitiesHolder.transform)

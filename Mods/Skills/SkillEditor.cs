@@ -305,7 +305,7 @@
 
         // Hooks
 #pragma warning disable IDE0051, IDE0060, IDE1006
-        [HarmonyPatch(typeof(AddStatusEffect), "ActivateLocally"), HarmonyPrefix]
+        [HarmonyPatch(typeof(AddStatusEffect), nameof(AddStatusEffect.ActivateLocally)), HarmonyPrefix]
         static bool AddStatusEffect_ActivateLocally_Pre(AddStatusEffect __instance)
         {
             #region quit
@@ -327,7 +327,7 @@
             return true;
         }
 
-        [HarmonyPatch(typeof(PlaySoundEffect), "ActivateLocally"), HarmonyPrefix]
+        [HarmonyPatch(typeof(PlaySoundEffect), nameof(PlaySoundEffect.ActivateLocally)), HarmonyPrefix]
         static bool PlaySoundEffect_ActivateLocally_Pre(PlaySoundEffect __instance)
         {
             #region quit

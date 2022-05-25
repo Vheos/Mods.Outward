@@ -170,7 +170,7 @@
 
         // Hooks
 #pragma warning disable IDE0051, IDE0060, IDE1006
-        [HarmonyPatch(typeof(TrainerPanel), "OnSkillSlotSelected"), HarmonyPrefix]
+        [HarmonyPatch(typeof(TrainerPanel), nameof(TrainerPanel.OnSkillSlotSelected)), HarmonyPrefix]
         static bool TrainerPanel_OnSkillSlotSelected_Pre(TrainerPanel __instance, SkillTreeSlotDisplay _display)
         {
             // Cache
@@ -215,7 +215,7 @@
             return true;
         }
 
-        [HarmonyPatch(typeof(SkillSlot), "IsBlocked"), HarmonyPrefix]
+        [HarmonyPatch(typeof(SkillSlot), nameof(SkillSlot.IsBlocked)), HarmonyPrefix]
         static bool SkillSlot_IsBlocked_Pre(SkillSlot __instance)
         => !_learnMutuallyExclusiveSkills;
     }

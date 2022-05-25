@@ -202,7 +202,7 @@
 
         // Hooks
 #pragma warning disable IDE0051, IDE0060, IDE1006
-        [HarmonyPatch(typeof(CraftingMenu), "CraftingDone"), HarmonyPrefix]
+        [HarmonyPatch(typeof(CraftingMenu), nameof(CraftingMenu.CraftingDone)), HarmonyPrefix]
         static bool CraftingMenu_CraftingDone_Pre(CraftingMenu __instance, ref List<Item> __state)
         {
             List<Item> ingredients = GetDestructibleIngredients(__instance);
@@ -225,7 +225,7 @@
             return true;
         }
 
-        [HarmonyPatch(typeof(CraftingMenu), "CraftingDone"), HarmonyPostfix]
+        [HarmonyPatch(typeof(CraftingMenu), nameof(CraftingMenu.CraftingDone)), HarmonyPostfix]
         static void CraftingMenu_CraftingDone_Post(CraftingMenu __instance, ref List<Item> __state)
         {
             #region quit
@@ -238,7 +238,7 @@
                     stats.StartingDurability = -1;
         }
 
-        [HarmonyPatch(typeof(CraftingMenu), "OnRecipeSelected"), HarmonyPostfix]
+        [HarmonyPatch(typeof(CraftingMenu), nameof(CraftingMenu.OnRecipeSelected)), HarmonyPostfix]
         static void CraftingMenu_OnRecipeSelected_Post(CraftingMenu __instance)
         {
             #region quit
@@ -249,7 +249,7 @@
             SetSingleIngredientCrafting(__instance, __instance.m_lastRecipeIndex == -1);
         }
 
-        [HarmonyPatch(typeof(CraftingMenu), "IngredientSelectorHasChanged"), HarmonyPostfix]
+        [HarmonyPatch(typeof(CraftingMenu), nameof(CraftingMenu.IngredientSelectorHasChanged)), HarmonyPostfix]
         static void CraftingMenu_IngredientSelectorHasChanged_Post(CraftingMenu __instance, int _selectorIndex, int _itemID)
         {
             #region quit
@@ -278,7 +278,7 @@
             return true;
         }
 
-        [HarmonyPatch(typeof(CraftingMenu), "GenerateResult"), HarmonyPrefix]
+        [HarmonyPatch(typeof(CraftingMenu), nameof(CraftingMenu.GenerateResult)), HarmonyPrefix]
         static bool CraftingMenu_GenerateResult_Pre(CraftingMenu __instance, ref int __state, ItemReferenceQuantity _result)
         {
             #region quit
@@ -291,7 +291,7 @@
             return true;
         }
 
-        [HarmonyPatch(typeof(CraftingMenu), "GenerateResult"), HarmonyPostfix]
+        [HarmonyPatch(typeof(CraftingMenu), nameof(CraftingMenu.GenerateResult)), HarmonyPostfix]
         static void CraftingMenu_GenerateResult_Post(CraftingMenu __instance, ref int __state, ItemReferenceQuantity _result)
         {
             #region quit
@@ -302,7 +302,7 @@
             _result.Quantity = __state;
         }
 
-        [HarmonyPatch(typeof(RecipeResultDisplay), "UpdateQuantityDisplay"), HarmonyPrefix]
+        [HarmonyPatch(typeof(RecipeResultDisplay), nameof(RecipeResultDisplay.UpdateQuantityDisplay)), HarmonyPrefix]
         static bool RecipeResultDisplay_UpdateQuantityDisplay_Pre(RecipeResultDisplay __instance)
         {
             #region quit

@@ -349,7 +349,7 @@
             return false;
         }
 
-        [HarmonyPatch(typeof(InteractionActivator), "OnLateInit"), HarmonyPostfix]
+        [HarmonyPatch(typeof(InteractionActivator), nameof(InteractionActivator.OnLateInit)), HarmonyPostfix]
         static void InteractionActivator_OnLateInit_Post(InteractionActivator __instance, ref IInteraction ___m_defaultBasicInteraction, ref IInteraction ___m_defaultHoldInteraction)
         {
             SwapBasicAndHoldInteractions(__instance, ref ___m_defaultBasicInteraction, ref ___m_defaultHoldInteraction);
@@ -379,7 +379,7 @@
         }
 
         // Highlights
-        [HarmonyPatch(typeof(InteractionHighlight), "Update"), HarmonyPrefix]
+        [HarmonyPatch(typeof(InteractionHighlight), nameof(InteractionHighlight.Update)), HarmonyPrefix]
         static bool InteractionHighlight_Update_Pre(InteractionHighlight __instance)
         {
             #region quit

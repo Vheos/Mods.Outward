@@ -186,14 +186,14 @@
 
         // Hooks
 #pragma warning disable IDE0051, IDE0060, IDE1006
-        [HarmonyPatch(typeof(Item), "GetBuyValue"), HarmonyPrefix]
+        [HarmonyPatch(typeof(Item), nameof(Item.GetBuyValue)), HarmonyPrefix]
         static bool Item_GetBuyValue_Pre(Item __instance, ref int __result, ref Character _player, ref Merchant _merchant)
         {
             __result = GetFinalModifiedPrice(__instance, _player, _merchant, false);
             return false;
         }
 
-        [HarmonyPatch(typeof(Item), "GetSellValue"), HarmonyPrefix]
+        [HarmonyPatch(typeof(Item), nameof(Item.GetSellValue)), HarmonyPrefix]
         static bool Item_GetSellValue_Pre(Item __instance, ref int __result, ref Character _player, ref Merchant _merchant)
         {
             __result = GetFinalModifiedPrice(__instance, _player, _merchant, true);

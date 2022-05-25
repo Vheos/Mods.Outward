@@ -123,12 +123,12 @@ namespace Vheos.Mods.Outward
             __result |= _character.IsAlly() && !_character.IsOwnerOf(__instance);
         }
 
-        [HarmonyPatch(typeof(Character), "OnReceiveHitCombatEngaged"), HarmonyPrefix]
+        [HarmonyPatch(typeof(Character), nameof(Character.OnReceiveHitCombatEngaged)), HarmonyPrefix]
         static bool Character_OnReceiveHitCombatEngaged_Pre(Character __instance, ref Character _dealerChar)
         => !_playersFriendlyFireToggle || _dealerChar == null || !_dealerChar.IsAlly();
 
 
-        [HarmonyPatch(typeof(Character), "VitalityHit"), HarmonyPrefix]
+        [HarmonyPatch(typeof(Character), nameof(Character.VitalityHit)), HarmonyPrefix]
         static bool Character_VitalityHit_Pre(Character __instance, Character _dealerChar, ref float _damage)
         {
             if (_dealerChar != null && _dealerChar.IsEnemy()
@@ -150,7 +150,7 @@ namespace Vheos.Mods.Outward
             return true;
         }
 
-        [HarmonyPatch(typeof(Character), "StabilityHit"), HarmonyPrefix]
+        [HarmonyPatch(typeof(Character), nameof(Character.StabilityHit)), HarmonyPrefix]
         static bool Character_StabilityHit_Pre(Character __instance, Character _dealerChar, ref float _knockValue)
         {
             if (_dealerChar != null && _dealerChar.IsEnemy()

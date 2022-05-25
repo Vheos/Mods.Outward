@@ -619,7 +619,7 @@
 
         // Hooks
 #pragma warning disable IDE0051, IDE0060, IDE1006
-        [HarmonyPatch(typeof(LocalCharacterControl), "RetrieveComponents"), HarmonyPostfix]
+        [HarmonyPatch(typeof(LocalCharacterControl), nameof(LocalCharacterControl.RetrieveComponents)), HarmonyPostfix]
         static void LocalCharacterControl_RetrieveComponents_Post(LocalCharacterControl __instance)
         {
             UpdateSplitscreenMode();
@@ -634,7 +634,7 @@
                 __instance.ExecuteOnceAfterDelay(UI_RESIZE_DELAY, () => SaveLoadHUDOverrides(player, SettingsOperation.Load));
         }
 
-        [HarmonyPatch(typeof(RPCManager), "SendPlayerHasLeft"), HarmonyPostfix]
+        [HarmonyPatch(typeof(RPCManager), nameof(RPCManager.SendPlayerHasLeft)), HarmonyPostfix]
         static void RPCManager_SendPlayerHasLeft_Post(RPCManager __instance)
         {
             UpdateSplitscreenMode();
@@ -642,7 +642,7 @@
         }
 
         // Sort by weight    
-        [HarmonyPatch(typeof(ItemListDisplay), "ByWeight"), HarmonyPrefix]
+        [HarmonyPatch(typeof(ItemListDisplay), nameof(ItemListDisplay.ByWeight)), HarmonyPrefix]
         static bool ItemListDisplay_ByWeight_Pre(ItemListDisplay __instance, ref int __result, ItemDisplay _item1, ItemDisplay _item2)
         {
             float weight1 = _item1.TryAs(out ItemGroupDisplay group1) ? group1.TotalWeight : _item1.m_refItem.Weight;
@@ -652,7 +652,7 @@
         }
 
         // Sort by durability    
-        [HarmonyPatch(typeof(ItemListDisplay), "ByDurability"), HarmonyPrefix]
+        [HarmonyPatch(typeof(ItemListDisplay), nameof(ItemListDisplay.ByDurability)), HarmonyPrefix]
         static bool ItemListDisplay_ByDurability_Pre(ref int __result, ItemDisplay _display1, ItemDisplay _display2)
         {
             Item item1 = _display1.m_refItem;
@@ -680,12 +680,12 @@
         }
 
         // Exclusive buy/sell panels
-        [HarmonyPatch(typeof(ShopMenu), "Show"), HarmonyPostfix]
+        [HarmonyPatch(typeof(ShopMenu), nameof(ShopMenu.Show)), HarmonyPostfix]
         static void ShopMenu_Show_Post(ShopMenu __instance)
         => UpdateSeparateBuySellPanels(Players.GetLocal(__instance));
 
         // Disable quickslot button icons
-        [HarmonyPatch(typeof(QuickSlotDisplay), "Update"), HarmonyPostfix]
+        [HarmonyPatch(typeof(QuickSlotDisplay), nameof(QuickSlotDisplay.Update)), HarmonyPostfix]
         static void QuickSlotDisplay_Update_Post(QuickSlotDisplay __instance)
         {
             Players.Data player = Players.GetLocal(__instance);
@@ -699,7 +699,7 @@
         }
 
         // Vertical splitscreen
-        [HarmonyPatch(typeof(CharacterUI), "DelayedRefreshSize"), HarmonyPostfix]
+        [HarmonyPatch(typeof(CharacterUI), nameof(CharacterUI.DelayedRefreshSize)), HarmonyPostfix]
         static void CharacterUI_DelayedRefreshSize_Post(CharacterUI __instance)
         {
             #region quit
@@ -711,7 +711,7 @@
         }
 
         // Status effect duration
-        [HarmonyPatch(typeof(StatusEffectPanel), "GetStatusIcon"), HarmonyPostfix]
+        [HarmonyPatch(typeof(StatusEffectPanel), nameof(StatusEffectPanel.GetStatusIcon)), HarmonyPostfix]
         static void StatusEffectPanel_GetStatusIcon_Post(StatusEffectPanel __instance, ref StatusEffectIcon __result)
         {
             PerPlayerSettings settings = _perPlayerSettings[Players.GetLocal(__instance.LocalCharacter).ID];

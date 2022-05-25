@@ -284,7 +284,7 @@
 
         // Hooks
 #pragma warning disable IDE0051, IDE0060, IDE1006
-        [HarmonyPatch(typeof(SplitScreenManager), "DelayedRefreshSplitScreen"), HarmonyPostfix]
+        [HarmonyPatch(typeof(SplitScreenManager), nameof(SplitScreenManager.DelayedRefreshSplitScreen)), HarmonyPostfix]
         static void SplitScreenManager_DelayedRefreshSplitScreen_Post()
         {
             foreach (var player in Players.Local)
@@ -297,7 +297,7 @@
             }
         }
 
-        [HarmonyPatch(typeof(Character), "SetZoomMode"), HarmonyPostfix]
+        [HarmonyPatch(typeof(Character), nameof(Character.SetZoomMode)), HarmonyPostfix]
         static void Character_SetZoomMode_Post(Character __instance, ref bool _zoomed)
         {
             Players.Data player = Players.GetLocal(__instance);
@@ -310,11 +310,11 @@
             _perPlayerSettings[player.ID].StartAimCoroutine(__instance, _zoomed);
         }
 
-        [HarmonyPatch(typeof(CharacterCamera), "UpdateZoom"), HarmonyPrefix]
+        [HarmonyPatch(typeof(CharacterCamera), nameof(CharacterCamera.UpdateZoom)), HarmonyPrefix]
         static bool CharacterCamera_UpdateZoom_Pre(CharacterCamera __instance)
         => !Players.TryGetLocal(__instance, out Players.Data player) || !_perPlayerSettings[player.ID]._toggle;
 
-        [HarmonyPatch(typeof(ControlsInput), "RotateCameraVertical"), HarmonyPostfix]
+        [HarmonyPatch(typeof(ControlsInput), nameof(ControlsInput.RotateCameraVertical)), HarmonyPostfix]
         static void ControlsInput_RotateCameraVertical_Post(int _playerID, ref float __result)
         {
             #region quit
@@ -324,7 +324,7 @@
             __result *= _perPlayerSettings[_playerID].Sensitivity;
         }
 
-        [HarmonyPatch(typeof(ControlsInput), "RotateCameraHorizontal"), HarmonyPostfix]
+        [HarmonyPatch(typeof(ControlsInput), nameof(ControlsInput.RotateCameraHorizontal)), HarmonyPostfix]
         static void ControlsInput_RotateCameraHorizontal_Post(int _playerID, ref float __result)
         {
             #region quit

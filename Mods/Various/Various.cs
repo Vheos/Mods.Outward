@@ -354,7 +354,7 @@ namespace Vheos.Mods.Outward
         // Hooks
 #pragma warning disable IDE0051, IDE0060, IDE1006
         // Reset static scene data
-        [HarmonyPatch(typeof(NetworkLevelLoader), "UnPauseGameplay"), HarmonyPostfix]
+        [HarmonyPatch(typeof(NetworkLevelLoader), nameof(NetworkLevelLoader.UnPauseGameplay)), HarmonyPostfix]
         static void NetworkLevelLoader_UnPauseGameplay_Post(NetworkLevelLoader __instance)
         {
             _playerStash = null;
@@ -362,7 +362,7 @@ namespace Vheos.Mods.Outward
         }
 
         // Display prices in stash
-        [HarmonyPatch(typeof(ItemDisplay), "UpdateValueDisplay"), HarmonyPrefix]
+        [HarmonyPatch(typeof(ItemDisplay), nameof(ItemDisplay.UpdateValueDisplay)), HarmonyPrefix]
         static bool ItemDisplay_UpdateValueDisplay_Pre(ItemDisplay __instance)
         {
             #region quit
@@ -381,7 +381,7 @@ namespace Vheos.Mods.Outward
         }
 
         // Drop one
-        [HarmonyPatch(typeof(ItemDisplayOptionPanel), "GetActiveActions"), HarmonyPostfix]
+        [HarmonyPatch(typeof(ItemDisplayOptionPanel), nameof(ItemDisplayOptionPanel.GetActiveActions)), HarmonyPostfix]
         static void ItemDisplayOptionPanel_GetActiveActions_Post(ItemDisplayOptionPanel __instance, ref List<int> __result)
         {
             #region quit
@@ -395,7 +395,7 @@ namespace Vheos.Mods.Outward
             __result.Add(DROP_ONE_ACTION_ID);
         }
 
-        [HarmonyPatch(typeof(ItemDisplayOptionPanel), "GetActionText"), HarmonyPrefix]
+        [HarmonyPatch(typeof(ItemDisplayOptionPanel), nameof(ItemDisplayOptionPanel.GetActionText)), HarmonyPrefix]
         static bool ItemDisplayOptionPanel_GetActionText_Pre(ItemDisplayOptionPanel __instance, ref string __result, ref int _actionID)
         {
             #region quit
@@ -407,7 +407,7 @@ namespace Vheos.Mods.Outward
             return false;
         }
 
-        [HarmonyPatch(typeof(ItemDisplayOptionPanel), "ActionHasBeenPressed"), HarmonyPrefix]
+        [HarmonyPatch(typeof(ItemDisplayOptionPanel), nameof(ItemDisplayOptionPanel.ActionHasBeenPressed)), HarmonyPrefix]
         static bool ItemDisplayOptionPanel_ActionHasBeenPressed_Pre(ItemDisplayOptionPanel __instance, ref int _actionID)
         {
             #region quit
@@ -435,15 +435,15 @@ namespace Vheos.Mods.Outward
         }
 
         // Display stash amount
-        [HarmonyPatch(typeof(ItemDisplay), "UpdateQuantityDisplay"), HarmonyPostfix]
+        [HarmonyPatch(typeof(ItemDisplay), nameof(ItemDisplay.UpdateQuantityDisplay)), HarmonyPostfix]
         static void ItemDisplay_UpdateQuantityDisplay_Post(ItemDisplay __instance)
         => TryDisplayStashAmount(__instance);
 
-        [HarmonyPatch(typeof(CurrencyDisplay), "UpdateQuantityDisplay"), HarmonyPostfix]
+        [HarmonyPatch(typeof(CurrencyDisplay), nameof(CurrencyDisplay.UpdateQuantityDisplay)), HarmonyPostfix]
         static void CurrencyDisplay_UpdateQuantityDisplay_Post(CurrencyDisplay __instance)
         => TryDisplayStashAmount(__instance);
 
-        [HarmonyPatch(typeof(RecipeResultDisplay), "UpdateQuantityDisplay"), HarmonyPostfix]
+        [HarmonyPatch(typeof(RecipeResultDisplay), nameof(RecipeResultDisplay.UpdateQuantityDisplay)), HarmonyPostfix]
         static void RecipeResultDisplay_UpdateQuantityDisplay_Post(RecipeResultDisplay __instance)
         => TryDisplayStashAmount(__instance);
 
@@ -470,7 +470,7 @@ namespace Vheos.Mods.Outward
             return true;
         }
 
-        [HarmonyPatch(typeof(TitleScreenLoader), "LoadTitleScreenCoroutine"), HarmonyPostfix]
+        [HarmonyPatch(typeof(TitleScreenLoader), nameof(TitleScreenLoader.LoadTitleScreenCoroutine)), HarmonyPostfix]
         static IEnumerator TitleScreenLoader_LoadTitleScreenCoroutine_Post(IEnumerator original, TitleScreenLoader __instance)
         {
             while (original.MoveNext())
@@ -493,17 +493,17 @@ namespace Vheos.Mods.Outward
         }
 
         // Temperature data
-        [HarmonyPatch(typeof(EnvironmentConditions), "Start"), HarmonyPostfix]
+        [HarmonyPatch(typeof(EnvironmentConditions), nameof(EnvironmentConditions.Start)), HarmonyPostfix]
         static void EnvironmentConditions_Start_Post(EnvironmentConditions __instance)
         => TryUpdateTemperatureData();
 
         // Stamina regen
-        [HarmonyPatch(typeof(PlayerCharacterStats), "OnStart"), HarmonyPostfix]
+        [HarmonyPatch(typeof(PlayerCharacterStats), nameof(PlayerCharacterStats.OnStart)), HarmonyPostfix]
         static void PlayerCharacterStats_OnStart_Post(PlayerCharacterStats __instance)
         => UpdateBaseStaminaRegen(__instance);
 
         // Load arrows from inventory
-        [HarmonyPatch(typeof(WeaponLoadoutItem), "ReduceShotAmount"), HarmonyPrefix]
+        [HarmonyPatch(typeof(WeaponLoadoutItem), nameof(WeaponLoadoutItem.ReduceShotAmount)), HarmonyPrefix]
         static bool WeaponLoadoutItem_ReduceShotAmount_Pre(WeaponLoadoutItem __instance)
         {
             #region quit
@@ -528,7 +528,7 @@ namespace Vheos.Mods.Outward
             return false;
         }
 
-        [HarmonyPatch(typeof(CharacterInventory), "GetAmmunitionCount"), HarmonyPostfix]
+        [HarmonyPatch(typeof(CharacterInventory), nameof(CharacterInventory.GetAmmunitionCount)), HarmonyPostfix]
         static void CharacterInventory_GetAmmunitionCount_Post(CharacterInventory __instance, ref int __result)
         {
             #region quit
@@ -540,7 +540,7 @@ namespace Vheos.Mods.Outward
         }
 
         // Multiplicative stacking
-        [HarmonyPatch(typeof(Stat), "GetModifier"), HarmonyPrefix]
+        [HarmonyPatch(typeof(Stat), nameof(Stat.GetModifier)), HarmonyPrefix]
         static bool Stat_GetModifier_Pre(Stat __instance, ref float __result, ref IList<Tag> _tags, ref int baseModifier)
         {
             #region quit
@@ -564,20 +564,20 @@ namespace Vheos.Mods.Outward
             return false;
         }
 
-        [HarmonyPatch(typeof(CharacterEquipment), "GetTotalMovementModifier"), HarmonyPrefix]
+        [HarmonyPatch(typeof(CharacterEquipment), nameof(CharacterEquipment.GetTotalMovementModifier)), HarmonyPrefix]
         static bool CharacterEquipment_GetTotalMovementModifier_Pre(CharacterEquipment __instance, ref float __result)
         => TryApplyMultiplicativeStacking(__instance, ref __result, slot => slot.EquippedItem.MovementPenalty, true, true);
 
-        [HarmonyPatch(typeof(CharacterEquipment), "GetTotalStaminaUseModifier"), HarmonyPrefix]
+        [HarmonyPatch(typeof(CharacterEquipment), nameof(CharacterEquipment.GetTotalStaminaUseModifier)), HarmonyPrefix]
         static bool CharacterEquipment_GetTotalStaminaUseModifier_Pre(CharacterEquipment __instance, ref float __result)
         => TryApplyMultiplicativeStacking(__instance, ref __result, slot => slot.EquippedItem.StaminaUsePenalty, false, true);
 
-        [HarmonyPatch(typeof(CharacterEquipment), "GetTotalManaUseModifier"), HarmonyPrefix]
+        [HarmonyPatch(typeof(CharacterEquipment), nameof(CharacterEquipment.GetTotalManaUseModifier)), HarmonyPrefix]
         static bool CharacterEquipment_GetTotalManaUseModifier_Pre(CharacterEquipment __instance, ref float __result)
         => TryApplyMultiplicativeStacking(__instance, ref __result, slot => slot.EquippedItem.ManaUseModifier, false, _applyArmorTrainingToManaCost);
 
         // Skip startup video
-        [HarmonyPatch(typeof(StartupVideo), "Awake"), HarmonyPrefix]
+        [HarmonyPatch(typeof(StartupVideo), nameof(StartupVideo.Awake)), HarmonyPrefix]
         static bool StartupVideo_Awake_Pre()
         {
             StartupVideo.HasPlayedOnce = _skipStartupVideos.Value;
@@ -585,7 +585,7 @@ namespace Vheos.Mods.Outward
         }
 
         // Hide armor slots
-        [HarmonyPatch(typeof(CharacterVisuals), "EquipVisuals"), HarmonyPrefix]
+        [HarmonyPatch(typeof(CharacterVisuals), nameof(CharacterVisuals.EquipVisuals)), HarmonyPrefix]
         static bool CharacterVisuals_EquipVisuals_Pre(ref bool[] __state, ref EquipmentSlot.EquipmentSlotIDs _slotID, ref ArmorVisuals _visuals)
         {
             #region quit
@@ -608,7 +608,7 @@ namespace Vheos.Mods.Outward
             return true;
         }
 
-        [HarmonyPatch(typeof(CharacterVisuals), "EquipVisuals"), HarmonyPostfix]
+        [HarmonyPatch(typeof(CharacterVisuals), nameof(CharacterVisuals.EquipVisuals)), HarmonyPostfix]
         static void CharacterVisuals_EquipVisuals_Post(ref bool[] __state, ref EquipmentSlot.EquipmentSlotIDs _slotID, ref ArmorVisuals _visuals)
         {
             #region quit
@@ -627,16 +627,16 @@ namespace Vheos.Mods.Outward
         }
 
         // Remove co-op scaling
-        [HarmonyPatch(typeof(CoopStats), "ApplyToCharacter"), HarmonyPrefix]
+        [HarmonyPatch(typeof(CoopStats), nameof(CoopStats.ApplyToCharacter)), HarmonyPrefix]
         static bool CoopStats_ApplyToCharacter_Pre()
         => !_removeCoopScaling;
 
-        [HarmonyPatch(typeof(CoopStats), "RemoveFromCharacter"), HarmonyPrefix]
+        [HarmonyPatch(typeof(CoopStats), nameof(CoopStats.RemoveFromCharacter)), HarmonyPrefix]
         static bool CoopStats_RemoveFromCharacter_Pre()
         => !_removeCoopScaling;
 
         // Remove dodge invulnerability
-        [HarmonyPatch(typeof(Character), "DodgeStep"), HarmonyPostfix]
+        [HarmonyPatch(typeof(Character), nameof(Character.DodgeStep)), HarmonyPostfix]
         static void Character_DodgeStep_Post(ref Hitbox[] ___m_hitboxes, ref int _step)
         {
             #region quit
@@ -650,7 +650,7 @@ namespace Vheos.Mods.Outward
         }
 
         // Enemy health reset time
-        [HarmonyPatch(typeof(Character), "LoadCharSave"), HarmonyPrefix]
+        [HarmonyPatch(typeof(Character), nameof(Character.LoadCharSave)), HarmonyPrefix]
         static bool Character_LoadCharSave_Pre(Character __instance)
         {
             #region quit
@@ -699,7 +699,7 @@ using(Indent)
     _allowOverCapacity.Format("Allow over capacity", _pouchToggle);
 }
 
-[HarmonyPatch(typeof(CharacterInventory), "ProcessStart"), HarmonyPostfix]
+[HarmonyPatch(typeof(CharacterInventory), nameof(CharacterInventory.ProcessStart)), HarmonyPostfix]
 static void CharacterInventory_ProcessStart_Post(CharacterInventory __instance, ref Character ___m_character)
 {
     #region quit
@@ -717,7 +717,7 @@ static void CharacterInventory_ProcessStart_Post(CharacterInventory __instance, 
 */
 
 /* Extra Controller Quickslots
-[HarmonyPatch(typeof(QuickSlotPanel), "InitializeQuickSlotDisplays"), HarmonyPostfix]
+[HarmonyPatch(typeof(QuickSlotPanel), nameof(QuickSlotPanel.InitializeQuickSlotDisplays)), HarmonyPostfix]
 static void QuickSlotPanel_InitializeQuickSlotDisplays_Post(QuickSlotPanel __instance, ref QuickSlotDisplay[] ___m_quickSlotDisplays)
 {
     #region quit
@@ -730,7 +730,7 @@ static void QuickSlotPanel_InitializeQuickSlotDisplays_Post(QuickSlotPanel __ins
             ___m_quickSlotDisplays[i].RefSlotID = i + 8;
 }
 
-[HarmonyPatch(typeof(LocalCharacterControl), "UpdateQuickSlots"), HarmonyPostfix]
+[HarmonyPatch(typeof(LocalCharacterControl), nameof(LocalCharacterControl.UpdateQuickSlots)), HarmonyPostfix]
 static void LocalCharacterControl_UpdateQuickSlots_Pre(ref Character ___m_character)
 {
     #region quit

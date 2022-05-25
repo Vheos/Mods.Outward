@@ -168,7 +168,7 @@
 #pragma warning disable IDE0051, IDE0060, IDE1006
 
         // Prevent infighting
-        [HarmonyPatch(typeof(TargetingSystem), "InitTargetableFaction"), HarmonyPrefix]
+        [HarmonyPatch(typeof(TargetingSystem), nameof(TargetingSystem.InitTargetableFaction)), HarmonyPrefix]
         static bool TargetingSystem_InitTargetableFaction_Pre(TargetingSystem __instance)
         {
             #region quit
@@ -206,7 +206,7 @@
         }
 
         // Enemy detection modifier
-        [HarmonyPatch(typeof(AIPreset), "ApplyToCharAI"), HarmonyPostfix]
+        [HarmonyPatch(typeof(AIPreset), nameof(AIPreset.ApplyToCharAI)), HarmonyPostfix]
         static void AIPreset_ApplyToCharAI_Post(AIPreset __instance, CharacterAI _charAI)
         {
             #region quit
@@ -234,16 +234,16 @@
             }
         }
 
-        [HarmonyPatch(typeof(AISquadSpawnPoint), "SpawnSquad"), HarmonyPrefix]
+        [HarmonyPatch(typeof(AISquadSpawnPoint), nameof(AISquadSpawnPoint.SpawnSquad)), HarmonyPrefix]
         static void AISquadSpawnPoint_SpawnSquad_Pre(AISquadSpawnPoint __instance)
         => __instance.ChanceToWanderTowardsPlayers = _walkTowardsPlayerOnSpawn;
 
-        [HarmonyPatch(typeof(AICEnemyDetection), "Init"), HarmonyPrefix]
+        [HarmonyPatch(typeof(AICEnemyDetection), nameof(AICEnemyDetection.Init)), HarmonyPrefix]
         static void AICEnemyDetection_Init_Pre(AICEnemyDetection __instance)
         => __instance.ChanceToSwitchTargetOnHurt = _changeTargetOnHit;
 
         // Change target when far
-        [HarmonyPatch(typeof(CharacterAI), "SwitchAiState"), HarmonyPostfix]
+        [HarmonyPatch(typeof(CharacterAI), nameof(CharacterAI.SwitchAiState)), HarmonyPostfix]
         static void CharacterAI_SwitchAiState_Post(CharacterAI __instance)
         {
             #region quit
@@ -265,7 +265,7 @@
                 __instance.Character.m_lastDealers.Clear();
         }
 
-        [HarmonyPatch(typeof(AICEnemyDetection), "Detected"), HarmonyPostfix]
+        [HarmonyPatch(typeof(AICEnemyDetection), nameof(AICEnemyDetection.Detected)), HarmonyPostfix]
         static void AICEnemyDetection_Detected_Post(AICEnemyDetection __instance, LockingPoint _point)
         {
             #region quit

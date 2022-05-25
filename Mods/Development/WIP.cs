@@ -52,7 +52,7 @@
         }
 
         // Mark items with legacy upgrades
-        [HarmonyPatch(typeof(ItemDisplay), "RefreshEnchantedIcon"), HarmonyPrefix]
+        [HarmonyPatch(typeof(ItemDisplay), nameof(ItemDisplay.RefreshEnchantedIcon)), HarmonyPrefix]
         static bool ItemDisplay_RefreshEnchantedIcon_Pre(ItemDisplay __instance)
         {
             #region quit

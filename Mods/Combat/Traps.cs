@@ -92,7 +92,7 @@
 
         // Hooks
 #pragma warning disable IDE0051, IDE0060, IDE1006
-        [HarmonyPatch(typeof(DeployableTrap), "StartInit"), HarmonyPostfix]
+        [HarmonyPatch(typeof(DeployableTrap), nameof(DeployableTrap.StartInit)), HarmonyPostfix]
         static void DeployableTrap_StartInit_Post(DeployableTrap __instance)
         {
             // Friendly fire
@@ -137,7 +137,7 @@
             );
         }
 
-        [HarmonyPatch(typeof(DeployableTrap), "OnReceiveArmTrap"), HarmonyPostfix]
+        [HarmonyPatch(typeof(DeployableTrap), nameof(DeployableTrap.OnReceiveArmTrap)), HarmonyPostfix]
         static void DeployableTrap_OnReceiveArmTrap_Post(DeployableTrap __instance)
         {
             #region quit
@@ -168,14 +168,14 @@
             );
         }
 
-        [HarmonyPatch(typeof(DeployableTrap), "CleanUp"), HarmonyPrefix]
+        [HarmonyPatch(typeof(DeployableTrap), nameof(DeployableTrap.CleanUp)), HarmonyPrefix]
         static bool DeployableTrap_CleanUp_Pre(DeployableTrap __instance)
         {
             ResetColor(__instance);
             return true;
         }
 
-        [HarmonyPatch(typeof(DeployableTrap), "Disassemble"), HarmonyPrefix]
+        [HarmonyPatch(typeof(DeployableTrap), nameof(DeployableTrap.Disassemble)), HarmonyPrefix]
         static bool DeployableTrap_Disassemble_Pre(DeployableTrap __instance)
         {
             ResetColor(__instance);
