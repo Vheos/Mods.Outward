@@ -414,22 +414,22 @@
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>:: Global settings
-set Releases_Global=E:\Creativity\Programs\C#\Mods\Outward\Private\Releases\
-set Plugins_Local=BepInEx\Plugins\Vheos\
-set Version_Suffix=_vX.Y.Z
-set TempCopy=$(ProjectDir)\bin\.tmpcpy\
-rd /s /q %25TempCopy%25
+set "Releases_Global=$(ProjectDir)\Private\Releases\"
+set "Plugins_Local=BepInEx\Plugins\Vheos\"
+set "TempCopy=$(ProjectDir)\bin\.tmpcpy\"
+:: rd /s /q %25TempCopy%25
 xcopy /y $(TargetDir)$(TargetName).dll %25TempCopy%25
 xcopy /y $(TargetDir)Vheos.Mods.Core.dll %25TempCopy%25
 xcopy /y $(TargetDir)Vheos.Tools.Extensions.dll %25TempCopy%25
 xcopy /y $(TargetDir)Vheos.Tools.Utilities.dll %25TempCopy%25
 
     :: Project settings
-    set Game_Global=D:\Multiplayer\Outward\
-    set Game_EXE=Outward.exe
-    set Zip_Name=VMP
-    set GitHubNexus_Global=%25Releases_Global%25\GitHubNexus\%25Plugins_Local%25
-    set Thunderstore_Global=%25Releases_Global%25\Thunderstore\%25Plugins_Local%25
+    set "Game_Global=D:\Multiplayer\Outward - Definitive Edition\"
+    set "Game_EXE=Outward Definitive Edition.exe"
+    set "Zip_Name=VMP"
+    set "Version_Suffix=_v1.13.1"
+    set "GitHubNexus_Global=%25Releases_Global%25\GitHubNexus\%25Plugins_Local%25"
+    set "Thunderstore_Global=%25Releases_Global%25\Thunderstore\%25Plugins_Local%25"
     xcopy /y $(TargetDir)Vheos.Tools.TraitEqualizer.dll %25TempCopy%25
     xcopy /y $(TargetDir)Vheos.Tools.Random.dll %25TempCopy%25
 
@@ -443,8 +443,10 @@ xcopy /y $(TargetDir)Vheos.Tools.Utilities.dll %25TempCopy%25
         :: Release
         rd /s /q %25GitHubNexus_Global%25 
         xcopy /e /y %25TempCopy%25 %25GitHubNexus_Global%25
-        powershell Compress-Archive -Path %25Releases_Global%25\GitHubNexus\BepInEx -DestinationPath %25Releases_Global%25\%25Zip_Name%25%25Version_Suffix%25.zip -Force
-    )</PostBuildEvent>
+         :: powershell Compress-Archive -Path %25Releases_Global%25GitHubNexus\BepInEx -DestinationPath %25Releases_Global%25%25Zip_Name%25%25Version_Suffix%25.zip -Force
+        powershell Compress-Archive -Path %25Releases_Global%25GitHubNexus\BepInEx -DestinationPath %25Releases_Global%25%25Zip_Name%25%25Version_Suffix%25.zip -Force
+    
+)</PostBuildEvent>
   </PropertyGroup>
   <PropertyGroup>
     <PreBuildEvent>
