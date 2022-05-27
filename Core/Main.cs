@@ -15,7 +15,7 @@
         // Metadata
         public const string GUID = "Vheos.Mods.Outward";
         public const string NAME = "Vheos Mod Pack";
-        public const string VERSION = "1.13.1";
+        public const string VERSION = "2.0.0";
 
         // User logic
         override protected Assembly CurrentAssembly
