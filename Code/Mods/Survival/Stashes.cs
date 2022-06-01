@@ -130,8 +130,7 @@ public class Stashes : AMod
         || !GetStash(itemDisplay.LocalCharacter).TryNonNull(out var stash)
         || !itemDisplay.m_lblQuantity.TryNonNull(out var quantity)
         || !itemDisplay.RefItem.TryNonNull(out var item)
-        || item.OwnerCharacter == null
-        || item.ParentContainer.IsNot<MerchantPouch>() && itemDisplay.IsNot<RecipeResultDisplay>())
+        || item.OwnerCharacter == null && item.ParentContainer is not MerchantPouch && itemDisplay is not RecipeResultDisplay)
             return;
         #endregion
 
@@ -142,7 +141,7 @@ public class Stashes : AMod
         if (stashAmount <= 0)
             return;
 
-        if (itemDisplay.IsNot<RecipeResultDisplay>())
+        if (itemDisplay is not RecipeResultDisplay)
             quantity.text = itemDisplay.m_lastQuantity.ToString();
         else if (itemDisplay.m_dBarUses.TryNonNull(out var dotBar) && dotBar.GOActive())
             quantity.text = "1";
@@ -186,14 +185,25 @@ public class Stashes : AMod
         return false;
     }
 
+    [HarmonyPatch(typeof(TreasureChest), nameof(TreasureChest.InitDrops)), HarmonyPostfix]
+    static private void TreasureChest_InitDrops_Post(TreasureChest __instance)
+    {
+        if (!_stashesStartEmpty)
+            return;
+
+        __instance.m_hasGeneratedContent = true;
+        __instance.m_ignoreHasGeneratedContent = false;
+    }
+
     // Display prices in stash
     [HarmonyPatch(typeof(ItemDisplay), nameof(ItemDisplay.UpdateValueDisplay)), HarmonyPrefix]
     private static bool ItemDisplay_UpdateValueDisplay_Pre(ItemDisplay __instance)
     {
         #region quit
         if (!_displayPricesInStash
-        || !__instance.CharacterUI.TryNonNull(out var characterUI) || !characterUI.GetIsMenuDisplayed(CharacterUI.MenuScreens.Stash)
-        || !__instance.RefItem.TryNonNull(out var item) || item.OwnerCharacter != null
+        || !__instance.CharacterUI.TryNonNull(out var characterUI)
+        || !characterUI.GetIsMenuDisplayed(CharacterUI.MenuScreens.Stash)
+        || !__instance.RefItem.TryNonNull(out var item)
         || !__instance.m_lblValue.TryNonNull(out var priceText)
         || SoroboreanCaravanner == null)
             return true;
