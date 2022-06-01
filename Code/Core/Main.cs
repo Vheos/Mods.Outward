@@ -46,7 +46,7 @@ public class Main : BepInExEntryPoint
         typeof(Crafting),
         typeof(Durability),
         typeof(Merchants),
-        typeof(Inns),
+        typeof(Stashes),
         typeof(SurvivalTools),
         typeof(Resets),
         typeof(Interactions),

@@ -40,7 +40,7 @@
     <Compile Include="Code\Core\Presets.cs" />
     <Compile Include="Code\Mods\Survival\Crafting.cs" />
     <Compile Include="Code\Mods\Combat\AI.cs" />
-    <Compile Include="Code\Mods\Survival\Inns.cs" />
+    <Compile Include="Code\Mods\Survival\Stashes.cs" />
     <Compile Include="Code\Mods\Development\WIP.cs" />
     <Compile Include="Code\Mods\Survival\Durability.cs" />
     <Compile Include="Code\Mods\Survival\Camping.cs" />
