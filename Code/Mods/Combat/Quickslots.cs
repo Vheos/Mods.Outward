@@ -261,7 +261,6 @@ public class Quickslots : AMod
     => ui.transform.Find("Canvas/GameplayPanels/Menus/CharacterMenus/MainPanel/Content/MiddlePanel/QuickSlotPanel/PanelSwitcher/Controller/LT-RT");
 
     // Hooks
-#pragma warning disable IDE0051, IDE0060, IDE1006
     [HarmonyPatch(typeof(Item), nameof(Item.PerformEquip)), HarmonyPrefix]
     static bool Item_PerformEquip_Pre2(Item __instance, EquipmentSlot _slot)
     {

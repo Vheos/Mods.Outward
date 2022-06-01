@@ -35,7 +35,7 @@ public class Speed : AMod, IUpdatable
     {
         _gameToggle.Format("Game");
         _gameToggle.Description = "Set multipliers (%) for the whole game world";
-        using(Indent)
+        using (Indent)
         {
             _defaultGameSpeed.Format("Default game speed", _gameToggle);
             _speedHackMultiplier.Format("SpeedHack multiplier", _gameToggle);
@@ -47,7 +47,7 @@ public class Speed : AMod, IUpdatable
 
         _playersToggle.Format("Players");
         _playersToggle.Description = "Set multipliers (%) players' speeds";
-        using(Indent)
+        using (Indent)
         {
             _playersAnimationSpeed.Format("All animations", _playersToggle);
             _playersAnimationSpeed.Description = "Includes animations other than moving and attacking\n" +
@@ -58,14 +58,13 @@ public class Speed : AMod, IUpdatable
 
         _enemiesToggle.Format("NPCs");
         _enemiesToggle.Description = "Set multipliers (%) NPCs' speeds";
-        using(Indent)
+        using (Indent)
         {
             _enemiesAnimationSpeed.Format("All animations", _enemiesToggle);
             _enemiesAnimationSpeed.Description = _playersAnimationSpeed.Description;
             _enemiesMovementSpeed.Format("Movement", _enemiesToggle);
             _enemiesAttackSpeed.Format("Attack", _enemiesToggle);
         }
-
     }
     override protected string Description
     => "• Change players/NPCs speed multipliers\n" +
@@ -139,7 +138,6 @@ public class Speed : AMod, IUpdatable
     }
 
     // Hooks
-#pragma warning disable IDE0051, IDE0060, IDE1006
     [HarmonyPatch(typeof(Character), nameof(Character.LateUpdate)), HarmonyPostfix]
     static void Character_LateUpdate_Post(Character __instance)
     => TryUpdateAnimationSpeed(__instance);

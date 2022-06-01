@@ -93,7 +93,7 @@ public class Crafting : AMod, IDelayedInit
     {
         _preserveDurability.Format("Preserve durability ratios");
         _preserveDurability.Description = "Crafted items' durability will be based on the average of all ingredients (instead of 100%)";
-        using(Indent)
+        using (Indent)
         {
             _restoreMissingDurability.Format("Restore % of missing durability", _preserveDurability);
             _restoreMissingDurability.Description = "Increase to make broken/rotten ingredients still useful (instead of just lowering the durability ratio)";
@@ -102,7 +102,7 @@ public class Crafting : AMod, IDelayedInit
         _limitedManualCrafting.Format("Limited manual crafting");
         _limitedManualCrafting.Description = "Manual crafting will be limited to 1 ingredient\n" +
                                              "Advanced crafting will require learning recipes first";
-        using(Indent)
+        using (Indent)
         {
 
             _limitedManulCraftingExceptions.Format("Exceptions", _limitedManualCrafting);

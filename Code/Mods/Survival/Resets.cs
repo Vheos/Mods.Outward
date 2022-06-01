@@ -161,7 +161,7 @@ public class Resets : AMod
     {
         _areasToggle.Format("Areas");
         _areasToggle.Description = "Change areas (scenes) reset settings";
-        using(Indent)
+        using (Indent)
         {
             _areasMode.Format("Reset mode", _areasToggle);
             _areasTimer.Format("Days since last visit", _areasMode, ResetMode.Timer);
@@ -170,7 +170,7 @@ public class Resets : AMod
             _areasResetLayers.Description = "Cities  -  makes cities reset just like any other area";
             _fixUnarmedBandits.Format("Fix unarmed bandits", _areasResetLayers, AreasResetLayers.Enemies);
             _fixUnarmedBandits.IsAdvanced = true;
-            using(Indent)
+            using (Indent)
             {
                 _fixUnarmedBanditsDurabilityRatio.Format("New weapons' durability", _fixUnarmedBandits, WeaponSet.Disabled, false);
                 _fixUnarmedBanditsDurabilityRatio.IsAdvanced = true;
@@ -179,7 +179,7 @@ public class Resets : AMod
 
         _gatherablesToggle.Format("Gatherables");
         _gatherablesToggle.Description = "Change gatherables respawn settings";
-        using(Indent)
+        using (Indent)
         {
             _gatheringMode.Format("Gathering spots", _gatherablesToggle);
             _gatheringMode.Description = "Gatherables that don't require any tool";
@@ -194,7 +194,7 @@ public class Resets : AMod
 
         _merchantsToggle.Format("Merchants");
         _merchantsToggle.Description = "Change merchant restock settings";
-        using(Indent)
+        using (Indent)
         {
             _merchantsMode.Format("", _merchantsToggle);
             _merchantsTimer.Format("", _merchantsMode, ResetMode.Timer);
@@ -219,7 +219,7 @@ public class Resets : AMod
                     _areasTimerSinceReset.Value = 14;
                     _areasResetLayers.Value = AreasResetLayers.Enemies;
                     _fixUnarmedBandits.Value = WeaponSet.Fang;
-                    _fixUnarmedBanditsDurabilityRatio.Value = 67; 
+                    _fixUnarmedBanditsDurabilityRatio.Value = 67;
                 }
                 _gatherablesToggle.Value = true;
                 {
@@ -261,7 +261,6 @@ public class Resets : AMod
     }
 
     // Hooks
-#pragma warning disable IDE0051, IDE0060, IDE1006
     // Areas
     [HarmonyPatch(typeof(EnvironmentSave), nameof(EnvironmentSave.ApplyData)), HarmonyPrefix]
     static bool EnvironmentSave_ApplyData_Pre(EnvironmentSave __instance)

@@ -168,7 +168,7 @@ public class Descriptions : AMod, IDelayedInit
 
         _details.Format("Details to display");
         _equipmentToggle.Format("Equipment");
-        using(Indent)
+        using (Indent)
         {
             _displayRelativeAttackSpeed.Format("Display relative attack speed", _equipmentToggle);
             _displayRelativeAttackSpeed.Description = "Attack speed will be displayedas +/- X%\n" +
@@ -182,7 +182,7 @@ public class Descriptions : AMod, IDelayedInit
         }
         _barsToggle.Format("Bars");
         _barsToggle.Description = "Change sizes of durability and freshness progress bars";
-        using(Indent)
+        using (Indent)
         {
             _durabilityTiedToMax.Format("Durability proportional to max", _barsToggle);
             _durabilityTiedToMax.Description = "Items that are hard to break will have a longer bar\n" +
@@ -330,27 +330,38 @@ public class Descriptions : AMod, IDelayedInit
                     return statusName;
 
                 string firstValue = firstEffectData.Data[0];
-                switch (statusEffect.GetEffects()[0])
+
+                return statusEffect.GetEffects()[0] switch
                 {
-                    case AffectHealth _:
-                        return new Row("CharacterStat_Health".Localized() + " Regen",
-                                       FormatStatusEffectValue(firstValue.ToFloat(), statusEffect.StartLifespan),
-                                       Details.Vitals | Details.RegenRates, 22, HEALTH_COLOR);
-                    case AffectStamina _:
-                        return new Row("CharacterStat_Stamina".Localized() + " Regen",
-                                       FormatStatusEffectValue(firstValue.ToFloat(), statusEffect.StartLifespan),
-                                       Details.Vitals | Details.RegenRates, 32, STAMINA_COLOR);
-                    case AffectMana _:
-                        return new Row("CharacterStat_Mana".Localized() + " Regen",
-                                       FormatStatusEffectValue(firstValue.ToFloat(), statusEffect.StartLifespan, 1f, "%"),
-                                       Details.Vitals | Details.RegenRates, 42, MANA_COLOR);
-                    case AffectCorruption _:
-                        return new Row("CharacterStat_Corruption".Localized() + " Regen",
-                                       FormatStatusEffectValue(firstValue.ToFloat(), statusEffect.StartLifespan, 10f, "%"),
-                                       Details.Corruption | Details.RegenRates, 52, CORRUPTION_COLOR);
-                    default: return statusName;
-                }
-            default: return null;
+                    AffectHealth _ => new Row
+                    (
+                        "CharacterStat_Health".Localized() + " Regen",
+                        FormatStatusEffectValue(firstValue.ToFloat(), statusEffect.StartLifespan),
+                        Details.Vitals | Details.RegenRates, 22, HEALTH_COLOR
+                    ),
+                    AffectStamina _ => new Row
+                    (
+                        "CharacterStat_Stamina".Localized() + " Regen",
+                        FormatStatusEffectValue(firstValue.ToFloat(), statusEffect.StartLifespan),
+                        Details.Vitals | Details.RegenRates, 32, STAMINA_COLOR
+                    ),
+                    AffectMana _ => new Row
+                    (
+                        "CharacterStat_Mana".Localized() + " Regen",
+                        FormatStatusEffectValue(firstValue.ToFloat(), statusEffect.StartLifespan, 1f, "%"),
+                        Details.Vitals | Details.RegenRates, 42, MANA_COLOR
+                    ),
+                    AffectCorruption _ => new Row
+                    (
+                        "CharacterStat_Corruption".Localized() + " Regen",
+                        FormatStatusEffectValue(firstValue.ToFloat(), statusEffect.StartLifespan, 10f, "%"),
+                        Details.Corruption | Details.RegenRates, 52, CORRUPTION_COLOR
+                    ),
+                    _ => statusName,
+                };
+
+            default:
+                return null;
         }
     }
     static private void FormatSkillRows(Skill skill, List<Row> rows)
@@ -378,7 +389,6 @@ public class Descriptions : AMod, IDelayedInit
                               isPercent ? (skill.DurabilityCostPercent.ToString() + "%") : skill.DurabilityCost.ToString(),
                               Details.Costs, 15, NEEDS_COLOR));
         }
-
     }
     static private string FormatEffectValue(Effect effect, float divisor = 1f, string postfix = "")
     {
@@ -407,19 +417,17 @@ public class Descriptions : AMod, IDelayedInit
         return content;
     }
     static private Effect[] GetWaterEffects(WaterType waterType)
-    {
-        switch (waterType)
+        => waterType switch
         {
-            case WaterType.Clean: return Global.WaterDistributor.m_cleanWaterEffects;
-            case WaterType.Fresh: return Global.WaterDistributor.m_freshWaterEffects;
-            case WaterType.Salt: return Global.WaterDistributor.m_saltWaterEffects;
-            case WaterType.Rancid: return Global.WaterDistributor.m_rancidWaterEffects;
-            case WaterType.Magic: return Global.WaterDistributor.m_magicWaterEffects;
-            case WaterType.Pure: return Global.WaterDistributor.m_pureWaterEffects;
-            case WaterType.Healing: return Global.WaterDistributor.m_healingWaterEffects;
-            default: return null;
-        }
-    }
+            WaterType.Clean => Global.WaterDistributor.m_cleanWaterEffects,
+            WaterType.Fresh => Global.WaterDistributor.m_freshWaterEffects,
+            WaterType.Salt => Global.WaterDistributor.m_saltWaterEffects,
+            WaterType.Rancid => Global.WaterDistributor.m_rancidWaterEffects,
+            WaterType.Magic => Global.WaterDistributor.m_magicWaterEffects,
+            WaterType.Pure => Global.WaterDistributor.m_pureWaterEffects,
+            WaterType.Healing => Global.WaterDistributor.m_healingWaterEffects,
+            _ => null,
+        };
     static private Effect[] GetWaterEffects(int waterID)
     => GetWaterEffects((WaterType)(waterID - WATER_ITEMS_FIRST_ID));
     static private void TrySwapProtectionWithResistances(Item item)
@@ -438,7 +446,6 @@ public class Descriptions : AMod, IDelayedInit
     }
 
     // Hooks
-#pragma warning disable IDE0051, IDE0060, IDE1006
     [HarmonyPatch(typeof(ItemDetailsDisplay), nameof(ItemDetailsDisplay.ShowDetails)), HarmonyPrefix]
     static bool ItemDetailsDisplay_ShowDetails_Pre(ItemDetailsDisplay __instance)
     {

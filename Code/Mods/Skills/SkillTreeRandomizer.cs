@@ -634,27 +634,25 @@ public class SkillTreeRandomizer : AMod, IDelayedInit
         || !treeTransform.TryGetComponent(out SkillSchool tree) ? null : tree;
     }
     static private string FlagToSkillTreeName(int flag)
-    {
-        switch (flag)
+        => flag switch
         {
-            case 1 << 1: return "ChersoneseEto";
-            case 1 << 2: return "ChersoneseHermit";
-            case 1 << 3: return "EmmerkarHunter";
-            case 1 << 4: return "EmmerkarSage";
-            case 1 << 5: return "HallowedMarshWarriorMonk";
-            case 1 << 6: return "HallowedMarshPhilosopher";
-            case 1 << 7: return "AbrassarMercenary";
-            case 1 << 8: return "AbrassarRogue";
-            case 1 << 9: return WEAPON_SKILLS_TREE_NAME;
-            case 1 << 10: return BOONS_TREE_NAME;
-            case 1 << 11: return "HarmattanSpeedster";
-            case 1 << 12: return "HarmattanHexMage";
-            case 1 << 13: return HEXES_TREE_NAME;
-            case 1 << 14: return "CalderaThePrimalRitualist";
-            case 1 << 15: return "CalderaWeaponMaster";
-            default: return null;
-        }
-    }
+            1 << 1 => "ChersoneseEto",
+            1 << 2 => "ChersoneseHermit",
+            1 << 3 => "EmmerkarHunter",
+            1 << 4 => "EmmerkarSage",
+            1 << 5 => "HallowedMarshWarriorMonk",
+            1 << 6 => "HallowedMarshPhilosopher",
+            1 << 7 => "AbrassarMercenary",
+            1 << 8 => "AbrassarRogue",
+            1 << 9 => WEAPON_SKILLS_TREE_NAME,
+            1 << 10 => BOONS_TREE_NAME,
+            1 << 11 => "HarmattanSpeedster",
+            1 << 12 => "HarmattanHexMage",
+            1 << 13 => HEXES_TREE_NAME,
+            1 << 14 => "CalderaThePrimalRitualist",
+            1 << 15 => "CalderaWeaponMaster",
+            _ => null,
+        };
     static private SlotType GetType(BaseSkillSlot slot)
     {
         switch (slot)
@@ -670,29 +668,21 @@ public class SkillTreeRandomizer : AMod, IDelayedInit
         }
     }
     static private SlotLevel GetLevel(BaseSkillSlot slot)
-    {
-        if (_treatWeaponMasterAsAdvanced
-        && GetVanillaTree(slot) == FlagToSkillTree(TheThreeBrothersInput.WeaponMaster, true))
-            return SlotLevel.Advanced;
-
-        if (!slot.ParentBranch.ParentTree.BreakthroughSkill.TryNonNull(out var breakthroughSlot))
-            return SlotLevel.Basic;
-
-        switch (slot.ParentBranch.Index.CompareTo(breakthroughSlot.ParentBranch.Index))
-        {
-            case -1: return SlotLevel.Basic;
-            case 0: return _randomizeBreakthroughSkills ? SlotLevel.Advanced : SlotLevel.Breakthrough;
-            case +1: return SlotLevel.Advanced;
-            default: return 0;
-        }
-    }
+        => _treatWeaponMasterAsAdvanced && GetVanillaTree(slot) == FlagToSkillTree(TheThreeBrothersInput.WeaponMaster, true) ? SlotLevel.Advanced
+            : !slot.ParentBranch.ParentTree.BreakthroughSkill.TryNonNull(out var breakthroughSlot) ? SlotLevel.Basic
+            : slot.ParentBranch.Index.CompareTo(breakthroughSlot.ParentBranch.Index) switch
+            {
+                -1 => SlotLevel.Basic,
+                0 => _randomizeBreakthroughSkills ? SlotLevel.Advanced : SlotLevel.Breakthrough,
+                +1 => SlotLevel.Advanced,
+                _ => 0,
+            };
     static private SkillSchool GetVanillaTree(BaseSkillSlot slot)
     => slot.ParentBranch.ParentTree;
     static private bool IsChoice(BaseSkillSlot slot)
     => slot is SkillSlotFork;
 
     // Hooks
-#pragma warning disable IDE0051, IDE0060, IDE1006
     [HarmonyPatch(typeof(SkillTreeDisplay), nameof(SkillTreeDisplay.RefreshSkillsPosition)), HarmonyPrefix]
     static bool SkillTreeDisplay_RefreshSkillsPosition_Pre(SkillTreeDisplay __instance)
     {

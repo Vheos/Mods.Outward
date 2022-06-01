@@ -84,7 +84,7 @@ public class SkillLimits : AMod
     {
         _separateLimits.Format("Separate passive/active limits");
         _separateLimits.Description = "Define different limits for passive and active skills";
-        using(Indent)
+        using (Indent)
         {
             _skillsLimit.Format("Skills limit", _separateLimits, false);
             _skillsLimit.Description = "Only skills defined in \"Limited skill types\" count towards limit";
@@ -99,7 +99,7 @@ public class SkillLimits : AMod
                                          "Advanced - above breakthrough in a skill tree\n" +
                                          "Side - not found in any vanilla skill tree\n" +
                                          "(weapon skills, boons, hexes and Flamethrower)";
-        using(Indent)
+        using (Indent)
         {
             _freePostBreakthroughBasicSkills.Format("Basic skills are free post-break", _limitedSkillTypes, LimitedSkillTypes.Basic);
             _freePostBreakthroughBasicSkills.Description = "After you learn a breakthrough skill, basic skills from the same tree no longer count towards limit";
@@ -187,16 +187,13 @@ public class SkillLimits : AMod
         return skillTree != null;
     }
     static private ModSetting<int> GetLimitingSetting(SkillTypes skillTypes)
-    {
-        switch (skillTypes)
+        => skillTypes switch
         {
-            case SkillTypes.None:
-            case SkillTypes.Any: return _skillsLimit;
-            case SkillTypes.Passive: return _passiveSkillsLimit;
-            case SkillTypes.Active: return _activeSkillsLimit;
-            default: return null;
-        }
-    }
+            SkillTypes.None or SkillTypes.Any => _skillsLimit,
+            SkillTypes.Passive => _passiveSkillsLimit,
+            SkillTypes.Active => _activeSkillsLimit,
+            _ => null,
+        };
     static private SkillTypes GetSkillTypes(Skill skill)
     => !_separateLimits ? SkillTypes.Any
                         : skill.IsPassive ? SkillTypes.Passive

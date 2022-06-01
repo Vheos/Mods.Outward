@@ -93,7 +93,6 @@ public class SurvivalTools : AMod
     }
 
     // Hooks
-#pragma warning disable IDE0051, IDE0060, IDE1006
     // More gathering tools
     [HarmonyPatch(typeof(GatherableInteraction), nameof(GatherableInteraction.GetValidItem)), HarmonyPrefix]
     static bool GatherableInteraction_GetValidItem_Pre(GatherableInteraction __instance, ref Item __result, Character _character)

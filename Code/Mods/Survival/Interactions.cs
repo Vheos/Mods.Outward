@@ -231,7 +231,7 @@ public class Interactions : AMod, IDelayedInit
                                           "Pull levers   -   open gates, ride elevators, etc.";
         _highlightsToggle.Format("Highlights");
         _highlightsToggle.Description = "Change settings of the glowing orbs that highlight most interactive objects";
-        using(Indent)
+        using (Indent)
         {
             _highlightsIntensity.Format("Intensity", _highlightsToggle);
             _highlightsIntensity.Description = "Brightness and size of the highlights";
@@ -244,7 +244,6 @@ public class Interactions : AMod, IDelayedInit
                                              "Other items   -   cyan\n" +
                                              "Containers and levers   -   purple";
         }
-
     }
     override protected string Description
     => "• Instant \"Hold\" interactions\n" +
@@ -334,7 +333,6 @@ public class Interactions : AMod, IDelayedInit
     }
 
     // Hooks
-#pragma warning disable IDE0051, IDE0060, IDE1006
     [HarmonyPatch(typeof(InteractionBase), nameof(InteractionBase.HoldActivationTime), MethodType.Getter), HarmonyPrefix]
     static bool InteractionBase_HoldActivationTime_Getter_Post(ref float __result, ref float ___m_holdActivationTimeOverride)
     {

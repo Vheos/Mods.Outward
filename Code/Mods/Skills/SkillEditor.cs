@@ -78,13 +78,16 @@ public class SkillEditor : AMod, IDelayedInit
             else
                 _toggle.Format(_skillName);
 
-            using(Indent)
+            using (Indent)
             {
                 // Effects description
                 string text = "";
-                if (_effectX.IsNotEmpty()) text += $"X   -   {_effectX}\n";
-                if (_effectY.IsNotEmpty()) text += $"Y   -   {_effectY}\n";
-                if (_effectZ.IsNotEmpty()) text += $"Z   -   {_effectZ}\n";
+                if (_effectX.IsNotEmpty())
+                    text += $"X   -   {_effectX}\n";
+                if (_effectY.IsNotEmpty())
+                    text += $"Y   -   {_effectY}\n";
+                if (_effectZ.IsNotEmpty())
+                    text += $"Z   -   {_effectZ}\n";
                 text = text.TrimEnd('\n');
 
                 // Format
@@ -205,7 +208,7 @@ public class SkillEditor : AMod, IDelayedInit
     override protected void SetFormatting()
     {
         _daggerToggle.Format("Dagger");
-        using(Indent)
+        using (Indent)
         {
             _daggerSlash.FormatSettings(_daggerToggle);
             _backstab.FormatSettings(_daggerToggle);
@@ -214,7 +217,7 @@ public class SkillEditor : AMod, IDelayedInit
         }
 
         _bowToggle.Format("Bow");
-        using(Indent)
+        using (Indent)
         {
             _evasionShot.FormatSettings(_bowToggle);
             _sniperShot.FormatSettings(_bowToggle);
@@ -222,7 +225,7 @@ public class SkillEditor : AMod, IDelayedInit
         }
 
         _runesToggle.Format("Runes");
-        using(Indent)
+        using (Indent)
         {
             _dez.FormatSettings(_runesToggle);
             _egoth.FormatSettings(_runesToggle);
@@ -298,7 +301,6 @@ public class SkillEditor : AMod, IDelayedInit
     }
 
     // Hooks
-#pragma warning disable IDE0051, IDE0060, IDE1006
     [HarmonyPatch(typeof(AddStatusEffect), nameof(AddStatusEffect.ActivateLocally)), HarmonyPrefix]
     static bool AddStatusEffect_ActivateLocally_Pre(AddStatusEffect __instance)
     {

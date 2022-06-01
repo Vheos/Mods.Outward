@@ -73,23 +73,21 @@ static public class Extensions_Various
         return effect;
     }
     static public float GetValue(this Effect effect)
-    {
-        switch (effect)
+        => effect switch
         {
-            case AffectHealth t: return t.AffectQuantity;
-            case AffectStamina t: return t.AffectQuantity;
-            case AffectMana t: return t.Value;
-            case AffectBurntHealth t: return t.AffectQuantity;
-            case AffectBurntStamina t: return t.AffectQuantity;
-            case AffectBurntMana t: return t.AffectQuantity;
-            case AffectFood t: return t.m_affectQuantity;
-            case AffectDrink t: return t.m_affectQuantity;
-            case AffectFatigue t: return t.m_affectQuantity;
-            case AffectCorruption t: return t.AffectQuantity;
-            case AffectStat t: return t.Value;
-        }
-        return 0f;
-    }
+            AffectHealth t => t.AffectQuantity,
+            AffectStamina t => t.AffectQuantity,
+            AffectMana t => t.Value,
+            AffectBurntHealth t => t.AffectQuantity,
+            AffectBurntStamina t => t.AffectQuantity,
+            AffectBurntMana t => t.AffectQuantity,
+            AffectFood t => t.m_affectQuantity,
+            AffectDrink t => t.m_affectQuantity,
+            AffectFatigue t => t.m_affectQuantity,
+            AffectCorruption t => t.AffectQuantity,
+            AffectStat t => t.Value,
+            _ => default,
+        };
     static public void SetValue(this Effect effect, float value)
     {
         switch (effect)
@@ -241,9 +239,7 @@ static public class Extensions_Various
         for (int i = 0; i < t.Count - 1; ++i)
         {
             int j = UnityEngine.Random.Range(i, t.Count);
-            T tmp = t[i];
-            t[i] = t[j];
-            t[j] = tmp;
+            (t[j], t[i]) = (t[i], t[j]);
         }
     }
     static public string FormatGameHours(this float t, bool showDays = true, bool showHours = true, bool showMinutes = true, bool showSeconds = true)
@@ -391,9 +387,7 @@ static public class Extensions_Various
     static public bool IsNotEmpty(this string text)
     => !text.IsEmpty();
     static public float ToFloat(this string text)
-    {
-        return float.TryParse(text, NumberStyles.Float, CultureInfo.InvariantCulture, out float value) ? value : float.NaN;
-    }
+        => float.TryParse(text, NumberStyles.Float, CultureInfo.InvariantCulture, out float value) ? value : float.NaN;
 
     static public void SetX(ref this Vector2 t, float a)
     => t.x = a;

@@ -77,7 +77,7 @@ public class SkillPrices : AMod
     {
         _formulaToggle.Format("Formulas");
         _formulaToggle.Description = "Define a price formula for skills of each level";
-        using(Indent)
+        using (Indent)
         {
             foreach (var priceCoeffByLevel in _formulaCoeffsByLevel)
                 priceCoeffByLevel.Value.Format(priceCoeffByLevel.Key.ToString(), _formulaToggle);
@@ -93,7 +93,7 @@ public class SkillPrices : AMod
         }
         _learnMutuallyExclusiveSkills.Format("Learn mutually exclusive skills");
         _learnMutuallyExclusiveSkills.Description = "Allows you to learn both skills that are normally mutually exclusive at defined price";
-        using(Indent)
+        using (Indent)
         {
             _exclusiveSkillCostsTsar.Format("at the cost of a Tsar Stone", _learnMutuallyExclusiveSkills);
             _exclusiveSkillCostMultiplier.Format("at normal price multiplied by (%)", _exclusiveSkillCostsTsar, false);
@@ -130,18 +130,15 @@ public class SkillPrices : AMod
     static private bool HasMutuallyExclusiveSkill(Character character, SkillSlot skillSlot)
     => skillSlot.SiblingSlot != null && skillSlot.SiblingSlot.HasSkill(character);
     static private SlotLevel GetLevel(BaseSkillSlot slot)
-    {
-        if (!slot.ParentBranch.ParentTree.BreakthroughSkill.TryNonNull(out var breakthroughSlot))
-            return SlotLevel.Basic;
-
-        switch (slot.ParentBranch.Index.CompareTo(breakthroughSlot.ParentBranch.Index))
-        {
-            case -1: return SlotLevel.Basic;
-            case 0: return SlotLevel.Breakthrough;
-            case +1: return SlotLevel.Advanced;
-            default: return 0;
-        }
-    }
+        => !slot.ParentBranch.ParentTree.BreakthroughSkill.TryNonNull(out var breakthroughSlot)
+            ? SlotLevel.Basic
+            : slot.ParentBranch.Index.CompareTo(breakthroughSlot.ParentBranch.Index) switch
+            {
+                -1 => SlotLevel.Basic,
+                0 => SlotLevel.Breakthrough,
+                +1 => SlotLevel.Advanced,
+                _ => default,
+            };
     static private int GetPrice(Character character, SkillSlot slot)
     {
         // Cache

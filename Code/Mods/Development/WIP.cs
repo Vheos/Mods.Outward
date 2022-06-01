@@ -37,7 +37,6 @@ public class WIP : AMod
     => ModSections.Development;
 
     // Hooks
-#pragma warning disable IDE0051, IDE0060, IDE1006
 
     // Temperature multiplier
     [HarmonyPatch(typeof(CharacterStats), nameof(CharacterStats.TemperatureModifier), MethodType.Getter), HarmonyPostfix]

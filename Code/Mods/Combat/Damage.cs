@@ -30,14 +30,14 @@ public class Damage : AMod
     {
         _playersToggle.Format("Players");
         _playersToggle.Description = "Set multipliers for damage dealt by players";
-        using(Indent)
+        using (Indent)
         {
             _playersHealthDamage.Format("Health", _playersToggle);
             _playersStabilityDamage.Format("Stability", _playersToggle);
             _playersFriendlyFireToggle.Format("Friendly fire", _playersToggle);
             _playersFriendlyFireToggle.Description = "Set multipliers for damage dealt by players to other players\n" +
                                                      "(multiplicative with above values)";
-            using(Indent)
+            using (Indent)
             {
                 _playersFriendlyFireHealthDamage.Format("Health", _playersFriendlyFireToggle);
                 _playersFriendlyFireStabilityDamage.Format("Stability", _playersFriendlyFireToggle);
@@ -46,7 +46,7 @@ public class Damage : AMod
 
         _enemiesToggle.Format("Enemies");
         _enemiesToggle.Description = "Set multipliers for damage dealt by enemies";
-        using(Indent)
+        using (Indent)
         {
             _enemiesHealthDamage.Format("Health", _enemiesToggle);
             _enemiesStabilityDamage.Format("Stability", _enemiesToggle);
@@ -54,7 +54,7 @@ public class Damage : AMod
             _enemiesFriendlyFireToggle.Description = "Set multipliers for damage dealt by enemies to other enemies\n" +
                                                      "Decrease to prevent enemies from killing each other before you meet them\n" +
                                                      "(multiplicative with above values)";
-            using(Indent)
+            using (Indent)
             {
                 _enemiesFriendlyFireHealthDamage.Format("Health", _enemiesFriendlyFireToggle);
                 _enemiesFriendlyFireStabilityDamage.Format("Stability", _enemiesFriendlyFireToggle);

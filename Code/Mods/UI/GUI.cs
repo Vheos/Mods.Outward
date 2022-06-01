@@ -109,7 +109,9 @@ public class GUI : AMod, IDelayedInit, IUpdatable
 
         // Constructor
         public PerPlayerSettings()
-        => _hudOverridesByHUDGroup = new Dictionary<HUDGroup, ModSetting<Vector3>>();
+        {
+            _hudOverridesByHUDGroup = new Dictionary<HUDGroup, ModSetting<Vector3>>();
+        }
     }
     #endregion
 
@@ -229,13 +231,13 @@ public class GUI : AMod, IDelayedInit, IUpdatable
 
             tmp._toggle.Format($"Player {i + 1}");
             tmp._toggle.Description = $"Change settings for local player {i + 1}";
-            using(Indent)
+            using (Indent)
             {
                 tmp._copySettings.Format($"Copy settings from player {1 - i + 1}", tmp._toggle);
                 tmp._copySettings.IsAdvanced = true;
                 tmp._rearrangeHUD.Format("Rearrange HUD", tmp._toggle);
                 tmp._rearrangeHUD.Description = "Change HUD elements position and scale";
-                using(Indent)
+                using (Indent)
                 {
                     tmp._startHUDEditor.Format("Edit mode", tmp._rearrangeHUD);
                     tmp._startHUDEditor.Description = "Pause the game and start rearranging HUD elements:\n" +
@@ -245,7 +247,7 @@ public class GUI : AMod, IDelayedInit, IUpdatable
                 }
                 tmp._hudTransparency.Format("HUD transparency", tmp._toggle);
                 tmp._fadingStatusEffectIcons.Format("Fading status effect icons", tmp._toggle);
-                using(Indent)
+                using (Indent)
                 {
                     tmp._statusIconMaxSize.Format("Max size", tmp._fadingStatusEffectIcons);
                     tmp._statusIconMaxSize.Description = "Icon size at maximum status effect duration";
@@ -270,7 +272,7 @@ public class GUI : AMod, IDelayedInit, IUpdatable
                 tmp._swapPendingBuySellPanels.Format("Swap pending buy/sell panels", tmp._separateBuySellPanels, SeperatePanelsMode.Disabled);
                 tmp._swapPendingBuySellPanels.Description = "Items you're buying will be shown above the merchant's stock\n" +
                                                             "Items you're selling will be shown above your pouch";
-                using(Indent)
+                using (Indent)
                 {
                     tmp._buySellToggle.Format("Toggle buy/sell panels", tmp._separateBuySellPanels, SeperatePanelsMode.Toggle);
                     tmp._switchToBuy.Format("Switch to buy panel", tmp._separateBuySellPanels, SeperatePanelsMode.TwoButtons);
@@ -730,5 +732,4 @@ public class GUI : AMod, IDelayedInit, IUpdatable
         __result.m_icon.SetAlpha(settings.StatusIconAlpha(progress));
         __result.m_icon.rectTransform.localScale = settings.StatusIconScale(progress);
     }
-
 }

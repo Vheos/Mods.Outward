@@ -329,7 +329,6 @@ public class Various : AMod, IUpdatable
     }
 
     // Hooks
-#pragma warning disable IDE0051, IDE0060, IDE1006
     // Reset static scene data
     [HarmonyPatch(typeof(NetworkLevelLoader), nameof(NetworkLevelLoader.UnPauseGameplay)), HarmonyPostfix]
     static void NetworkLevelLoader_UnPauseGameplay_Post(NetworkLevelLoader __instance)
@@ -512,7 +511,7 @@ public class Various : AMod, IUpdatable
             {
                 float value = multipliers.Values[i].EffectiveValue;
                 if (!__instance.NullifyPositiveStat || value <= 0f)
-                    __result *= (1f + value);
+                    __result *= 1f + value;
             }
         }
         return false;

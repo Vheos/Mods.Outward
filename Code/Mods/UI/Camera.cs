@@ -56,23 +56,13 @@ public class Camera : AMod, IDelayedInit, IUpdatable
             );
         }
         public Vector3 CurrentOffset
-        {
-            get
-            {
-                return _zoomControlAmount < 0f ? Vector3.LerpUnclamped(_offsetMin, _offsetAvg, _zoomControlAmount + 1f)
-                    : _zoomControlAmount > 0f ? Vector3.LerpUnclamped(_offsetAvg, _offsetMax, _zoomControlAmount) 
-                    : (Vector3)_offsetAvg;
-            }
-        }
+            => _zoomControlAmount < 0f ? Vector3.LerpUnclamped(_offsetMin, _offsetAvg, _zoomControlAmount + 1f)
+            : _zoomControlAmount > 0f ? Vector3.LerpUnclamped(_offsetAvg, _offsetMax, _zoomControlAmount)
+            : (Vector3)_offsetAvg;
         public Vector3 CurrentVarious
-        {
-            get
-            {
-                return _zoomControlAmount < 0f ? Vector3.LerpUnclamped(_variousMin, _variousAvg, _zoomControlAmount + 1f) :
-                    _zoomControlAmount > 0f ? Vector3.LerpUnclamped(_variousAvg, _variousMax, _zoomControlAmount) :
-                    (Vector3)_variousAvg;
-            }
-        }
+            => _zoomControlAmount < 0f ? Vector3.LerpUnclamped(_variousMin, _variousAvg, _zoomControlAmount + 1f)
+            : _zoomControlAmount > 0f ? Vector3.LerpUnclamped(_variousAvg, _variousMax, _zoomControlAmount)
+            : (Vector3)_variousAvg;
         public float Sensitivity
         {
             get => IgnoreAxes ? 0f : _cachedSensitivity;
@@ -274,7 +264,6 @@ public class Camera : AMod, IDelayedInit, IUpdatable
     }
 
     // Hooks
-#pragma warning disable IDE0051, IDE0060, IDE1006
     [HarmonyPatch(typeof(SplitScreenManager), nameof(SplitScreenManager.DelayedRefreshSplitScreen)), HarmonyPostfix]
     static void SplitScreenManager_DelayedRefreshSplitScreen_Post()
     {

@@ -71,7 +71,6 @@ public class PistolTweaks : AMod, IDelayedInit
     static private float _originalSpeed;
 
     // Hooks
-#pragma warning disable IDE0051, IDE0060, IDE1006
     [HarmonyPatch(typeof(WeaponLoadoutItem), nameof(WeaponLoadoutItem.Load)), HarmonyPrefix]
     static bool WeaponLoadoutItem_Load_Pre(WeaponLoadoutItem __instance)
     {

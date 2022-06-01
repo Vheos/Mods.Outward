@@ -68,7 +68,7 @@ public class Durability : AMod
     override protected void SetFormatting()
     {
         _lossMultipliers.Format("Durability loss multipliers");
-        using(Indent)
+        using (Indent)
         {
             _lossWeapons.Format("Weapons", _lossMultipliers);
             _lossWeapons.Description = "Includes shields";
@@ -78,7 +78,7 @@ public class Durability : AMod
             _lossIngestibles.Format("Food", _lossMultipliers);
         }
         _campingRepairToggle.Format("Camping repair");
-        using(Indent)
+        using (Indent)
         {
             _repairDurabilityPerHour.Format("Durability per hour", _campingRepairToggle);
             _repairDurabilityPercentPerHour.Format("Durability % per hour", _campingRepairToggle);
@@ -96,7 +96,7 @@ public class Durability : AMod
         _effectivenessAffectsAllStats.Description = "Normally, durability affects only damages, resistances (impact only for shields) and protection\n" +
                                                     "This will make all* equipment stats decrease with durability\n" +
                                                     "( * currently all except damage bonuses)";
-        using(Indent)
+        using (Indent)
         {
             _effectivenessAffectsPenalties.Format("affect penalties", _effectivenessAffectsAllStats);
             _effectivenessAffectsPenalties.Description = "Stat penalties (like negative movement speed on heavy armors) will also decrease with durability";
@@ -104,7 +104,7 @@ public class Durability : AMod
         _linearEffectiveness.Format("Smooth durability effects");
         _linearEffectiveness.Description = "Normally, equipment stats change only when durability reaches certain thresholds (50%, 25% and 0%)\n" +
                                            "This will update the stats smoothly, without any thersholds";
-        using(Indent)
+        using (Indent)
         {
             _minNonBrokenEffectiveness.Format("when nearing zero durability", _linearEffectiveness);
             _brokenEffectiveness.Format("when broken", _linearEffectiveness);
@@ -241,7 +241,7 @@ public class Durability : AMod
             || _multiRepairBehaviour == MultiRepairBehaviour.TryToEqualizeRatios)
             {
                 bool equalizeValues = _multiRepairBehaviour == MultiRepairBehaviour.TryToEqualizeValues;
-                float minTest = equippedItems.Min(item => (equalizeValues ? item.m_currentDurability : item.DurabilityRatio));
+                float minTest = equippedItems.Min(item => equalizeValues ? item.m_currentDurability : item.DurabilityRatio);
                 Item minItem = equippedItems.Find(item => (equalizeValues ? item.m_currentDurability : item.DurabilityRatio) == minTest);
                 minItem.m_currentDurability += CalculateDurabilityGain(minItem, flat, percent);
             }
@@ -270,8 +270,8 @@ public class Durability : AMod
         #endregion
 
         float ratio = __instance.m_item.DurabilityRatio;
-        __result = ratio > 0 
-            ? __instance.m_item.DurabilityRatio.MapFrom01(_minNonBrokenEffectiveness / 100f, 1f) 
+        __result = ratio > 0
+            ? __instance.m_item.DurabilityRatio.MapFrom01(_minNonBrokenEffectiveness / 100f, 1f)
             : _brokenEffectiveness / 100f;
 
         return false;

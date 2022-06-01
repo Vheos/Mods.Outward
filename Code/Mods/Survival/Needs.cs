@@ -519,9 +519,9 @@ public class Needs : AMod, IDelayedInit
         return false;
     }
     static private bool CanIngest(Character character, Item item)
-    => (item.IsEatable() && !IsLimited(character, Need.Food)
+    => item.IsEatable() && !IsLimited(character, Need.Food)
        || item.IsDrinkable() && !IsLimited(character, Need.Drink)
-       || _allowCuresWhileOverlimited && HasStatusEffectCuredBy(character, item))
+       || _allowCuresWhileOverlimited && HasStatusEffectCuredBy(character, item)
     || item.ItemID == "Ambraine".ItemID();
     static private bool IsLimited(Character character, Need need)
     => _settingsByNeed[need].LimitingEnabled && HasLimitingStatusEffect(character, need);
@@ -531,7 +531,6 @@ public class Needs : AMod, IDelayedInit
     => _fulfilledDataByNeed[need].StatusEffect;
 
     // Hooks
-#pragma warning disable IDE0051, IDE0060, IDE1006
     // Initialize
     [HarmonyPatch(typeof(PlayerCharacterStats), nameof(PlayerCharacterStats.OnStart)), HarmonyPostfix]
     static private void PlayerCharacterStats_OnAwake_Post(PlayerCharacterStats __instance)

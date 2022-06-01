@@ -179,7 +179,6 @@ public class Merchants : AMod
     => price = isSelling ? _pricesGold.Value.y : _pricesGold.Value.x;
 
     // Hooks
-#pragma warning disable IDE0051, IDE0060, IDE1006
     [HarmonyPatch(typeof(Item), nameof(Item.GetBuyValue)), HarmonyPrefix]
     static bool Item_GetBuyValue_Pre(Item __instance, ref int __result, ref Character _player, ref Merchant _merchant)
     {
