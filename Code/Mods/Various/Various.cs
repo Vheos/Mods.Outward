@@ -9,26 +9,9 @@ using System.Collections;
 public class Various : AMod, IUpdatable
 {
     #region const
+    private const string INNS_QUEST_FAMILY_NAME = "Inns";
     private const int DROP_ONE_ACTION_ID = -2;
     private const string DROP_ONE_ACTION_TEXT = "Drop one";
-    private static readonly Dictionary<AreaManager.AreaEnum, string> STASH_UIDS_BY_CITY = new()
-    {
-        [AreaManager.AreaEnum.CierzoVillage] = "ImqRiGAT80aE2WtUHfdcMw",
-        [AreaManager.AreaEnum.Berg] = "ImqRiGAT80aE2WtUHfdcMw",
-        [AreaManager.AreaEnum.Monsoon] = "ImqRiGAT80aE2WtUHfdcMw",
-        [AreaManager.AreaEnum.Levant] = "ZbPXNsPvlUeQVJRks3zBzg",
-        [AreaManager.AreaEnum.Harmattan] = "ImqRiGAT80aE2WtUHfdcMw",
-        [AreaManager.AreaEnum.NewSirocco] = "IqUugGqBBkaOcQdRmhnMng",
-    };
-    private static readonly Dictionary<AreaManager.AreaEnum, string> SOROBOREAN_CARAVANNER_UIDS_BY_CITY = new()
-    {
-        [AreaManager.AreaEnum.CierzoVillage] = "G_GyAVjRWkq8e2L8WP4TgA",
-        [AreaManager.AreaEnum.Berg] = "-MSrkT502k63y3CV2j98TQ",
-        [AreaManager.AreaEnum.Monsoon] = "9GAbQm8Ekk23M0LohPF7dg",
-        [AreaManager.AreaEnum.Levant] = "Tbq1PxS_iUO6vhnr7aGUhg",
-        [AreaManager.AreaEnum.Harmattan] = "WN0BVRJwtE-goNLvproxgw",
-        [AreaManager.AreaEnum.NewSirocco] = "-MSrkT502k63y3CV2j98TQ",
-    };
     private const float DEFAULT_ENEMY_HEALTH_RESET_HOURS = 24f;   // Character.HoursToHealthReset
     private const int ARMOR_TRAINING_ID = 8205220;
     private static readonly Dictionary<TemperatureSteps, Vector2> DEFAULT_TEMPERATURE_DATA_BY_ENUM = new()
@@ -76,9 +59,7 @@ public class Various : AMod, IUpdatable
     private static ModSetting<bool> _applyArmorTrainingToManaCost;
     private static ModSetting<bool> _loadArrowsFromInventory;
     private static ModSetting<float> _baseStaminaRegen;
-    private static ModSetting<bool> _craftFromStash;
-    private static ModSetting<bool> _displayStashAmount;
-    private static ModSetting<bool> _displayPricesInStash;
+    private static ModSetting<int> _rentDuration;
     private static ModSetting<bool> _itemActionDropOne;
     private static ModSetting<bool> _temperatureToggle;
     private static Dictionary<TemperatureSteps, ModSetting<Vector2>> _temperatureDataByEnum;
@@ -96,11 +77,9 @@ public class Various : AMod, IUpdatable
         _applyArmorTrainingToManaCost = CreateSetting(nameof(_applyArmorTrainingToManaCost), false);
         _loadArrowsFromInventory = CreateSetting(nameof(_loadArrowsFromInventory), false);
         _baseStaminaRegen = CreateSetting(nameof(_baseStaminaRegen), 2.4f, FloatRange(0, 10));
+        _rentDuration = CreateSetting(nameof(_rentDuration), 12, IntRange(1, 168));
         _titleScreenHideCharacters = CreateSetting(nameof(_titleScreenHideCharacters), TitleScreenCharacterVisibility.Enable);
-        _craftFromStash = CreateSetting(nameof(_craftFromStash), false);
-        _displayStashAmount = CreateSetting(nameof(_displayStashAmount), false);
-        _displayPricesInStash = CreateSetting(nameof(_displayPricesInStash), false);
-        _itemActionDropOne = CreateSetting(nameof(_displayStashAmount), false);
+        _itemActionDropOne = CreateSetting(nameof(_itemActionDropOne), false);
         _temperatureToggle = CreateSetting(nameof(_temperatureToggle), false);
         _temperatureDataByEnum = new Dictionary<TemperatureSteps, ModSetting<Vector2>>();
         foreach (var step in InternalUtility.GetEnumValues<TemperatureSteps>())
@@ -148,18 +127,12 @@ public class Various : AMod, IUpdatable
         _loadArrowsFromInventory.Format("Load arrows from inventory");
         _loadArrowsFromInventory.Description = "Whenever you shoot your bow, the lost arrow is instantly replaced with one from your backpack or pouch (in that order)";
         _baseStaminaRegen.Format("Base stamina regen");
+        _rentDuration.Format("Inn rent duration");
+        _rentDuration.Description = "Pay the rent once, sleep for up to a week (in hours)";
+
         _titleScreenHideCharacters.Format("Characters");
         _titleScreenHideCharacters.Description = "If you think the character are ruining the view :)\n" +
                                                  "(requires game restart)";
-
-        _craftFromStash.Format("Craft with stashed items");
-        _craftFromStash.Description = "When you're crafting in a city, you can use items from you stash";
-        _displayStashAmount.Format("Display stashed item amounts");
-        _displayStashAmount.Description = "Displays how many of each items you have stored in your stash\n" +
-                                          "(shows in player/merchant inventory and crafting menu)";
-        _displayPricesInStash.Format("Display prices in stash");
-        _displayPricesInStash.Description = "Items in stash will have their sell prices displayed\n" +
-                                            "(if prices vary among merchants, Soroborean Caravanner is taken as reference)";
         _itemActionDropOne.Format("Add \"Drop one\" item action");
         _itemActionDropOne.Description = "Adds a button to stacked items' which skips the \"choose amount\" panel and drops exactly 1 of the item\n" +
                                          "(recommended when playing co-op for quick item sharing)";
@@ -202,9 +175,7 @@ public class Various : AMod, IUpdatable
                 _armorTrainingPenaltyReduction.Value = 50;
                 _applyArmorTrainingToManaCost.Value = true;
                 _loadArrowsFromInventory.Value = true;
-                _craftFromStash.Value = true;
-                _displayStashAmount.Value = true;
-                _displayPricesInStash.Value = true;
+                _rentDuration.Value = 120;
                 _itemActionDropOne.Value = true;
                 _temperatureToggle.Value = true;
                 {
@@ -228,31 +199,6 @@ public class Various : AMod, IUpdatable
     }
 
     // Utility
-    private static TreasureChest _playerStash;
-    private static TreasureChest PlayerStash
-    {
-        get
-        {
-            if (_playerStash == null
-            && AreaManager.Instance.CurrentArea.TryNonNull(out var currentArea)
-            && STASH_UIDS_BY_CITY.TryGet((AreaManager.AreaEnum)currentArea.ID, out var uid))
-                _playerStash = (TreasureChest)ItemManager.Instance.GetItem(uid);
-            return _playerStash;
-        }
-    }
-    private static Merchant _soroboreanCaravanner;
-    private static Merchant SoroboreanCaravanner
-    {
-        get
-        {
-            if (_soroboreanCaravanner == null
-            && AreaManager.Instance.CurrentArea.TryNonNull(out var currentArea)
-            && SOROBOREAN_CARAVANNER_UIDS_BY_CITY.TryGet((AreaManager.AreaEnum)currentArea.ID, out var uid)
-            && Merchant.m_sceneMerchants.ContainsKey(uid))
-                _soroboreanCaravanner = Merchant.m_sceneMerchants[uid];
-            return _soroboreanCaravanner;
-        }
-    }
     private static bool ShouldArmorSlotBeHidden(EquipmentSlot.EquipmentSlotIDs slot)
     => slot == EquipmentSlot.EquipmentSlotIDs.Helmet && _armorSlotsToHide.Value.HasFlag(ArmorSlots.Head)
     || slot == EquipmentSlot.EquipmentSlotIDs.Chest && _armorSlotsToHide.Value.HasFlag(ArmorSlots.Chest)
@@ -301,61 +247,8 @@ public class Various : AMod, IUpdatable
                     environmentConditions.TemperatureCaps[step] = _temperatureDataByEnum[step].Value.y;
                 }
     }
-    private static void TryDisplayStashAmount(ItemDisplay itemDisplay)
-    {
-        #region quit
-        if (!_displayStashAmount || PlayerStash == null
-        || !itemDisplay.m_lblQuantity.TryNonNull(out var quantity)
-        || !itemDisplay.RefItem.TryNonNull(out var item)
-        || item.OwnerCharacter == null
-        && item.ParentContainer.IsNot<MerchantPouch>()
-        && itemDisplay.IsNot<RecipeResultDisplay>())
-            return;
-        #endregion
-
-        int stashAmount = itemDisplay is CurrencyDisplay ? PlayerStash.ContainedSilver : PlayerStash.ItemStackCount(item.ItemID);
-        if (stashAmount <= 0)
-            return;
-
-        if (itemDisplay.IsNot<RecipeResultDisplay>())
-            quantity.text = itemDisplay.m_lastQuantity.ToString();
-        else if (itemDisplay.m_dBarUses.TryNonNull(out var dotBar) && dotBar.GOActive())
-            quantity.text = "1";
-
-        int fontSize = (quantity.fontSize * 0.75f).Round();
-        quantity.alignment = TextAnchor.UpperRight;
-        quantity.lineSpacing = 0.75f;
-        quantity.text += $"\n<color=#00FF00FF><size={fontSize}><b>+{stashAmount}</b></size></color>";
-    }
 
     // Hooks
-    // Reset static scene data
-    [HarmonyPatch(typeof(NetworkLevelLoader), nameof(NetworkLevelLoader.UnPauseGameplay)), HarmonyPostfix]
-    private static void NetworkLevelLoader_UnPauseGameplay_Post(NetworkLevelLoader __instance)
-    {
-        _playerStash = null;
-        _soroboreanCaravanner = null;
-    }
-
-    // Display prices in stash
-    [HarmonyPatch(typeof(ItemDisplay), nameof(ItemDisplay.UpdateValueDisplay)), HarmonyPrefix]
-    private static bool ItemDisplay_UpdateValueDisplay_Pre(ItemDisplay __instance)
-    {
-        #region quit
-        if (!_displayPricesInStash
-        || !__instance.CharacterUI.TryNonNull(out var characterUI) || !characterUI.GetIsMenuDisplayed(CharacterUI.MenuScreens.Stash)
-        || !__instance.RefItem.TryNonNull(out var item) || item.OwnerCharacter != null
-        || !__instance.m_lblValue.TryNonNull(out var priceText)
-        || SoroboreanCaravanner == null)
-            return true;
-        #endregion
-
-        if (!__instance.m_valueHolder.activeSelf)
-            __instance.m_valueHolder.SetActive(true);
-        priceText.text = item.GetSellValue(characterUI.TargetCharacter, SoroboreanCaravanner).ToString();
-        return false;
-    }
-
     // Drop one
     [HarmonyPatch(typeof(ItemDisplayOptionPanel), nameof(ItemDisplayOptionPanel.GetActiveActions)), HarmonyPostfix]
     private static void ItemDisplayOptionPanel_GetActiveActions_Post(ItemDisplayOptionPanel __instance, ref List<int> __result)
@@ -395,34 +288,7 @@ public class Various : AMod, IUpdatable
         return false;
     }
 
-    // Craft from stash
-    [HarmonyPatch(typeof(CharacterInventory), nameof(CharacterInventory.InventoryIngredients),
-        new[] { typeof(Tag), typeof(DictionaryExt<int, CompatibleIngredient>) },
-        new[] { ArgumentType.Normal, ArgumentType.Ref }),
-        HarmonyPostfix]
-    private static void CharacterInventory_InventoryIngredients_Post(CharacterInventory __instance, Tag _craftingStationTag, ref DictionaryExt<int, CompatibleIngredient> _sortedIngredient)
-    {
-        #region quit
-        if (!_craftFromStash || PlayerStash == null)
-            return;
-        #endregion
-
-        __instance.InventoryIngredients(_craftingStationTag, ref _sortedIngredient, PlayerStash.GetContainedItems());
-    }
-
-    // Display stash amount
-    [HarmonyPatch(typeof(ItemDisplay), nameof(ItemDisplay.UpdateQuantityDisplay)), HarmonyPostfix]
-    private static void ItemDisplay_UpdateQuantityDisplay_Post(ItemDisplay __instance)
-    => TryDisplayStashAmount(__instance);
-
-    [HarmonyPatch(typeof(CurrencyDisplay), nameof(CurrencyDisplay.UpdateQuantityDisplay)), HarmonyPostfix]
-    private static void CurrencyDisplay_UpdateQuantityDisplay_Post(CurrencyDisplay __instance)
-    => TryDisplayStashAmount(__instance);
-
-    [HarmonyPatch(typeof(RecipeResultDisplay), nameof(RecipeResultDisplay.UpdateQuantityDisplay)), HarmonyPostfix]
-    private static void RecipeResultDisplay_UpdateQuantityDisplay_Post(RecipeResultDisplay __instance)
-    => TryDisplayStashAmount(__instance);
-
+    // Title screen
     [HarmonyPatch(typeof(TitleScreenLoader), nameof(TitleScreenLoader.LoadTitleScreenCoroutine)), HarmonyPostfix]
     private static IEnumerator TitleScreenLoader_LoadTitleScreenCoroutine_Post(IEnumerator original, TitleScreenLoader __instance)
     {
@@ -490,6 +356,15 @@ public class Various : AMod, IUpdatable
         #endregion
 
         __result += __instance.ItemCount(__instance.GetEquippedAmmunition().ItemID);
+    }
+
+    // Inn rent duration
+    [HarmonyPatch(typeof(QuestEventData), nameof(QuestEventData.HasExpired)), HarmonyPrefix]
+    private static bool QuestEventData_HasExpired_Pre(QuestEventData __instance, ref int _gameHourAllowed)
+    {
+        if (__instance.m_signature.ParentSection.Name == INNS_QUEST_FAMILY_NAME)
+            _gameHourAllowed = _rentDuration;
+        return true;
     }
 
     // Multiplicative stacking

@@ -131,6 +131,7 @@ public class Needs : AMod, IDelayedInit
     private static ModSetting<bool> _allowCuresWhileOverlimited;
     private static ModSetting<bool> _allowOnlyDOTCures;
     private static ModSetting<bool> _dontRestoreNeedsOnTravel;
+    private static ModSetting<bool> _dontRestoreFoodDrinkOnSleep;
     protected override void Initialize()
     {
         _settingsByNeed = new Dictionary<Need, NeedSettings>();
@@ -158,6 +159,7 @@ public class Needs : AMod, IDelayedInit
         _allowCuresWhileOverlimited = CreateSetting(nameof(_allowCuresWhileOverlimited), false);
         _allowOnlyDOTCures = CreateSetting(nameof(_allowOnlyDOTCures), false);
         _dontRestoreNeedsOnTravel = CreateSetting(nameof(_dontRestoreNeedsOnTravel), false);
+        _dontRestoreFoodDrinkOnSleep = CreateSetting(nameof(_dontRestoreFoodDrinkOnSleep), false);
 
         // Events
         AddEventOnConfigClosed(() =>
@@ -249,6 +251,8 @@ public class Needs : AMod, IDelayedInit
         _dontRestoreNeedsOnTravel.Format("Don't restore needs when travelling");
         _dontRestoreNeedsOnTravel.Description = "Normally, travelling restores 100% needs and resets temperature\n" +
                                                 "but mages may prefer to have control over their sleep level :)";
+        _dontRestoreFoodDrinkOnSleep.Format("Don't restore food/drink when sleeping");
+        _dontRestoreFoodDrinkOnSleep.Description = "Sleeping in beds will only stop the depletion of food and drink, not restore them";
     }
     protected override string Description
     => "• Enable \"Overlimits\" system\n" +
@@ -290,6 +294,7 @@ public class Needs : AMod, IDelayedInit
                 _allowCuresWhileOverlimited.Value = true;
                 _allowOnlyDOTCures.Value = true;
                 _dontRestoreNeedsOnTravel.Value = true;
+                _dontRestoreFoodDrinkOnSleep.Value = true;
                 break;
         }
     }
@@ -652,6 +657,15 @@ public class Needs : AMod, IDelayedInit
         __instance.Hide();
         return false;
     }
+
+    // Don't restore food/drink when sleeping
+    [HarmonyPatch(typeof(CharacterResting), nameof(CharacterResting.GetFoodRestored)), HarmonyPrefix]
+    private static bool CharacterResting_GetFoodRestored_Pre(CharacterResting __instance)
+    => !_dontRestoreFoodDrinkOnSleep;
+
+    [HarmonyPatch(typeof(CharacterResting), nameof(CharacterResting.GetDrinkRestored)), HarmonyPrefix]
+    private static bool CharacterResting_GetDrinkRestored_Pre(CharacterResting __instance)
+    => !_dontRestoreFoodDrinkOnSleep;
 }
 
 /*
