@@ -179,7 +179,7 @@ public class Crafting : AMod, IDelayedInit
         }
         return desctructibleResults;
     }
-    private static void SetSingleIngredientCrafting(CraftingMenu __instance, bool enabled = true)
+    private static void SetSingleIngredientCrafting(CraftingMenu __instance, bool enabled)
     {
         __instance.m_multipleIngrenentsBrackground.SetAlpha(enabled ? 0f : 1f);
         __instance.m_singleIngredientBackground.SetAlpha(enabled ? 1f : 0f);
@@ -257,12 +257,12 @@ public class Crafting : AMod, IDelayedInit
         SetSingleIngredientCrafting(__instance, !isMulti);
     }
 
-    [HarmonyPatch(typeof(CraftingMenu), nameof(CraftingMenu.Show), new Type[] { }), HarmonyPrefix]
-    private static bool CraftingMenu_Show_Post(CraftingMenu __instance)
+    [HarmonyPatch(typeof(CraftingMenu), nameof(CraftingMenu.Show), new[] {typeof(CraftingStation)}), HarmonyPrefix]
+    private static bool CraftingMenu_Show_Post(CraftingMenu __instance, CraftingStation _ustensil)
     {
         #region quit
         if (!_limitedManualCrafting
-        || __instance.m_craftingStation.StationType != Recipe.CraftingType.Alchemy
+        || _ustensil.StationType != Recipe.CraftingType.Alchemy
         || HasLearnedRecipe(__instance.LocalCharacter, _crystalPowderRecipe))
             return true;
         #endregion
