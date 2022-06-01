@@ -3,12 +3,12 @@ using UnityEngine.UI;
 
 public class WIP : AMod
 {
-    static private ModSetting<Vector2> _temperatureMultiplier;
-    static private ModSetting<bool> _markItemsWithLegacyUpgrade;
-    static private ModSetting<bool> _allowDodgeAnimationCancelling;
-    static private ModSetting<bool> _allowPushKickRemoval;
-    static private ModSetting<bool> _allowTargetingPlayers;
-    override protected void Initialize()
+    private static ModSetting<Vector2> _temperatureMultiplier;
+    private static ModSetting<bool> _markItemsWithLegacyUpgrade;
+    private static ModSetting<bool> _allowDodgeAnimationCancelling;
+    private static ModSetting<bool> _allowPushKickRemoval;
+    private static ModSetting<bool> _allowTargetingPlayers;
+    protected override void Initialize()
     {
         _temperatureMultiplier = CreateSetting(nameof(_temperatureMultiplier), 1f.ToVector2());
         _markItemsWithLegacyUpgrade = CreateSetting(nameof(_markItemsWithLegacyUpgrade), false);
@@ -16,7 +16,7 @@ public class WIP : AMod
         _allowPushKickRemoval = CreateSetting(nameof(_allowPushKickRemoval), false);
         _allowTargetingPlayers = CreateSetting(nameof(_allowTargetingPlayers), false);
     }
-    override protected void SetFormatting()
+    protected override void SetFormatting()
     {
         _temperatureMultiplier.Format("Temperature multiplier");
         _temperatureMultiplier.Description = "How strongly the environment temperature affects you when your temperature is:\n" +
@@ -33,14 +33,14 @@ public class WIP : AMod
         _allowTargetingPlayers.Description = "For future co-op skills mod";
     }
 
-    override protected string SectionOverride
+    protected override string SectionOverride
     => ModSections.Development;
 
     // Hooks
 
     // Temperature multiplier
     [HarmonyPatch(typeof(CharacterStats), nameof(CharacterStats.TemperatureModifier), MethodType.Getter), HarmonyPostfix]
-    static void CharacterStats_TemperatureModifier_Getter_Post(PlayerCharacterStats __instance, ref float __result)
+    private static void CharacterStats_TemperatureModifier_Getter_Post(PlayerCharacterStats __instance, ref float __result)
     {
         float progress = __instance.Temperature.DistanceTo(50f).Div(50f);
         __result *= _temperatureMultiplier.Value.x.Lerp(_temperatureMultiplier.Value.y, progress);
@@ -48,7 +48,7 @@ public class WIP : AMod
 
     // Mark items with legacy upgrades
     [HarmonyPatch(typeof(ItemDisplay), nameof(ItemDisplay.RefreshEnchantedIcon)), HarmonyPrefix]
-    static bool ItemDisplay_RefreshEnchantedIcon_Pre(ItemDisplay __instance)
+    private static bool ItemDisplay_RefreshEnchantedIcon_Pre(ItemDisplay __instance)
     {
         #region quit
         if (!_markItemsWithLegacyUpgrade || __instance.m_refItem == null || __instance.m_imgEnchantedIcon == null)
@@ -77,7 +77,7 @@ public class WIP : AMod
 
     // Dodge animation cancelling
     [HarmonyPatch(typeof(Character), nameof(Character.DodgeInput), new[] { typeof(Vector3) }), HarmonyPrefix]
-    static bool Character_SpellCastAnim_Post(ref int ___m_dodgeAllowedInAction, ref Character.HurtType ___m_hurtType)
+    private static bool Character_SpellCastAnim_Post(ref int ___m_dodgeAllowedInAction, ref Character.HurtType ___m_hurtType)
     {
         #region quit
         if (!_allowDodgeAnimationCancelling)
@@ -91,7 +91,7 @@ public class WIP : AMod
 
     // Push kick removal
     [HarmonyPatch(typeof(CharacterSave), nameof(CharacterSave.IsValid), MethodType.Getter), HarmonyPrefix]
-    static bool CharacterSave_IsValid_Getter_Pre(ref bool __result)
+    private static bool CharacterSave_IsValid_Getter_Pre(ref bool __result)
     {
         #region quit
         if (!_allowPushKickRemoval.Value)
@@ -104,7 +104,7 @@ public class WIP : AMod
 
     // Target other players
     [HarmonyPatch(typeof(TargetingSystem), nameof(TargetingSystem.IsTargetable), new[] { typeof(Character) }), HarmonyPrefix]
-    static bool TargetingSystem_IsTargetable_Pre(TargetingSystem __instance, ref bool __result, ref Character _char)
+    private static bool TargetingSystem_IsTargetable_Pre(TargetingSystem __instance, ref bool __result, ref Character _char)
     {
         #region quit
         if (!_allowTargetingPlayers)

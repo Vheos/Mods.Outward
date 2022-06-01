@@ -3,11 +3,11 @@
 public class KeyboardWalk : AMod, IUpdatable
 {
     // Setting
-    static private ModSetting<int> _walkSpeed;
-    static private ModSetting<string> _key;
-    static private ModSetting<bool> _doubleTapToToggle;
-    static private ModSetting<int> _doubleTapWaitTime;
-    override protected void Initialize()
+    private static ModSetting<int> _walkSpeed;
+    private static ModSetting<string> _key;
+    private static ModSetting<bool> _doubleTapToToggle;
+    private static ModSetting<int> _doubleTapWaitTime;
+    protected override void Initialize()
     {
         _key = CreateSetting(nameof(_key), "LeftAlt");
         _walkSpeed = CreateSetting(nameof(_walkSpeed), 35, IntRange(0, 100));
@@ -17,7 +17,7 @@ public class KeyboardWalk : AMod, IUpdatable
         _modifier = 1f;
         _lastKeyPressTime = float.NegativeInfinity;
     }
-    override protected void SetFormatting()
+    protected override void SetFormatting()
     {
         _key.Format("Key");
         _key.Description = "Use UnityEngine.KeyCode enum values\n" +
@@ -32,12 +32,12 @@ public class KeyboardWalk : AMod, IUpdatable
             _doubleTapWaitTime.Description = "Max interval between two key presses (in milliseconds)";
         }
     }
-    override protected string Description
+    protected override string Description
     => "• Allows keyboard players to walk\n" +
        "(can be held or toggled)";
-    override protected string SectionOverride
+    protected override string SectionOverride
     => ModSections.UI;
-    override protected void LoadPreset(string presetName)
+    protected override void LoadPreset(string presetName)
     {
         switch (presetName)
         {
@@ -61,10 +61,10 @@ public class KeyboardWalk : AMod, IUpdatable
     }
 
     // Utility
-    static private float _modifier;
+    private static float _modifier;
     private bool _reverseMode;
-    static private bool _isHorizontalInput;
-    static private bool _isVerticalInput;
+    private static bool _isHorizontalInput;
+    private static bool _isVerticalInput;
     private float _lastKeyPressTime;
     private float NormalSpeed
     => _reverseMode ? _walkSpeed / 100f : 1f;
@@ -75,7 +75,7 @@ public class KeyboardWalk : AMod, IUpdatable
 
     // Hooks
     [HarmonyPatch(typeof(ControlsInput), nameof(ControlsInput.MoveHorizontal)), HarmonyPostfix]
-    static void ControlsInput_MoveHorizontal_Post(ref float __result, ref int _playerID)
+    private static void ControlsInput_MoveHorizontal_Post(ref float __result, ref int _playerID)
     {
         if (!GameInput.IsUsingGamepad(_playerID))
         {
@@ -87,7 +87,7 @@ public class KeyboardWalk : AMod, IUpdatable
     }
 
     [HarmonyPatch(typeof(ControlsInput), nameof(ControlsInput.MoveVertical)), HarmonyPostfix]
-    static void ControlsInput_MoveVertical_Post(ref float __result, ref int _playerID)
+    private static void ControlsInput_MoveVertical_Post(ref float __result, ref int _playerID)
     {
         if (!GameInput.IsUsingGamepad(_playerID))
         {

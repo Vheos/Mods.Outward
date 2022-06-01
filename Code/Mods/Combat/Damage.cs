@@ -7,10 +7,10 @@ namespace Vheos.Mods.Outward;
 public class Damage : AMod
 {
     // Config
-    static private ModSetting<bool> _playersToggle, _enemiesToggle, _playersFriendlyFireToggle, _enemiesFriendlyFireToggle;
-    static private ModSetting<int> _playersHealthDamage, _enemiesHealthDamage, _playersFriendlyFireHealthDamage, _enemiesFriendlyFireHealthDamage;
-    static private ModSetting<int> _playersStabilityDamage, _enemiesStabilityDamage, _playersFriendlyFireStabilityDamage, _enemiesFriendlyFireStabilityDamage;
-    override protected void Initialize()
+    private static ModSetting<bool> _playersToggle, _enemiesToggle, _playersFriendlyFireToggle, _enemiesFriendlyFireToggle;
+    private static ModSetting<int> _playersHealthDamage, _enemiesHealthDamage, _playersFriendlyFireHealthDamage, _enemiesFriendlyFireHealthDamage;
+    private static ModSetting<int> _playersStabilityDamage, _enemiesStabilityDamage, _playersFriendlyFireStabilityDamage, _enemiesFriendlyFireStabilityDamage;
+    protected override void Initialize()
     {
         _playersToggle = CreateSetting(nameof(_playersToggle), false);
         _playersHealthDamage = CreateSetting(nameof(_playersHealthDamage), 100, IntRange(0, 200));
@@ -26,7 +26,7 @@ public class Damage : AMod
         _enemiesFriendlyFireHealthDamage = CreateSetting(nameof(_enemiesFriendlyFireHealthDamage), 100, IntRange(0, 200));
         _enemiesFriendlyFireStabilityDamage = CreateSetting(nameof(_enemiesFriendlyFireStabilityDamage), 100, IntRange(0, 200));
     }
-    override protected void SetFormatting()
+    protected override void SetFormatting()
     {
         _playersToggle.Format("Players");
         _playersToggle.Description = "Set multipliers for damage dealt by players";
@@ -61,14 +61,14 @@ public class Damage : AMod
             }
         }
     }
-    override protected string Description
+    protected override string Description
     => "• Change players and NPCs damage multipliers\n" +
        "(health, stability)\n" +
        "• Affects FINAL damage, after all reductions and amplifications\n" +
        "• Enable friendly fire between players";
-    override protected string SectionOverride
+    protected override string SectionOverride
     => ModSections.Combat;
-    override protected void LoadPreset(string presetName)
+    protected override void LoadPreset(string presetName)
     {
         switch (presetName)
         {
@@ -101,7 +101,7 @@ public class Damage : AMod
     // Hooks
 #pragma warning disable IDE0051, IDE0060, IDE1006
     [HarmonyPatch(typeof(Weapon), nameof(Weapon.ElligibleFaction), new[] { typeof(Character) }), HarmonyPostfix]
-    static void Weapon_ElligibleFaction_Post(Weapon __instance, ref bool __result, Character _character)
+    private static void Weapon_ElligibleFaction_Post(Weapon __instance, ref bool __result, Character _character)
     {
         #region quit
         if (!_playersFriendlyFireToggle || _character == null)
@@ -112,7 +112,7 @@ public class Damage : AMod
     }
 
     [HarmonyPatch(typeof(MeleeHitDetector), nameof(MeleeHitDetector.ElligibleFaction), new[] { typeof(Character) }), HarmonyPostfix]
-    static void MeleeHitDetector_ElligibleFaction_Post(MeleeHitDetector __instance, ref bool __result, Character _character)
+    private static void MeleeHitDetector_ElligibleFaction_Post(MeleeHitDetector __instance, ref bool __result, Character _character)
     {
         #region quit
         if (!_playersFriendlyFireToggle || _character == null)
@@ -123,12 +123,12 @@ public class Damage : AMod
     }
 
     [HarmonyPatch(typeof(Character), nameof(Character.OnReceiveHitCombatEngaged)), HarmonyPrefix]
-    static bool Character_OnReceiveHitCombatEngaged_Pre(Character __instance, ref Character _dealerChar)
+    private static bool Character_OnReceiveHitCombatEngaged_Pre(Character __instance, ref Character _dealerChar)
     => !_playersFriendlyFireToggle || _dealerChar == null || !_dealerChar.IsAlly();
 
 
     [HarmonyPatch(typeof(Character), nameof(Character.VitalityHit)), HarmonyPrefix]
-    static bool Character_VitalityHit_Pre(Character __instance, Character _dealerChar, ref float _damage)
+    private static bool Character_VitalityHit_Pre(Character __instance, Character _dealerChar, ref float _damage)
     {
         if (_dealerChar != null && _dealerChar.IsEnemy()
         || _dealerChar == null && __instance.IsAlly())
@@ -150,7 +150,7 @@ public class Damage : AMod
     }
 
     [HarmonyPatch(typeof(Character), nameof(Character.StabilityHit)), HarmonyPrefix]
-    static bool Character_StabilityHit_Pre(Character __instance, Character _dealerChar, ref float _knockValue)
+    private static bool Character_StabilityHit_Pre(Character __instance, Character _dealerChar, ref float _knockValue)
     {
         if (_dealerChar != null && _dealerChar.IsEnemy()
         || _dealerChar == null && __instance.IsAlly())

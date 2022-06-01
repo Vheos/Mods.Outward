@@ -6,18 +6,18 @@ public class Merchants : AMod
     #region const
     private const float DEFAULT_SELL_MODIFIER = 0.3f;
     private const int GOLD_INGOT_ID = 6300030;
-    static private readonly Color DEFAULT_PRICE_COLOR = new(0.8235294f, 0.8877006f, 1f);
+    private static readonly Color DEFAULT_PRICE_COLOR = new(0.8235294f, 0.8877006f, 1f);
     #endregion
 
     // Settings
-    static private ModSetting<int> _pricesCurve;
-    static private ModSetting<int> _sellModifier;
-    static private ModSetting<Vector2> _pricesGold;
-    static private ModSetting<bool> _pricesPerTypeToggle;
-    static private ModSetting<int> _pricesWeapons, _pricesArmors, _pricesIngestibles, _pricesRecipes, _pricesOther;
-    static private ModSetting<int> _randomizePricesExtent, _randomizePricesPerDays;
-    static private ModSetting<bool> _randomizePricesPerItem, _randomizePricesPerArea;
-    override protected void Initialize()
+    private static ModSetting<int> _pricesCurve;
+    private static ModSetting<int> _sellModifier;
+    private static ModSetting<Vector2> _pricesGold;
+    private static ModSetting<bool> _pricesPerTypeToggle;
+    private static ModSetting<int> _pricesWeapons, _pricesArmors, _pricesIngestibles, _pricesRecipes, _pricesOther;
+    private static ModSetting<int> _randomizePricesExtent, _randomizePricesPerDays;
+    private static ModSetting<bool> _randomizePricesPerItem, _randomizePricesPerArea;
+    protected override void Initialize()
     {
         _pricesCurve = CreateSetting(nameof(_pricesCurve), 100, IntRange(50, 100));
         _sellModifier = CreateSetting(nameof(_sellModifier), DEFAULT_SELL_MODIFIER.Mul(100f).Round(), IntRange(0, 100));
@@ -35,7 +35,7 @@ public class Merchants : AMod
         _randomizePricesPerItem = CreateSetting(nameof(_randomizePricesPerItem), true);
         _randomizePricesPerArea = CreateSetting(nameof(_randomizePricesPerArea), true);
     }
-    override protected void SetFormatting()
+    protected override void SetFormatting()
     {
         _pricesCurve.Format("Prices curve");
         _pricesCurve.Description = "How quickly the prices increase throughout the game\n" +
@@ -68,13 +68,13 @@ public class Merchants : AMod
         _pricesGold.Description = "X   -   Gold ingot's buying price\n" +
                                   "Y   -   Gold ingot's selling price";
     }
-    override protected string Description
+    protected override string Description
     => "• Change final buy/sell modifiers\n" +
        "• Randomize prices based on time, merchant and item\n" +
        "• Set price for learning mutually exclusive skills";
-    override protected string SectionOverride
+    protected override string SectionOverride
     => ModSections.SurvivalAndImmersion;
-    override protected void LoadPreset(string presetName)
+    protected override void LoadPreset(string presetName)
     {
         switch (presetName)
         {
@@ -102,7 +102,7 @@ public class Merchants : AMod
     }
 
     // Utility
-    static private int GetFinalModifiedPrice(Item item, Character player, Merchant merchant, bool isSelling)
+    private static int GetFinalModifiedPrice(Item item, Character player, Merchant merchant, bool isSelling)
     {
         float price = item.RawCurrentValue;
 
@@ -122,7 +122,7 @@ public class Merchants : AMod
 
         return price.Round();
     }
-    static private float GetRandomPriceModifier(Item item)
+    private static float GetRandomPriceModifier(Item item)
     {
         int itemSeed = _randomizePricesPerItem ? item.ItemID : 0;
         int areaSeed = _randomizePricesPerArea ? AreaManager.Instance.CurrentArea.ID : 0;
@@ -131,9 +131,9 @@ public class Merchants : AMod
 
         return 1f + Random.Range(-_randomizePricesExtent, +_randomizePricesExtent) / 100f;
     }
-    static private void ApplyCurve(ref float price)
+    private static void ApplyCurve(ref float price)
     => price = price.Pow(_pricesCurve / 100f);
-    static private void ApplyTypeModifier(ref float price, Item item)
+    private static void ApplyTypeModifier(ref float price, Item item)
     {
         float modifier = _pricesOther;
         if (item is Weapon)
@@ -146,7 +146,7 @@ public class Merchants : AMod
             modifier = _pricesIngestibles;
         price *= modifier / 100f;
     }
-    static private void ApplyRandomModifier(ref float price, Item item, bool changePriceColor)
+    private static void ApplyRandomModifier(ref float price, Item item, bool changePriceColor)
     {
         int preRandomPrice = price.Round();
         price = (price * GetRandomPriceModifier(item)).Round();
@@ -167,27 +167,27 @@ public class Merchants : AMod
             : Color.Lerp(Color.white, relativeIncrease > 0 ? Color.green
             : Color.red, relativeIncrease.Abs() * 100f / _randomizePricesExtent);
     }
-    static private void ApplyVanillaStatModifier(ref float price, Item item, Character player, Merchant merchant, bool isSelling)
+    private static void ApplyVanillaStatModifier(ref float price, Item item, Character player, Merchant merchant, bool isSelling)
     {
         float vanillaModifierIncrease = isSelling ? player.GetItemSellPriceModifier(merchant, item) + merchant.GetItemSellPriceModifier(player, item)
                                                    : player.GetItemBuyPriceModifier(merchant, item) + merchant.GetItemBuyPriceModifier(player, item);
         price *= 1f + vanillaModifierIncrease;
     }
-    static private void ApplySellModifier(ref float price)
+    private static void ApplySellModifier(ref float price)
     => price *= _sellModifier / 100f;
-    static private void ApplyGoldPrice(ref float price, bool isSelling)
+    private static void ApplyGoldPrice(ref float price, bool isSelling)
     => price = isSelling ? _pricesGold.Value.y : _pricesGold.Value.x;
 
     // Hooks
     [HarmonyPatch(typeof(Item), nameof(Item.GetBuyValue)), HarmonyPrefix]
-    static bool Item_GetBuyValue_Pre(Item __instance, ref int __result, ref Character _player, ref Merchant _merchant)
+    private static bool Item_GetBuyValue_Pre(Item __instance, ref int __result, ref Character _player, ref Merchant _merchant)
     {
         __result = GetFinalModifiedPrice(__instance, _player, _merchant, false);
         return false;
     }
 
     [HarmonyPatch(typeof(Item), nameof(Item.GetSellValue)), HarmonyPrefix]
-    static bool Item_GetSellValue_Pre(Item __instance, ref int __result, ref Character _player, ref Merchant _merchant)
+    private static bool Item_GetSellValue_Pre(Item __instance, ref int __result, ref Character _player, ref Merchant _merchant)
     {
         __result = GetFinalModifiedPrice(__instance, _player, _merchant, true);
         return false;

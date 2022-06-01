@@ -27,11 +27,11 @@ public class Targeting : AMod
     #endregion
 
     // Setting
-    static private ModSetting<int> _meleeDistance, _rangedDistance, _huntersEyeDistance;
-    static private ModSetting<RangedTypes> _rangedEquipmentTypes;
-    static private ModSetting<AutoTargetActions> _autoTargetActions;
-    static private ModSetting<float> _targetingPitchOffset;
-    override protected void Initialize()
+    private static ModSetting<int> _meleeDistance, _rangedDistance, _huntersEyeDistance;
+    private static ModSetting<RangedTypes> _rangedEquipmentTypes;
+    private static ModSetting<AutoTargetActions> _autoTargetActions;
+    private static ModSetting<float> _targetingPitchOffset;
+    protected override void Initialize()
     {
         _meleeDistance = CreateSetting(nameof(_meleeDistance), 20, IntRange(0, 100));
         _rangedDistance = CreateSetting(nameof(_rangedDistance), 20, IntRange(0, 100));
@@ -40,7 +40,7 @@ public class Targeting : AMod
         _autoTargetActions = CreateSetting(nameof(_autoTargetActions), AutoTargetActions.None);
         _targetingPitchOffset = CreateSetting(nameof(_targetingPitchOffset), 0f, FloatRange(0, 1));
     }
-    override protected void SetFormatting()
+    protected override void SetFormatting()
     {
         _meleeDistance.Format("Melee distance");
         _meleeDistance.Description = "Targeting distance for all melee weapons";
@@ -56,13 +56,13 @@ public class Targeting : AMod
         _targetingPitchOffset.Description = "When you're targeting, the camera will be tilted a little to give more \"top-down\" view\n" +
                                             "This way the enemy won't be obscured by your character, especially if you're wearing a big helmet";
     }
-    override protected string Description
+    protected override string Description
     => "• Set targeting distance by weapon type\n" +
        "• Auto-target on specific actions\n" +
        "• Tilt targeting camera";
-    override protected string SectionOverride
+    protected override string SectionOverride
     => ModSections.Combat;
-    override protected void LoadPreset(string presetName)
+    protected override void LoadPreset(string presetName)
     {
         switch (presetName)
         {
@@ -79,33 +79,33 @@ public class Targeting : AMod
     }
 
     // Utility
-    static private bool HasHuntersEye(Character character)
+    private static bool HasHuntersEye(Character character)
     => character.Inventory.SkillKnowledge.IsItemLearned(HUNTERS_EYE_ID);
-    static private bool HasRangedEquipment(Character character)
+    private static bool HasRangedEquipment(Character character)
     => _rangedEquipmentTypes.Value.HasFlag(RangedTypes.Bow) && HasBow(character)
     || _rangedEquipmentTypes.Value.HasFlag(RangedTypes.Pistol) && HasPistol(character)
     || _rangedEquipmentTypes.Value.HasFlag(RangedTypes.Chakram) && HasChakram(character)
     || _rangedEquipmentTypes.Value.HasFlag(RangedTypes.Lexicon) && HasLexicon(character);
-    static private bool HasBow(Character character)
+    private static bool HasBow(Character character)
     => character.m_currentWeapon != null && character.m_currentWeapon.Type == Weapon.WeaponType.Bow;
-    static private bool HasPistol(Character character)
+    private static bool HasPistol(Character character)
     => character.LeftHandWeapon != null && character.LeftHandWeapon.Type == Weapon.WeaponType.Pistol_OH;
-    static private bool HasChakram(Character character)
+    private static bool HasChakram(Character character)
     => character.LeftHandWeapon != null && character.LeftHandWeapon.Type == Weapon.WeaponType.Chakram_OH;
-    static private bool HasLexicon(Character character)
+    private static bool HasLexicon(Character character)
     => character.LeftHandEquipment != null && character.LeftHandEquipment.IKType == Equipment.IKMode.Lexicon;
 
     // Hooks
 #pragma warning disable IDE0051, IDE0060, IDE1006
     [HarmonyPatch(typeof(CharacterCamera), nameof(CharacterCamera.LateUpdate)), HarmonyPostfix]
-    static void CharacterCamera_LateUpdate_Post(CharacterCamera __instance)
+    private static void CharacterCamera_LateUpdate_Post(CharacterCamera __instance)
     {
         if (__instance.m_targetCharacter.TargetingSystem.LockedCharacter != null)
             __instance.m_cameraVertHolder.rotation *= Quaternion.Euler(_targetingPitchOffset, 0, 0);
     }
 
     [HarmonyPatch(typeof(TargetingSystem), nameof(TargetingSystem.TrueRange), MethodType.Getter), HarmonyPrefix]
-    static bool TargetingSystem_TrueRange_Pre(TargetingSystem __instance, ref float __result)
+    private static bool TargetingSystem_TrueRange_Pre(TargetingSystem __instance, ref float __result)
     {
         Character character = __instance.m_character;
         __result = !HasRangedEquipment(character) ? (float)_meleeDistance
@@ -116,7 +116,7 @@ public class Targeting : AMod
 
     // Auto-target
     [HarmonyPatch(typeof(Character), nameof(Character.AttackInput)), HarmonyPostfix]
-    static void Character_AttackInput_Post(Character __instance)
+    private static void Character_AttackInput_Post(Character __instance)
     {
         #region quit
         if (!__instance.CharacterControl.TryAs(out LocalCharacterControl localCharacterControl) || __instance.TargetingSystem.Locked
@@ -128,7 +128,7 @@ public class Targeting : AMod
     }
 
     [HarmonyPatch(typeof(Character), nameof(Character.SetLastUsedSkill)), HarmonyPostfix]
-    static void Character_SetLastUsedSkill_Post(Character __instance, ref Skill _skill)
+    private static void Character_SetLastUsedSkill_Post(Character __instance, ref Skill _skill)
     {
         #region quit
         if (!__instance.CharacterControl.TryAs(out LocalCharacterControl localCharacterControl) || __instance.TargetingSystem.Locked
@@ -140,7 +140,7 @@ public class Targeting : AMod
     }
 
     [HarmonyPatch(typeof(Character), nameof(Character.BlockInput)), HarmonyPostfix]
-    static void Character_BlockInput_Post(Character __instance, ref bool _active)
+    private static void Character_BlockInput_Post(Character __instance, ref bool _active)
     {
         #region quit
         if (!__instance.CharacterControl.TryAs(out LocalCharacterControl localCharacterControl) || __instance.TargetingSystem.Locked
@@ -152,7 +152,7 @@ public class Targeting : AMod
     }
 
     [HarmonyPatch(typeof(Character), nameof(Character.DodgeInput), new[] { typeof(Vector3) }), HarmonyPostfix]
-    static void Character_DodgeInput_Post(Character __instance)
+    private static void Character_DodgeInput_Post(Character __instance)
     {
         #region quit
         if (!__instance.CharacterControl.TryAs(out LocalCharacterControl localCharacterControl) || __instance.TargetingSystem.Locked

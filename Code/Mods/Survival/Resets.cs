@@ -16,7 +16,7 @@ public class Resets : AMod
     private const int FISHING_HARPOON_ID = 2130130;   //
     private const int MINING_PICK_ID = 2120050;   //
     private const float TIME_UNIT = 24f;   // Day = TIME_UNIT
-    static private readonly Dictionary<WeaponSet, int[]> MELEE_WEAPON_IDS_BY_SET = new()
+    private static readonly Dictionary<WeaponSet, int[]> MELEE_WEAPON_IDS_BY_SET = new()
     {
         [WeaponSet.Junk] = new[]
         {
@@ -84,7 +84,7 @@ public class Resets : AMod
         },
     };
 
-    static private readonly Dictionary<WeaponSet, int[]> RANGED_WEAPON_IDS_BY_SET = new()
+    private static readonly Dictionary<WeaponSet, int[]> RANGED_WEAPON_IDS_BY_SET = new()
     {
         [WeaponSet.Junk] = new[] { 2200000 },
         [WeaponSet.Iron] = new[] { 2200000 },
@@ -125,14 +125,14 @@ public class Resets : AMod
     #endregion
 
     // Config
-    static private ModSetting<bool> _areasToggle, _gatherablesToggle, _merchantsToggle;
-    static private ModSetting<ResetMode> _areasMode, _gatheringMode, _fishingMode, _miningMode, _merchantsMode;
-    static private ModSetting<int> _areasTimer, _gatheringTimer, _fishingTimer, _miningTimer, _merchantsTimer;
-    static private ModSetting<int> _areasTimerSinceReset;
-    static private ModSetting<AreasResetLayers> _areasResetLayers;
-    static private ModSetting<WeaponSet> _fixUnarmedBandits;
-    static private ModSetting<int> _fixUnarmedBanditsDurabilityRatio;
-    override protected void Initialize()
+    private static ModSetting<bool> _areasToggle, _gatherablesToggle, _merchantsToggle;
+    private static ModSetting<ResetMode> _areasMode, _gatheringMode, _fishingMode, _miningMode, _merchantsMode;
+    private static ModSetting<int> _areasTimer, _gatheringTimer, _fishingTimer, _miningTimer, _merchantsTimer;
+    private static ModSetting<int> _areasTimerSinceReset;
+    private static ModSetting<AreasResetLayers> _areasResetLayers;
+    private static ModSetting<WeaponSet> _fixUnarmedBandits;
+    private static ModSetting<int> _fixUnarmedBanditsDurabilityRatio;
+    protected override void Initialize()
     {
         _areasToggle = CreateSetting(nameof(_areasToggle), false);
         _areasMode = CreateSetting(nameof(_areasMode), ResetMode.Timer);
@@ -157,7 +157,7 @@ public class Resets : AMod
         _areasTimer.AddEvent(() => _areasTimerSinceReset.Value = _areasTimerSinceReset.Value.ClampMin(_areasTimer));
         _areasTimerSinceReset.AddEvent(() => _areasTimer.Value = _areasTimer.Value.ClampMax(_areasTimerSinceReset));
     }
-    override protected void SetFormatting()
+    protected override void SetFormatting()
     {
         _areasToggle.Format("Areas");
         _areasToggle.Description = "Change areas (scenes) reset settings";
@@ -200,13 +200,13 @@ public class Resets : AMod
             _merchantsTimer.Format("", _merchantsMode, ResetMode.Timer);
         }
     }
-    override protected string Description
+    protected override string Description
     => "• Area resets (with fine-tuning)\n" +
        "• Gatherable respawns (for each type)\n" +
        "• Merchant restocks";
-    override protected string SectionOverride
+    protected override string SectionOverride
     => ModSections.SurvivalAndImmersion;
-    override protected void LoadPreset(string presetName)
+    protected override void LoadPreset(string presetName)
     {
         switch (presetName)
         {
@@ -237,7 +237,7 @@ public class Resets : AMod
     }
 
     // Utility
-    static private void RemovePouchItemsFromSaveData(List<BasicSaveData> saveDataList)
+    private static void RemovePouchItemsFromSaveData(List<BasicSaveData> saveDataList)
     {
         List<BasicSaveData> saveDatasToRemove = new();
         foreach (var saveData in saveDataList)
@@ -246,11 +246,11 @@ public class Resets : AMod
 
         saveDataList.Remove(saveDatasToRemove);
     }
-    static private bool HasAnyMeleeWeapon(Character character)
+    private static bool HasAnyMeleeWeapon(Character character)
     => character.CurrentWeapon is MeleeWeapon || character.Inventory.Pouch.GetContainedItems().Any(item => item is MeleeWeapon);
-    static private bool HasAnyRangedWeapon(Character character)
+    private static bool HasAnyRangedWeapon(Character character)
     => character.CurrentWeapon is ProjectileWeapon || character.Inventory.Pouch.GetContainedItems().Any(item => item is ProjectileWeapon);
-    static private void GenerateAndEquipPouchItem(Character character, int itemID, float durabilityRatio = 1f)
+    private static void GenerateAndEquipPouchItem(Character character, int itemID, float durabilityRatio = 1f)
     {
         Item newItem = ItemManager.Instance.GenerateItem(itemID);
         newItem.ForceStartInit();
@@ -263,7 +263,7 @@ public class Resets : AMod
     // Hooks
     // Areas
     [HarmonyPatch(typeof(EnvironmentSave), nameof(EnvironmentSave.ApplyData)), HarmonyPrefix]
-    static bool EnvironmentSave_ApplyData_Pre(EnvironmentSave __instance)
+    private static bool EnvironmentSave_ApplyData_Pre(EnvironmentSave __instance)
     {
         #region quit
         if (!_areasToggle)
@@ -313,7 +313,7 @@ public class Resets : AMod
 
     // Gatherables
     [HarmonyPatch(typeof(Gatherable), nameof(Gatherable.StartInit)), HarmonyPostfix]
-    static void Gatherable_StartInit_Post(Gatherable __instance)
+    private static void Gatherable_StartInit_Post(Gatherable __instance)
     {
         #region quit
         if (!_gatherablesToggle)
@@ -358,7 +358,7 @@ public class Resets : AMod
 
     // Merchants
     [HarmonyPatch(typeof(MerchantPouch), nameof(MerchantPouch.RefreshInventory)), HarmonyPrefix]
-    static bool MerchantPouch_RefreshInventory_Pre(MerchantPouch __instance, ref double ___m_nextRefreshTime)
+    private static bool MerchantPouch_RefreshInventory_Pre(MerchantPouch __instance, ref double ___m_nextRefreshTime)
     {
         #region quit
         if (!_merchantsToggle)
@@ -381,7 +381,7 @@ public class Resets : AMod
 
     // Bandits fix
     [HarmonyPatch(typeof(AISCombat), nameof(AISCombat.UpdateMed)), HarmonyPrefix]
-    static bool AISCombat_UpdateMed_Pre(AISCombat __instance)
+    private static bool AISCombat_UpdateMed_Pre(AISCombat __instance)
     {
         Character character = __instance.m_character;
         #region quit

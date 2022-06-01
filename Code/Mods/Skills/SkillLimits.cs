@@ -1,6 +1,6 @@
 ﻿namespace Vheos.Mods.Outward;
-using UnityEngine.UI;
 using NodeCanvas.Tasks.Conditions;
+using UnityEngine.UI;
 
 public class SkillLimits : AMod
 {
@@ -13,7 +13,7 @@ public class SkillLimits : AMod
         [SkillTypes.Active] = "You can't learn any more active skills!",
         [SkillTypes.Any] = "You can't learn any more skills!",
     };
-    static private readonly int[] SIDE_SKILL_IDS =
+    private static readonly int[] SIDE_SKILL_IDS =
     {
         // Weapon skills
         "Puncture".SkillID(),
@@ -40,10 +40,10 @@ public class SkillLimits : AMod
         // Mana
         "Flamethrower".SkillID(),
     };
-    static private Color ICON_COLOR = new(1f, 1f, 1f, 1 / 3f);
-    static private Color BORDER_COLOR = new(1 / 3f, 0f, 1f, 1f);
-    static private Color INDICATOR_COLOR = new(0.75f, 0f, 1f, 1 / 3f);
-    static private Vector2 INDICATOR_SCALE = new(1.5f, 1.5f);
+    private static Color ICON_COLOR = new(1f, 1f, 1f, 1 / 3f);
+    private static Color BORDER_COLOR = new(1 / 3f, 0f, 1f, 1f);
+    private static Color INDICATOR_COLOR = new(0.75f, 0f, 1f, 1 / 3f);
+    private static Vector2 INDICATOR_SCALE = new(1.5f, 1.5f);
     #endregion
     #region enum
     [Flags]
@@ -67,11 +67,11 @@ public class SkillLimits : AMod
     #endregion
 
     // Setting
-    static private ModSetting<bool> _separateLimits;
-    static private ModSetting<int> _skillsLimit, _passiveSkillsLimit, _activeSkillsLimit;
-    static private ModSetting<LimitedSkillTypes> _limitedSkillTypes;
-    static private ModSetting<bool> _freePostBreakthroughBasicSkills;
-    override protected void Initialize()
+    private static ModSetting<bool> _separateLimits;
+    private static ModSetting<int> _skillsLimit, _passiveSkillsLimit, _activeSkillsLimit;
+    private static ModSetting<LimitedSkillTypes> _limitedSkillTypes;
+    private static ModSetting<bool> _freePostBreakthroughBasicSkills;
+    protected override void Initialize()
     {
         _separateLimits = CreateSetting(nameof(_separateLimits), false);
         _skillsLimit = CreateSetting(nameof(_skillsLimit), 20, IntRange(1, 100));
@@ -80,7 +80,7 @@ public class SkillLimits : AMod
         _limitedSkillTypes = CreateSetting(nameof(_limitedSkillTypes), (LimitedSkillTypes)~0);
         _freePostBreakthroughBasicSkills = CreateSetting(nameof(_freePostBreakthroughBasicSkills), false);
     }
-    override protected void SetFormatting()
+    protected override void SetFormatting()
     {
         _separateLimits.Format("Separate passive/active limits");
         _separateLimits.Description = "Define different limits for passive and active skills";
@@ -105,14 +105,14 @@ public class SkillLimits : AMod
             _freePostBreakthroughBasicSkills.Description = "After you learn a breakthrough skill, basic skills from the same tree no longer count towards limit";
         }
     }
-    override protected string Description
+    protected override string Description
     => "• Set limit on how many skills you can learn\n" +
        "• Decide which skills count towards the limit";
-    override protected string SectionOverride
+    protected override string SectionOverride
     => ModSections.Skills;
-    override protected string ModName
+    protected override string ModName
     => "Limits";
-    override protected void LoadPreset(string presetName)
+    protected override void LoadPreset(string presetName)
     {
         switch (presetName)
         {
@@ -130,9 +130,9 @@ public class SkillLimits : AMod
     }
 
     // Utility
-    static private bool CanLearnMoreLimitedSkills(Character character, SkillTypes skillTypes)
+    private static bool CanLearnMoreLimitedSkills(Character character, SkillTypes skillTypes)
     => GetLimitedSkillsCount(character, skillTypes) < GetLimitingSetting(skillTypes);
-    static private int GetLimitedSkillsCount(Character character, SkillTypes countedTypes)
+    private static int GetLimitedSkillsCount(Character character, SkillTypes countedTypes)
     {
         (SkillTypes Types, Func<IList<string>> UIDsGetter)[] skillsData =
         {
@@ -148,16 +148,16 @@ public class SkillLimits : AMod
                         counter++;
         return counter;
     }
-    static private bool IsLimited(Character character, Skill skill)
+    private static bool IsLimited(Character character, Skill skill)
     => _limitedSkillTypes.Value.HasFlag(LimitedSkillTypes.Basic) && IsBasic(skill)
        && !(_freePostBreakthroughBasicSkills && IsPostBreakthrough(character, skill))
     || _limitedSkillTypes.Value.HasFlag(LimitedSkillTypes.Advanced) && IsAdvanced(skill)
     || _limitedSkillTypes.Value.HasFlag(LimitedSkillTypes.Side) && IsSide(skill);
-    static private bool HasBreakthroughInTree(Character character, SkillSchool skillTree)
+    private static bool HasBreakthroughInTree(Character character, SkillSchool skillTree)
     => skillTree.BreakthroughSkill != null && skillTree.BreakthroughSkill.HasSkill(character);
-    static private bool IsPostBreakthrough(Character character, Skill skill)
+    private static bool IsPostBreakthrough(Character character, Skill skill)
     => TryGetSkillTree(skill, out SkillSchool tree) && HasBreakthroughInTree(character, tree);
-    static private bool IsBasic(Skill skill)
+    private static bool IsBasic(Skill skill)
     {
         if (TryGetSkillTree(skill, out SkillSchool tree))
             if (tree.BreakthroughSkill == null)
@@ -168,10 +168,10 @@ public class SkillLimits : AMod
                         return slot.ParentBranch.Index < tree.BreakthroughSkill.ParentBranch.Index;
         return false;
     }
-    static private bool IsBreakthrough(Skill skill)
+    private static bool IsBreakthrough(Skill skill)
     => TryGetSkillTree(skill, out SkillSchool tree)
     && tree.BreakthroughSkill != null && tree.BreakthroughSkill.Contains(skill);
-    static private bool IsAdvanced(Skill skill)
+    private static bool IsAdvanced(Skill skill)
     {
         if (TryGetSkillTree(skill, out SkillSchool tree) && tree.BreakthroughSkill != null)
             foreach (var slot in tree.SkillSlots)
@@ -179,14 +179,14 @@ public class SkillLimits : AMod
                     return slot.ParentBranch.Index > tree.BreakthroughSkill.ParentBranch.Index;
         return false;
     }
-    static private bool IsSide(Skill skill)
+    private static bool IsSide(Skill skill)
     => skill.ItemID.IsContainedIn(SIDE_SKILL_IDS);
-    static private bool TryGetSkillTree(Skill skill, out SkillSchool skillTree)
+    private static bool TryGetSkillTree(Skill skill, out SkillSchool skillTree)
     {
         skillTree = SkillTreeHolder.Instance.m_skillTrees.DefaultOnInvalid(skill.SchoolIndex - 1);
         return skillTree != null;
     }
-    static private ModSetting<int> GetLimitingSetting(SkillTypes skillTypes)
+    private static ModSetting<int> GetLimitingSetting(SkillTypes skillTypes)
         => skillTypes switch
         {
             SkillTypes.None or SkillTypes.Any => _skillsLimit,
@@ -194,11 +194,11 @@ public class SkillLimits : AMod
             SkillTypes.Active => _activeSkillsLimit,
             _ => null,
         };
-    static private SkillTypes GetSkillTypes(Skill skill)
+    private static SkillTypes GetSkillTypes(Skill skill)
     => !_separateLimits ? SkillTypes.Any
                         : skill.IsPassive ? SkillTypes.Passive
                                           : SkillTypes.Active;
-    static private void InitializeCacheOfAllSkills(SkillSchool skillTree)
+    private static void InitializeCacheOfAllSkills(SkillSchool skillTree)
     {
         foreach (var slot in skillTree.SkillSlots)
             switch (slot)
@@ -218,7 +218,7 @@ public class SkillLimits : AMod
     // Hooks
 #pragma warning disable IDE0051, IDE0060, IDE1006
     [HarmonyPatch(typeof(ItemDisplayOptionPanel), nameof(ItemDisplayOptionPanel.GetActiveActions)), HarmonyPostfix]
-    static void ItemDisplayOptionPanel_GetActiveActions_Post(ItemDisplayOptionPanel __instance, ref List<int> __result)
+    private static void ItemDisplayOptionPanel_GetActiveActions_Post(ItemDisplayOptionPanel __instance, ref List<int> __result)
     {
         #region quit
         if (!__instance.m_pendingItem.TryAs(out Skill skill) || !IsLimited(__instance.LocalCharacter, skill))
@@ -229,7 +229,7 @@ public class SkillLimits : AMod
     }
 
     [HarmonyPatch(typeof(ItemDisplayOptionPanel), nameof(ItemDisplayOptionPanel.GetActionText)), HarmonyPrefix]
-    static bool ItemDisplayOptionPanel_GetActionText_Pre(ItemDisplayOptionPanel __instance, ref string __result, ref int _actionID)
+    private static bool ItemDisplayOptionPanel_GetActionText_Pre(ItemDisplayOptionPanel __instance, ref string __result, ref int _actionID)
     {
         #region quit
         if (_actionID != UNLEARN_ACTION_ID)
@@ -241,7 +241,7 @@ public class SkillLimits : AMod
     }
 
     [HarmonyPatch(typeof(ItemDisplayOptionPanel), nameof(ItemDisplayOptionPanel.ActionHasBeenPressed)), HarmonyPrefix]
-    static bool ItemDisplayOptionPanel_ActionHasBeenPressed_Pre(ItemDisplayOptionPanel __instance, ref int _actionID)
+    private static bool ItemDisplayOptionPanel_ActionHasBeenPressed_Pre(ItemDisplayOptionPanel __instance, ref int _actionID)
     {
         #region quit
         if (_actionID != UNLEARN_ACTION_ID)
@@ -256,7 +256,7 @@ public class SkillLimits : AMod
     }
 
     [HarmonyPatch(typeof(ItemDisplay), nameof(ItemDisplay.RefreshEnchantedIcon)), HarmonyPrefix]
-    static bool ItemDisplay_RefreshEnchantedIcon_Pre(ItemDisplay __instance)
+    private static bool ItemDisplay_RefreshEnchantedIcon_Pre(ItemDisplay __instance)
     {
         #region quit
         if (!__instance.m_refItem.TryAs(out Skill skill))
@@ -288,11 +288,11 @@ public class SkillLimits : AMod
     }
 
     [HarmonyPatch(typeof(TrainerPanel), nameof(TrainerPanel.Show)), HarmonyPostfix]
-    static void TrainerPanel_Show_Post(TrainerPanel __instance)
+    private static void TrainerPanel_Show_Post(TrainerPanel __instance)
     => InitializeCacheOfAllSkills(__instance.m_trainerTree);
 
     [HarmonyPatch(typeof(TrainerPanel), nameof(TrainerPanel.OnSkillSlotClicked)), HarmonyPrefix]
-    static bool TrainerPanel_OnSkillSlotClicked_Pre(TrainerPanel __instance, ref SkillTreeSlotDisplay _slotDisplay)
+    private static bool TrainerPanel_OnSkillSlotClicked_Pre(TrainerPanel __instance, ref SkillTreeSlotDisplay _slotDisplay)
     {
         Skill skill = _slotDisplay.FocusedSkillSlot.Skill;
         if (IsLimited(__instance.LocalCharacter, skill))
@@ -308,7 +308,7 @@ public class SkillLimits : AMod
     }
 
     [HarmonyPatch(typeof(Condition_KnowSkill), nameof(Condition_KnowSkill.OnCheck)), HarmonyPostfix]
-    static void Condition_KnowSkill_OnCheck_Post(Condition_KnowSkill __instance, ref bool __result)
+    private static void Condition_KnowSkill_OnCheck_Post(Condition_KnowSkill __instance, ref bool __result)
     {
         Character character = __instance.character.value;
         Skill skill = __instance.skill.value;

@@ -8,21 +8,21 @@ using Tools.Utilities;
 public class Descriptions : AMod, IDelayedInit
 {
     #region const
-    static private readonly Vector2 BAR_MAX_SIZE = new(2.75f, 2.50f);
-    static private readonly Vector2 BAR_PIVOT = new(0f, 1f);
+    private static readonly Vector2 BAR_MAX_SIZE = new(2.75f, 2.50f);
+    private static readonly Vector2 BAR_PIVOT = new(0f, 1f);
     private const float DURABILITY_MAX_MAX = 777f;    // Duty (unique halberd)
     private const float DURABILITY_BAR_SCALING_CURVE = 0.75f;
     private const float FRESHNESS_LIFESPAN_MAX = 104f;   // Travel Ration
     private const float FRESHNESS_BAR_SCALING_CURVE = 2 / 3f;
     private const int DEFAULT_FONT_SIZE = 19;
     private const int WATER_ITEMS_FIRST_ID = 5600000;
-    static private Color HEALTH_COLOR = new(0.765f, 0.522f, 0.525f, 1f);
-    static private Color STAMINA_COLOR = new(0.827f, 0.757f, 0.584f, 1f);
-    static private Color MANA_COLOR = new(0.529f, 0.702f, 0.816f, 1f);
-    static private Color NEEDS_COLOR = new(0.584f, 0.761f, 0.522f, 1f);
-    static private Color CORRUPTION_COLOR = new(0.655f, 0.647f, 0.282f, 1f);
-    static private Color STATUSEFFECT_COLOR = new(0.780f, 1f, 0.702f, 1f);
-    static private Color STATUSCURES_COLOR = new(1f, 0.702f, 0.706f);
+    private static Color HEALTH_COLOR = new(0.765f, 0.522f, 0.525f, 1f);
+    private static Color STAMINA_COLOR = new(0.827f, 0.757f, 0.584f, 1f);
+    private static Color MANA_COLOR = new(0.529f, 0.702f, 0.816f, 1f);
+    private static Color NEEDS_COLOR = new(0.584f, 0.761f, 0.522f, 1f);
+    private static Color CORRUPTION_COLOR = new(0.655f, 0.647f, 0.282f, 1f);
+    private static Color STATUSEFFECT_COLOR = new(0.780f, 1f, 0.702f, 1f);
+    private static Color STATUSCURES_COLOR = new(1f, 0.702f, 0.706f);
     #endregion
     #region enum
     [Flags]
@@ -135,13 +135,13 @@ public class Descriptions : AMod, IDelayedInit
     #endregion
 
     // Settings
-    static private ModSetting<bool> _barsToggle, _equipmentToggle;
-    static private ModSetting<bool> _addBackgrounds;
-    static private ModSetting<Details> _details;
-    static private ModSetting<bool> _displayRelativeAttackSpeed, _normalizeImpactDisplay, _moveBarrierBelowProtection, _hideNumericalDurability;
-    static private ModSetting<int> _durabilityBarSize, _freshnessBarSize, _barThickness;
-    static private ModSetting<bool> _durabilityTiedToMax, _freshnessTiedToLifespan;
-    override protected void Initialize()
+    private static ModSetting<bool> _barsToggle, _equipmentToggle;
+    private static ModSetting<bool> _addBackgrounds;
+    private static ModSetting<Details> _details;
+    private static ModSetting<bool> _displayRelativeAttackSpeed, _normalizeImpactDisplay, _moveBarrierBelowProtection, _hideNumericalDurability;
+    private static ModSetting<int> _durabilityBarSize, _freshnessBarSize, _barThickness;
+    private static ModSetting<bool> _durabilityTiedToMax, _freshnessTiedToLifespan;
+    protected override void Initialize()
     {
         _details = CreateSetting(nameof(_details), Details.None);
 
@@ -163,7 +163,7 @@ public class Descriptions : AMod, IDelayedInit
 
         _rowsCache = new RowsCache();
     }
-    override protected void SetFormatting()
+    protected override void SetFormatting()
     {
 
         _details.Format("Details to display");
@@ -205,9 +205,9 @@ public class Descriptions : AMod, IDelayedInit
     "(restored health/stamina/mana, granted status effects)\n" +
     "• Override durability and freshness bars\n" +
     "(automatic scaling, thickness)";
-    override protected string SectionOverride
+    protected override string SectionOverride
     => ModSections.UI;
-    override protected void LoadPreset(string presetName)
+    protected override void LoadPreset(string presetName)
     {
         switch (presetName)
         {
@@ -233,9 +233,9 @@ public class Descriptions : AMod, IDelayedInit
     }
 
     // Utility
-    static private Sprite _impactIcon;
-    static private RowsCache _rowsCache;
-    static private void TryCacheImpactIcon(CharacterUI characterUI)
+    private static Sprite _impactIcon;
+    private static RowsCache _rowsCache;
+    private static void TryCacheImpactIcon(CharacterUI characterUI)
     {
         if (_impactIcon == null
         && characterUI.m_menus[(int)CharacterUI.MenuScreens.Equipment].TryAs(out EquipmentMenu equipmentMenu)
@@ -244,7 +244,7 @@ public class Descriptions : AMod, IDelayedInit
         && impactDisplay.m_imgIcon.TryNonNull(out var impactImage))
             _impactIcon = impactImage.sprite;
     }
-    static private void SetBackgrounds(bool state)
+    private static void SetBackgrounds(bool state)
     {
         Item lifePotion = Prefabs.GetIngestibleByName("Life Potion");
         Sprite potionBackground = lifePotion.m_overrideSigil;
@@ -252,7 +252,7 @@ public class Descriptions : AMod, IDelayedInit
             if (ingestibleByID.Value != lifePotion)
                 ingestibleByID.Value.m_overrideSigil = state ? potionBackground : null;
     }
-    static private Row GetFormattedItemRow(Effect effect)
+    private static Row GetFormattedItemRow(Effect effect)
     {
         switch (effect)
         {
@@ -364,7 +364,7 @@ public class Descriptions : AMod, IDelayedInit
                 return null;
         }
     }
-    static private void FormatSkillRows(Skill skill, List<Row> rows)
+    private static void FormatSkillRows(Skill skill, List<Row> rows)
     {
         if (skill.Cooldown > 0)
             rows.Add(new Row("ItemStat_Cooldown".Localized(),
@@ -390,7 +390,7 @@ public class Descriptions : AMod, IDelayedInit
                               Details.Costs, 15, NEEDS_COLOR));
         }
     }
-    static private string FormatEffectValue(Effect effect, float divisor = 1f, string postfix = "")
+    private static string FormatEffectValue(Effect effect, float divisor = 1f, string postfix = "")
     {
         string content = "";
         if (effect != null)
@@ -403,7 +403,7 @@ public class Descriptions : AMod, IDelayedInit
         }
         return content;
     }
-    static private string FormatStatusEffectValue(float value, float duration, float divisor = 1f, string postfix = "")
+    private static string FormatStatusEffectValue(float value, float duration, float divisor = 1f, string postfix = "")
     {
         string content = "";
 
@@ -416,7 +416,7 @@ public class Descriptions : AMod, IDelayedInit
 
         return content;
     }
-    static private Effect[] GetWaterEffects(WaterType waterType)
+    private static Effect[] GetWaterEffects(WaterType waterType)
         => waterType switch
         {
             WaterType.Clean => Global.WaterDistributor.m_cleanWaterEffects,
@@ -428,9 +428,9 @@ public class Descriptions : AMod, IDelayedInit
             WaterType.Healing => Global.WaterDistributor.m_healingWaterEffects,
             _ => null,
         };
-    static private Effect[] GetWaterEffects(int waterID)
+    private static Effect[] GetWaterEffects(int waterID)
     => GetWaterEffects((WaterType)(waterID - WATER_ITEMS_FIRST_ID));
-    static private void TrySwapProtectionWithResistances(Item item)
+    private static void TrySwapProtectionWithResistances(Item item)
     {
         #region quit
         if (!_moveBarrierBelowProtection || !item.TryAs(out Equipment equipment) || equipment.BarrierProt <= 0)
@@ -447,7 +447,7 @@ public class Descriptions : AMod, IDelayedInit
 
     // Hooks
     [HarmonyPatch(typeof(ItemDetailsDisplay), nameof(ItemDetailsDisplay.ShowDetails)), HarmonyPrefix]
-    static bool ItemDetailsDisplay_ShowDetails_Pre(ItemDetailsDisplay __instance)
+    private static bool ItemDetailsDisplay_ShowDetails_Pre(ItemDetailsDisplay __instance)
     {
         TrySwapProtectionWithResistances(__instance.m_lastItem);
 
@@ -473,7 +473,7 @@ public class Descriptions : AMod, IDelayedInit
     }
 
     [HarmonyPatch(typeof(ItemDetailsDisplay), nameof(ItemDetailsDisplay.RefreshDetails)), HarmonyPostfix]
-    static void ItemDetailsDisplay_RefreshDetails_Post(ItemDetailsDisplay __instance)
+    private static void ItemDetailsDisplay_RefreshDetails_Post(ItemDetailsDisplay __instance)
     {
         Item item = __instance.m_lastItem;
         GameObject durabilityHolder = __instance.m_durabilityHolder;
@@ -509,7 +509,7 @@ public class Descriptions : AMod, IDelayedInit
     }
 
     [HarmonyPatch(typeof(ItemDetailsDisplay), nameof(ItemDetailsDisplay.RefreshDetail)), HarmonyPrefix]
-    static bool ItemDetailsDisplay_RefreshDetail_Post(ItemDetailsDisplay __instance, ref bool __result, int _rowIndex, ItemDetailsDisplay.DisplayedInfos _infoType)
+    private static bool ItemDetailsDisplay_RefreshDetail_Post(ItemDetailsDisplay __instance, ref bool __result, int _rowIndex, ItemDetailsDisplay.DisplayedInfos _infoType)
     {
         if (_infoType == ItemDetailsDisplay.DisplayedInfos.AttackSpeed
         && _displayRelativeAttackSpeed)

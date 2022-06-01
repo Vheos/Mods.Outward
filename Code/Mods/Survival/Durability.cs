@@ -30,19 +30,19 @@ public class Durability : AMod
     #endregion
 
     // Setting
-    static private ModSetting<bool> _lossMultipliers;
-    static private ModSetting<int> _lossWeapons, _lossArmors, _lossLights, _lossIngestibles;
-    static private ModSetting<bool> _campingRepairToggle;
-    static private ModSetting<int> _repairDurabilityPerHour, _repairDurabilityPercentPerHour;
-    static private ModSetting<RepairPercentReference> _repairPercentReference;
-    static private ModSetting<MultiRepairBehaviour> _multiRepairBehaviour;
-    static private ModSetting<int> _fastMaintenanceMultiplier;
-    static private ModSetting<bool> _effectivenessAffectsAllStats, _effectivenessAffectsPenalties;
-    static private ModSetting<bool> _linearEffectiveness;
-    static private ModSetting<int> _minNonBrokenEffectiveness, _brokenEffectiveness;
-    static private ModSetting<bool> _smithRepairsOnlyEquipped;
-    static private ModSetting<int> _minStartingDurability;
-    override protected void Initialize()
+    private static ModSetting<bool> _lossMultipliers;
+    private static ModSetting<int> _lossWeapons, _lossArmors, _lossLights, _lossIngestibles;
+    private static ModSetting<bool> _campingRepairToggle;
+    private static ModSetting<int> _repairDurabilityPerHour, _repairDurabilityPercentPerHour;
+    private static ModSetting<RepairPercentReference> _repairPercentReference;
+    private static ModSetting<MultiRepairBehaviour> _multiRepairBehaviour;
+    private static ModSetting<int> _fastMaintenanceMultiplier;
+    private static ModSetting<bool> _effectivenessAffectsAllStats, _effectivenessAffectsPenalties;
+    private static ModSetting<bool> _linearEffectiveness;
+    private static ModSetting<int> _minNonBrokenEffectiveness, _brokenEffectiveness;
+    private static ModSetting<bool> _smithRepairsOnlyEquipped;
+    private static ModSetting<int> _minStartingDurability;
+    protected override void Initialize()
     {
         _lossMultipliers = CreateSetting(nameof(_lossMultipliers), false);
         _lossWeapons = CreateSetting(nameof(_lossWeapons), 100, IntRange(0, 200));
@@ -65,7 +65,7 @@ public class Durability : AMod
         _smithRepairsOnlyEquipped = CreateSetting(nameof(_smithRepairsOnlyEquipped), false);
         _minStartingDurability = CreateSetting(nameof(_minStartingDurability), 100, IntRange(0, 100));
     }
-    override protected void SetFormatting()
+    protected override void SetFormatting()
     {
         _lossMultipliers.Format("Durability loss multipliers");
         using (Indent)
@@ -116,14 +116,14 @@ public class Durability : AMod
                                              "Only affects dynamically spawned item (containers, enemy corpses, merchant stock)\n" +
                                              "Scene-static and serialized items are unaffected";
     }
-    override protected string Description
+    protected override string Description
     => "• Change how quickly durability decreases per item type\n" +
        "• Tweak camping repair mechanics\n" +
        "• Change how durability affects equipment stats\n" +
        "• Randomize starting durability of spawned items";
-    override protected string SectionOverride
+    protected override string SectionOverride
     => ModSections.SurvivalAndImmersion;
-    override protected void LoadPreset(string presetName)
+    protected override void LoadPreset(string presetName)
     {
         switch (presetName)
         {
@@ -157,16 +157,16 @@ public class Durability : AMod
     }
 
     // Utility
-    static private float CalculateDurabilityGain(Item item, float flat, float percent)
+    private static float CalculateDurabilityGain(Item item, float flat, float percent)
     {
         float percentReference = _repairPercentReference == RepairPercentReference.OfMissingDurability
                                ? item.MaxDurability - item.m_currentDurability
                                : item.m_currentDurability;
         return flat + percent * percentReference;
     }
-    static private bool HasLearnedFastMaintenance(Character character)
+    private static bool HasLearnedFastMaintenance(Character character)
     => character.Inventory.SkillKnowledge.IsItemLearned(FAST_MAINTENANCE_ID);
-    static private void TryApplyEffectiveness(ref float stat, EquipmentStats equipmentStats, bool invertedPositivity = false)
+    private static void TryApplyEffectiveness(ref float stat, EquipmentStats equipmentStats, bool invertedPositivity = false)
     {
         #region quit
         if (!_effectivenessAffectsAllStats)
@@ -182,7 +182,7 @@ public class Durability : AMod
     // Hooks
 #pragma warning disable IDE0051, IDE0060, IDE1006
     [HarmonyPatch(typeof(Item), nameof(Item.ReduceDurability)), HarmonyPrefix]
-    static bool Item_ReduceDurability_Pre(Item __instance, ref float _durabilityLost)
+    private static bool Item_ReduceDurability_Pre(Item __instance, ref float _durabilityLost)
     {
         #region quit
         if (!_lossMultipliers)
@@ -204,7 +204,7 @@ public class Durability : AMod
     }
 
     [HarmonyPatch(typeof(CharacterEquipment), nameof(CharacterEquipment.RepairEquipmentAfterRest)), HarmonyPrefix]
-    static bool CharacterEquipment_RepairEquipmentAfterRest_Pre(CharacterEquipment __instance)
+    private static bool CharacterEquipment_RepairEquipmentAfterRest_Pre(CharacterEquipment __instance)
     {
         #region quit
         if (!_campingRepairToggle)
@@ -258,11 +258,11 @@ public class Durability : AMod
     }
 
     [HarmonyPatch(typeof(ItemContainer), nameof(ItemContainer.RepairContainedEquipment)), HarmonyPrefix]
-    static bool ItemContainer_RepairContainedEquipment_Pre(ItemContainer __instance)
+    private static bool ItemContainer_RepairContainedEquipment_Pre(ItemContainer __instance)
     => !_smithRepairsOnlyEquipped;
 
     [HarmonyPatch(typeof(ItemStats), nameof(ItemStats.Effectiveness), MethodType.Getter), HarmonyPrefix]
-    static bool ItemStats_Effectiveness_Pre(ItemStats __instance, ref float __result)
+    private static bool ItemStats_Effectiveness_Pre(ItemStats __instance, ref float __result)
     {
         #region quit
         if (!_linearEffectiveness || __instance.m_item.IsNot<Equipment>())
@@ -278,7 +278,7 @@ public class Durability : AMod
     }
 
     [HarmonyPatch(typeof(ItemDropper), nameof(ItemDropper.GenerateItem)), HarmonyPrefix]
-    static bool ItemDropper_GenerateItem_Pre(ItemDropper __instance, ref Item __state, ItemContainer _container, BasicItemDrop _itemDrop, int _spawnAmount)
+    private static bool ItemDropper_GenerateItem_Pre(ItemDropper __instance, ref Item __state, ItemContainer _container, BasicItemDrop _itemDrop, int _spawnAmount)
     {
         #region quit
         if (_minStartingDurability >= 100
@@ -293,7 +293,7 @@ public class Durability : AMod
     }
 
     [HarmonyPatch(typeof(ItemDropper), nameof(ItemDropper.GenerateItem)), HarmonyPostfix]
-    static void ItemDropper_GenerateItem_Post(ItemDropper __instance, ref Item __state)
+    private static void ItemDropper_GenerateItem_Post(ItemDropper __instance, ref Item __state)
     {
         #region quit
         if (__state == default)
@@ -305,7 +305,7 @@ public class Durability : AMod
 
     // Affect all stats
     [HarmonyPatch(typeof(ItemDetailsDisplay), nameof(ItemDetailsDisplay.GetPenaltyDisplay)), HarmonyPrefix]
-    static bool ItemDetailsDisplay_GetPenaltyDisplay_Pre(ItemDetailsDisplay __instance, ref string __result, float _value, bool _negativeIsPositive, bool _showPercent)
+    private static bool ItemDetailsDisplay_GetPenaltyDisplay_Pre(ItemDetailsDisplay __instance, ref string __result, float _value, bool _negativeIsPositive, bool _showPercent)
     {
         #region quit
         if (!_effectivenessAffectsAllStats)
@@ -328,7 +328,7 @@ public class Durability : AMod
     }
 
     [HarmonyPatch(typeof(ItemDetailRowDisplay), nameof(ItemDetailRowDisplay.SetInfo), new[] { typeof(string), typeof(float) }), HarmonyPrefix]
-    static bool ItemDetailRowDisplay_SetInfo_Pre(ItemDetailRowDisplay __instance, string _dataName, float _dataValue)
+    private static bool ItemDetailRowDisplay_SetInfo_Pre(ItemDetailRowDisplay __instance, string _dataName, float _dataValue)
     {
         #region quit
         if (!_effectivenessAffectsAllStats)
@@ -340,11 +340,11 @@ public class Durability : AMod
     }
 
     [HarmonyPatch(typeof(Weapon), nameof(Weapon.BaseImpact), MethodType.Getter), HarmonyPostfix]
-    static void Weapon_BaseImpact_Post(Weapon __instance, ref float __result)
+    private static void Weapon_BaseImpact_Post(Weapon __instance, ref float __result)
     => TryApplyEffectiveness(ref __result, __instance.Stats);
 
     [HarmonyPatch(typeof(Weapon), nameof(Weapon.BaseAttackSpeed), MethodType.Getter), HarmonyPostfix]
-    static void Weapon_BaseAttackSpeed_Post(Weapon __instance, ref float __result)
+    private static void Weapon_BaseAttackSpeed_Post(Weapon __instance, ref float __result)
     {
         float relativeAttackSpeed = __result - 1f;
         TryApplyEffectiveness(ref relativeAttackSpeed, __instance.Stats);
@@ -352,11 +352,11 @@ public class Durability : AMod
     }
 
     [HarmonyPatch(typeof(EquipmentStats), nameof(EquipmentStats.BarrierProtection), MethodType.Getter), HarmonyPostfix]
-    static void EquipmentStats_BarrierProtection_Post(EquipmentStats __instance, ref float __result)
+    private static void EquipmentStats_BarrierProtection_Post(EquipmentStats __instance, ref float __result)
     => TryApplyEffectiveness(ref __result, __instance);
 
     [HarmonyPatch(typeof(EquipmentStats), nameof(EquipmentStats.ImpactResistance), MethodType.Getter), HarmonyPrefix]
-    static bool EquipmentStats_ImpactResistance_Pre(EquipmentStats __instance)
+    private static bool EquipmentStats_ImpactResistance_Pre(EquipmentStats __instance)
     {
         __instance.m_impactResistEfficiencyAffected = _effectivenessAffectsAllStats
                                                    || __instance.m_item.TryAs(out Weapon weapon) && weapon.Type == Weapon.WeaponType.Shield;
@@ -364,46 +364,46 @@ public class Durability : AMod
     }
 
     [HarmonyPatch(typeof(EquipmentStats), nameof(EquipmentStats.MovementPenalty), MethodType.Getter), HarmonyPostfix]
-    static void EquipmentStats_MovementPenalty_Post(EquipmentStats __instance, ref float __result)
+    private static void EquipmentStats_MovementPenalty_Post(EquipmentStats __instance, ref float __result)
     => TryApplyEffectiveness(ref __result, __instance, true);
 
     [HarmonyPatch(typeof(EquipmentStats), nameof(EquipmentStats.StaminaUsePenalty), MethodType.Getter), HarmonyPostfix]
-    static void EquipmentStats_StaminaUsePenalty_Post(EquipmentStats __instance, ref float __result)
+    private static void EquipmentStats_StaminaUsePenalty_Post(EquipmentStats __instance, ref float __result)
     => TryApplyEffectiveness(ref __result, __instance, true);
 
     [HarmonyPatch(typeof(EquipmentStats), nameof(EquipmentStats.ManaUseModifier), MethodType.Getter), HarmonyPostfix]
-    static void EquipmentStats_ManaUseModifier_Post(EquipmentStats __instance, ref float __result)
+    private static void EquipmentStats_ManaUseModifier_Post(EquipmentStats __instance, ref float __result)
     => TryApplyEffectiveness(ref __result, __instance, true);
 
     [HarmonyPatch(typeof(EquipmentStats), nameof(EquipmentStats.HeatProtection), MethodType.Getter), HarmonyPostfix]
-    static void EquipmentStats_HeatProtection_Post(EquipmentStats __instance, ref float __result)
+    private static void EquipmentStats_HeatProtection_Post(EquipmentStats __instance, ref float __result)
     => TryApplyEffectiveness(ref __result, __instance);
 
     [HarmonyPatch(typeof(EquipmentStats), nameof(EquipmentStats.ColdProtection), MethodType.Getter), HarmonyPostfix]
-    static void EquipmentStats_ColdProtection_Post(EquipmentStats __instance, ref float __result)
+    private static void EquipmentStats_ColdProtection_Post(EquipmentStats __instance, ref float __result)
     => TryApplyEffectiveness(ref __result, __instance);
 
     [HarmonyPatch(typeof(EquipmentStats), nameof(EquipmentStats.CorruptionResistance), MethodType.Getter), HarmonyPostfix]
-    static void EquipmentStats_CorruptionResistance_Post(EquipmentStats __instance, ref float __result)
+    private static void EquipmentStats_CorruptionResistance_Post(EquipmentStats __instance, ref float __result)
     => TryApplyEffectiveness(ref __result, __instance);
 
     [HarmonyPatch(typeof(EquipmentStats), nameof(EquipmentStats.CooldownReduction), MethodType.Getter), HarmonyPostfix]
-    static void EquipmentStats_CooldownReduction_Post(EquipmentStats __instance, ref float __result)
+    private static void EquipmentStats_CooldownReduction_Post(EquipmentStats __instance, ref float __result)
     => TryApplyEffectiveness(ref __result, __instance, true);
 
     [HarmonyPatch(typeof(EquipmentStats), nameof(EquipmentStats.HealthRegenBonus), MethodType.Getter), HarmonyPostfix]
-    static void EquipmentStats_HealthRegenBonus_Post(EquipmentStats __instance, ref float __result)
+    private static void EquipmentStats_HealthRegenBonus_Post(EquipmentStats __instance, ref float __result)
     => TryApplyEffectiveness(ref __result, __instance);
 
     [HarmonyPatch(typeof(EquipmentStats), nameof(EquipmentStats.ManaRegenBonus), MethodType.Getter), HarmonyPostfix]
-    static void EquipmentStats_ManaRegenBonus_Post(EquipmentStats __instance, ref float __result)
+    private static void EquipmentStats_ManaRegenBonus_Post(EquipmentStats __instance, ref float __result)
     => TryApplyEffectiveness(ref __result, __instance);
 
     [HarmonyPatch(typeof(EquipmentStats), nameof(EquipmentStats.StaminaCostReduction), MethodType.Getter), HarmonyPostfix]
-    static void EquipmentStats_StaminaCostReduction_Post(EquipmentStats __instance, ref float __result)
+    private static void EquipmentStats_StaminaCostReduction_Post(EquipmentStats __instance, ref float __result)
     => TryApplyEffectiveness(ref __result, __instance);
 
     [HarmonyPatch(typeof(EquipmentStats), nameof(EquipmentStats.StaminaRegenModifier), MethodType.Getter), HarmonyPostfix]
-    static void EquipmentStats_StaminaRegenModifier_Post(EquipmentStats __instance, ref float __result)
+    private static void EquipmentStats_StaminaRegenModifier_Post(EquipmentStats __instance, ref float __result)
     => TryApplyEffectiveness(ref __result, __instance);
 }

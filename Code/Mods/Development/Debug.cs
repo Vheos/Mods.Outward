@@ -4,10 +4,10 @@ using Tools.Extensions.DumpN;
 public class Debug : AMod, IDelayedInit, IUpdatable
 {
     // Settings
-    override protected void Initialize()
+    protected override void Initialize()
     {
     }
-    override protected void SetFormatting()
+    protected override void SetFormatting()
     {
     }
     public void OnUpdate()
@@ -38,7 +38,7 @@ public class Debug : AMod, IDelayedInit, IUpdatable
             }
         }
     }
-    override protected string SectionOverride
+    protected override string SectionOverride
     => ModSections.Development;
 
     // Utility

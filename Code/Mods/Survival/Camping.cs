@@ -5,7 +5,7 @@ public class Camping : AMod
 {
     #region const
     private const string CANT_CAMP_NOTIFICATION = "You can't camp here!";
-    static private readonly AreaManager.AreaEnum[] OPEN_REGIONS = new[]
+    private static readonly AreaManager.AreaEnum[] OPEN_REGIONS = new[]
     {
         AreaManager.AreaEnum.CierzoOutside,
         AreaManager.AreaEnum.Emercar,
@@ -14,7 +14,7 @@ public class Camping : AMod
         AreaManager.AreaEnum.AntiqueField,
         AreaManager.AreaEnum.Caldera,
     };
-    static private readonly AreaManager.AreaEnum[] CITIES = new[]
+    private static readonly AreaManager.AreaEnum[] CITIES = new[]
     {
         AreaManager.AreaEnum.CierzoVillage,
         AreaManager.AreaEnum.Berg,
@@ -47,11 +47,11 @@ public class Camping : AMod
     #endregion
 
     // Setting
-    static private ModSetting<CampingSpots> _campingSpots;
-    static private ModSetting<int> _butterfliesSpawnChance;
-    static private ModSetting<int> _butterfliesRadius;
-    static private ModSetting<CampingActivities> _campingActivities;
-    override protected void Initialize()
+    private static ModSetting<CampingSpots> _campingSpots;
+    private static ModSetting<int> _butterfliesSpawnChance;
+    private static ModSetting<int> _butterfliesRadius;
+    private static ModSetting<CampingActivities> _campingActivities;
+    protected override void Initialize()
     {
         _campingSpots = CreateSetting(nameof(_campingSpots), (CampingSpots)~0);
         _butterfliesSpawnChance = CreateSetting(nameof(_butterfliesSpawnChance), 100, IntRange(0, 100));
@@ -68,7 +68,7 @@ public class Camping : AMod
 
         _safeZoneColliders = new List<SphereCollider>();
     }
-    override protected void SetFormatting()
+    protected override void SetFormatting()
     {
         _campingSpots.Format("Camping spots");
         _campingSpots.Description = "Restrict where you can camp";
@@ -80,13 +80,13 @@ public class Camping : AMod
                                          "(minimum settings is still twice as big as the visuals)";
         _campingActivities.Format("Available camping activities");
     }
-    override protected string Description
+    protected override string Description
     => "• Restrict camping spots to chosen places\n" +
        "• Change butterfly zones spawn chance and radius\n" +
        "• Customize repairing mechanic";
-    override protected string SectionOverride
+    protected override string SectionOverride
     => ModSections.SurvivalAndImmersion;
-    override protected void LoadPreset(string presetName)
+    protected override void LoadPreset(string presetName)
     {
         switch (presetName)
         {
@@ -101,8 +101,8 @@ public class Camping : AMod
     }
 
     // Utility
-    static private List<SphereCollider> _safeZoneColliders;
-    static private bool IsCampingAllowed(Character character, Vector3 position)
+    private static List<SphereCollider> _safeZoneColliders;
+    private static bool IsCampingAllowed(Character character, Vector3 position)
     {
         AreaManager.AreaEnum currentArea = (AreaManager.AreaEnum)AreaManager.Instance.CurrentArea.ID;
         bool result = currentArea.IsContainedIn(CITIES) ? _campingSpots.Value.HasFlag(CampingSpots.Cities)
@@ -115,14 +115,14 @@ public class Camping : AMod
 
         return result;
     }
-    static private bool IsNearButterflies(Vector3 position)
+    private static bool IsNearButterflies(Vector3 position)
     {
         foreach (var safeZone in _safeZoneColliders)
             if (position.DistanceTo(safeZone.transform.position) <= safeZone.radius)
                 return true;
         return false;
     }
-    static private void SetButterfliesRadius()
+    private static void SetButterfliesRadius()
     {
         foreach (var collider in _safeZoneColliders)
             if (collider != null)
@@ -132,7 +132,7 @@ public class Camping : AMod
     // Hooks
 #pragma warning disable IDE0051, IDE0060, IDE1006
     [HarmonyPatch(typeof(EnvironmentSave), nameof(EnvironmentSave.ApplyData)), HarmonyPostfix]
-    static void EnvironmentSave_ApplyData_Post(EnvironmentSave __instance)
+    private static void EnvironmentSave_ApplyData_Post(EnvironmentSave __instance)
     {
         _safeZoneColliders.Clear();
         GameObject fxHolder = GameObject.Find("Environment/Assets/FX");
@@ -160,15 +160,15 @@ public class Camping : AMod
     }
 
     [HarmonyPatch(typeof(BasicDeployable), nameof(BasicDeployable.TryDeploying), new[] { typeof(Character) }), HarmonyPrefix]
-    static bool BasicDeployable_TryDeploying_Pre(BasicDeployable __instance, Character _usingCharacter)
+    private static bool BasicDeployable_TryDeploying_Pre(BasicDeployable __instance, Character _usingCharacter)
     => !__instance.Item.IsSleepKit || IsCampingAllowed(_usingCharacter, __instance.transform.position);
 
     [HarmonyPatch(typeof(Sleepable), nameof(Sleepable.OnReceiveSleepRequestResult)), HarmonyPrefix]
-    static bool Sleepable_OnReceiveSleepRequestResult_Pre(Sleepable __instance, Character _character)
+    private static bool Sleepable_OnReceiveSleepRequestResult_Pre(Sleepable __instance, Character _character)
     => __instance.IsInnsBed || IsCampingAllowed(_character, __instance.transform.position);
 
     [HarmonyPatch(typeof(OrientOnTerrain), nameof(OrientOnTerrain.IsValid), MethodType.Getter), HarmonyPrefix]
-    static bool OrientOnTerrain_IsValid_Pre(OrientOnTerrain __instance)
+    private static bool OrientOnTerrain_IsValid_Pre(OrientOnTerrain __instance)
     {
         AreaManager.AreaEnum currentArea = (AreaManager.AreaEnum)AreaManager.Instance.CurrentArea.ID;
         #region quit
@@ -183,7 +183,7 @@ public class Camping : AMod
     }
 
     [HarmonyPatch(typeof(RestingMenu), nameof(RestingMenu.Show)), HarmonyPostfix]
-    static void RestingMenu_Show_Post(RestingMenu __instance)
+    private static void RestingMenu_Show_Post(RestingMenu __instance)
     {
         foreach (Transform child in __instance.m_restingActivitiesHolder.transform)
             foreach (var campingActivity in new[] { CampingActivities.Sleep, CampingActivities.Guard, CampingActivities.Repair })

@@ -4,11 +4,11 @@ using UnityEngine.UI;
 public class GUI : AMod, IDelayedInit, IUpdatable
 {
     #region const
-    static public readonly Vector2 DEFAULT_SHOP_OFFSET_MIN = new(-1344f, -540f);
-    static public readonly Vector2 DEFAULT_SHOP_OFFSET_MAX = new(-20f, -20f);
-    static public readonly (Vector2 Default, Vector2 Alternative) MANA_BAR_POSITIONS = (new Vector2(65f, 18.6f), new Vector2(10f, 83f));
+    public static readonly Vector2 DEFAULT_SHOP_OFFSET_MIN = new(-1344f, -540f);
+    public static readonly Vector2 DEFAULT_SHOP_OFFSET_MAX = new(-20f, -20f);
+    public static readonly (Vector2 Default, Vector2 Alternative) MANA_BAR_POSITIONS = (new Vector2(65f, 18.6f), new Vector2(10f, 83f));
     private const float UI_RESIZE_DELAY = 0.1f;
-    static private readonly Dictionary<HUDGroup, (Type HUDComponentType, string PanelPath, Vector2 DefaultLocalPosition)> DATA_BY_HUD_GROUP = new()
+    private static readonly Dictionary<HUDGroup, (Type HUDComponentType, string PanelPath, Vector2 DefaultLocalPosition)> DATA_BY_HUD_GROUP = new()
     {
         [HUDGroup.KeyboardQuickslots] = (typeof(KeyboardQuickSlotPanel), "QuickSlot/Keyboard", new Vector2(5, -40)),
         [HUDGroup.GamepadQuickslots] = (typeof(QuickSlotPanelSwitcher), "QuickSlot/Controller", new Vector2(0, 0)),
@@ -116,10 +116,10 @@ public class GUI : AMod, IDelayedInit, IUpdatable
     #endregion
 
     // Setting
-    static private PerPlayerSettings[] _perPlayerSettings;
-    static private ModSetting<bool> _verticalSplitscreen;
-    static private ModSetting<int> _textScale;
-    override protected void Initialize()
+    private static PerPlayerSettings[] _perPlayerSettings;
+    private static ModSetting<bool> _verticalSplitscreen;
+    private static ModSetting<int> _textScale;
+    protected override void Initialize()
     {
         _verticalSplitscreen = CreateSetting(nameof(_verticalSplitscreen), false);
         AddEventOnConfigClosed(() => UpdateSplitscreenMode());
@@ -218,7 +218,7 @@ public class GUI : AMod, IDelayedInit, IUpdatable
         // Scale text
         TryScaleText();
     }
-    override protected void SetFormatting()
+    protected override void SetFormatting()
     {
         _verticalSplitscreen.Format("Vertical splitscreen");
         _verticalSplitscreen.Description = "For monitors that are more wide than tall";
@@ -281,12 +281,12 @@ public class GUI : AMod, IDelayedInit, IUpdatable
             }
         }
     }
-    override protected string Description
+    protected override string Description
     => "• Rearrange HUD elements\n" +
        "• Vertical splitscreen (with shop tweaks)";
-    override protected string SectionOverride
+    protected override string SectionOverride
     => ModSections.UI;
-    override protected void LoadPreset(string presetName)
+    protected override void LoadPreset(string presetName)
     {
         switch (presetName)
         {
@@ -372,14 +372,14 @@ public class GUI : AMod, IDelayedInit, IUpdatable
     }
 
     // Utility
-    static private void UpdateSplitscreenMode()
+    private static void UpdateSplitscreenMode()
     {
         if (SplitScreenManager.Instance != null)
             SplitScreenManager.Instance.CurrentSplitType = _verticalSplitscreen && Players.Local.Count >= 2
                                                          ? SplitScreenManager.SplitType.Vertical
                                                          : SplitScreenManager.SplitType.Horizontal;
     }
-    static private void UpdateShopAndStashPanelsWidths()
+    private static void UpdateShopAndStashPanelsWidths()
     {
         foreach (var player in Players.Local)
         {
@@ -402,19 +402,19 @@ public class GUI : AMod, IDelayedInit, IUpdatable
             }
         }
     }
-    static private void UpdateQuickslotButtonIcons(Players.Data player)
+    private static void UpdateQuickslotButtonIcons(Players.Data player)
     {
         foreach (var quickslotDisplay in GetKeyboardQuickslotsGamePanel(player.UI).GetAllComponentsInHierarchy<QuickSlotDisplay>())
             quickslotDisplay.m_lblKeyboardInput.enabled = !_perPlayerSettings[player.ID]._hideQuickslotHints;
     }
-    static private void UpdateSeparateBuySellPanels(Players.Data player)
+    private static void UpdateSeparateBuySellPanels(Players.Data player)
     {
         if (_perPlayerSettings[player.ID]._separateBuySellPanels == SeperatePanelsMode.Disabled)
             DisableSeparateMode(player);
         else
             SwitchToBuySellPanel(player, true);
     }
-    static private void SwitchToBuySellPanel(Players.Data player, bool buyPanel)
+    private static void SwitchToBuySellPanel(Players.Data player, bool buyPanel)
     {
         Transform shopPanelHolder = GetShopPanel(player.UI);
         GetPlayerShopInventoryPanel(shopPanelHolder).GOSetActive(!buyPanel);
@@ -422,17 +422,17 @@ public class GUI : AMod, IDelayedInit, IUpdatable
         shopPanelHolder.GetComponent<ShopMenu>().GetFirstSelectable().Select();
 
     }
-    static private void ToggleBuySellPanel(Players.Data player)
+    private static void ToggleBuySellPanel(Players.Data player)
     {
         bool isBuyPanel = GetMerchantShopInventoryPanel(GetShopPanel(player.UI)).GOActive();
         SwitchToBuySellPanel(player, !isBuyPanel);
     }
-    static private void DisableSeparateMode(Players.Data player)
+    private static void DisableSeparateMode(Players.Data player)
     {
         GetPlayerShopInventoryPanel(GetShopPanel(player.UI)).GOSetActive(true);
         GetMerchantShopInventoryPanel(GetShopPanel(player.UI)).GOSetActive(true);
     }
-    static private void UpdatePendingBuySellPanels(Players.Data player)
+    private static void UpdatePendingBuySellPanels(Players.Data player)
     {
         // Cache
         Transform playerInventory = GetPlayerShopInventoryPanel(GetShopPanel(player.UI));
@@ -459,15 +459,15 @@ public class GUI : AMod, IDelayedInit, IUpdatable
         pendingBuy.SetAsFirstSibling();
         pendingSell.SetAsFirstSibling();
     }
-    static private void UpdateManaBarPlacement(Players.Data player)
+    private static void UpdateManaBarPlacement(Players.Data player)
     {
         Transform manaBarHolder = GetManaBarHolder(GetHUDHolder(player.UI));
         bool altPlacement = _perPlayerSettings[player.ID]._alternativeManaBarPlacement;
         manaBarHolder.localPosition = altPlacement ? MANA_BAR_POSITIONS.Alternative : MANA_BAR_POSITIONS.Default;
     }
-    static private void UpdateHUDTransparency(Players.Data player)
+    private static void UpdateHUDTransparency(Players.Data player)
     => GetHUDHolder(player.UI).GetComponent<CanvasGroup>().alpha = 1f - _perPlayerSettings[player.ID]._hudTransparency / 100f;
-    static private void ResetStatusEffectIcons(Players.Data player)
+    private static void ResetStatusEffectIcons(Players.Data player)
     {
         Transform statusEffectsPanel = GetHUDHolder(player.UI).Find("StatusEffect - Panel");
         foreach (var image in statusEffectsPanel.GetAllComponentsInHierarchy<Image>())
@@ -476,7 +476,7 @@ public class GUI : AMod, IDelayedInit, IUpdatable
             image.rectTransform.localScale = Vector2.one;
         }
     }
-    static private void TryScaleText()
+    private static void TryScaleText()
     {
         #region quit
         if (_textScale == 100)
@@ -491,7 +491,7 @@ public class GUI : AMod, IDelayedInit, IUpdatable
             }
     }
     // HUD editor      
-    static private void SetHUDEditor(Players.Data player, bool state)
+    private static void SetHUDEditor(Players.Data player, bool state)
     {
         PauseMenu.Pause(state);
         GameInput.ForceCursorNavigation = state;
@@ -509,7 +509,7 @@ public class GUI : AMod, IDelayedInit, IUpdatable
             _perPlayerSettings[player.ID]._startHUDEditor.SetSilently(false);
         }
     }
-    static private void SetupHUDElements(Players.Data player)
+    private static void SetupHUDElements(Players.Data player)
     {
         foreach (var dataByHUDGroup in DATA_BY_HUD_GROUP)
             foreach (var uiElement in GetHUDHolder(player.UI).Find(dataByHUDGroup.Value.PanelPath).GetAllComponentsInHierarchy<CanvasGroup, Image>())
@@ -519,7 +519,7 @@ public class GUI : AMod, IDelayedInit, IUpdatable
                     case Image t: t.raycastTarget = true; break;
                 }
     }
-    static private void SetHUDTemplates(Players.Data player, bool state)
+    private static void SetHUDTemplates(Players.Data player, bool state)
     {
         Transform hudHolder = GetHUDHolder(player.UI);
         Transform temperature = hudHolder.Find("TemperatureSensor/Display");
@@ -540,7 +540,7 @@ public class GUI : AMod, IDelayedInit, IUpdatable
         pauseHolder.GetComponent<Image>().enabled = !state;
 
     }
-    static private void SaveLoadHUDOverrides(Players.Data player, SettingsOperation operation)
+    private static void SaveLoadHUDOverrides(Players.Data player, SettingsOperation operation)
     {
         PerPlayerSettings settings = _perPlayerSettings[player.ID];
         player.UI.m_rectTransform.sizeDelta = Vector2.zero;
@@ -569,7 +569,7 @@ public class GUI : AMod, IDelayedInit, IUpdatable
         }
         player.UI.DelayedRefreshSize();
     }
-    static private void HandleHUDHits(Players.Data player, Tool tool)
+    private static void HandleHUDHits(Players.Data player, Tool tool)
     {
         foreach (var hit in GetHUDHolder(player.UI).GetOrAddComponent<GraphicRaycaster>().GetMouseHits())
         {
@@ -586,33 +586,33 @@ public class GUI : AMod, IDelayedInit, IUpdatable
             break;
         }
     }
-    static private Tool _hudEditTool;
-    static private (Transform Transform, Vector2 EditData) _hudEditFocus;
-    static private Type[] _allHUDComponentTypes;
+    private static Tool _hudEditTool;
+    private static (Transform Transform, Vector2 EditData) _hudEditFocus;
+    private static Type[] _allHUDComponentTypes;
     // Find
-    static private Transform GetKeyboardQuickslotsGamePanel(CharacterUI ui)
+    private static Transform GetKeyboardQuickslotsGamePanel(CharacterUI ui)
     => ui.transform.Find("Canvas/GameplayPanels/HUD/QuickSlot/Keyboard");
-    static private RectTransform GetStashPanel(CharacterUI ui)
+    private static RectTransform GetStashPanel(CharacterUI ui)
     => ui.transform.Find("Canvas/GameplayPanels/Menus/ModalMenus/Stash - Panel") as RectTransform;
-    static private RectTransform GetShopPanel(CharacterUI ui)
+    private static RectTransform GetShopPanel(CharacterUI ui)
     => ui.transform.Find("Canvas/GameplayPanels/Menus/ModalMenus/ShopMenu") as RectTransform;
-    static private Transform GetPlayerShopInventoryPanel(Transform shopPanel)
+    private static Transform GetPlayerShopInventoryPanel(Transform shopPanel)
     => shopPanel.Find("MiddlePanel/PlayerInventory");
-    static private Transform GetMerchantShopInventoryPanel(Transform shopPanel)
+    private static Transform GetMerchantShopInventoryPanel(Transform shopPanel)
     => shopPanel.Find("MiddlePanel/ShopInventory");
-    static private Transform GetPendingBuyPanel(Transform inventory)
+    private static Transform GetPendingBuyPanel(Transform inventory)
     => inventory.Find("SectionContent/Scroll View/Viewport/Content/PlayerPendingBuyItems");
-    static private Transform GetPendingSellPanel(Transform inventory)
+    private static Transform GetPendingSellPanel(Transform inventory)
     => inventory.Find("SectionContent/Scroll View/Viewport/Content/PlayerPendingSellItems");
-    static private Transform GetHUDHolder(CharacterUI ui)
+    private static Transform GetHUDHolder(CharacterUI ui)
     => ui.transform.Find("Canvas/GameplayPanels/HUD");
-    static private Transform GetManaBarHolder(Transform hudHolder)
+    private static Transform GetManaBarHolder(Transform hudHolder)
     => hudHolder.Find("MainCharacterBars/Mana");
 
     // Hooks
 #pragma warning disable IDE0051, IDE0060, IDE1006
     [HarmonyPatch(typeof(LocalCharacterControl), nameof(LocalCharacterControl.RetrieveComponents)), HarmonyPostfix]
-    static void LocalCharacterControl_RetrieveComponents_Post(LocalCharacterControl __instance)
+    private static void LocalCharacterControl_RetrieveComponents_Post(LocalCharacterControl __instance)
     {
         UpdateSplitscreenMode();
         __instance.ExecuteOnceAfterDelay(UI_RESIZE_DELAY, UpdateShopAndStashPanelsWidths);
@@ -627,7 +627,7 @@ public class GUI : AMod, IDelayedInit, IUpdatable
     }
 
     [HarmonyPatch(typeof(RPCManager), nameof(RPCManager.SendPlayerHasLeft)), HarmonyPostfix]
-    static void RPCManager_SendPlayerHasLeft_Post(RPCManager __instance)
+    private static void RPCManager_SendPlayerHasLeft_Post(RPCManager __instance)
     {
         UpdateSplitscreenMode();
         __instance.ExecuteOnceAfterDelay(UI_RESIZE_DELAY, UpdateShopAndStashPanelsWidths);
@@ -635,7 +635,7 @@ public class GUI : AMod, IDelayedInit, IUpdatable
 
     // Sort by weight    
     [HarmonyPatch(typeof(ItemListDisplay), nameof(ItemListDisplay.ByWeight)), HarmonyPrefix]
-    static bool ItemListDisplay_ByWeight_Pre(ItemListDisplay __instance, ref int __result, ItemDisplay _item1, ItemDisplay _item2)
+    private static bool ItemListDisplay_ByWeight_Pre(ItemListDisplay __instance, ref int __result, ItemDisplay _item1, ItemDisplay _item2)
     {
         float weight1 = _item1.TryAs(out ItemGroupDisplay group1) ? group1.TotalWeight : _item1.m_refItem.Weight;
         float weight2 = _item2.TryAs(out ItemGroupDisplay group2) ? group2.TotalWeight : _item2.m_refItem.Weight;
@@ -645,7 +645,7 @@ public class GUI : AMod, IDelayedInit, IUpdatable
 
     // Sort by durability    
     [HarmonyPatch(typeof(ItemListDisplay), nameof(ItemListDisplay.ByDurability)), HarmonyPrefix]
-    static bool ItemListDisplay_ByDurability_Pre(ref int __result, ItemDisplay _display1, ItemDisplay _display2)
+    private static bool ItemListDisplay_ByDurability_Pre(ref int __result, ItemDisplay _display1, ItemDisplay _display2)
     {
         Item item1 = _display1.m_refItem;
         Item item2 = _display2.m_refItem;
@@ -673,12 +673,12 @@ public class GUI : AMod, IDelayedInit, IUpdatable
 
     // Exclusive buy/sell panels
     [HarmonyPatch(typeof(ShopMenu), nameof(ShopMenu.Show)), HarmonyPostfix]
-    static void ShopMenu_Show_Post(ShopMenu __instance)
+    private static void ShopMenu_Show_Post(ShopMenu __instance)
     => UpdateSeparateBuySellPanels(Players.GetLocal(__instance));
 
     // Disable quickslot button icons
     [HarmonyPatch(typeof(QuickSlotDisplay), nameof(QuickSlotDisplay.Update)), HarmonyPostfix]
-    static void QuickSlotDisplay_Update_Post(QuickSlotDisplay __instance)
+    private static void QuickSlotDisplay_Update_Post(QuickSlotDisplay __instance)
     {
         Players.Data player = Players.GetLocal(__instance);
         #region quit
@@ -692,7 +692,7 @@ public class GUI : AMod, IDelayedInit, IUpdatable
 
     // Vertical splitscreen
     [HarmonyPatch(typeof(CharacterUI), nameof(CharacterUI.DelayedRefreshSize)), HarmonyPostfix]
-    static void CharacterUI_DelayedRefreshSize_Post(CharacterUI __instance)
+    private static void CharacterUI_DelayedRefreshSize_Post(CharacterUI __instance)
     {
         #region quit
         if (SplitScreenManager.Instance.CurrentSplitType != SplitScreenManager.SplitType.Vertical)
@@ -704,7 +704,7 @@ public class GUI : AMod, IDelayedInit, IUpdatable
 
     // Status effect duration
     [HarmonyPatch(typeof(StatusEffectPanel), nameof(StatusEffectPanel.GetStatusIcon)), HarmonyPostfix]
-    static void StatusEffectPanel_GetStatusIcon_Post(StatusEffectPanel __instance, ref StatusEffectIcon __result)
+    private static void StatusEffectPanel_GetStatusIcon_Post(StatusEffectPanel __instance, ref StatusEffectIcon __result)
     {
         PerPlayerSettings settings = _perPlayerSettings[Players.GetLocal(__instance.LocalCharacter).ID];
         #region quit

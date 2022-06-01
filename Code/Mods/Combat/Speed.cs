@@ -7,12 +7,12 @@ public class Speed : AMod, IUpdatable
     #endregion
 
     // Config
-    static private ModSetting<bool> _gameToggle, _playersToggle, _enemiesToggle;
-    static private ModSetting<int> _defaultGameSpeed, _speedHackMultiplier;
-    static private ModSetting<string> _speedHackKey;
-    static private ModSetting<int> _playersAnimationSpeed, _playersMovementSpeed, _playersAttackSpeed;
-    static private ModSetting<int> _enemiesAnimationSpeed, _enemiesMovementSpeed, _enemiesAttackSpeed;
-    override protected void Initialize()
+    private static ModSetting<bool> _gameToggle, _playersToggle, _enemiesToggle;
+    private static ModSetting<int> _defaultGameSpeed, _speedHackMultiplier;
+    private static ModSetting<string> _speedHackKey;
+    private static ModSetting<int> _playersAnimationSpeed, _playersMovementSpeed, _playersAttackSpeed;
+    private static ModSetting<int> _enemiesAnimationSpeed, _enemiesMovementSpeed, _enemiesAttackSpeed;
+    protected override void Initialize()
     {
         _gameToggle = CreateSetting(nameof(_gameToggle), false);
         _defaultGameSpeed = CreateSetting(nameof(_defaultGameSpeed), 100, IntRange(0, 200));
@@ -31,7 +31,7 @@ public class Speed : AMod, IUpdatable
 
         AddEventOnConfigClosed(UpdateDefaultGameSpeed);
     }
-    override protected void SetFormatting()
+    protected override void SetFormatting()
     {
         _gameToggle.Format("Game");
         _gameToggle.Description = "Set multipliers (%) for the whole game world";
@@ -66,15 +66,15 @@ public class Speed : AMod, IUpdatable
             _enemiesAttackSpeed.Format("Attack", _enemiesToggle);
         }
     }
-    override protected string Description
+    protected override string Description
     => "• Change players/NPCs speed multipliers\n" +
        "(all animations, movement, attack)\n" +
        "• Affects FINAL speed, after all reductions and amplifications\n" +
        "• Override default game speed\n" +
        "• Toggle speedhack with a hotkey";
-    override protected string SectionOverride
+    protected override string SectionOverride
     => ModSections.Combat;
-    override protected void LoadPreset(string presetName)
+    protected override void LoadPreset(string presetName)
     {
         switch (presetName)
         {
@@ -104,7 +104,7 @@ public class Speed : AMod, IUpdatable
     }
 
     // Utility
-    static private void UpdateDefaultGameSpeed()
+    private static void UpdateDefaultGameSpeed()
     {
         if (Global.GamePaused)
             return;
@@ -112,7 +112,7 @@ public class Speed : AMod, IUpdatable
         Time.timeScale = _defaultGameSpeed / 100f;
         Time.fixedDeltaTime = FIXED_TIME_DELTA * Time.timeScale;
     }
-    static private void ToggleSpeedHack()
+    private static void ToggleSpeedHack()
     {
         if (Global.GamePaused)
             return;
@@ -122,7 +122,7 @@ public class Speed : AMod, IUpdatable
         Time.timeScale = Time.timeScale < speedHackSpeed ? speedHackSpeed : defaultSpeed;
         Time.fixedDeltaTime = FIXED_TIME_DELTA * Time.timeScale;
     }
-    static private bool TryUpdateAnimationSpeed(Character character)
+    private static bool TryUpdateAnimationSpeed(Character character)
     {
         #region quit
         if (!_playersToggle && !_enemiesToggle
@@ -139,15 +139,15 @@ public class Speed : AMod, IUpdatable
 
     // Hooks
     [HarmonyPatch(typeof(Character), nameof(Character.LateUpdate)), HarmonyPostfix]
-    static void Character_LateUpdate_Post(Character __instance)
+    private static void Character_LateUpdate_Post(Character __instance)
     => TryUpdateAnimationSpeed(__instance);
 
     [HarmonyPatch(typeof(Character), nameof(Character.TempSlowDown)), HarmonyPrefix]
-    static bool Character_TempSlowDown_Pre(Character __instance)
+    private static bool Character_TempSlowDown_Pre(Character __instance)
     => TryUpdateAnimationSpeed(__instance);
 
     [HarmonyPatch(typeof(CharacterStats), nameof(CharacterStats.MovementSpeed), MethodType.Getter), HarmonyPostfix]
-    static void CharacterStats_MovementSpeed_Getter_Post(CharacterStats __instance, ref float __result)
+    private static void CharacterStats_MovementSpeed_Getter_Post(CharacterStats __instance, ref float __result)
     {
         Character character = __instance.m_character;
         if (_playersToggle && character.IsAlly())
@@ -157,7 +157,7 @@ public class Speed : AMod, IUpdatable
     }
 
     [HarmonyPatch(typeof(Weapon), nameof(Weapon.GetAttackSpeed)), HarmonyPostfix]
-    static void Weapon_GetAttackSpeed_Post(Weapon __instance, ref float __result)
+    private static void Weapon_GetAttackSpeed_Post(Weapon __instance, ref float __result)
     {
         Character owner = __instance.OwnerCharacter;
         if (_playersToggle && owner.IsAlly())

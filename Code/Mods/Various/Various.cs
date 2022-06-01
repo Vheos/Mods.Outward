@@ -11,7 +11,7 @@ public class Various : AMod, IUpdatable
     #region const
     private const int DROP_ONE_ACTION_ID = -2;
     private const string DROP_ONE_ACTION_TEXT = "Drop one";
-    static private readonly Dictionary<AreaManager.AreaEnum, string> STASH_UIDS_BY_CITY = new()
+    private static readonly Dictionary<AreaManager.AreaEnum, string> STASH_UIDS_BY_CITY = new()
     {
         [AreaManager.AreaEnum.CierzoVillage] = "ImqRiGAT80aE2WtUHfdcMw",
         [AreaManager.AreaEnum.Berg] = "ImqRiGAT80aE2WtUHfdcMw",
@@ -20,7 +20,7 @@ public class Various : AMod, IUpdatable
         [AreaManager.AreaEnum.Harmattan] = "ImqRiGAT80aE2WtUHfdcMw",
         [AreaManager.AreaEnum.NewSirocco] = "IqUugGqBBkaOcQdRmhnMng",
     };
-    static private readonly Dictionary<AreaManager.AreaEnum, string> SOROBOREAN_CARAVANNER_UIDS_BY_CITY = new()
+    private static readonly Dictionary<AreaManager.AreaEnum, string> SOROBOREAN_CARAVANNER_UIDS_BY_CITY = new()
     {
         [AreaManager.AreaEnum.CierzoVillage] = "G_GyAVjRWkq8e2L8WP4TgA",
         [AreaManager.AreaEnum.Berg] = "-MSrkT502k63y3CV2j98TQ",
@@ -31,7 +31,7 @@ public class Various : AMod, IUpdatable
     };
     private const float DEFAULT_ENEMY_HEALTH_RESET_HOURS = 24f;   // Character.HoursToHealthReset
     private const int ARMOR_TRAINING_ID = 8205220;
-    static private readonly Dictionary<TemperatureSteps, Vector2> DEFAULT_TEMPERATURE_DATA_BY_ENUM = new()
+    private static readonly Dictionary<TemperatureSteps, Vector2> DEFAULT_TEMPERATURE_DATA_BY_ENUM = new()
     {
         [TemperatureSteps.Coldest] = new Vector2(-45, -1),
         [TemperatureSteps.VeryCold] = new Vector2(-30, 14),
@@ -63,26 +63,26 @@ public class Various : AMod, IUpdatable
     #endregion
 
     // Settings
-    static private ModSetting<bool> _enableCheats;
-    static private ModSetting<string> _enableCheatsHotkey;
-    static private ModSetting<bool> _skipStartupVideos;
-    static private ModSetting<TitleScreenCharacterVisibility> _titleScreenHideCharacters;
-    static private ModSetting<ArmorSlots> _armorSlotsToHide;
-    static private ModSetting<bool> _removeCoopScaling;
-    static private ModSetting<bool> _removeDodgeInvulnerability;
-    static private ModSetting<bool> _healEnemiesOnLoad;
-    static private ModSetting<bool> _multiplicativeStacking;
-    static private ModSetting<int> _armorTrainingPenaltyReduction;
-    static private ModSetting<bool> _applyArmorTrainingToManaCost;
-    static private ModSetting<bool> _loadArrowsFromInventory;
-    static private ModSetting<float> _baseStaminaRegen;
-    static private ModSetting<bool> _craftFromStash;
-    static private ModSetting<bool> _displayStashAmount;
-    static private ModSetting<bool> _displayPricesInStash;
-    static private ModSetting<bool> _itemActionDropOne;
-    static private ModSetting<bool> _temperatureToggle;
-    static private Dictionary<TemperatureSteps, ModSetting<Vector2>> _temperatureDataByEnum;
-    override protected void Initialize()
+    private static ModSetting<bool> _enableCheats;
+    private static ModSetting<string> _enableCheatsHotkey;
+    private static ModSetting<bool> _skipStartupVideos;
+    private static ModSetting<TitleScreenCharacterVisibility> _titleScreenHideCharacters;
+    private static ModSetting<ArmorSlots> _armorSlotsToHide;
+    private static ModSetting<bool> _removeCoopScaling;
+    private static ModSetting<bool> _removeDodgeInvulnerability;
+    private static ModSetting<bool> _healEnemiesOnLoad;
+    private static ModSetting<bool> _multiplicativeStacking;
+    private static ModSetting<int> _armorTrainingPenaltyReduction;
+    private static ModSetting<bool> _applyArmorTrainingToManaCost;
+    private static ModSetting<bool> _loadArrowsFromInventory;
+    private static ModSetting<float> _baseStaminaRegen;
+    private static ModSetting<bool> _craftFromStash;
+    private static ModSetting<bool> _displayStashAmount;
+    private static ModSetting<bool> _displayPricesInStash;
+    private static ModSetting<bool> _itemActionDropOne;
+    private static ModSetting<bool> _temperatureToggle;
+    private static Dictionary<TemperatureSteps, ModSetting<Vector2>> _temperatureDataByEnum;
+    protected override void Initialize()
     {
         _enableCheats = CreateSetting(nameof(_enableCheats), false);
         _enableCheatsHotkey = CreateSetting(nameof(_enableCheatsHotkey), "");
@@ -115,7 +115,7 @@ public class Various : AMod, IUpdatable
             TryUpdateTemperatureData();
         });
     }
-    override protected void SetFormatting()
+    protected override void SetFormatting()
     {
         _enableCheats.Format("Enable cheats");
         using (Indent)
@@ -181,11 +181,11 @@ public class Various : AMod, IUpdatable
                     _temperatureDataByEnum[step].Format(step.ToString(), _temperatureToggle);
         }
     }
-    override protected string Description
+    protected override string Description
     => "• Mods (small and big) that didn't get their own section yet :)";
-    override protected string SectionOverride
+    protected override string SectionOverride
     => "";
-    override protected void LoadPreset(string presetName)
+    protected override void LoadPreset(string presetName)
     {
         switch (presetName)
         {
@@ -228,8 +228,8 @@ public class Various : AMod, IUpdatable
     }
 
     // Utility
-    static private TreasureChest _playerStash;
-    static private TreasureChest PlayerStash
+    private static TreasureChest _playerStash;
+    private static TreasureChest PlayerStash
     {
         get
         {
@@ -240,8 +240,8 @@ public class Various : AMod, IUpdatable
             return _playerStash;
         }
     }
-    static private Merchant _soroboreanCaravanner;
-    static private Merchant SoroboreanCaravanner
+    private static Merchant _soroboreanCaravanner;
+    private static Merchant SoroboreanCaravanner
     {
         get
         {
@@ -253,17 +253,17 @@ public class Various : AMod, IUpdatable
             return _soroboreanCaravanner;
         }
     }
-    static private bool ShouldArmorSlotBeHidden(EquipmentSlot.EquipmentSlotIDs slot)
+    private static bool ShouldArmorSlotBeHidden(EquipmentSlot.EquipmentSlotIDs slot)
     => slot == EquipmentSlot.EquipmentSlotIDs.Helmet && _armorSlotsToHide.Value.HasFlag(ArmorSlots.Head)
     || slot == EquipmentSlot.EquipmentSlotIDs.Chest && _armorSlotsToHide.Value.HasFlag(ArmorSlots.Chest)
     || slot == EquipmentSlot.EquipmentSlotIDs.Foot && _armorSlotsToHide.Value.HasFlag(ArmorSlots.Feet);
-    static private bool HasLearnedArmorTraining(Character character)
+    private static bool HasLearnedArmorTraining(Character character)
     => character.Inventory.SkillKnowledge.IsItemLearned(ARMOR_TRAINING_ID);
-    static public bool IsAnythingEquipped(EquipmentSlot slot)
+    public static bool IsAnythingEquipped(EquipmentSlot slot)
     => slot != null && slot.HasItemEquipped;
-    static public bool IsNotLeftHandUsedBy2H(EquipmentSlot slot)
+    public static bool IsNotLeftHandUsedBy2H(EquipmentSlot slot)
     => !(slot.SlotType == EquipmentSlot.EquipmentSlotIDs.LeftHand && slot.EquippedItem.TwoHanded);
-    static private bool TryApplyMultiplicativeStacking(CharacterEquipment equipment, ref float result, Func<EquipmentSlot, float> getStatValue, bool invertedPositivity = false, bool applyArmorTraining = false)
+    private static bool TryApplyMultiplicativeStacking(CharacterEquipment equipment, ref float result, Func<EquipmentSlot, float> getStatValue, bool invertedPositivity = false, bool applyArmorTraining = false)
     {
         #region quit
         if (!_multiplicativeStacking)
@@ -284,9 +284,9 @@ public class Various : AMod, IUpdatable
         result *= invCoeff;
         return false;
     }
-    static private void UpdateBaseStaminaRegen(CharacterStats characterStats)
+    private static void UpdateBaseStaminaRegen(CharacterStats characterStats)
     => characterStats.m_staminaRegen.BaseValue = _baseStaminaRegen;
-    static private void TryUpdateTemperatureData()
+    private static void TryUpdateTemperatureData()
     {
         #region quit
         if (!_temperatureToggle)
@@ -301,7 +301,7 @@ public class Various : AMod, IUpdatable
                     environmentConditions.TemperatureCaps[step] = _temperatureDataByEnum[step].Value.y;
                 }
     }
-    static private void TryDisplayStashAmount(ItemDisplay itemDisplay)
+    private static void TryDisplayStashAmount(ItemDisplay itemDisplay)
     {
         #region quit
         if (!_displayStashAmount || PlayerStash == null
@@ -331,7 +331,7 @@ public class Various : AMod, IUpdatable
     // Hooks
     // Reset static scene data
     [HarmonyPatch(typeof(NetworkLevelLoader), nameof(NetworkLevelLoader.UnPauseGameplay)), HarmonyPostfix]
-    static void NetworkLevelLoader_UnPauseGameplay_Post(NetworkLevelLoader __instance)
+    private static void NetworkLevelLoader_UnPauseGameplay_Post(NetworkLevelLoader __instance)
     {
         _playerStash = null;
         _soroboreanCaravanner = null;
@@ -339,7 +339,7 @@ public class Various : AMod, IUpdatable
 
     // Display prices in stash
     [HarmonyPatch(typeof(ItemDisplay), nameof(ItemDisplay.UpdateValueDisplay)), HarmonyPrefix]
-    static bool ItemDisplay_UpdateValueDisplay_Pre(ItemDisplay __instance)
+    private static bool ItemDisplay_UpdateValueDisplay_Pre(ItemDisplay __instance)
     {
         #region quit
         if (!_displayPricesInStash
@@ -358,7 +358,7 @@ public class Various : AMod, IUpdatable
 
     // Drop one
     [HarmonyPatch(typeof(ItemDisplayOptionPanel), nameof(ItemDisplayOptionPanel.GetActiveActions)), HarmonyPostfix]
-    static void ItemDisplayOptionPanel_GetActiveActions_Post(ItemDisplayOptionPanel __instance, ref List<int> __result)
+    private static void ItemDisplayOptionPanel_GetActiveActions_Post(ItemDisplayOptionPanel __instance, ref List<int> __result)
     {
         #region quit
         //!itemDisplay.RefItem.TryNonNull(out var item) || item.MoveStackAsOne  
@@ -372,7 +372,7 @@ public class Various : AMod, IUpdatable
     }
 
     [HarmonyPatch(typeof(ItemDisplayOptionPanel), nameof(ItemDisplayOptionPanel.GetActionText)), HarmonyPrefix]
-    static bool ItemDisplayOptionPanel_GetActionText_Pre(ItemDisplayOptionPanel __instance, ref string __result, ref int _actionID)
+    private static bool ItemDisplayOptionPanel_GetActionText_Pre(ItemDisplayOptionPanel __instance, ref string __result, ref int _actionID)
     {
         #region quit
         if (_actionID != DROP_ONE_ACTION_ID)
@@ -384,7 +384,7 @@ public class Various : AMod, IUpdatable
     }
 
     [HarmonyPatch(typeof(ItemDisplayOptionPanel), nameof(ItemDisplayOptionPanel.ActionHasBeenPressed)), HarmonyPrefix]
-    static bool ItemDisplayOptionPanel_ActionHasBeenPressed_Pre(ItemDisplayOptionPanel __instance, ref int _actionID)
+    private static bool ItemDisplayOptionPanel_ActionHasBeenPressed_Pre(ItemDisplayOptionPanel __instance, ref int _actionID)
     {
         #region quit
         if (_actionID != DROP_ONE_ACTION_ID)
@@ -400,7 +400,7 @@ public class Various : AMod, IUpdatable
         new[] { typeof(Tag), typeof(DictionaryExt<int, CompatibleIngredient>) },
         new[] { ArgumentType.Normal, ArgumentType.Ref }),
         HarmonyPostfix]
-    static void CharacterInventory_InventoryIngredients_Post(CharacterInventory __instance, Tag _craftingStationTag, ref DictionaryExt<int, CompatibleIngredient> _sortedIngredient)
+    private static void CharacterInventory_InventoryIngredients_Post(CharacterInventory __instance, Tag _craftingStationTag, ref DictionaryExt<int, CompatibleIngredient> _sortedIngredient)
     {
         #region quit
         if (!_craftFromStash || PlayerStash == null)
@@ -412,19 +412,19 @@ public class Various : AMod, IUpdatable
 
     // Display stash amount
     [HarmonyPatch(typeof(ItemDisplay), nameof(ItemDisplay.UpdateQuantityDisplay)), HarmonyPostfix]
-    static void ItemDisplay_UpdateQuantityDisplay_Post(ItemDisplay __instance)
+    private static void ItemDisplay_UpdateQuantityDisplay_Post(ItemDisplay __instance)
     => TryDisplayStashAmount(__instance);
 
     [HarmonyPatch(typeof(CurrencyDisplay), nameof(CurrencyDisplay.UpdateQuantityDisplay)), HarmonyPostfix]
-    static void CurrencyDisplay_UpdateQuantityDisplay_Post(CurrencyDisplay __instance)
+    private static void CurrencyDisplay_UpdateQuantityDisplay_Post(CurrencyDisplay __instance)
     => TryDisplayStashAmount(__instance);
 
     [HarmonyPatch(typeof(RecipeResultDisplay), nameof(RecipeResultDisplay.UpdateQuantityDisplay)), HarmonyPostfix]
-    static void RecipeResultDisplay_UpdateQuantityDisplay_Post(RecipeResultDisplay __instance)
+    private static void RecipeResultDisplay_UpdateQuantityDisplay_Post(RecipeResultDisplay __instance)
     => TryDisplayStashAmount(__instance);
 
     [HarmonyPatch(typeof(TitleScreenLoader), nameof(TitleScreenLoader.LoadTitleScreenCoroutine)), HarmonyPostfix]
-    static IEnumerator TitleScreenLoader_LoadTitleScreenCoroutine_Post(IEnumerator original, TitleScreenLoader __instance)
+    private static IEnumerator TitleScreenLoader_LoadTitleScreenCoroutine_Post(IEnumerator original, TitleScreenLoader __instance)
     {
         while (original.MoveNext())
             yield return original.Current;
@@ -447,17 +447,17 @@ public class Various : AMod, IUpdatable
 
     // Temperature data
     [HarmonyPatch(typeof(EnvironmentConditions), nameof(EnvironmentConditions.Start)), HarmonyPostfix]
-    static void EnvironmentConditions_Start_Post(EnvironmentConditions __instance)
+    private static void EnvironmentConditions_Start_Post(EnvironmentConditions __instance)
     => TryUpdateTemperatureData();
 
     // Stamina regen
     [HarmonyPatch(typeof(PlayerCharacterStats), nameof(PlayerCharacterStats.OnStart)), HarmonyPostfix]
-    static void PlayerCharacterStats_OnStart_Post(PlayerCharacterStats __instance)
+    private static void PlayerCharacterStats_OnStart_Post(PlayerCharacterStats __instance)
     => UpdateBaseStaminaRegen(__instance);
 
     // Load arrows from inventory
     [HarmonyPatch(typeof(WeaponLoadoutItem), nameof(WeaponLoadoutItem.ReduceShotAmount)), HarmonyPrefix]
-    static bool WeaponLoadoutItem_ReduceShotAmount_Pre(WeaponLoadoutItem __instance)
+    private static bool WeaponLoadoutItem_ReduceShotAmount_Pre(WeaponLoadoutItem __instance)
     {
         #region quit
         if (!_loadArrowsFromInventory
@@ -482,7 +482,7 @@ public class Various : AMod, IUpdatable
     }
 
     [HarmonyPatch(typeof(CharacterInventory), nameof(CharacterInventory.GetAmmunitionCount)), HarmonyPostfix]
-    static void CharacterInventory_GetAmmunitionCount_Post(CharacterInventory __instance, ref int __result)
+    private static void CharacterInventory_GetAmmunitionCount_Post(CharacterInventory __instance, ref int __result)
     {
         #region quit
         if (!_loadArrowsFromInventory || __result == 0)
@@ -494,7 +494,7 @@ public class Various : AMod, IUpdatable
 
     // Multiplicative stacking
     [HarmonyPatch(typeof(Stat), nameof(Stat.GetModifier)), HarmonyPrefix]
-    static bool Stat_GetModifier_Pre(Stat __instance, ref float __result, ref IList<Tag> _tags, ref int baseModifier)
+    private static bool Stat_GetModifier_Pre(Stat __instance, ref float __result, ref IList<Tag> _tags, ref int baseModifier)
     {
         #region quit
         if (!_multiplicativeStacking)
@@ -518,20 +518,20 @@ public class Various : AMod, IUpdatable
     }
 
     [HarmonyPatch(typeof(CharacterEquipment), nameof(CharacterEquipment.GetTotalMovementModifier)), HarmonyPrefix]
-    static bool CharacterEquipment_GetTotalMovementModifier_Pre(CharacterEquipment __instance, ref float __result)
+    private static bool CharacterEquipment_GetTotalMovementModifier_Pre(CharacterEquipment __instance, ref float __result)
     => TryApplyMultiplicativeStacking(__instance, ref __result, slot => slot.EquippedItem.MovementPenalty, true, true);
 
     [HarmonyPatch(typeof(CharacterEquipment), nameof(CharacterEquipment.GetTotalStaminaUseModifier)), HarmonyPrefix]
-    static bool CharacterEquipment_GetTotalStaminaUseModifier_Pre(CharacterEquipment __instance, ref float __result)
+    private static bool CharacterEquipment_GetTotalStaminaUseModifier_Pre(CharacterEquipment __instance, ref float __result)
     => TryApplyMultiplicativeStacking(__instance, ref __result, slot => slot.EquippedItem.StaminaUsePenalty, false, true);
 
     [HarmonyPatch(typeof(CharacterEquipment), nameof(CharacterEquipment.GetTotalManaUseModifier)), HarmonyPrefix]
-    static bool CharacterEquipment_GetTotalManaUseModifier_Pre(CharacterEquipment __instance, ref float __result)
+    private static bool CharacterEquipment_GetTotalManaUseModifier_Pre(CharacterEquipment __instance, ref float __result)
     => TryApplyMultiplicativeStacking(__instance, ref __result, slot => slot.EquippedItem.ManaUseModifier, false, _applyArmorTrainingToManaCost);
 
     // Skip startup video
     [HarmonyPatch(typeof(StartupVideo), nameof(StartupVideo.Awake)), HarmonyPrefix]
-    static bool StartupVideo_Awake_Pre()
+    private static bool StartupVideo_Awake_Pre()
     {
         StartupVideo.HasPlayedOnce = _skipStartupVideos.Value;
         return true;
@@ -539,7 +539,7 @@ public class Various : AMod, IUpdatable
 
     // Hide armor slots
     [HarmonyPatch(typeof(CharacterVisuals), nameof(CharacterVisuals.EquipVisuals)), HarmonyPrefix]
-    static bool CharacterVisuals_EquipVisuals_Pre(ref bool[] __state, ref EquipmentSlot.EquipmentSlotIDs _slotID, ref ArmorVisuals _visuals)
+    private static bool CharacterVisuals_EquipVisuals_Pre(ref bool[] __state, ref EquipmentSlot.EquipmentSlotIDs _slotID, ref ArmorVisuals _visuals)
     {
         #region quit
         if (_armorSlotsToHide == ArmorSlots.None)
@@ -562,7 +562,7 @@ public class Various : AMod, IUpdatable
     }
 
     [HarmonyPatch(typeof(CharacterVisuals), nameof(CharacterVisuals.EquipVisuals)), HarmonyPostfix]
-    static void CharacterVisuals_EquipVisuals_Post(ref bool[] __state, ref EquipmentSlot.EquipmentSlotIDs _slotID, ref ArmorVisuals _visuals)
+    private static void CharacterVisuals_EquipVisuals_Post(ref bool[] __state, ref EquipmentSlot.EquipmentSlotIDs _slotID, ref ArmorVisuals _visuals)
     {
         #region quit
         if (_armorSlotsToHide == ArmorSlots.None)
@@ -581,16 +581,16 @@ public class Various : AMod, IUpdatable
 
     // Remove co-op scaling
     [HarmonyPatch(typeof(CoopStats), nameof(CoopStats.ApplyToCharacter)), HarmonyPrefix]
-    static bool CoopStats_ApplyToCharacter_Pre()
+    private static bool CoopStats_ApplyToCharacter_Pre()
     => !_removeCoopScaling;
 
     [HarmonyPatch(typeof(CoopStats), nameof(CoopStats.RemoveFromCharacter)), HarmonyPrefix]
-    static bool CoopStats_RemoveFromCharacter_Pre()
+    private static bool CoopStats_RemoveFromCharacter_Pre()
     => !_removeCoopScaling;
 
     // Remove dodge invulnerability
     [HarmonyPatch(typeof(Character), nameof(Character.DodgeStep)), HarmonyPostfix]
-    static void Character_DodgeStep_Post(ref Hitbox[] ___m_hitboxes, ref int _step)
+    private static void Character_DodgeStep_Post(ref Hitbox[] ___m_hitboxes, ref int _step)
     {
         #region quit
         if (!_removeDodgeInvulnerability)
@@ -604,7 +604,7 @@ public class Various : AMod, IUpdatable
 
     // Enemy health reset time
     [HarmonyPatch(typeof(Character), nameof(Character.LoadCharSave)), HarmonyPrefix]
-    static bool Character_LoadCharSave_Pre(Character __instance)
+    private static bool Character_LoadCharSave_Pre(Character __instance)
     {
         #region quit
         if (!__instance.IsEnemy())

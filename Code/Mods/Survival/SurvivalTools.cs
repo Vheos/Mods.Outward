@@ -4,7 +4,7 @@ public class SurvivalTools : AMod
 {
     #region const
     private const float BED_DISTANCE_BETWEEN_PLAYERS = 0.4f;
-    static private readonly int[] TORCH_IDS = new[]
+    private static readonly int[] TORCH_IDS = new[]
     {
         "Makeshift Torch".ItemID(),
         "Ice-Flame Torch".ItemID(),
@@ -15,16 +15,16 @@ public class SurvivalTools : AMod
     #endregion
 
     // Settings
-    static private ModSetting<bool> _moreGatheringTools;
-    static private ModSetting<Vector2> _gatheringDurabilityCost;
-    static private ModSetting<int> _chanceToBreakFlintAndSteel;
-    static private ModSetting<int> _waterskinCapacity;
-    static private ModSetting<Vector2> _remapBackpackCapacities;
-    static private ModSetting<float> _torchesTemperatureRadius;
-    static private ModSetting<bool> _torchesDecayOnGround;
-    static private ModSetting<int> _lightsRange;
-    static private ModSetting<bool> _twoPersonBeds;
-    override protected void Initialize()
+    private static ModSetting<bool> _moreGatheringTools;
+    private static ModSetting<Vector2> _gatheringDurabilityCost;
+    private static ModSetting<int> _chanceToBreakFlintAndSteel;
+    private static ModSetting<int> _waterskinCapacity;
+    private static ModSetting<Vector2> _remapBackpackCapacities;
+    private static ModSetting<float> _torchesTemperatureRadius;
+    private static ModSetting<bool> _torchesDecayOnGround;
+    private static ModSetting<int> _lightsRange;
+    private static ModSetting<bool> _twoPersonBeds;
+    protected override void Initialize()
     {
         _moreGatheringTools = CreateSetting(nameof(_moreGatheringTools), false);
         _gatheringDurabilityCost = CreateSetting(nameof(_gatheringDurabilityCost), new Vector2(0f, 5f));
@@ -36,7 +36,7 @@ public class SurvivalTools : AMod
         _lightsRange = CreateSetting(nameof(_lightsRange), 100, IntRange(50, 200));
         _twoPersonBeds = CreateSetting(nameof(_twoPersonBeds), false);
     }
-    override protected void SetFormatting()
+    protected override void SetFormatting()
     {
         _moreGatheringTools.Format("More gathering tools");
         _moreGatheringTools.Description = "Any Spear can fish and any 2-Handed Mace can mine\n" +
@@ -63,17 +63,17 @@ public class SurvivalTools : AMod
         _twoPersonBeds.Description = "All beds, tents and bedrolls will allow for 2 users at the same time";
 
     }
-    override protected string Description
+    protected override string Description
     => "• Allow gathering with more tools\n" +
        "• Control gathering tools durability cost\n" +
        "• Make Flint and Steel break randomly\n" +
        "• Change Waterskin capacity\n" +
        "• Change backpack capacities";
-    override protected string SectionOverride
+    protected override string SectionOverride
     => ModSections.SurvivalAndImmersion;
-    override protected string ModName
+    protected override string ModName
     => "Tools";
-    override protected void LoadPreset(string presetName)
+    protected override void LoadPreset(string presetName)
     {
         switch (presetName)
         {
@@ -95,7 +95,7 @@ public class SurvivalTools : AMod
     // Hooks
     // More gathering tools
     [HarmonyPatch(typeof(GatherableInteraction), nameof(GatherableInteraction.GetValidItem)), HarmonyPrefix]
-    static bool GatherableInteraction_GetValidItem_Pre(GatherableInteraction __instance, ref Item __result, Character _character)
+    private static bool GatherableInteraction_GetValidItem_Pre(GatherableInteraction __instance, ref Item __result, Character _character)
     {
         #region quit
         if (!_moreGatheringTools || !__instance.Gatherable.RequiredItem.TryNonNull(out var requiredItem)
@@ -144,7 +144,7 @@ public class SurvivalTools : AMod
 
     // Gathering durability cost
     [HarmonyPatch(typeof(GatherableInteraction), nameof(GatherableInteraction.CharSpellTakeItem)), HarmonyPrefix]
-    static bool GatherableInteraction_CharSpellTakeItem_Pre(GatherableInteraction __instance, Character _character)
+    private static bool GatherableInteraction_CharSpellTakeItem_Pre(GatherableInteraction __instance, Character _character)
     {
         #region quit
         if (!__instance.m_pendingAnims.TryGetValue(_character.UID, out var gatherInstance)
@@ -158,7 +158,7 @@ public class SurvivalTools : AMod
 
     // Chance to break Flint and Steel
     [HarmonyPatch(typeof(Item), nameof(Item.OnUse)), HarmonyPostfix]
-    static void Item_OnUse_Post(Item __instance)
+    private static void Item_OnUse_Post(Item __instance)
     {
         #region quit
         if (__instance.ItemID != "Flint and Steel".ItemID()
@@ -172,14 +172,14 @@ public class SurvivalTools : AMod
 
     // Waterskin capacity
     [HarmonyPatch(typeof(WaterContainer), nameof(WaterContainer.RefreshDisplay)), HarmonyPrefix]
-    static bool WaterContainer_RefreshDisplay_Pre(WaterContainer __instance)
+    private static bool WaterContainer_RefreshDisplay_Pre(WaterContainer __instance)
     {
         __instance.m_stackable.m_maxStackAmount = _waterskinCapacity;
         return true;
     }
 
     [HarmonyPatch(typeof(Item), nameof(Item.OnAwake)), HarmonyPostfix]
-    static void Item_Awake_Post(Item __instance)
+    private static void Item_Awake_Post(Item __instance)
     {
         #region quit
         if (__instance.IsNot<WaterContainer>())
@@ -191,7 +191,7 @@ public class SurvivalTools : AMod
 
     // Remap backpack capacities
     [HarmonyPatch(typeof(ItemContainer), nameof(ItemContainer.ContainerCapacity), MethodType.Getter), HarmonyPostfix]
-    static void ItemContainer_ContainerCapacity_Post(ItemContainer __instance, ref float __result)
+    private static void ItemContainer_ContainerCapacity_Post(ItemContainer __instance, ref float __result)
     {
         if (__instance.RefBag == null || __instance.m_baseContainerCapacity <= 0)
             return;
@@ -202,7 +202,7 @@ public class SurvivalTools : AMod
 
     // Torches temperature radius
     [HarmonyPatch(typeof(TemperatureSource), nameof(TemperatureSource.Start)), HarmonyPostfix]
-    static void TemperatureSource_Start_Post(TemperatureSource __instance)
+    private static void TemperatureSource_Start_Post(TemperatureSource __instance)
     {
         #region quit
         if (!__instance.m_item.TryNonNull(out var item) || item.ItemID.IsNotContainedIn(TORCH_IDS))
@@ -220,7 +220,7 @@ public class SurvivalTools : AMod
 
     // Lights intensity
     [HarmonyPatch(typeof(ItemLanternVisual), nameof(ItemLanternVisual.Awake)), HarmonyPostfix]
-    static void ItemLanternVisual_Awake_Post(ItemLanternVisual __instance)
+    private static void ItemLanternVisual_Awake_Post(ItemLanternVisual __instance)
     {
         float modifier = _lightsRange / 100f;
         __instance.LanternLight.range *= modifier;
@@ -228,7 +228,7 @@ public class SurvivalTools : AMod
 
     // Tents capacity
     [HarmonyPatch(typeof(Sleepable), nameof(Sleepable.RequestSleepableRoom)), HarmonyPrefix]
-    static bool Sleepable_RequestSleepableRoom_Pre(Sleepable __instance)
+    private static bool Sleepable_RequestSleepableRoom_Pre(Sleepable __instance)
     {
         #region quit
         if (!_twoPersonBeds || Global.Lobby.PlayersInLobbyCount <= 1)

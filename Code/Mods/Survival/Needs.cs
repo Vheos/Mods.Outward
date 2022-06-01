@@ -6,13 +6,13 @@ public class Needs : AMod, IDelayedInit
     #region const
     private const string ICONS_FOLDER = @"Needs\";
     private const float DEFAULT_MAX_NEED_VALUE = 1000f;
-    static private readonly (Need Need, Vector2 Thresholds, float DepletionRate, string NegativeName, string ActionName, string AffectedStat)[] NEEDS_DATA =
+    private static readonly (Need Need, Vector2 Thresholds, float DepletionRate, string NegativeName, string ActionName, string AffectedStat)[] NEEDS_DATA =
     {
         (Need.Food, new Vector2(50f, 75f), 1000f / 15.00f, "Hungry", "eating", "health burn rate"),
         (Need.Drink, new Vector2(50f, 75f), 1000f / 27.77f, "Thirsty", "drinking", "stamina burn rate"),
         (Need.Sleep, new Vector2(25f, 50f), 1000f / 13.89f, "Tired", "sleeping", "stamina regen"),
     };
-    static private readonly Dictionary<int, (Character.SpellCastType Vanilla, Character.SpellCastType Custom)> ANIMATION_PAIRS_BY_INGESTIBLE_ID
+    private static readonly Dictionary<int, (Character.SpellCastType Vanilla, Character.SpellCastType Custom)> ANIMATION_PAIRS_BY_INGESTIBLE_ID
     = new()
     {
         ["Torcrab Egg".ItemID()] = (Character.SpellCastType.DrinkWater, Character.SpellCastType.Eat),
@@ -30,7 +30,7 @@ public class Needs : AMod, IDelayedInit
         ["Food Waste".ItemID()] = (Character.SpellCastType.DrinkWater, Character.SpellCastType.Eat),
         ["Warm Boozu’s Milk".ItemID()] = (Character.SpellCastType.Potion, Character.SpellCastType.DrinkWater),
     };
-    static private readonly int[] OTHER_DRINK_IDS = new[]
+    private static readonly int[] OTHER_DRINK_IDS = new[]
     {
         "Able Tea".ItemID(),
         "Bitter Spicy Tea".ItemID(),
@@ -43,12 +43,12 @@ public class Needs : AMod, IDelayedInit
         "Warm Boozu’s Milk".ItemID(),
         "Gaberry Wine".ItemID(),
     };
-    static private readonly int[] MILK_IDS = new[]
+    private static readonly int[] MILK_IDS = new[]
     {
         "Boozu’s Milk".ItemID(),
         "Warm Boozu’s Milk".ItemID(),
     };
-    static private readonly string[] DOT_STATUS_EFFECTS = new[]
+    private static readonly string[] DOT_STATUS_EFFECTS = new[]
     {
         "Poisoned",
         "Poisoned +",
@@ -122,16 +122,16 @@ public class Needs : AMod, IDelayedInit
     #endregion
 
     // Settings
-    static private Dictionary<Need, NeedSettings> _settingsByNeed;
-    static private ModSetting<int> _sleepNegativeEffect;
-    static private ModSetting<bool> _sleepNegativeEffectIsPercent;
-    static private ModSetting<int> _sleepBuffsDuration;
-    static private ModSetting<bool> _overrideDrinkValues;
-    static private ModSetting<int> _drinkValuesPotions, _drinkValuesOther;
-    static private ModSetting<bool> _allowCuresWhileOverlimited;
-    static private ModSetting<bool> _allowOnlyDOTCures;
-    static private ModSetting<bool> _dontRestoreNeedsOnTravel;
-    override protected void Initialize()
+    private static Dictionary<Need, NeedSettings> _settingsByNeed;
+    private static ModSetting<int> _sleepNegativeEffect;
+    private static ModSetting<bool> _sleepNegativeEffectIsPercent;
+    private static ModSetting<int> _sleepBuffsDuration;
+    private static ModSetting<bool> _overrideDrinkValues;
+    private static ModSetting<int> _drinkValuesPotions, _drinkValuesOther;
+    private static ModSetting<bool> _allowCuresWhileOverlimited;
+    private static ModSetting<bool> _allowOnlyDOTCures;
+    private static ModSetting<bool> _dontRestoreNeedsOnTravel;
+    protected override void Initialize()
     {
         _settingsByNeed = new Dictionary<Need, NeedSettings>();
         foreach (var data in NEEDS_DATA)
@@ -182,7 +182,7 @@ public class Needs : AMod, IDelayedInit
             }
         });
     }
-    override protected void SetFormatting()
+    protected override void SetFormatting()
     {
         foreach (var data in NEEDS_DATA)
         {
@@ -250,15 +250,15 @@ public class Needs : AMod, IDelayedInit
         _dontRestoreNeedsOnTravel.Description = "Normally, travelling restores 100% needs and resets temperature\n" +
                                                 "but mages may prefer to have control over their sleep level :)";
     }
-    override protected string Description
+    protected override string Description
     => "• Enable \"Overlimits\" system\n" +
        "(prevents you from eating infinitely)\n" +
        "• Override negative status effects thresholds\n" +
        "• Override needs depletion rates\n" +
        "• Override drink values and sleep buffs duration";
-    override protected string SectionOverride
+    protected override string SectionOverride
     => ModSections.SurvivalAndImmersion;
-    override protected void LoadPreset(string presetName)
+    protected override void LoadPreset(string presetName)
     {
         switch (presetName)
         {
@@ -295,9 +295,9 @@ public class Needs : AMod, IDelayedInit
     }
 
     // Utility
-    static private bool _isInitialized;
-    static private Dictionary<Need, FulfilledData> _fulfilledDataByNeed;
-    static private void InitializeStatusEffectPrefabs()
+    private static bool _isInitialized;
+    private static Dictionary<Need, FulfilledData> _fulfilledDataByNeed;
+    private static void InitializeStatusEffectPrefabs()
     {
         _fulfilledDataByNeed = new Dictionary<Need, FulfilledData>
         {
@@ -337,7 +337,7 @@ public class Needs : AMod, IDelayedInit
             statusEffect.RefreshRate = 1f;
         }
     }
-    static private void UpdateStatusEffectPrefabsData()
+    private static void UpdateStatusEffectPrefabsData()
     {
         foreach (var element in _fulfilledDataByNeed)
         {
@@ -385,7 +385,7 @@ public class Needs : AMod, IDelayedInit
             statusEffect.StatusData.EffectsData = newEffectDatas.ToArray();
         }
     }
-    static private void UpdateThresholds(PlayerCharacterStats stats)
+    private static void UpdateThresholds(PlayerCharacterStats stats)
     {
         (Need Need, StatThreshold Threshold)[] needThresholdPairs =
         {
@@ -424,13 +424,13 @@ public class Needs : AMod, IDelayedInit
             limits[4].m_notificationLocKey = customAttributes.StatusNotification;
         }
     }
-    static private void UpdateDepletionRates(PlayerCharacterStats stats)
+    private static void UpdateDepletionRates(PlayerCharacterStats stats)
     {
         stats.m_foodDepletionRate.BaseValue = _settingsByNeed[Need.Food].DepletionPerHour;
         stats.m_drinkDepletionRate.BaseValue = _settingsByNeed[Need.Drink].DepletionPerHour;
         stats.m_sleepDepletionRate.BaseValue = _settingsByNeed[Need.Sleep].DepletionPerHour;
     }
-    static private void UpdateIngestibleAnimations(bool fix)
+    private static void UpdateIngestibleAnimations(bool fix)
     {
         foreach (var animationPairByIngestibleID in ANIMATION_PAIRS_BY_INGESTIBLE_ID)
         {
@@ -440,7 +440,7 @@ public class Needs : AMod, IDelayedInit
             Prefabs.IngestiblesByID[id].m_activateEffectAnimType = animation;
         }
     }
-    static private void UpdateDrinkValues()
+    private static void UpdateDrinkValues()
     {
         foreach (var ingestibleByID in Prefabs.IngestiblesByID)
         {
@@ -461,42 +461,42 @@ public class Needs : AMod, IDelayedInit
             affectDrink.SetAffectDrinkQuantity(drinkValue * 10f);
         }
     }
-    static private void RemoveMilkFoodValues()
+    private static void RemoveMilkFoodValues()
     {
         foreach (var milkID in MILK_IDS)
             Prefabs.IngestiblesByID[milkID].GetEffect<AffectFood>().Destroy();
     }
-    static private void UpdateSleepBuffsDuration()
+    private static void UpdateSleepBuffsDuration()
     {
         foreach (var sleepBuff in Prefabs.AllSleepBuffs)
             sleepBuff.StatusData.LifeSpan = _sleepBuffsDuration * 60f;
     }
-    static private void DisplayPreventedNotification(Character character, Need need)
+    private static void DisplayPreventedNotification(Character character, Need need)
     => character.CharacterUI.ShowInfoNotification(_fulfilledDataByNeed[need].PreventedNotification);
 
     // Thresholds
-    static private float DeathThreshold(Need need)
+    private static float DeathThreshold(Need need)
     => 0f;
-    static private float VeryNegativeThreshold(Need need)
+    private static float VeryNegativeThreshold(Need need)
     => _settingsByNeed[need]._thresholds.Value.x;
-    static private float NegativeThreshold(Need need)
+    private static float NegativeThreshold(Need need)
     => _settingsByNeed[need]._thresholds.Value.y;
-    static private float NeutralThreshold(Need need)
+    private static float NeutralThreshold(Need need)
     => 100f;
-    static private float FulfilledThreshold(Need need)
+    private static float FulfilledThreshold(Need need)
     => _settingsByNeed[need]._fulfilledLimit;
-    static private float MaxNeedValue(Need need)
+    private static float MaxNeedValue(Need need)
     => FulfilledThreshold(need) * 10f;
 
     // Checks
-    static private bool HasDOT(Character character)
+    private static bool HasDOT(Character character)
     {
         foreach (var statusEffect in character.StatusEffectMngr.Statuses)
             if (statusEffect.IdentifierName.IsContainedIn(DOT_STATUS_EFFECTS))
                 return true;
         return false;
     }
-    static private bool HasStatusEffectCuredBy(Character character, Item item)
+    private static bool HasStatusEffectCuredBy(Character character, Item item)
     {
         if (_allowOnlyDOTCures && !HasDOT(character))
             return false;
@@ -518,22 +518,22 @@ public class Needs : AMod, IDelayedInit
             }
         return false;
     }
-    static private bool CanIngest(Character character, Item item)
+    private static bool CanIngest(Character character, Item item)
     => item.IsEatable() && !IsLimited(character, Need.Food)
        || item.IsDrinkable() && !IsLimited(character, Need.Drink)
        || _allowCuresWhileOverlimited && HasStatusEffectCuredBy(character, item)
     || item.ItemID == "Ambraine".ItemID();
-    static private bool IsLimited(Character character, Need need)
+    private static bool IsLimited(Character character, Need need)
     => _settingsByNeed[need].LimitingEnabled && HasLimitingStatusEffect(character, need);
-    static private bool HasLimitingStatusEffect(Character character, Need need)
+    private static bool HasLimitingStatusEffect(Character character, Need need)
     => character.HasStatusEffect(NeedToLimitingStatusEffect(need));
-    static private StatusEffect NeedToLimitingStatusEffect(Need need)
+    private static StatusEffect NeedToLimitingStatusEffect(Need need)
     => _fulfilledDataByNeed[need].StatusEffect;
 
     // Hooks
     // Initialize
     [HarmonyPatch(typeof(PlayerCharacterStats), nameof(PlayerCharacterStats.OnStart)), HarmonyPostfix]
-    static private void PlayerCharacterStats_OnAwake_Post(PlayerCharacterStats __instance)
+    private static void PlayerCharacterStats_OnAwake_Post(PlayerCharacterStats __instance)
     {
         UpdateThresholds(__instance);
         UpdateDepletionRates(__instance);
@@ -541,7 +541,7 @@ public class Needs : AMod, IDelayedInit
 
     // Prevent use
     [HarmonyPatch(typeof(Item), nameof(Item.TryUse)), HarmonyPrefix]
-    static bool Item_TryUse_Pre(Item __instance, ref bool __result, Character _character)
+    private static bool Item_TryUse_Pre(Item __instance, ref bool __result, Character _character)
     {
         if (!_character.IsPlayer() || !__instance.IsIngestible() || CanIngest(_character, __instance))
             return true;
@@ -552,7 +552,7 @@ public class Needs : AMod, IDelayedInit
     }
 
     [HarmonyPatch(typeof(Item), nameof(Item.TryQuickSlotUse)), HarmonyPrefix]
-    static bool Item_TryQuickSlotUse_Pre(Item __instance)
+    private static bool Item_TryQuickSlotUse_Pre(Item __instance)
     {
         Character character = __instance.OwnerCharacter;
         if (!character.IsPlayer() || !__instance.IsIngestible() || CanIngest(character, __instance))
@@ -563,7 +563,7 @@ public class Needs : AMod, IDelayedInit
     }
 
     [HarmonyPatch(typeof(Sleepable), nameof(Sleepable.OnReceiveSleepRequestResult)), HarmonyPrefix]
-    static bool Sleepable_OnReceiveSleepRequestResult_Pre(ref Character _character)
+    private static bool Sleepable_OnReceiveSleepRequestResult_Pre(ref Character _character)
     {
         if (!_character.IsPlayer() || !IsLimited(_character, Need.Sleep))
             return true;
@@ -573,7 +573,7 @@ public class Needs : AMod, IDelayedInit
     }
 
     [HarmonyPatch(typeof(DrinkWaterInteraction), nameof(DrinkWaterInteraction.OnActivate)), HarmonyPrefix]
-    static bool DrinkWaterInteraction_OnActivate_Pre(DrinkWaterInteraction __instance)
+    private static bool DrinkWaterInteraction_OnActivate_Pre(DrinkWaterInteraction __instance)
     {
         Character character = __instance.LastCharacter;
         if (!character.IsPlayer() || !IsLimited(character, Need.Drink) || character.IsBurning())
@@ -585,7 +585,7 @@ public class Needs : AMod, IDelayedInit
 
     // New limits
     [HarmonyPatch(typeof(PlayerCharacterStats), nameof(PlayerCharacterStats.UpdateNeeds)), HarmonyPrefix]
-    static bool PlayerCharacterStats_UpdateNeeds_Pre(ref Stat ___m_maxFood, ref Stat ___m_maxDrink, ref Stat ___m_maxSleep)
+    private static bool PlayerCharacterStats_UpdateNeeds_Pre(ref Stat ___m_maxFood, ref Stat ___m_maxDrink, ref Stat ___m_maxSleep)
     {
         if (_settingsByNeed[Need.Food].LimitingEnabled)
             ___m_maxFood.m_currentValue = MaxNeedValue(Need.Food);
@@ -597,7 +597,7 @@ public class Needs : AMod, IDelayedInit
     }
 
     [HarmonyPatch(typeof(PlayerCharacterStats), nameof(PlayerCharacterStats.UpdateNeeds)), HarmonyPostfix]
-    static void PlayerCharacterStats_UpdateNeeds_Post(ref Stat ___m_maxFood, ref Stat ___m_maxDrink, ref Stat ___m_maxSleep)
+    private static void PlayerCharacterStats_UpdateNeeds_Post(ref Stat ___m_maxFood, ref Stat ___m_maxDrink, ref Stat ___m_maxSleep)
     {
         ___m_maxFood.m_currentValue = DEFAULT_MAX_NEED_VALUE;
         ___m_maxDrink.m_currentValue = DEFAULT_MAX_NEED_VALUE;
@@ -605,7 +605,7 @@ public class Needs : AMod, IDelayedInit
     }
 
     [HarmonyPatch(typeof(PlayerCharacterStats), nameof(PlayerCharacterStats.Food), MethodType.Setter), HarmonyPrefix]
-    static bool PlayerCharacterStats_Food_Setter_Pre(ref float value, ref float ___m_food)
+    private static bool PlayerCharacterStats_Food_Setter_Pre(ref float value, ref float ___m_food)
     {
         #region quit
         if (!_settingsByNeed[Need.Food].LimitingEnabled)
@@ -617,7 +617,7 @@ public class Needs : AMod, IDelayedInit
     }
 
     [HarmonyPatch(typeof(PlayerCharacterStats), nameof(PlayerCharacterStats.Drink), MethodType.Setter), HarmonyPrefix]
-    static bool PlayerCharacterStats_Drink_Setter_Pre(ref float value, ref float ___m_drink)
+    private static bool PlayerCharacterStats_Drink_Setter_Pre(ref float value, ref float ___m_drink)
     {
         #region quit
         if (!_settingsByNeed[Need.Drink].LimitingEnabled)
@@ -629,7 +629,7 @@ public class Needs : AMod, IDelayedInit
     }
 
     [HarmonyPatch(typeof(PlayerCharacterStats), nameof(PlayerCharacterStats.Sleep), MethodType.Setter), HarmonyPrefix]
-    static bool PlayerCharacterStats_Sleep_Setter_Pre(ref float value, ref float ___m_sleep)
+    private static bool PlayerCharacterStats_Sleep_Setter_Pre(ref float value, ref float ___m_sleep)
     {
         #region quit
         if (!_settingsByNeed[Need.Sleep].LimitingEnabled)
@@ -642,7 +642,7 @@ public class Needs : AMod, IDelayedInit
 
     // Don't restore needs when travelling
     [HarmonyPatch(typeof(FastTravelMenu), nameof(FastTravelMenu.OnConfirmFastTravel)), HarmonyPrefix]
-    static bool FastTravelMenu_OnConfirmFastTravel_Pre(FastTravelMenu __instance)
+    private static bool FastTravelMenu_OnConfirmFastTravel_Pre(FastTravelMenu __instance)
     {
         #region quit
         if (!_dontRestoreNeedsOnTravel)

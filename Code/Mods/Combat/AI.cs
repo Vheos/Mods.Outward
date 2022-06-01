@@ -5,7 +5,7 @@ public class AI : AMod
 {
     #region const
     private const float HUMAN_COLLISION_RADIUS = 0.4f;
-    static private readonly Dictionary<TargetingGroups, Character.Factions[]> NEUTRAL_FACTION_GROUPS = new()
+    private static readonly Dictionary<TargetingGroups, Character.Factions[]> NEUTRAL_FACTION_GROUPS = new()
     {
         [TargetingGroups.HumansAndNonHostileMonsters] = new[]
     {
@@ -33,16 +33,16 @@ public class AI : AMod
     #endregion
 
     // Settings
-    static private ModSetting<int> _enemyDetectionModifier;
-    static private ModSetting<TargetingGroups> _preventInfighting;
-    static private ModSetting<int> _walkTowardsPlayerOnSpawn;
-    static private ModSetting<int> _changeTargetOnHit;
-    static private ModSetting<bool> _changeTargetWhenTooFar;
-    static private ModSetting<int> _changeTargetCheckFrequency;
-    static private ModSetting<int> _changeTargetChancePerCheck;
-    static private ModSetting<float> _changeTargetCurrentToNearestRatio;
-    static private ModSetting<bool> _changeTargetDetectAllPlayers;
-    override protected void Initialize()
+    private static ModSetting<int> _enemyDetectionModifier;
+    private static ModSetting<TargetingGroups> _preventInfighting;
+    private static ModSetting<int> _walkTowardsPlayerOnSpawn;
+    private static ModSetting<int> _changeTargetOnHit;
+    private static ModSetting<bool> _changeTargetWhenTooFar;
+    private static ModSetting<int> _changeTargetCheckFrequency;
+    private static ModSetting<int> _changeTargetChancePerCheck;
+    private static ModSetting<float> _changeTargetCurrentToNearestRatio;
+    private static ModSetting<bool> _changeTargetDetectAllPlayers;
+    protected override void Initialize()
     {
         _enemyDetectionModifier = CreateSetting(nameof(_enemyDetectionModifier), 0, IntRange(-100, +100));
         _preventInfighting = CreateSetting(nameof(_preventInfighting), (TargetingGroups)0);
@@ -54,7 +54,7 @@ public class AI : AMod
         _changeTargetCurrentToNearestRatio = CreateSetting(nameof(_changeTargetCurrentToNearestRatio), 1.5f, FloatRange(1f, 2f));
         _changeTargetDetectAllPlayers = CreateSetting(nameof(_changeTargetDetectAllPlayers), true);
     }
-    override protected void SetFormatting()
+    protected override void SetFormatting()
     {
         _enemyDetectionModifier.Format("Enemy detection modifier");
         _enemyDetectionModifier.Description = "at +100% enemies will detect you from twice the vanilla distance, and in a 90 degrees cone\n" +
@@ -86,9 +86,9 @@ public class AI : AMod
             _changeTargetDetectAllPlayers.Description = "When enemies detect any player, they will become aware of other players as well";
         }
     }
-    override protected string SectionOverride
+    protected override string SectionOverride
     => ModSections.Combat;
-    override protected void LoadPreset(string presetName)
+    protected override void LoadPreset(string presetName)
     {
         switch (presetName)
         {
@@ -108,7 +108,7 @@ public class AI : AMod
     }
 
     // Utility
-    static public void TryRetarget(CharacterAI ai)
+    public static void TryRetarget(CharacterAI ai)
     {
         Character enemy = ai.Character;
         var lastAttackers = enemy.m_lastDealers;
@@ -139,7 +139,7 @@ public class AI : AMod
             enemy.TargetingSystem.SwitchTarget(nearestAttacker.LockingPoint);
         }
     }
-    static public IEnumerator TryRetargetCoroutine(CharacterAI ai)
+    public static IEnumerator TryRetargetCoroutine(CharacterAI ai)
     {
         //Log.Debug($"{ai.name} - START");
         while (true)
@@ -161,7 +161,7 @@ public class AI : AMod
 
     // Prevent infighting
     [HarmonyPatch(typeof(TargetingSystem), nameof(TargetingSystem.InitTargetableFaction)), HarmonyPrefix]
-    static bool TargetingSystem_InitTargetableFaction_Pre(TargetingSystem __instance)
+    private static bool TargetingSystem_InitTargetableFaction_Pre(TargetingSystem __instance)
     {
         #region quit
         if (_preventInfighting.Value == 0)
@@ -199,7 +199,7 @@ public class AI : AMod
 
     // Enemy detection modifier
     [HarmonyPatch(typeof(AIPreset), nameof(AIPreset.ApplyToCharAI)), HarmonyPostfix]
-    static void AIPreset_ApplyToCharAI_Post(AIPreset __instance, CharacterAI _charAI)
+    private static void AIPreset_ApplyToCharAI_Post(AIPreset __instance, CharacterAI _charAI)
     {
         #region quit
         if (_enemyDetectionModifier == 0)
@@ -227,16 +227,16 @@ public class AI : AMod
     }
 
     [HarmonyPatch(typeof(AISquadSpawnPoint), nameof(AISquadSpawnPoint.SpawnSquad)), HarmonyPrefix]
-    static void AISquadSpawnPoint_SpawnSquad_Pre(AISquadSpawnPoint __instance)
+    private static void AISquadSpawnPoint_SpawnSquad_Pre(AISquadSpawnPoint __instance)
     => __instance.ChanceToWanderTowardsPlayers = _walkTowardsPlayerOnSpawn;
 
     [HarmonyPatch(typeof(AICEnemyDetection), nameof(AICEnemyDetection.Init)), HarmonyPrefix]
-    static void AICEnemyDetection_Init_Pre(AICEnemyDetection __instance)
+    private static void AICEnemyDetection_Init_Pre(AICEnemyDetection __instance)
     => __instance.ChanceToSwitchTargetOnHurt = _changeTargetOnHit;
 
     // Change target when far
     [HarmonyPatch(typeof(CharacterAI), nameof(CharacterAI.SwitchAiState)), HarmonyPostfix]
-    static void CharacterAI_SwitchAiState_Post(CharacterAI __instance)
+    private static void CharacterAI_SwitchAiState_Post(CharacterAI __instance)
     {
         #region quit
         if (!_changeTargetWhenTooFar)
@@ -258,7 +258,7 @@ public class AI : AMod
     }
 
     [HarmonyPatch(typeof(AICEnemyDetection), nameof(AICEnemyDetection.Detected)), HarmonyPostfix]
-    static void AICEnemyDetection_Detected_Post(AICEnemyDetection __instance, LockingPoint _point)
+    private static void AICEnemyDetection_Detected_Post(AICEnemyDetection __instance, LockingPoint _point)
     {
         #region quit
         if (!_changeTargetWhenTooFar || !_point.OwnerChar.TryNonNull(out var target))

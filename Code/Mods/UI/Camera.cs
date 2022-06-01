@@ -3,7 +3,7 @@
 public class Camera : AMod, IDelayedInit, IUpdatable
 {
     #region const
-    static private readonly Vector3 DEFAULT_OFFSET = new(0f, 1f, -3f);
+    private static readonly Vector3 DEFAULT_OFFSET = new(0f, 1f, -3f);
     private const float DEFAULT_FOV = 50f;
     private const float DEFAULT_FOLLOW_SPEED = 4.5f;
     private const float AIM_COROUTINE_UPDATE_SPEED = 0.2f;
@@ -74,8 +74,8 @@ public class Camera : AMod, IDelayedInit, IUpdatable
     }
     #endregion
 
-    static private PerPlayerSettings[] _perPlayerSettings;
-    override protected void Initialize()
+    private static PerPlayerSettings[] _perPlayerSettings;
+    protected override void Initialize()
     {
         _perPlayerSettings = new PerPlayerSettings[2];
         for (int i = 0; i < 2; i++)
@@ -116,7 +116,7 @@ public class Camera : AMod, IDelayedInit, IUpdatable
             tmp.Sensitivity = 1f;
         }
     }
-    override protected void SetFormatting()
+    protected override void SetFormatting()
     {
         for (int i = 0; i < 2; i++)
         {
@@ -167,14 +167,14 @@ public class Camera : AMod, IDelayedInit, IUpdatable
             }
         }
     }
-    override protected string Description
+    protected override string Description
     => "• Override camera settings\n" +
        "(position, fov, follow speed, sensitivity)\n" +
        "• Control camera using mouse/gamepad\n" +
        "• Define presets and smoothly interpolate between them";
-    override protected string SectionOverride
+    protected override string SectionOverride
     => ModSections.UI;
-    override protected void LoadPreset(string presetName)
+    protected override void LoadPreset(string presetName)
     {
         switch (presetName)
         {
@@ -233,7 +233,7 @@ public class Camera : AMod, IDelayedInit, IUpdatable
     }
 
     // Utility            
-    static private void UpdateCameraSettings(Players.Data player)
+    private static void UpdateCameraSettings(Players.Data player)
     {
         #region quit
         if (!_perPlayerSettings[player.ID]._toggle)
@@ -253,7 +253,7 @@ public class Camera : AMod, IDelayedInit, IUpdatable
         characterCamera.DefaultFollowSpeed.SetX(currentVarious.y);
         _perPlayerSettings[player.ID].Sensitivity = currentVarious.z;
     }
-    static private bool CheckGamepadHotkey(Players.Data player)
+    private static bool CheckGamepadHotkey(Players.Data player)
     {
         GamepadInputs inputs = _perPlayerSettings[player.ID]._gamepadInputs;
         return inputs != GamepadInputs.None
@@ -265,7 +265,7 @@ public class Camera : AMod, IDelayedInit, IUpdatable
 
     // Hooks
     [HarmonyPatch(typeof(SplitScreenManager), nameof(SplitScreenManager.DelayedRefreshSplitScreen)), HarmonyPostfix]
-    static void SplitScreenManager_DelayedRefreshSplitScreen_Post()
+    private static void SplitScreenManager_DelayedRefreshSplitScreen_Post()
     {
         foreach (var player in Players.Local)
         {
@@ -278,7 +278,7 @@ public class Camera : AMod, IDelayedInit, IUpdatable
     }
 
     [HarmonyPatch(typeof(Character), nameof(Character.SetZoomMode)), HarmonyPostfix]
-    static void Character_SetZoomMode_Post(Character __instance, ref bool _zoomed)
+    private static void Character_SetZoomMode_Post(Character __instance, ref bool _zoomed)
     {
         Players.Data player = Players.GetLocal(__instance);
         #region quit
@@ -291,11 +291,11 @@ public class Camera : AMod, IDelayedInit, IUpdatable
     }
 
     [HarmonyPatch(typeof(CharacterCamera), nameof(CharacterCamera.UpdateZoom)), HarmonyPrefix]
-    static bool CharacterCamera_UpdateZoom_Pre(CharacterCamera __instance)
+    private static bool CharacterCamera_UpdateZoom_Pre(CharacterCamera __instance)
     => !Players.TryGetLocal(__instance, out Players.Data player) || !_perPlayerSettings[player.ID]._toggle;
 
     [HarmonyPatch(typeof(ControlsInput), nameof(ControlsInput.RotateCameraVertical)), HarmonyPostfix]
-    static void ControlsInput_RotateCameraVertical_Post(int _playerID, ref float __result)
+    private static void ControlsInput_RotateCameraVertical_Post(int _playerID, ref float __result)
     {
         #region quit
         if (!_perPlayerSettings[_playerID]._toggle)
@@ -305,7 +305,7 @@ public class Camera : AMod, IDelayedInit, IUpdatable
     }
 
     [HarmonyPatch(typeof(ControlsInput), nameof(ControlsInput.RotateCameraHorizontal)), HarmonyPostfix]
-    static void ControlsInput_RotateCameraHorizontal_Post(int _playerID, ref float __result)
+    private static void ControlsInput_RotateCameraHorizontal_Post(int _playerID, ref float __result)
     {
         #region quit
         if (!_perPlayerSettings[_playerID]._toggle)

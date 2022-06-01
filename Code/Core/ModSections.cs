@@ -1,6 +1,6 @@
 ﻿namespace Vheos.Mods.Outward;
 
-class ModSections
+internal class ModSections
 {
     public const string Development = "    \nDEVELOPMENT";
     public const string SurvivalAndImmersion = "   \nSURVIVAL & IMMERSION";

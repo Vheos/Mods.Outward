@@ -72,13 +72,13 @@ public class Crafting : AMod, IDelayedInit
     }
     #endregion
 
-    static private ModSetting<bool> _preserveDurability;
-    static private ModSetting<int> _restoreMissingDurability;
-    static private ModSetting<bool> _autoLearnCrystalPowderRecipe;
-    static private ModSetting<bool> _limitedManualCrafting;
-    static private ModSetting<CraftingExceptions> _limitedManulCraftingExceptions;
-    static private ModSetting<int> _extraResultsMultiplier;
-    override protected void Initialize()
+    private static ModSetting<bool> _preserveDurability;
+    private static ModSetting<int> _restoreMissingDurability;
+    private static ModSetting<bool> _autoLearnCrystalPowderRecipe;
+    private static ModSetting<bool> _limitedManualCrafting;
+    private static ModSetting<CraftingExceptions> _limitedManulCraftingExceptions;
+    private static ModSetting<int> _extraResultsMultiplier;
+    protected override void Initialize()
     {
         _preserveDurability = CreateSetting(nameof(_preserveDurability), false);
         _autoLearnCrystalPowderRecipe = CreateSetting(nameof(_autoLearnCrystalPowderRecipe), true);
@@ -89,7 +89,7 @@ public class Crafting : AMod, IDelayedInit
 
         _crystalPowderRecipe = FindCrystalPowderRecipe();
     }
-    override protected void SetFormatting()
+    protected override void SetFormatting()
     {
         _preserveDurability.Format("Preserve durability ratios");
         _preserveDurability.Description = "Crafted items' durability will be based on the average of all ingredients (instead of 100%)";
@@ -117,14 +117,14 @@ public class Crafting : AMod, IDelayedInit
                                               "For example, Gaberry Tartine gives 3 (1+2) items, so the extra amount is 2\n" +
                                               "at 0% extra amount, it will give 1 (1+0) item, and at 200% - 5 (1+4) items";
     }
-    override protected string Description
+    protected override string Description
     => "• Make crafted items' durability relative to ingredients\n" +
        "• Require recipes for advanced crafting\n" +
        "• Multiply amount of crafted items\n" +
        "• Randomize starting durability of spawned items";
-    override protected string SectionOverride
+    protected override string SectionOverride
     => ModSections.SurvivalAndImmersion;
-    override protected void LoadPreset(string presetName)
+    protected override void LoadPreset(string presetName)
     {
         switch (presetName)
         {
@@ -141,8 +141,8 @@ public class Crafting : AMod, IDelayedInit
     }
 
     // Utility
-    static private Recipe _crystalPowderRecipe;
-    static private Recipe FindCrystalPowderRecipe()
+    private static Recipe _crystalPowderRecipe;
+    private static Recipe FindCrystalPowderRecipe()
     {
         foreach (var recipeByUID in RecipeManager.Instance.m_recipes)
             foreach (var result in recipeByUID.Value.m_results)
@@ -150,7 +150,7 @@ public class Crafting : AMod, IDelayedInit
                     return recipeByUID.Value;
         return null;
     }
-    static private List<Item> GetDestructibleIngredients(CraftingMenu craftingMenu)
+    private static List<Item> GetDestructibleIngredients(CraftingMenu craftingMenu)
     {
         List<Item> destructibleIngredients = new();
         foreach (var ingredientSelector in craftingMenu.m_ingredientSelectors)
@@ -161,7 +161,7 @@ public class Crafting : AMod, IDelayedInit
                         destructibleIngredients.TryAddUnique(item);
         return destructibleIngredients;
     }
-    static private List<Item> GetDestructibleResults(CraftingMenu craftingMenu)
+    private static List<Item> GetDestructibleResults(CraftingMenu craftingMenu)
     {
         // Choose recipe index
         int selectorIndex = craftingMenu.m_lastRecipeIndex;
@@ -179,24 +179,24 @@ public class Crafting : AMod, IDelayedInit
         }
         return desctructibleResults;
     }
-    static private void SetSingleIngredientCrafting(CraftingMenu __instance, bool enabled = true)
+    private static void SetSingleIngredientCrafting(CraftingMenu __instance, bool enabled = true)
     {
         __instance.m_multipleIngrenentsBrackground.SetAlpha(enabled ? 0f : 1f);
         __instance.m_singleIngredientBackground.SetAlpha(enabled ? 1f : 0f);
         for (int i = 1; i < __instance.m_ingredientSelectors.Length; i++)
             __instance.m_ingredientSelectors[i].GOSetActive(!enabled);
     }
-    static private bool HasLearnedRecipe(Character character, Recipe recipe)
+    private static bool HasLearnedRecipe(Character character, Recipe recipe)
     => character.Inventory.RecipeKnowledge.IsRecipeLearned(recipe.UID);
-    static private void LearnRecipe(Character character, Recipe recipe)
+    private static void LearnRecipe(Character character, Recipe recipe)
     => character.Inventory.RecipeKnowledge.LearnRecipe(recipe);
-    static private int GetModifiedResultsAmount(ItemReferenceQuantity result)
+    private static int GetModifiedResultsAmount(ItemReferenceQuantity result)
     => 1 + (result.Quantity - 1f).Mul(_extraResultsMultiplier / 100f).Round();
 
     // Hooks
 #pragma warning disable IDE0051, IDE0060, IDE1006
     [HarmonyPatch(typeof(CraftingMenu), nameof(CraftingMenu.CraftingDone)), HarmonyPrefix]
-    static bool CraftingMenu_CraftingDone_Pre(CraftingMenu __instance, ref List<Item> __state)
+    private static bool CraftingMenu_CraftingDone_Pre(CraftingMenu __instance, ref List<Item> __state)
     {
         List<Item> ingredients = GetDestructibleIngredients(__instance);
         List<Item> results = GetDestructibleResults(__instance);
@@ -219,7 +219,7 @@ public class Crafting : AMod, IDelayedInit
     }
 
     [HarmonyPatch(typeof(CraftingMenu), nameof(CraftingMenu.CraftingDone)), HarmonyPostfix]
-    static void CraftingMenu_CraftingDone_Post(CraftingMenu __instance, ref List<Item> __state)
+    private static void CraftingMenu_CraftingDone_Post(CraftingMenu __instance, ref List<Item> __state)
     {
         #region quit
         if (__state == null)
@@ -232,7 +232,7 @@ public class Crafting : AMod, IDelayedInit
     }
 
     [HarmonyPatch(typeof(CraftingMenu), nameof(CraftingMenu.OnRecipeSelected)), HarmonyPostfix]
-    static void CraftingMenu_OnRecipeSelected_Post(CraftingMenu __instance)
+    private static void CraftingMenu_OnRecipeSelected_Post(CraftingMenu __instance)
     {
         #region quit
         if (!_limitedManualCrafting)
@@ -243,7 +243,7 @@ public class Crafting : AMod, IDelayedInit
     }
 
     [HarmonyPatch(typeof(CraftingMenu), nameof(CraftingMenu.IngredientSelectorHasChanged)), HarmonyPostfix]
-    static void CraftingMenu_IngredientSelectorHasChanged_Post(CraftingMenu __instance, int _selectorIndex, int _itemID)
+    private static void CraftingMenu_IngredientSelectorHasChanged_Post(CraftingMenu __instance, int _selectorIndex, int _itemID)
     {
         #region quit
         if (!_limitedManualCrafting || __instance.m_lastRecipeIndex >= 0)
@@ -258,7 +258,7 @@ public class Crafting : AMod, IDelayedInit
     }
 
     [HarmonyPatch(typeof(CraftingMenu), nameof(CraftingMenu.Show), new Type[] { }), HarmonyPrefix]
-    static bool CraftingMenu_Show_Post(CraftingMenu __instance)
+    private static bool CraftingMenu_Show_Post(CraftingMenu __instance)
     {
         #region quit
         if (!_limitedManualCrafting
@@ -272,7 +272,7 @@ public class Crafting : AMod, IDelayedInit
     }
 
     [HarmonyPatch(typeof(CraftingMenu), nameof(CraftingMenu.GenerateResult)), HarmonyPrefix]
-    static bool CraftingMenu_GenerateResult_Pre(CraftingMenu __instance, ref int __state, ItemReferenceQuantity _result)
+    private static bool CraftingMenu_GenerateResult_Pre(CraftingMenu __instance, ref int __state, ItemReferenceQuantity _result)
     {
         #region quit
         if (_extraResultsMultiplier == 100)
@@ -285,7 +285,7 @@ public class Crafting : AMod, IDelayedInit
     }
 
     [HarmonyPatch(typeof(CraftingMenu), nameof(CraftingMenu.GenerateResult)), HarmonyPostfix]
-    static void CraftingMenu_GenerateResult_Post(CraftingMenu __instance, ref int __state, ItemReferenceQuantity _result)
+    private static void CraftingMenu_GenerateResult_Post(CraftingMenu __instance, ref int __state, ItemReferenceQuantity _result)
     {
         #region quit
         if (_extraResultsMultiplier == 100)
@@ -296,7 +296,7 @@ public class Crafting : AMod, IDelayedInit
     }
 
     [HarmonyPatch(typeof(RecipeResultDisplay), nameof(RecipeResultDisplay.UpdateQuantityDisplay)), HarmonyPrefix]
-    static bool RecipeResultDisplay_UpdateQuantityDisplay_Pre(RecipeResultDisplay __instance)
+    private static bool RecipeResultDisplay_UpdateQuantityDisplay_Pre(RecipeResultDisplay __instance)
     {
         #region quit
         if (_extraResultsMultiplier == 100 || __instance.StackCount <= 1)

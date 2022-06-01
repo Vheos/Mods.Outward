@@ -4,7 +4,7 @@ public class Inns : AMod
 {
     #region const
     private const string INNS_QUEST_FAMILY_NAME = "Inns";
-    static private readonly Dictionary<AreaManager.AreaEnum, (string UID, Vector3[] Positions)> STASH_DATA_BY_CITY = new()
+    private static readonly Dictionary<AreaManager.AreaEnum, (string UID, Vector3[] Positions)> STASH_DATA_BY_CITY = new()
     {
         [AreaManager.AreaEnum.CierzoVillage] = ("ImqRiGAT80aE2WtUHfdcMw", new[] { new Vector3(-367.850f, -1488.250f, 596.277f),
                                                                                   new Vector3(-373.539f, -1488.250f, 583.187f) }),
@@ -22,16 +22,16 @@ public class Inns : AMod
     #endregion
 
     // Settings
-    static private ModSetting<int> _rentDuration;
-    static private ModSetting<bool> _stashes;
-    static private ModSetting<bool> _dontRestoreFoodDrinkOnSleep;
-    override protected void Initialize()
+    private static ModSetting<int> _rentDuration;
+    private static ModSetting<bool> _stashes;
+    private static ModSetting<bool> _dontRestoreFoodDrinkOnSleep;
+    protected override void Initialize()
     {
         _rentDuration = CreateSetting(nameof(_rentDuration), 12, IntRange(1, 168));
         _stashes = CreateSetting(nameof(_stashes), false);
         _dontRestoreFoodDrinkOnSleep = CreateSetting(nameof(_dontRestoreFoodDrinkOnSleep), false);
     }
-    override protected void SetFormatting()
+    protected override void SetFormatting()
     {
         _rentDuration.Format("Inn rent duration");
         _rentDuration.Description = "Pay the rent once, sleep for up to a week (in hours)";
@@ -41,12 +41,12 @@ public class Inns : AMod
         _dontRestoreFoodDrinkOnSleep.Format("Don't restore food/drink when sleeping");
         _dontRestoreFoodDrinkOnSleep.Description = "Sleeping in beds will only stop the depletion of food and drink, not restore them";
     }
-    override protected string SectionOverride
+    protected override string SectionOverride
     => ModSections.SurvivalAndImmersion;
-    override protected string Description
+    protected override string Description
     => "• Change rent duration\n" +
        "• Add player stash to each room";
-    override protected void LoadPreset(string presetName)
+    protected override void LoadPreset(string presetName)
     {
         switch (presetName)
         {
@@ -63,7 +63,7 @@ public class Inns : AMod
 #pragma warning disable IDE0051, IDE0060, IDE1006
     // Inn Stash
     [HarmonyPatch(typeof(NetworkLevelLoader), nameof(NetworkLevelLoader.UnPauseGameplay)), HarmonyPostfix]
-    static void NetworkLevelLoader_UnPauseGameplay_Post(NetworkLevelLoader __instance, string _identifier)
+    private static void NetworkLevelLoader_UnPauseGameplay_Post(NetworkLevelLoader __instance, string _identifier)
     {
         #region quit
         if (!_stashes || _identifier != "Loading" || !AreaManager.Instance.CurrentArea.TryNonNull(out var currentArea)
@@ -102,7 +102,7 @@ public class Inns : AMod
     }
 
     [HarmonyPatch(typeof(InteractionOpenChest), nameof(InteractionOpenChest.OnActivate)), HarmonyPrefix]
-    static bool InteractionOpenChest_OnActivate_Pre(InteractionOpenChest __instance)
+    private static bool InteractionOpenChest_OnActivate_Pre(InteractionOpenChest __instance)
     {
         #region quit
         if (!_stashes || !__instance.m_chest.TryNonNull(out var chest))
@@ -115,7 +115,7 @@ public class Inns : AMod
 
     // Inn rent duration
     [HarmonyPatch(typeof(QuestEventData), nameof(QuestEventData.HasExpired)), HarmonyPrefix]
-    static bool QuestEventData_HasExpired_Pre(QuestEventData __instance, ref int _gameHourAllowed)
+    private static bool QuestEventData_HasExpired_Pre(QuestEventData __instance, ref int _gameHourAllowed)
     {
         if (__instance.m_signature.ParentSection.Name == INNS_QUEST_FAMILY_NAME)
             _gameHourAllowed = _rentDuration;
@@ -124,10 +124,10 @@ public class Inns : AMod
 
     // Don't restore food/drink when sleeping
     [HarmonyPatch(typeof(CharacterResting), nameof(CharacterResting.GetFoodRestored)), HarmonyPrefix]
-    static bool CharacterResting_GetFoodRestored_Pre(CharacterResting __instance)
+    private static bool CharacterResting_GetFoodRestored_Pre(CharacterResting __instance)
     => !_dontRestoreFoodDrinkOnSleep;
 
     [HarmonyPatch(typeof(CharacterResting), nameof(CharacterResting.GetDrinkRestored)), HarmonyPrefix]
-    static bool CharacterResting_GetDrinkRestored_Pre(CharacterResting __instance)
+    private static bool CharacterResting_GetDrinkRestored_Pre(CharacterResting __instance)
     => !_dontRestoreFoodDrinkOnSleep;
 }

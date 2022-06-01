@@ -1,6 +1,6 @@
 ﻿namespace Vheos.Mods.Outward;
 
-static public class Players
+public static class Players
 {
     #region class
     public class Data
@@ -54,38 +54,38 @@ static public class Players
     #endregion
 
     // Publics        
-    static public List<Data> Local
+    public static List<Data> Local
     { get; private set; }
-    static public Data GetLocal(int playerID)
+    public static Data GetLocal(int playerID)
     => Local.DefaultOnInvalid(playerID);
-    static public Data GetLocal(LocalCharacterControl localCharacterControl)
+    public static Data GetLocal(LocalCharacterControl localCharacterControl)
     => GetLocal(GetPlayerID(localCharacterControl));
-    static public Data GetLocal(UIElement uiElement)
+    public static Data GetLocal(UIElement uiElement)
     => GetLocal(GetPlayerID(uiElement));
-    static public Data GetLocal(Character character)
+    public static Data GetLocal(Character character)
     => GetLocal(GetPlayerID(character));
-    static public Data GetLocal(CharacterUI characterUI)
+    public static Data GetLocal(CharacterUI characterUI)
     => GetLocal(GetPlayerID(characterUI));
-    static public Data GetLocal(CharacterCamera characterCamera)
+    public static Data GetLocal(CharacterCamera characterCamera)
     => GetLocal(GetPlayerID(characterCamera));
-    static public bool TryGetLocal(int playerID, out Data player)
+    public static bool TryGetLocal(int playerID, out Data player)
     {
         player = GetLocal(playerID);
         return player != null;
     }
-    static public bool TryGetLocal(LocalCharacterControl localCharacterControl, out Data player)
+    public static bool TryGetLocal(LocalCharacterControl localCharacterControl, out Data player)
     => TryGetLocal(GetPlayerID(localCharacterControl), out player);
-    static public bool TryGetLocal(UIElement uiElement, out Data player)
+    public static bool TryGetLocal(UIElement uiElement, out Data player)
      => TryGetLocal(GetPlayerID(uiElement), out player);
-    static public bool TryGetLocal(Character character, out Data player)
+    public static bool TryGetLocal(Character character, out Data player)
     => TryGetLocal(GetPlayerID(character), out player);
-    static public bool TryGetLocal(CharacterUI characterUI, out Data player)
+    public static bool TryGetLocal(CharacterUI characterUI, out Data player)
     => TryGetLocal(GetPlayerID(characterUI), out player);
-    static public bool TryGetLocal(CharacterCamera characterCamera, out Data player)
+    public static bool TryGetLocal(CharacterCamera characterCamera, out Data player)
     => TryGetLocal(GetPlayerID(characterCamera), out player);
 
     // Privates
-    static private void Recache()
+    private static void Recache()
     {
         Local.Clear();
         foreach (var splitPlayer in SplitScreenManager.Instance.LocalPlayers)
@@ -105,19 +105,19 @@ static public class Players
             });
         }
     }
-    static private int GetPlayerID(LocalCharacterControl localCharacterControl)
+    private static int GetPlayerID(LocalCharacterControl localCharacterControl)
     => localCharacterControl.Character.OwnerPlayerSys.PlayerID;
-    static private int GetPlayerID(UIElement uiElement)
+    private static int GetPlayerID(UIElement uiElement)
     => uiElement.LocalCharacter.OwnerPlayerSys.PlayerID;
-    static private int GetPlayerID(Character character)
+    private static int GetPlayerID(Character character)
     => character.OwnerPlayerSys.PlayerID;
-    static private int GetPlayerID(CharacterUI characterUI)
+    private static int GetPlayerID(CharacterUI characterUI)
     => characterUI.TargetCharacter.OwnerPlayerSys.PlayerID;
-    static private int GetPlayerID(CharacterCamera characterCamera)
+    private static int GetPlayerID(CharacterCamera characterCamera)
     => characterCamera.TargetCharacter.OwnerPlayerSys.PlayerID;
 
     // Initializers
-    static public void Initialize()
+    public static void Initialize()
     {
         Local = new List<Data>();
         Harmony.CreateAndPatchAll(typeof(Players));
@@ -125,11 +125,11 @@ static public class Players
 
     // Hooks
     [HarmonyPatch(typeof(LocalCharacterControl), nameof(LocalCharacterControl.RetrieveComponents)), HarmonyPostfix]
-    static void LocalCharacterControl_RetrieveComponents_Post()
+    private static void LocalCharacterControl_RetrieveComponents_Post()
     => Recache();
 
     [HarmonyPatch(typeof(RPCManager), nameof(RPCManager.SendPlayerHasLeft)), HarmonyPostfix]
-    static void RPCManager_SendPlayerHasLeft_Post()
+    private static void RPCManager_SendPlayerHasLeft_Post()
     => Recache();
 }
 

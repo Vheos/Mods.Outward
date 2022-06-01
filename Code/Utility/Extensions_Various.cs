@@ -1,43 +1,43 @@
 ﻿namespace Vheos.Mods.Outward;
-using System.Text.RegularExpressions;
-using System.Text;
 using System.Globalization;
-using UnityEngine.UI;
+using System.Text;
+using System.Text.RegularExpressions;
 using UnityEngine.EventSystems;
+using UnityEngine.UI;
 
-static public class Extensions_Various
+public static class Extensions_Various
 {
     // Game
-    static public bool IsPlayer(this Character character)
+    public static bool IsPlayer(this Character character)
     => character.PlayerStats != null;
-    static public bool IsAlly(this Character character)
+    public static bool IsAlly(this Character character)
     => character.Faction == Character.Factions.Player;
-    static public bool IsEnemy(this Character character)
+    public static bool IsEnemy(this Character character)
     => character.IsEnemyOf(Character.Factions.Player);
-    static public bool IsEnemyOf(this Character character, Character.Factions faction)
+    public static bool IsEnemyOf(this Character character, Character.Factions faction)
     => character.TargetingSystem.IsTargetable(faction);
-    static public bool IsOwnerOf(this Character character, Item item)
+    public static bool IsOwnerOf(this Character character, Item item)
     => character == item.OwnerCharacter;
-    static public bool IsOwnerOf(this Character character, MeleeHitDetector hitDetector)
+    public static bool IsOwnerOf(this Character character, MeleeHitDetector hitDetector)
     => character == hitDetector.OwnerCharacter;
-    static public bool HasStatusEffect(this Character character, StatusEffect statusEffect)
+    public static bool HasStatusEffect(this Character character, StatusEffect statusEffect)
     => character.StatusEffectMngr.HasStatusEffect(statusEffect.IdentifierName);
-    static public bool IsIngestible(this Item item)
+    public static bool IsIngestible(this Item item)
     => Prefabs.IngestiblesByID.ContainsKey(item.ItemID);
-    static public bool IsEatable(this Item item)
+    public static bool IsEatable(this Item item)
     => item.IsUsable && item.ActivateEffectAnimType == Character.SpellCastType.Eat;
-    static public bool IsDrinkable(this Item item)
+    public static bool IsDrinkable(this Item item)
     => item.IsUsable && (item.ActivateEffectAnimType == Character.SpellCastType.DrinkWater || item.ActivateEffectAnimType == Character.SpellCastType.Potion);
-    static public bool HasAnyPurgeableNegativeStatusEffect(this Character character)
+    public static bool HasAnyPurgeableNegativeStatusEffect(this Character character)
     {
         foreach (var statusEffect in character.StatusEffectMngr.Statuses)
             if (statusEffect.IsMalusEffect && statusEffect.Purgeable)
                 return true;
         return false;
     }
-    static public bool IsBurning(this Character character)
+    public static bool IsBurning(this Character character)
     => character.StatusEffectMngr.HasStatusEffect("Burning");
-    static public Disease GetDiseaseOfFamily(this Character character, StatusEffectFamily statusEffectFamily)
+    public static Disease GetDiseaseOfFamily(this Character character, StatusEffectFamily statusEffectFamily)
     {
         foreach (var statusEffect in character.StatusEffectMngr.Statuses)
             if (statusEffect.TryAs(out Disease disease) && statusEffect.EffectFamily.UID == statusEffectFamily.UID)
@@ -46,7 +46,7 @@ static public class Extensions_Various
     }
 
     // Item effects
-    static public T GetEffect<T>(this Item item) where T : Effect
+    public static T GetEffect<T>(this Item item) where T : Effect
     {
         foreach (Transform child in item.transform)
         {
@@ -56,11 +56,11 @@ static public class Extensions_Various
         }
         return null;
     }
-    static public T[] GetEffects<T>(this Item item) where T : Effect
+    public static T[] GetEffects<T>(this Item item) where T : Effect
     => item.GetComponentsInChildren<T>();
-    static public Effect[] GetEffects(this Item item)
+    public static Effect[] GetEffects(this Item item)
     => item.GetEffects<Effect>();
-    static public T AddEffect<T>(this Item item) where T : Effect
+    public static T AddEffect<T>(this Item item) where T : Effect
     {
         GameObject effectsHolder = item.FindChild("Effects");
         if (effectsHolder == null)
@@ -72,7 +72,7 @@ static public class Extensions_Various
         UnityEngine.Object.DontDestroyOnLoad(item);
         return effect;
     }
-    static public float GetValue(this Effect effect)
+    public static float GetValue(this Effect effect)
         => effect switch
         {
             AffectHealth t => t.AffectQuantity,
@@ -88,7 +88,7 @@ static public class Extensions_Various
             AffectStat t => t.Value,
             _ => default,
         };
-    static public void SetValue(this Effect effect, float value)
+    public static void SetValue(this Effect effect, float value)
     {
         switch (effect)
         {
@@ -105,14 +105,14 @@ static public class Extensions_Various
             case AffectStat t: t.Value = value; break;
         }
     }
-    static public void RemoveAllEffects(this Item item)
+    public static void RemoveAllEffects(this Item item)
     {
         foreach (Transform child in item.transform)
             child.GetComponents<Effect>().Destroy();
     }
 
     // StatusEffects effects
-    static public (StatusEffect, string[]) GetStatusEffectAndValuesOfEffect<T>(this Item item) where T : Effect
+    public static (StatusEffect, string[]) GetStatusEffectAndValuesOfEffect<T>(this Item item) where T : Effect
     {
         foreach (var addStatusEffect in item.GetEffects<AddStatusEffect>())
         {
@@ -123,7 +123,7 @@ static public class Extensions_Various
         }
         return default;
     }
-    static public string[] GetValuesOfEffect<T>(this StatusEffect statusEffect) where T : Effect
+    public static string[] GetValuesOfEffect<T>(this StatusEffect statusEffect) where T : Effect
     {
         List<Effect> effects = statusEffect.StatusData.EffectSignature.Effects;
         for (int i = 0; i < effects.Count; i++)
@@ -131,7 +131,7 @@ static public class Extensions_Various
                 return statusEffect.StatusData.EffectsData[i].Data;
         return null;
     }
-    static public Dictionary<Effect, string[]> GetValuesByEffect(this StatusEffect statusEffect)
+    public static Dictionary<Effect, string[]> GetValuesByEffect(this StatusEffect statusEffect)
     {
         // Cache
         Dictionary<Effect, string[]> valuesByEffect = new();
@@ -156,9 +156,9 @@ static public class Extensions_Various
         }
         return valuesByEffect;
     }
-    static public void RemoveAllEffects(this StatusEffect statusEffect)
+    public static void RemoveAllEffects(this StatusEffect statusEffect)
     => statusEffect.StatusData.EffectSignature.GetComponentsInChildren<Effect>().Destroy();
-    static public T AddEffect<T>(this StatusEffect statusEffect) where T : Effect
+    public static T AddEffect<T>(this StatusEffect statusEffect) where T : Effect
     {
         EffectSignature effectSignature = statusEffect.StatusData.EffectSignature;
         GameObject effectsHolder = effectSignature.FindChild("Effects");
@@ -171,7 +171,7 @@ static public class Extensions_Various
         UnityEngine.Object.DontDestroyOnLoad(statusEffect);
         return effect;
     }
-    static public bool HasEffectsAndDatas(this StatusEffect statusEffect)
+    public static bool HasEffectsAndDatas(this StatusEffect statusEffect)
     {
         EffectSignature effectSignature = statusEffect.StatusData.EffectSignature;
         if (effectSignature == null)
@@ -184,30 +184,30 @@ static public class Extensions_Various
         StatusData.EffectData[] effectDatas = statusEffect.StatusData.EffectsData;
         return !effectDatas.IsNullOrEmpty();
     }
-    static public List<Effect> GetEffects(this StatusEffect statusEffect)
+    public static List<Effect> GetEffects(this StatusEffect statusEffect)
     => statusEffect.StatusData.EffectSignature.Effects;
-    static public StatusData.EffectData[] GetDatas(this StatusEffect statusEffect)
+    public static StatusData.EffectData[] GetDatas(this StatusEffect statusEffect)
     => statusEffect.StatusData.EffectsData;
 
-    static public string Localized(this string text)
+    public static string Localized(this string text)
     => LocalizationManager.Instance.GetLoc(text);
-    static public Item FirstItem(this GroupContainer stack)
+    public static Item FirstItem(this GroupContainer stack)
     => stack.GetContainedItems()[0];
-    static public KeyCode ToKeyCode(this string text)
+    public static KeyCode ToKeyCode(this string text)
     => GameInput.ToKeyCode(text);
-    static public string ToName(this ControlsInput.GameplayActions action)
+    public static string ToName(this ControlsInput.GameplayActions action)
     => ControlsInput.GetGameplayActionName(action);
-    static public string ToName(this ControlsInput.MenuActions action)
+    public static string ToName(this ControlsInput.MenuActions action)
     => ControlsInput.GetMenuActionName(action);
 
     // Various
-    static public Vector3 ToVector3(this (float X, float Y, float Z) t)
+    public static Vector3 ToVector3(this (float X, float Y, float Z) t)
     => new(t.X, t.Y, t.Z);
-    static public CodeMatcher CodeMatcher(this IEnumerable<CodeInstruction> t)
+    public static CodeMatcher CodeMatcher(this IEnumerable<CodeInstruction> t)
     => new(t);
-    static public string SplitCamelCase(this string t)
+    public static string SplitCamelCase(this string t)
     => Regex.Replace(t, "([a-z](?=[A-Z])|[A-Z](?=[A-Z][a-z]))", "$1 ");
-    static public int SetBitCount(this int t)
+    public static int SetBitCount(this int t)
     {
         int count = 0;
         while (t != 0)
@@ -217,24 +217,24 @@ static public class Extensions_Various
         }
         return count;
     }
-    static public bool TryFind(this Transform t, string name, out Transform result)
+    public static bool TryFind(this Transform t, string name, out Transform result)
     {
         result = t.Find(name);
         return result != null;
     }
-    static public bool Is<T>(this object t)
+    public static bool Is<T>(this object t)
     => t is T;
-    static public bool IsAny<T1, T2>(this object t)
+    public static bool IsAny<T1, T2>(this object t)
     => t.Is<T1>() || t.Is<T2>();
-    static public bool IsNot<T>(this object t)
+    public static bool IsNot<T>(this object t)
     => !t.Is<T>();
-    static public bool IsNotAny<T1, T2>(this object t)
+    public static bool IsNotAny<T1, T2>(this object t)
     => t.IsNot<T1>() && t.IsNot<T2>();
-    static public int ToInt(this string t)
+    public static int ToInt(this string t)
     => Convert.ToInt32(t);
-    static public T Random<T>(this IList<T> t)
+    public static T Random<T>(this IList<T> t)
     => t[UnityEngine.Random.Range(0, t.Count)];
-    static public void Shuffle<T>(this IList<T> t)
+    public static void Shuffle<T>(this IList<T> t)
     {
         for (int i = 0; i < t.Count - 1; ++i)
         {
@@ -242,7 +242,7 @@ static public class Extensions_Various
             (t[j], t[i]) = (t[i], t[j]);
         }
     }
-    static public string FormatGameHours(this float t, bool showDays = true, bool showHours = true, bool showMinutes = true, bool showSeconds = true)
+    public static string FormatGameHours(this float t, bool showDays = true, bool showHours = true, bool showMinutes = true, bool showSeconds = true)
     {
         int days = t.Div(24).RoundDown();
         int hours = t.Mod(24).RoundDown();
@@ -253,23 +253,23 @@ static public class Extensions_Various
                (showMinutes ? minutes.ToString("D2") + "m " : "") +
                (showSeconds ? seconds.ToString("D2") + "s" : "");
     }
-    static public string FormatGameHours(this double t, bool showDays = true, bool showHours = true, bool showMinutes = true, bool showSeconds = true)
+    public static string FormatGameHours(this double t, bool showDays = true, bool showHours = true, bool showMinutes = true, bool showSeconds = true)
     => ((float)t).FormatGameHours(showDays, showHours, showMinutes, showSeconds);
-    static public string FormatSeconds(this float t, bool showMinutes = true, bool showSeconds = true)
+    public static string FormatSeconds(this float t, bool showMinutes = true, bool showSeconds = true)
     {
         int minutes = t.Div(60).RoundDown();
         int seconds = t.Mod(60).Round();
         return (showMinutes ? minutes.ToString() + "m " : "") +
                (showSeconds ? seconds.ToString() + "s" : "");
     }
-    static public bool HasFlagsAttribute(this Enum enumeration)
+    public static bool HasFlagsAttribute(this Enum enumeration)
     => enumeration.GetType().IsDefined(typeof(FlagsAttribute), false);
-    static public void Append(this StringBuilder builder, params string[] texts)
+    public static void Append(this StringBuilder builder, params string[] texts)
     {
         foreach (var text in texts)
             builder.Append(text);
     }
-    static public string SubstringBefore(this string text, string find, bool caseSensitive = true)
+    public static string SubstringBefore(this string text, string find, bool caseSensitive = true)
     {
         if (text.IsNotEmpty())
         {
@@ -279,9 +279,9 @@ static public class Extensions_Various
         }
         return string.Empty;
     }
-    static public bool ContainsSubstring(this string text, string find)
+    public static bool ContainsSubstring(this string text, string find)
     => text.IsNotEmpty() && text.IndexOf(find) >= 0;
-    static public T GetFirstComponentsInHierarchy<T>(this Transform root) where T : Component
+    public static T GetFirstComponentsInHierarchy<T>(this Transform root) where T : Component
     {
         T component = root.GetComponent<T>();
         if (component != null)
@@ -296,58 +296,58 @@ static public class Extensions_Various
 
         return null;
     }
-    static public List<T> GetAllComponentsInHierarchy<T>(this Transform root) where T : Component
+    public static List<T> GetAllComponentsInHierarchy<T>(this Transform root) where T : Component
     {
         List<T> components = new() { root.GetComponents<T>() };
         InternalUtility.AppendChildrenRecurisvely(root, components);
         return components;
     }
-    static public List<Component> GetAllComponentsInHierarchy<T1, T2>(this Transform root) where T1 : Component where T2 : Component
+    public static List<Component> GetAllComponentsInHierarchy<T1, T2>(this Transform root) where T1 : Component where T2 : Component
     {
         List<Component> components = new() { root.GetComponents<T1>(), root.GetComponents<T2>() };
         InternalUtility.AppendChildrenRecurisvely(root, components);
         return components;
     }
-    static public List<RaycastResult> GetMouseHits(this GraphicRaycaster t)
+    public static List<RaycastResult> GetMouseHits(this GraphicRaycaster t)
     {
         PointerEventData eventData = new(null) { position = Input.mousePosition };
         List<RaycastResult> hits = new();
         t.Raycast(eventData, hits);
         return hits;
     }
-    static public int ItemID(this string name)
+    public static int ItemID(this string name)
     => Prefabs.ItemIDsByName[name];
-    static public int SkillID(this string name)
+    public static int SkillID(this string name)
     => Prefabs.SkillIDsByName[name];
-    static public Tag ToTag(this string name)
+    public static Tag ToTag(this string name)
     {
         foreach (var tag in TagSourceManager.Instance.m_tags)
             if (tag.TagName == name)
                 return tag;
         return default;
     }
-    static public bool IsDescendantOf(this GameObject t, GameObject a)
+    public static bool IsDescendantOf(this GameObject t, GameObject a)
     {
         for (Transform i = t.transform.parent; i != null; i = i.parent)
             if (i == a.transform)
                 return true;
         return false;
     }
-    static public Transform FindAncestor(this GameObject t, Transform[] a)
+    public static Transform FindAncestor(this GameObject t, Transform[] a)
     {
         for (Transform i = t.transform.parent; i != null; i = i.parent)
             if (i.IsContainedIn(a))
                 return i;
         return null;
     }
-    static public Transform FindAncestorWithComponent(this GameObject t, Type a)
+    public static Transform FindAncestorWithComponent(this GameObject t, Type a)
     {
         for (Transform i = t.transform.parent; i != null; i = i.parent)
             if (i.GetComponent(a) != null)
                 return i;
         return null;
     }
-    static public Transform FindAncestorWithComponent(this GameObject t, Type[] a)
+    public static Transform FindAncestorWithComponent(this GameObject t, Type[] a)
     {
         for (Transform i = t.transform.parent; i != null; i = i.parent)
             foreach (var type in a)
@@ -355,7 +355,7 @@ static public class Extensions_Various
                     return i;
         return null;
     }
-    static public void TryAddLanternSlot(this Bag bag)
+    public static void TryAddLanternSlot(this Bag bag)
     {
         #region quit
         if (bag.HasLanternSlot)
@@ -369,51 +369,51 @@ static public class Extensions_Various
     }
 
     // GOName
-    static public string GOName(this Component t)
+    public static string GOName(this Component t)
     => t.gameObject.name;
-    static public string GOSetName(this Component t, string name)
+    public static string GOSetName(this Component t, string name)
     => t.gameObject.name = name;
-    static public bool GONameIs(this Component t, string name)
+    public static bool GONameIs(this Component t, string name)
     => t.gameObject.name == name;
-    static public bool GOActive(this Component t)
+    public static bool GOActive(this Component t)
     => t.gameObject.activeSelf;
-    static public void GOSetActive(this Component t, bool state)
+    public static void GOSetActive(this Component t, bool state)
     => t.gameObject.SetActive(state);
-    static public void GOToggle(this Component t)
+    public static void GOToggle(this Component t)
     => t.GOSetActive(!t.GOActive());
 
-    static public bool IsEmpty(this string text)
+    public static bool IsEmpty(this string text)
     => string.IsNullOrEmpty(text);
-    static public bool IsNotEmpty(this string text)
+    public static bool IsNotEmpty(this string text)
     => !text.IsEmpty();
-    static public float ToFloat(this string text)
+    public static float ToFloat(this string text)
         => float.TryParse(text, NumberStyles.Float, CultureInfo.InvariantCulture, out float value) ? value : float.NaN;
 
-    static public void SetX(ref this Vector2 t, float a)
+    public static void SetX(ref this Vector2 t, float a)
     => t.x = a;
-    static public void SetY(ref this Vector2 t, float a)
+    public static void SetY(ref this Vector2 t, float a)
     => t.y = a;
-    static public void SetX(ref this Vector3 t, float a)
+    public static void SetX(ref this Vector3 t, float a)
     => t.x = a;
-    static public void SetY(ref this Vector3 t, float a)
+    public static void SetY(ref this Vector3 t, float a)
     => t.y = a;
-    static public void SetZ(ref this Vector3 t, float a)
+    public static void SetZ(ref this Vector3 t, float a)
     => t.z = a;
-    static public void SetSizeZ(this BoxCollider t, float a)
+    public static void SetSizeZ(this BoxCollider t, float a)
     {
         Vector3 size = t.size;
         size.z = a;
         t.size = size;
     }
 
-    static public Coroutine ExecuteAtTheEndOfFrame(this MonoBehaviour monoBehaviour, Action action)
+    public static Coroutine ExecuteAtTheEndOfFrame(this MonoBehaviour monoBehaviour, Action action)
     => monoBehaviour.StartCoroutine(InternalUtility.CoroutineWaitUntilEndOfFrame(action));
-    static public Coroutine ExecuteOnceAfterDelay(this MonoBehaviour monoBehaviour, float delay, Action action)
+    public static Coroutine ExecuteOnceAfterDelay(this MonoBehaviour monoBehaviour, float delay, Action action)
     => monoBehaviour.StartCoroutine(InternalUtility.CoroutineWaitForSeconds(delay, action));
-    static public Coroutine ExecuteOnceWhen(this MonoBehaviour monoBehaviour, Func<bool> test, Action action)
+    public static Coroutine ExecuteOnceWhen(this MonoBehaviour monoBehaviour, Func<bool> test, Action action)
     => monoBehaviour.StartCoroutine(InternalUtility.CoroutineWaitUntil(test, action));
-    static public Coroutine ExecuteWhile(this MonoBehaviour monoBehaviour, Func<bool> test, Action action, Action finalAction = null)
+    public static Coroutine ExecuteWhile(this MonoBehaviour monoBehaviour, Func<bool> test, Action action, Action finalAction = null)
     => monoBehaviour.StartCoroutine(InternalUtility.CoroutineWhile(test, action, finalAction));
-    static public Coroutine ExecuteUntil(this MonoBehaviour monoBehaviour, Func<bool> test, Action action, Action finalAction = null)
+    public static Coroutine ExecuteUntil(this MonoBehaviour monoBehaviour, Func<bool> test, Action action, Action finalAction = null)
     => monoBehaviour.StartCoroutine(InternalUtility.CoroutineDoUntil(test, action, finalAction));
 }

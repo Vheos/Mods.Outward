@@ -1,9 +1,9 @@
 ﻿namespace Vheos.Mods.Outward;
 
-static public class Prefabs
+public static class Prefabs
 {
     #region const
-    static public readonly Dictionary<string, int> ItemIDsByName = new()
+    public static readonly Dictionary<string, int> ItemIDsByName = new()
     {
         ["Torcrab Egg"] = 4000480,
         ["Boreo Blubber"] = 4000500,
@@ -106,7 +106,7 @@ static public class Prefabs
         ["Makeshift Torch"] = 5100060,
         ["Ice-Flame Torch"] = 5100070,
     };
-    static public readonly Dictionary<string, int> SkillIDsByName = new()
+    public static readonly Dictionary<string, int> SkillIDsByName = new()
     {
         // Weapon skills
         ["Puncture"] = 8100290,
@@ -178,27 +178,27 @@ static public class Prefabs
     #endregion
 
     // Publics
-    static public Dictionary<string, Item> ItemsByID
+    public static Dictionary<string, Item> ItemsByID
     => ResourcesPrefabManager.ITEM_PREFABS;
-    static public Dictionary<string, StatusEffect> StatusEffectsByID
+    public static Dictionary<string, StatusEffect> StatusEffectsByID
     => ResourcesPrefabManager.STATUSEFFECT_PREFABS;
-    static public Dictionary<string, QuestEventSignature> QuestsByID
+    public static Dictionary<string, QuestEventSignature> QuestsByID
     => QuestEventDictionary.m_questEvents;
-    static public Dictionary<int, Skill> SkillsByID
+    public static Dictionary<int, Skill> SkillsByID
     { get; private set; }
-    static public Dictionary<int, Item> IngestiblesByID
+    public static Dictionary<int, Item> IngestiblesByID
     { get; private set; }
-    static public List<StatusEffect> AllSleepBuffs
+    public static List<StatusEffect> AllSleepBuffs
     { get; private set; }
-    static public bool IsInitialized
+    public static bool IsInitialized
     { get; private set; }
-    static public Skill GetSkillByName(string name)
+    public static Skill GetSkillByName(string name)
     => SkillsByID[SkillIDsByName[name]];
-    static public Item GetIngestibleByName(string name)
+    public static Item GetIngestibleByName(string name)
     => IngestiblesByID[ItemIDsByName[name]];
 
     // Initializers
-    static public void Initialize()
+    public static void Initialize()
     {
         SkillsByID = new Dictionary<int, Skill>();
         IngestiblesByID = new Dictionary<int, Item>();

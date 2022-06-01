@@ -167,12 +167,12 @@ public class SkillEditor : AMod, IDelayedInit
     #endregion
 
     // Settings
-    static private ModSetting<bool> _daggerToggle, _bowToggle, _runesToggle;
-    static private SkillData _daggerSlash, _backstab, _opportunistStab, _serpentsParry;
-    static private SkillData _evasionShot, _sniperShot, _piercingShot;
-    static private SkillData _dez, _egoth, _fal, _shim;
-    static private ModSetting<int> _runeSoundEffectVolume, _runicLanternIntensity;
-    override protected void Initialize()
+    private static ModSetting<bool> _daggerToggle, _bowToggle, _runesToggle;
+    private static SkillData _daggerSlash, _backstab, _opportunistStab, _serpentsParry;
+    private static SkillData _evasionShot, _sniperShot, _piercingShot;
+    private static SkillData _dez, _egoth, _fal, _shim;
+    private static ModSetting<int> _runeSoundEffectVolume, _runicLanternIntensity;
+    protected override void Initialize()
     {
         _daggerToggle = CreateSetting(nameof(_daggerToggle), false);
         _daggerSlash = new SkillData(this, nameof(_daggerSlash), "Dagger Slash", DEFAULT_VALUES_DAGGER_SLASH);
@@ -205,7 +205,7 @@ public class SkillEditor : AMod, IDelayedInit
             back.WeaponDamageMult = back.WeaponKnockbackMult = value;
         });
     }
-    override protected void SetFormatting()
+    protected override void SetFormatting()
     {
         _daggerToggle.Format("Dagger");
         using (Indent)
@@ -237,13 +237,13 @@ public class SkillEditor : AMod, IDelayedInit
             _runicLanternIntensity.Description = "If the glowing orb is too bright for your eyes";
         }
     }
-    override protected string Description
+    protected override string Description
     => "• Change effects, costs and cooldown of select skills";
-    override protected string SectionOverride
+    protected override string SectionOverride
     => ModSections.Skills;
-    override protected string ModName
+    protected override string ModName
     => "Editor";
-    override protected void LoadPreset(string presetName)
+    protected override void LoadPreset(string presetName)
     {
         switch (presetName)
         {
@@ -302,7 +302,7 @@ public class SkillEditor : AMod, IDelayedInit
 
     // Hooks
     [HarmonyPatch(typeof(AddStatusEffect), nameof(AddStatusEffect.ActivateLocally)), HarmonyPrefix]
-    static bool AddStatusEffect_ActivateLocally_Pre(AddStatusEffect __instance)
+    private static bool AddStatusEffect_ActivateLocally_Pre(AddStatusEffect __instance)
     {
         #region quit
         if (!_runesToggle || __instance.Status == null || __instance.Status.IdentifierName != RUNIC_LANTERN_ID)
@@ -324,7 +324,7 @@ public class SkillEditor : AMod, IDelayedInit
     }
 
     [HarmonyPatch(typeof(PlaySoundEffect), nameof(PlaySoundEffect.ActivateLocally)), HarmonyPrefix]
-    static bool PlaySoundEffect_ActivateLocally_Pre(PlaySoundEffect __instance)
+    private static bool PlaySoundEffect_ActivateLocally_Pre(PlaySoundEffect __instance)
     {
         #region quit
         if (!_runesToggle || __instance.Sounds.IsNullOrEmpty() || __instance.Sounds.First() != GlobalAudioManager.Sounds.SFX_SKILL_RuneSpell)

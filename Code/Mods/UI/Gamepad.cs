@@ -1,16 +1,16 @@
 ﻿namespace Vheos.Mods.Outward;
-using UnityEngine.UI;
 using UnityEngine.EventSystems;
+using UnityEngine.UI;
 
 public class Gamepad : AMod, IUpdatable
 {
     // Setting
     public ModSetting<bool> _betterStashNavigation;
-    override protected void Initialize()
+    protected override void Initialize()
     {
         _betterStashNavigation = CreateSetting(nameof(_betterStashNavigation), false);
     }
-    override protected void SetFormatting()
+    protected override void SetFormatting()
     {
         _betterStashNavigation.Format("Better stash navigation");
         _betterStashNavigation.Description = "LB = switch to (or scroll down in) the player's bag\n" +
@@ -18,11 +18,11 @@ public class Gamepad : AMod, IUpdatable
                                                           "LT = change sorting (default, by weight, by durability)\n" +
                                                           "RT = find currently focused item in the other panel";
     }
-    override protected string Description
+    protected override string Description
     => "• Better stash navigation";
-    override protected string SectionOverride
+    protected override string SectionOverride
     => ModSections.UI;
-    override protected void LoadPreset(string presetName)
+    protected override void LoadPreset(string presetName)
     {
         switch (presetName)
         {
@@ -53,7 +53,7 @@ public class Gamepad : AMod, IUpdatable
     }
 
     // Utility
-    static private void SwitchToInventory(Players.Data player)
+    private static void SwitchToInventory(Players.Data player)
     {
         if (EventSystem.current.GetCurrentSelectedGameObject(player.ID).TryGetComponent(out ItemDisplay currentItem)
         && currentItem.m_refItem == null)
@@ -81,7 +81,7 @@ public class Gamepad : AMod, IUpdatable
         else if (pouchItems.IsNotNullOrEmpty())
             pouchItems.First().OnSelect();
     }
-    static private void SwitchToStash(Players.Data player)
+    private static void SwitchToStash(Players.Data player)
     {
         if (EventSystem.current.GetCurrentSelectedGameObject(player.ID).TryGetComponent(out ItemDisplay currentItem)
         && currentItem.m_refItem == null)
@@ -106,7 +106,7 @@ public class Gamepad : AMod, IUpdatable
         else if (chestItems.IsNotNullOrEmpty())
             chestItems.First().OnSelect();
     }
-    static private void ChangeSorting(Players.Data player)
+    private static void ChangeSorting(Players.Data player)
     {
         // Cache
         Transform stashPanelHolder = GetStashPanel(player.UI);
@@ -133,7 +133,7 @@ public class Gamepad : AMod, IUpdatable
             currentItem.ParentItemListDisplay.m_assignedDisplays.First().OnSelect();
 
     }
-    static private void UpdateStashName(Players.Data player)
+    private static void UpdateStashName(Players.Data player)
     {
         // Cache
         Transform stashPanelHolder = GetStashPanel(player.UI);
@@ -149,7 +149,7 @@ public class Gamepad : AMod, IUpdatable
             case ItemListDisplay.SortingType.ByDurability: stashTitle.text += "<color=orange> (sorted by Durability)</color>"; break;
         }
     }
-    static private void FindSameItemInOtherPanel(Players.Data player)
+    private static void FindSameItemInOtherPanel(Players.Data player)
     {
         if (EventSystem.current.GetCurrentSelectedGameObject(player.ID).TryGetComponent(out ItemDisplay currentItem) && currentItem.m_refItem == null)
             return;
@@ -176,7 +176,7 @@ public class Gamepad : AMod, IUpdatable
 
         foundItem.OnSelect();
     }
-    static private ItemDisplay FindItemInContainerDisplay(ItemDisplay item, List<ItemDisplay> otherContainerItems)
+    private static ItemDisplay FindItemInContainerDisplay(ItemDisplay item, List<ItemDisplay> otherContainerItems)
     {
         foreach (var otherItem in otherContainerItems)
             if (otherItem.m_refItem.ItemID == item.m_refItem.ItemID)
@@ -184,21 +184,21 @@ public class Gamepad : AMod, IUpdatable
         return null;
     }
     // Find
-    static private Transform GetGamePanelsHolder(CharacterUI ui)
+    private static Transform GetGamePanelsHolder(CharacterUI ui)
     => ui.transform.Find("Canvas/GameplayPanels/HUD/QuickSlot/Controller/LT-RT");
-    static private Transform GetMenuPanelsHolder(CharacterUI ui)
+    private static Transform GetMenuPanelsHolder(CharacterUI ui)
     => ui.transform.Find("Canvas/GameplayPanels/Menus/CharacterMenus/MainPanel/Content/MiddlePanel/QuickSlotPanel/PanelSwitcher/Controller/LT-RT");
-    static private RectTransform GetStashPanel(CharacterUI ui)
+    private static RectTransform GetStashPanel(CharacterUI ui)
     => ui.transform.Find("Canvas/GameplayPanels/Menus/ModalMenus/Stash - Panel") as RectTransform;
-    static private Transform GetPlayerStashInventoryPanel(Transform stashPanel)
+    private static Transform GetPlayerStashInventoryPanel(Transform stashPanel)
     => stashPanel.Find("Content/MiddlePanel/PlayerInventory/InventoryContent");
-    static private Transform GetChestStashInventoryPanel(Transform stashPanel)
+    private static Transform GetChestStashInventoryPanel(Transform stashPanel)
     => stashPanel.Find("Content/MiddlePanel/StashInventory/SectionContent/Scroll View/Viewport/Content/ContainerDisplay_Simple");
-    static private Transform GetChestStashTitle(Transform stashPanel)
+    private static Transform GetChestStashTitle(Transform stashPanel)
     => stashPanel.Find("Content/TopPanel/Shop PanelTop/lblShopName");
 
     // Hooks
     [HarmonyPatch(typeof(StashPanel), nameof(StashPanel.Show)), HarmonyPostfix]
-    static void StashPanel_Show_Post(StashPanel __instance)
+    private static void StashPanel_Show_Post(StashPanel __instance)
     => UpdateStashName(Players.GetLocal(__instance));
 }

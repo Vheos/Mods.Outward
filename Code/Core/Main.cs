@@ -1,6 +1,6 @@
 ﻿namespace Vheos.Mods.Outward;
-using System.Reflection;
 using BepInEx;
+using System.Reflection;
 using Utility = Tools.Utilities.Utility;
 
 [BepInDependency("com.bepis.bepinex.configurationmanager", BepInDependency.DependencyFlags.SoftDependency)]
@@ -14,31 +14,31 @@ public class Main : BepInExEntryPoint
     public const string VERSION = "2.0.0";
 
     // User logic
-    override protected Assembly CurrentAssembly
+    protected override Assembly CurrentAssembly
     => Assembly.GetExecutingAssembly();
-    override protected void Initialize()
+    protected override void Initialize()
     {
         Log.Debug("Initializing GameInput...");
         GameInput.Initialize();
         Log.Debug("Initializing Players...");
         Players.Initialize();
     }
-    override protected void DelayedInitialize()
+    protected override void DelayedInitialize()
     {
         Log.Debug("Initializing Prefabs...");
         Prefabs.Initialize();
     }
-    override protected bool DelayedInitializeCondition
+    protected override bool DelayedInitializeCondition
     => ResourcesPrefabManager.Instance.Loaded && UIUtilities.m_instance != null;
-    override protected string[] PresetNames
+    protected override string[] PresetNames
     => Utility.GetEnumValuesAsStrings<Preset>().ToArray();
-    override protected Type[] Blacklist => new[]
+    protected override Type[] Blacklist => new[]
     {
         typeof(Debug),
         typeof(WIP),
         typeof(PistolTweaks)
     };
-    override protected Type[] ModsOrderingList => new[]
+    protected override Type[] ModsOrderingList => new[]
     {
         // Survival & Immersion
         typeof(Needs),

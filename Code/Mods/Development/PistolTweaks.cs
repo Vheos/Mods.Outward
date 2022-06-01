@@ -14,13 +14,13 @@ public class PistolTweaks : AMod, IDelayedInit
     private const int BULLET_STACK_SIZE = 12;   // ResourcesPrefabManager.ITEM_PREFABS -> Item.MultipleUsage
     private const float BULLET_WEIGHT = 0.1f;   // ResourcesPrefabManager.ITEM_PREFABS -> Item.ItemStats
     private const int BULLET_PRICE = 3;   // ResourcesPrefabManager.ITEM_PREFABS -> Item.ItemStats
-    static readonly private Character.SpellCastType[] SHOT_SPELLS =
+    private static readonly Character.SpellCastType[] SHOT_SPELLS =
     {
         Character.SpellCastType.PistolShot,
         Character.SpellCastType.PistolShotCheat,
         Character.SpellCastType.BloodShot,
     };
-    static readonly private Character.SpellCastType[] RELOAD_SPELLS =
+    private static readonly Character.SpellCastType[] RELOAD_SPELLS =
     {
         Character.SpellCastType.PistolBasicReload,
         Character.SpellCastType.PistolFrostReload,
@@ -29,13 +29,13 @@ public class PistolTweaks : AMod, IDelayedInit
     #endregion
 
     // Config
-    static private ModSetting<float> _shotSpeed;
-    static private ModSetting<float> _reloadSpeed;
-    static private ModSetting<int> _bulletsPerReload;
-    static private ModSetting<int> _bulletStackSize;
-    static private ModSetting<float> _bulletWeight;
-    static private ModSetting<int> _bulletPrice;
-    override protected void Initialize()
+    private static ModSetting<float> _shotSpeed;
+    private static ModSetting<float> _reloadSpeed;
+    private static ModSetting<int> _bulletsPerReload;
+    private static ModSetting<int> _bulletStackSize;
+    private static ModSetting<float> _bulletWeight;
+    private static ModSetting<int> _bulletPrice;
+    protected override void Initialize()
     {
         // Settings
         _shotSpeed = CreateSetting(nameof(_shotSpeed), 1f, FloatRange(0.25f, 4f));
@@ -54,7 +54,7 @@ public class PistolTweaks : AMod, IDelayedInit
         // Fields
         _overrideSpeed = float.NaN;
     }
-    override protected void SetFormatting()
+    protected override void SetFormatting()
     {
         _shotSpeed.Format("Shot speed");
         _reloadSpeed.Format("Reload speed");
@@ -63,16 +63,16 @@ public class PistolTweaks : AMod, IDelayedInit
         _bulletWeight.Format("Bullet weight");
         _bulletPrice.Format("Bullet price");
     }
-    override protected string SectionOverride
+    protected override string SectionOverride
     => ModSections.Development;
 
     // Utility
-    static private float _overrideSpeed;
-    static private float _originalSpeed;
+    private static float _overrideSpeed;
+    private static float _originalSpeed;
 
     // Hooks
     [HarmonyPatch(typeof(WeaponLoadoutItem), nameof(WeaponLoadoutItem.Load)), HarmonyPrefix]
-    static bool WeaponLoadoutItem_Load_Pre(WeaponLoadoutItem __instance)
+    private static bool WeaponLoadoutItem_Load_Pre(WeaponLoadoutItem __instance)
     {
         if (__instance.CompatibleAmmunition.ItemID == BULLET_ID)
             __instance.MaxProjectileLoaded = _bulletsPerReload.Value;
@@ -80,7 +80,7 @@ public class PistolTweaks : AMod, IDelayedInit
     }
 
     [HarmonyPatch(typeof(Character), nameof(Character.PerformSpellCast)), HarmonyPrefix]
-    static bool Character_PerformSpellCast_Pre(Character __instance)
+    private static bool Character_PerformSpellCast_Pre(Character __instance)
     {
         _overrideSpeed = float.NaN;
         if (__instance.CurrentSpellCast.IsContainedIn(SHOT_SPELLS))
@@ -97,7 +97,7 @@ public class PistolTweaks : AMod, IDelayedInit
     }
 
     [HarmonyPatch(typeof(Character), nameof(Character.CastDone)), HarmonyPrefix]
-    static bool Character_CastDone_Pre(Character __instance)
+    private static bool Character_CastDone_Pre(Character __instance)
     {
         if (!_overrideSpeed.IsNaN())
         {

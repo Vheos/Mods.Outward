@@ -13,14 +13,14 @@ public class Revive : AMod
     #endregion
 
     // Config
-    static private ModSetting<bool> _interactionToggle, _maxVitalsToggle, _vitalsToggle, _needsToggle;
-    static private ModSetting<float> _interactionDuration;
-    static private ModSetting<float> _interactionDistance;
-    static private ModSetting<bool> _interactionPrioritize;
-    static private ModSetting<int> _maxHealthLost, _maxStaminaLost, _maxManaLost;
-    static private ModSetting<int> _newHealth, _newStamina, _manaLost;
-    static private ModSetting<int> _foodLost, _drinkLost, _sleepLost, _corruptionGained;
-    override protected void Initialize()
+    private static ModSetting<bool> _interactionToggle, _maxVitalsToggle, _vitalsToggle, _needsToggle;
+    private static ModSetting<float> _interactionDuration;
+    private static ModSetting<float> _interactionDistance;
+    private static ModSetting<bool> _interactionPrioritize;
+    private static ModSetting<int> _maxHealthLost, _maxStaminaLost, _maxManaLost;
+    private static ModSetting<int> _newHealth, _newStamina, _manaLost;
+    private static ModSetting<int> _foodLost, _drinkLost, _sleepLost, _corruptionGained;
+    protected override void Initialize()
     {
         _interactionToggle = CreateSetting(nameof(_interactionToggle), false);
         _interactionDuration = CreateSetting(nameof(_interactionDuration), GameInput.HOLD_THRESHOLD + GameInput.HOLD_DURATION, FloatRange(0.1f + GameInput.HOLD_THRESHOLD, 5f));
@@ -43,7 +43,7 @@ public class Revive : AMod
         _sleepLost = CreateSetting(nameof(_sleepLost), -0, IntRange((int)(-100 * NEED_LOST_ON_REVIVE_MAX_RATIO), -0));
         _corruptionGained = CreateSetting(nameof(_corruptionGained), +0, IntRange(+0, +100));
     }
-    override protected void SetFormatting()
+    protected override void SetFormatting()
     {
         _interactionToggle.Format("Interaction settings");
         using (Indent)
@@ -86,14 +86,14 @@ public class Revive : AMod
             _corruptionGained.Format("Corruption", _needsToggle);
         }
     }
-    override protected string Description
+    protected override string Description
     => "• Change revive speed and distance\n" +
        "• Prioritize revive over other objects\n" +
        "• Change stats after revive\n" +
        "(vitals, max vitals, needs, corruption)";
-    override protected string SectionOverride
+    protected override string SectionOverride
     => ModSections.SurvivalAndImmersion;
-    override protected void LoadPreset(string presetName)
+    protected override void LoadPreset(string presetName)
     {
         switch (presetName)
         {
@@ -130,7 +130,7 @@ public class Revive : AMod
 
     // Hooks
     [HarmonyPatch(typeof(Character), nameof(Character.UpdateReviveInteraction)), HarmonyPostfix]
-    static void Character_UpdateReviveInteraction_Pre(Character __instance)
+    private static void Character_UpdateReviveInteraction_Pre(Character __instance)
     {
         #region quit
         if (!_interactionToggle)
@@ -154,7 +154,7 @@ public class Revive : AMod
     }
 
     [HarmonyPatch(typeof(InteractionRevive), nameof(InteractionRevive.OnActivate)), HarmonyPrefix]
-    static bool InteractionRevive_OnActivate_Pre(ref Character __state, ref Character ___m_character)
+    private static bool InteractionRevive_OnActivate_Pre(ref Character __state, ref Character ___m_character)
     {
         // send m_character to postix and null it during original method
         __state = ___m_character;
@@ -163,7 +163,7 @@ public class Revive : AMod
     }
 
     [HarmonyPatch(typeof(InteractionRevive), nameof(InteractionRevive.OnActivate)), HarmonyPostfix]
-    static void InteractionRevive_OnActivate_Post(ref Character __state, ref Character ___m_character)
+    private static void InteractionRevive_OnActivate_Post(ref Character __state, ref Character ___m_character)
     {
         // receive m_character from prefix
         ___m_character = __state;

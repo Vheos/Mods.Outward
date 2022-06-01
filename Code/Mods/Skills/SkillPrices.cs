@@ -5,8 +5,8 @@ public class SkillPrices : AMod
 {
     #region const
     private const string ICONS_FOLDER = @"Prices\";
-    static private readonly Vector2 ALTERNATE_CURRENCY_ICON_SCALE = new(1.75f, 1.75f);
-    static private readonly Vector2 ALTERNATE_CURRENCY_ICON_PIVOT = new(-0.5f, 0.5f);
+    private static readonly Vector2 ALTERNATE_CURRENCY_ICON_SCALE = new(1.75f, 1.75f);
+    private static readonly Vector2 ALTERNATE_CURRENCY_ICON_PIVOT = new(-0.5f, 0.5f);
     #endregion
     #region enum
     private enum SlotLevel
@@ -45,13 +45,13 @@ public class SkillPrices : AMod
     #endregion
 
     // Settings       
-    static private ModSetting<bool> _formulaToggle;
-    static private Dictionary<SlotLevel, ModSetting<Vector4>> _formulaCoeffsByLevel;
-    static private ModSetting<FormulaType> _formulaType;
-    static private ModSetting<bool> _learnMutuallyExclusiveSkills;
-    static private ModSetting<bool> _exclusiveSkillCostsTsar;
-    static private ModSetting<int> _exclusiveSkillCostMultiplier;
-    override protected void Initialize()
+    private static ModSetting<bool> _formulaToggle;
+    private static Dictionary<SlotLevel, ModSetting<Vector4>> _formulaCoeffsByLevel;
+    private static ModSetting<FormulaType> _formulaType;
+    private static ModSetting<bool> _learnMutuallyExclusiveSkills;
+    private static ModSetting<bool> _exclusiveSkillCostsTsar;
+    private static ModSetting<int> _exclusiveSkillCostMultiplier;
+    protected override void Initialize()
     {
         _formulaToggle = CreateSetting(nameof(_formulaToggle), false);
         _formulaCoeffsByLevel = new Dictionary<SlotLevel, ModSetting<Vector4>>();
@@ -73,7 +73,7 @@ public class SkillPrices : AMod
 
         _exclusiveSkillRequirement = new SkillRequirement("Tsar Stone");
     }
-    override protected void SetFormatting()
+    protected override void SetFormatting()
     {
         _formulaToggle.Format("Formulas");
         _formulaToggle.Description = "Define a price formula for skills of each level";
@@ -99,14 +99,14 @@ public class SkillPrices : AMod
             _exclusiveSkillCostMultiplier.Format("at normal price multiplied by (%)", _exclusiveSkillCostsTsar, false);
         }
     }
-    override protected string Description
+    protected override string Description
     => "• Change skill trainers' prices\n" +
        "• Set price for learning mutually exclusive skills";
-    override protected string SectionOverride
+    protected override string SectionOverride
     => ModSections.Skills;
-    override protected string ModName
+    protected override string ModName
     => "Prices";
-    override protected void LoadPreset(string presetName)
+    protected override void LoadPreset(string presetName)
     {
         switch (presetName)
         {
@@ -126,10 +126,10 @@ public class SkillPrices : AMod
     }
 
     // Utility
-    static private SkillRequirement _exclusiveSkillRequirement;
-    static private bool HasMutuallyExclusiveSkill(Character character, SkillSlot skillSlot)
+    private static SkillRequirement _exclusiveSkillRequirement;
+    private static bool HasMutuallyExclusiveSkill(Character character, SkillSlot skillSlot)
     => skillSlot.SiblingSlot != null && skillSlot.SiblingSlot.HasSkill(character);
-    static private SlotLevel GetLevel(BaseSkillSlot slot)
+    private static SlotLevel GetLevel(BaseSkillSlot slot)
         => !slot.ParentBranch.ParentTree.BreakthroughSkill.TryNonNull(out var breakthroughSlot)
             ? SlotLevel.Basic
             : slot.ParentBranch.Index.CompareTo(breakthroughSlot.ParentBranch.Index) switch
@@ -139,7 +139,7 @@ public class SkillPrices : AMod
                 +1 => SlotLevel.Advanced,
                 _ => default,
             };
-    static private int GetPrice(Character character, SkillSlot slot)
+    private static int GetPrice(Character character, SkillSlot slot)
     {
         // Cache
         CharacterSkillKnowledge characterSkills = character.Inventory.SkillKnowledge;
@@ -161,7 +161,7 @@ public class SkillPrices : AMod
     // Hooks
 #pragma warning disable IDE0051, IDE0060, IDE1006
     [HarmonyPatch(typeof(TrainerPanel), nameof(TrainerPanel.OnSkillSlotSelected)), HarmonyPrefix]
-    static bool TrainerPanel_OnSkillSlotSelected_Pre(TrainerPanel __instance, SkillTreeSlotDisplay _display)
+    private static bool TrainerPanel_OnSkillSlotSelected_Pre(TrainerPanel __instance, SkillTreeSlotDisplay _display)
     {
         // Cache
         SkillSlot slot = _display.FocusedSkillSlot;
@@ -206,7 +206,7 @@ public class SkillPrices : AMod
     }
 
     [HarmonyPatch(typeof(SkillSlot), nameof(SkillSlot.IsBlocked)), HarmonyPrefix]
-    static bool SkillSlot_IsBlocked_Pre(SkillSlot __instance)
+    private static bool SkillSlot_IsBlocked_Pre(SkillSlot __instance)
     => !_learnMutuallyExclusiveSkills;
 }
 

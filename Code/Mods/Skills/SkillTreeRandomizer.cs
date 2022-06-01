@@ -13,9 +13,9 @@ public class SkillTreeRandomizer : AMod, IDelayedInit
     private const string INNATE_TREE_NAME = "Innate";
     private const float REROLL_DELAY = 0.1f;
     private const string REROLL_STATS_FILE_NAME = "SkillTreeRandomizerStats.txt";
-    static private readonly Vector2 DEFAULT_SLOT_DISPLAY_SIZE = new(128, 54);
-    static private readonly Vector2 DEFAULT_TREE_LOCAL_POSITION = new(0, -24);
-    static private readonly (string Name, int[] IDs)[] SIDE_SKILLS =
+    private static readonly Vector2 DEFAULT_SLOT_DISPLAY_SIZE = new(128, 54);
+    private static readonly Vector2 DEFAULT_TREE_LOCAL_POSITION = new(0, -24);
+    private static readonly (string Name, int[] IDs)[] SIDE_SKILLS =
     {
         (WEAPON_SKILLS_TREE_NAME, new[]
         {
@@ -69,7 +69,7 @@ public class SkillTreeRandomizer : AMod, IDelayedInit
         // Mana
         "Flamethrower",
     };
-    static private readonly (int Column, int Row)[] SLOT_POSITIONS =
+    private static readonly (int Column, int Row)[] SLOT_POSITIONS =
     {
         (2, 2),
         (1, 2),
@@ -164,20 +164,20 @@ public class SkillTreeRandomizer : AMod, IDelayedInit
     #endregion
 
     // Settings
-    static private ModSetting<bool> _reroll, _rerollOnGameStart, _rerollLogResults;
-    static private ModSetting<VanillaInput> _vanillaInput;
-    static private ModSetting<TheSoroboreansInput> _theSoroboreansInput;
-    static private ModSetting<TheThreeBrothersInput> _theThreeBrothersInput;
-    static private ModSetting<VanillaOutput> _vanillaOutput;
-    static private ModSetting<TheSoroboreansOutput> _theSoroboreansOutput;
-    static private ModSetting<TheThreeBrothersOutput> _theThreeBrothersOutput;
-    static private ModSetting<EqualizedTraits> _equalizedTraits;
-    static private ModSetting<bool> _randomizeBreakthroughSkills, _preferPassiveBreakthroughs, _avoidChoiceBreakthroughs;
-    static private ModSetting<bool> _treatWeaponMasterAsAdvanced;
-    static private ModSetting<bool> _affectOnlyChosenOutputTrees;
-    static private ModSetting<int> _seed;
-    static private ModSetting<bool> _seedRandomize;
-    override protected void Initialize()
+    private static ModSetting<bool> _reroll, _rerollOnGameStart, _rerollLogResults;
+    private static ModSetting<VanillaInput> _vanillaInput;
+    private static ModSetting<TheSoroboreansInput> _theSoroboreansInput;
+    private static ModSetting<TheThreeBrothersInput> _theThreeBrothersInput;
+    private static ModSetting<VanillaOutput> _vanillaOutput;
+    private static ModSetting<TheSoroboreansOutput> _theSoroboreansOutput;
+    private static ModSetting<TheThreeBrothersOutput> _theThreeBrothersOutput;
+    private static ModSetting<EqualizedTraits> _equalizedTraits;
+    private static ModSetting<bool> _randomizeBreakthroughSkills, _preferPassiveBreakthroughs, _avoidChoiceBreakthroughs;
+    private static ModSetting<bool> _treatWeaponMasterAsAdvanced;
+    private static ModSetting<bool> _affectOnlyChosenOutputTrees;
+    private static ModSetting<int> _seed;
+    private static ModSetting<bool> _seedRandomize;
+    protected override void Initialize()
     {
         _reroll = CreateSetting(nameof(_reroll), false);
         _rerollOnGameStart = CreateSetting(nameof(_rerollOnGameStart), false);
@@ -240,7 +240,7 @@ public class SkillTreeRandomizer : AMod, IDelayedInit
         if (_rerollOnGameStart)
             _reroll.Value = true;
     }
-    override protected void SetFormatting()
+    protected override void SetFormatting()
     {
         _reroll.Format("Reroll");
         _reroll.DisplayResetButton = false;
@@ -323,13 +323,13 @@ public class SkillTreeRandomizer : AMod, IDelayedInit
             _seedRandomize.DisplayResetButton = false;
         }
     }
-    override protected string Description
+    protected override string Description
     => "• Randomize skills taught by trainers";
-    override protected string SectionOverride
+    protected override string SectionOverride
     => ModSections.Skills;
-    override protected string ModName
+    protected override string ModName
     => "Tree Randomizer";
-    override protected void LoadPreset(string presetName)
+    protected override void LoadPreset(string presetName)
     {
         switch (presetName)
         {
@@ -354,20 +354,20 @@ public class SkillTreeRandomizer : AMod, IDelayedInit
     }
 
     // Utility
-    static private SkillTreeHolder _cachedSkillTreeHolder;
-    static private List<SkillSchool> _sideSkillTrees;
-    static private void CacheSkillTreeHolder()
+    private static SkillTreeHolder _cachedSkillTreeHolder;
+    private static List<SkillSchool> _sideSkillTrees;
+    private static void CacheSkillTreeHolder()
     {
         _cachedSkillTreeHolder = SkillTreeHolder.Instance;
         _cachedSkillTreeHolder.gameObject.name += " (cached)";
         CopyCachedSkillTreeHolder();
     }
-    static private void CopyCachedSkillTreeHolder()
+    private static void CopyCachedSkillTreeHolder()
     {
         SkillTreeHolder newSkillTreeHolder = GameObject.Instantiate(_cachedSkillTreeHolder, _cachedSkillTreeHolder.transform.parent);
         newSkillTreeHolder.name = "Skill Trees";
     }
-    static private void CreateSideSkillTrees()
+    private static void CreateSideSkillTrees()
     {
         _sideSkillTrees = new List<SkillSchool>();
         foreach (var (Name, IDs) in SIDE_SKILLS)
@@ -391,7 +391,7 @@ public class SkillTreeRandomizer : AMod, IDelayedInit
             _sideSkillTrees.Add(skillTree);
         }
     }
-    static private void LoadMissingSkillIcons()
+    private static void LoadMissingSkillIcons()
     {
         foreach (var name in MISSING_ICON_SKILL_NAMES)
         {
@@ -399,7 +399,7 @@ public class SkillTreeRandomizer : AMod, IDelayedInit
             Prefabs.SkillsByID[id].SkillTreeIcon = InternalUtility.CreateSpriteFromFile(InternalUtility.PluginFolderPath + ICONS_FOLDER + name.Replace('/', '_') + ".PNG");
         }
     }
-    static private void ResetSkillTreeHolders()
+    private static void ResetSkillTreeHolders()
     {
         // Destroy side skill trees
         foreach (var sideSkillTree in _sideSkillTrees)
@@ -416,7 +416,7 @@ public class SkillTreeRandomizer : AMod, IDelayedInit
         _cachedSkillTreeHolder.DestroyObject();
     }
     //
-    static private IEnumerable<SkillSchool> GetInputSkillTrees()
+    private static IEnumerable<SkillSchool> GetInputSkillTrees()
     {
         foreach (Enum flag in Enum.GetValues(typeof(VanillaInput)))
             if (_vanillaInput.Value.HasFlag(flag))
@@ -430,7 +430,7 @@ public class SkillTreeRandomizer : AMod, IDelayedInit
                 if (_theThreeBrothersInput.Value.HasFlag(flag))
                     yield return FlagToSkillTree(flag, true);
     }
-    static private IEnumerable<SkillSchool> GetOutputSkillTrees()
+    private static IEnumerable<SkillSchool> GetOutputSkillTrees()
     {
         foreach (Enum flag in Enum.GetValues(typeof(VanillaOutput)))
             if (_vanillaOutput.Value.HasFlag(flag))
@@ -444,7 +444,7 @@ public class SkillTreeRandomizer : AMod, IDelayedInit
                 if (_theThreeBrothersOutput.Value.HasFlag(flag))
                     yield return FlagToSkillTree(flag);
     }
-    static private IEnumerable<Trait<BaseSkillSlot>> GetTraits(IEnumerable<SkillSchool> trees)
+    private static IEnumerable<Trait<BaseSkillSlot>> GetTraits(IEnumerable<SkillSchool> trees)
     {
         EqualizedTraits traits = _equalizedTraits.Value;
         if (traits.HasFlag(EqualizedTraits.Count))
@@ -465,14 +465,14 @@ public class SkillTreeRandomizer : AMod, IDelayedInit
             foreach (var tree in trees)
                 yield return new Trait<BaseSkillSlot>(tree.Name, slot => GetVanillaTree(slot) == tree);
     }
-    static private IEnumerable<BaseSkillSlot> GetSlotsFromTrees(IEnumerable<SkillSchool> trees)
+    private static IEnumerable<BaseSkillSlot> GetSlotsFromTrees(IEnumerable<SkillSchool> trees)
     {
         foreach (var tree in trees)
             foreach (var slot in tree.m_skillSlots)
                 if (_randomizeBreakthroughSkills || GetLevel(slot) != SlotLevel.Breakthrough)
                     yield return slot;
     }
-    static private void ResetSkillTrees(IEnumerable<SkillSchool> trees)
+    private static void ResetSkillTrees(IEnumerable<SkillSchool> trees)
     {
         foreach (var tree in trees)
         {
@@ -487,9 +487,9 @@ public class SkillTreeRandomizer : AMod, IDelayedInit
             tree.m_breakthroughSkillIndex = -1;
         }
     }
-    static private void RandomizeSeed()
+    private static void RandomizeSeed()
     => _seed.Value = UnityEngine.Random.value.MapFrom01(-1f, +1f).Mul(int.MaxValue).Round();
-    static private void RandomizeSkills()
+    private static void RandomizeSkills()
     {
         // Quit
         List<SkillSchool> outputTrees = GetOutputSkillTrees().ToList();
@@ -518,9 +518,9 @@ public class SkillTreeRandomizer : AMod, IDelayedInit
         // Copy
         CopyEqualizedSlotsToOutputTrees(equalizer.Results, outputTrees);
     }
-    static private void LogResultsToFile(string results)
+    private static void LogResultsToFile(string results)
     => System.IO.File.WriteAllText(InternalUtility.PluginFolderPath + REROLL_STATS_FILE_NAME, results);
-    static private void CopyEqualizedSlotsToOutputTrees(IEnumerable<IEnumerable<BaseSkillSlot>> equalizedTrees, IList<SkillSchool> outputTrees)
+    private static void CopyEqualizedSlotsToOutputTrees(IEnumerable<IEnumerable<BaseSkillSlot>> equalizedTrees, IList<SkillSchool> outputTrees)
     {
         foreach (var equalizedTree in equalizedTrees)
         {
@@ -606,13 +606,13 @@ public class SkillTreeRandomizer : AMod, IDelayedInit
             outputTrees.Remove(randomOutputTree);
         }
     }
-    static private BaseSkillSlot CopySlot(BaseSkillSlot slot)
+    private static BaseSkillSlot CopySlot(BaseSkillSlot slot)
     {
         BaseSkillSlot newSlot = GameObject.Instantiate(slot);
         newSlot.RequiredSkillSlot = null;
         return newSlot;
     }
-    static private void AddSlotToTree(BaseSkillSlot slot, SkillSchool tree, int column, int row)
+    private static void AddSlotToTree(BaseSkillSlot slot, SkillSchool tree, int column, int row)
     {
         slot.m_columnIndex = column;
         string rowName = row.ToString();
@@ -624,16 +624,16 @@ public class SkillTreeRandomizer : AMod, IDelayedInit
         slot.BecomeChildOf(branchHolder);
     }
     //
-    static private bool HasDLC(OTWStoreAPI.DLCs dlc)
+    private static bool HasDLC(OTWStoreAPI.DLCs dlc)
     => StoreManager.Instance.IsDlcInstalled(dlc);
-    static private SkillSchool FlagToSkillTree(Enum flag, bool fromCache = false)
+    private static SkillSchool FlagToSkillTree(Enum flag, bool fromCache = false)
     {
         SkillTreeHolder skillTreeHolder = fromCache ? _cachedSkillTreeHolder : SkillTreeHolder.Instance;
         return !FlagToSkillTreeName(Convert.ToInt32(flag)).TryNonNull(out var treeName)
         || !skillTreeHolder.transform.TryFind(treeName, out var treeTransform)
         || !treeTransform.TryGetComponent(out SkillSchool tree) ? null : tree;
     }
-    static private string FlagToSkillTreeName(int flag)
+    private static string FlagToSkillTreeName(int flag)
         => flag switch
         {
             1 << 1 => "ChersoneseEto",
@@ -653,7 +653,7 @@ public class SkillTreeRandomizer : AMod, IDelayedInit
             1 << 15 => "CalderaWeaponMaster",
             _ => null,
         };
-    static private SlotType GetType(BaseSkillSlot slot)
+    private static SlotType GetType(BaseSkillSlot slot)
     {
         switch (slot)
         {
@@ -667,7 +667,7 @@ public class SkillTreeRandomizer : AMod, IDelayedInit
             default: return 0;
         }
     }
-    static private SlotLevel GetLevel(BaseSkillSlot slot)
+    private static SlotLevel GetLevel(BaseSkillSlot slot)
         => _treatWeaponMasterAsAdvanced && GetVanillaTree(slot) == FlagToSkillTree(TheThreeBrothersInput.WeaponMaster, true) ? SlotLevel.Advanced
             : !slot.ParentBranch.ParentTree.BreakthroughSkill.TryNonNull(out var breakthroughSlot) ? SlotLevel.Basic
             : slot.ParentBranch.Index.CompareTo(breakthroughSlot.ParentBranch.Index) switch
@@ -677,14 +677,14 @@ public class SkillTreeRandomizer : AMod, IDelayedInit
                 +1 => SlotLevel.Advanced,
                 _ => 0,
             };
-    static private SkillSchool GetVanillaTree(BaseSkillSlot slot)
+    private static SkillSchool GetVanillaTree(BaseSkillSlot slot)
     => slot.ParentBranch.ParentTree;
-    static private bool IsChoice(BaseSkillSlot slot)
+    private static bool IsChoice(BaseSkillSlot slot)
     => slot is SkillSlotFork;
 
     // Hooks
     [HarmonyPatch(typeof(SkillTreeDisplay), nameof(SkillTreeDisplay.RefreshSkillsPosition)), HarmonyPrefix]
-    static bool SkillTreeDisplay_RefreshSkillsPosition_Pre(SkillTreeDisplay __instance)
+    private static bool SkillTreeDisplay_RefreshSkillsPosition_Pre(SkillTreeDisplay __instance)
     {
         int basicCount = 0, advancedCount = 0;
         foreach (var slotDisplay in __instance.m_slotList)

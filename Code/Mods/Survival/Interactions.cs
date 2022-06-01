@@ -13,10 +13,10 @@ public class Interactions : AMod, IDelayedInit
     public const string DISALLOW_IN_COMBAT_NOTIFICATION = "Can't while in combat!";
     private const int HIGHLIGHT_MAX_PARTICLES = 6;
     private const int HIGHLIGHT_UPDATE_DURATION = 6;
-    static private readonly Color HIGHLIGHT_COLOR_EQUIP = new(1f, 0.125f, 0.063f, 1f);
-    static private readonly Color HIGHLIGHT_COLOR_INGESTIBLE = new(0.435f, 1f, 0.125f, 0.75f);
-    static private readonly Color HIGHLIGHT_COLOR_OTHER_ITEM = new(0.125f, 0.871f, 1f, 0.5f);
-    static private readonly Color HIGHLIGHT_COLOR_INTERACTION = new(0.686f, 0.125f, 1f, 0.75f);
+    private static readonly Color HIGHLIGHT_COLOR_EQUIP = new(1f, 0.125f, 0.063f, 1f);
+    private static readonly Color HIGHLIGHT_COLOR_INGESTIBLE = new(0.435f, 1f, 0.125f, 0.75f);
+    private static readonly Color HIGHLIGHT_COLOR_OTHER_ITEM = new(0.125f, 0.871f, 1f, 0.5f);
+    private static readonly Color HIGHLIGHT_COLOR_INTERACTION = new(0.686f, 0.125f, 1f, 0.75f);
     #endregion
     #region enum
     [Flags]
@@ -188,16 +188,16 @@ public class Interactions : AMod, IDelayedInit
     #endregion
 
     // Settings
-    static private ModSetting<float> _holdInteractionsDuration;
-    static private ModSetting<bool> _swapWaterInteractions;
-    static private ModSetting<bool> _singleHoldsToPresses;
-    static private ModSetting<bool> _takeAnimations;
-    static private ModSetting<bool> _highlightsToggle;
-    static private ModSetting<int> _highlightsIntensity, _highlightsDistance;
-    static private ModSetting<bool> _highlightsColored;
-    static private ModSetting<GroundInteractions> _groundInteractions;
-    static private ModSetting<DisallowedInCombat> _disallowedInCombat;
-    override protected void Initialize()
+    private static ModSetting<float> _holdInteractionsDuration;
+    private static ModSetting<bool> _swapWaterInteractions;
+    private static ModSetting<bool> _singleHoldsToPresses;
+    private static ModSetting<bool> _takeAnimations;
+    private static ModSetting<bool> _highlightsToggle;
+    private static ModSetting<int> _highlightsIntensity, _highlightsDistance;
+    private static ModSetting<bool> _highlightsColored;
+    private static ModSetting<GroundInteractions> _groundInteractions;
+    private static ModSetting<DisallowedInCombat> _disallowedInCombat;
+    protected override void Initialize()
     {
         _groundInteractions = CreateSetting(nameof(_groundInteractions), GroundInteractions.None);
         _singleHoldsToPresses = CreateSetting(nameof(_singleHoldsToPresses), false);
@@ -210,7 +210,7 @@ public class Interactions : AMod, IDelayedInit
         _highlightsDistance = CreateSetting(nameof(_highlightsDistance), 30, IntRange(0, 50));
         _highlightsColored = CreateSetting(nameof(_highlightsColored), false);
     }
-    override protected void SetFormatting()
+    protected override void SetFormatting()
     {
         _groundInteractions.Format("Use items from ground");
         _groundInteractions.Description = "Items to use straight from the ground with a \"Hold\" interaction";
@@ -245,14 +245,14 @@ public class Interactions : AMod, IDelayedInit
                                              "Containers and levers   -   purple";
         }
     }
-    override protected string Description
+    protected override string Description
     => "• Instant \"Hold\" interactions\n" +
        "• Use items straight from the ground\n" +
        "• \"Take item\" animations\n" +
        "• Disallow certain interactions while in combat";
-    override protected string SectionOverride
+    protected override string SectionOverride
     => ModSections.SurvivalAndImmersion;
-    override protected void LoadPreset(string presetName)
+    protected override void LoadPreset(string presetName)
     {
         switch (presetName)
         {
@@ -274,7 +274,7 @@ public class Interactions : AMod, IDelayedInit
     }
 
     // Utility
-    static private void SwapBasicAndHoldInteractions(InteractionActivator activator, ref IInteraction vanillaBasic, ref IInteraction vanillaHold)
+    private static void SwapBasicAndHoldInteractions(InteractionActivator activator, ref IInteraction vanillaBasic, ref IInteraction vanillaHold)
     {
         InteractionBase basic = vanillaBasic as InteractionBase;
         InteractionBase hold = vanillaHold as InteractionBase;
@@ -292,7 +292,7 @@ public class Interactions : AMod, IDelayedInit
                 Utility.Swap(ref triggerBase.m_basicConditions, ref triggerBase.m_holdConditions);
         }
     }
-    static private void AddCustomHoldInteractions(InteractionActivator activator, ref IInteraction vanillaHold)
+    private static void AddCustomHoldInteractions(InteractionActivator activator, ref IInteraction vanillaHold)
     {
         #region quit
         if (_groundInteractions == GroundInteractions.None)
@@ -317,7 +317,7 @@ public class Interactions : AMod, IDelayedInit
                 vanillaHold = activator.gameObject.AddComponent<InteractionDeploy>();
         }
     }
-    static private void AddAnimationsToTakeInteractions(InteractionActivator activator, ref IInteraction vanillaBasic)
+    private static void AddAnimationsToTakeInteractions(InteractionActivator activator, ref IInteraction vanillaBasic)
     {
         #region quit
         if (!_takeAnimations)
@@ -334,14 +334,14 @@ public class Interactions : AMod, IDelayedInit
 
     // Hooks
     [HarmonyPatch(typeof(InteractionBase), nameof(InteractionBase.HoldActivationTime), MethodType.Getter), HarmonyPrefix]
-    static bool InteractionBase_HoldActivationTime_Getter_Post(ref float __result, ref float ___m_holdActivationTimeOverride)
+    private static bool InteractionBase_HoldActivationTime_Getter_Post(ref float __result, ref float ___m_holdActivationTimeOverride)
     {
         __result = ___m_holdActivationTimeOverride != -1 ? ___m_holdActivationTimeOverride : _holdInteractionsDuration;
         return false;
     }
 
     [HarmonyPatch(typeof(InteractionActivator), nameof(InteractionActivator.OnLateInit)), HarmonyPostfix]
-    static void InteractionActivator_OnLateInit_Post(InteractionActivator __instance, ref IInteraction ___m_defaultBasicInteraction, ref IInteraction ___m_defaultHoldInteraction)
+    private static void InteractionActivator_OnLateInit_Post(InteractionActivator __instance, ref IInteraction ___m_defaultBasicInteraction, ref IInteraction ___m_defaultHoldInteraction)
     {
         SwapBasicAndHoldInteractions(__instance, ref ___m_defaultBasicInteraction, ref ___m_defaultHoldInteraction);
         AddCustomHoldInteractions(__instance, ref ___m_defaultHoldInteraction);
@@ -350,7 +350,7 @@ public class Interactions : AMod, IDelayedInit
 
     // Disallow interactions in combat
     [HarmonyPatch(typeof(InteractionTriggerBase), nameof(InteractionTriggerBase.TryActivateBasicAction), new[] { typeof(Character), typeof(int) }), HarmonyPrefix]
-    static bool InteractionTriggerBase_TryActivate_Pre(InteractionTriggerBase __instance, ref Character _character)
+    private static bool InteractionTriggerBase_TryActivate_Pre(InteractionTriggerBase __instance, ref Character _character)
     {
         DisallowedInCombat flags = _disallowedInCombat.Value;
         #region quit
@@ -371,7 +371,7 @@ public class Interactions : AMod, IDelayedInit
 
     // Highlights
     [HarmonyPatch(typeof(InteractionHighlight), nameof(InteractionHighlight.Update)), HarmonyPrefix]
-    static bool InteractionHighlight_Update_Pre(InteractionHighlight __instance)
+    private static bool InteractionHighlight_Update_Pre(InteractionHighlight __instance)
     {
         #region quit
         if (!_highlightsToggle
