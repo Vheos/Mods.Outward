@@ -94,25 +94,24 @@ public class SurvivalTools : AMod
 
     // Hooks
     // More gathering tools
-    [HarmonyPatch(typeof(GatherableInteraction), nameof(GatherableInteraction.GetValidItem)), HarmonyPrefix]
-    private static bool GatherableInteraction_GetValidItem_Pre(GatherableInteraction __instance, ref Item __result, Character _character)
+    [HarmonyPatch(typeof(CharacterInventory), nameof(CharacterInventory.GetCompatibleGatherableTool)), HarmonyPrefix]
+    private static bool GatherableInteraction_GetCompatibleGatherableTool_Pre(CharacterInventory __instance, ref Item __result, int _sourceToolID)
     {
         #region quit
-        if (!_moreGatheringTools || !__instance.Gatherable.RequiredItem.TryNonNull(out var requiredItem)
-        || !__instance.m_pendingAnims.TryGetValue(_character.UID, out var gatherInstance)
-        || requiredItem.ItemID != "Mining Pick".ItemID() && requiredItem.ItemID != "Fishing Harpoon".ItemID())
+        if (!_moreGatheringTools
+        || _sourceToolID != "Mining Pick".ItemID() && _sourceToolID != "Fishing Harpoon".ItemID())
             return true;
         #endregion
 
         // Cache
-        Weapon.WeaponType requiredType = requiredItem.ItemID == "Fishing Harpoon".ItemID() ? Weapon.WeaponType.Spear_2H : Weapon.WeaponType.Mace_2H;
+        Weapon.WeaponType requiredType = _sourceToolID == "Fishing Harpoon".ItemID() ? Weapon.WeaponType.Spear_2H : Weapon.WeaponType.Mace_2H;
         List<Item> potentialTools = new();
 
         // Search bag & pouch
         List<ItemContainer> containers = new();
-        if (_character.Inventory.EquippedBag.TryNonNull(out var bag))
+        if (__instance.EquippedBag.TryNonNull(out var bag))
             containers.Add(bag.m_container);
-        if (_character.Inventory.Pouch.TryNonNull(out var pouch))
+        if (__instance.Pouch.TryNonNull(out var pouch))
             containers.Add(pouch);
 
         foreach (var container in containers)
@@ -123,22 +122,13 @@ public class SurvivalTools : AMod
 
         // Search equipment
         if (potentialTools.IsNullOrEmpty()
-        && _character.Inventory.Equipment.m_equipmentSlots[(int)EquipmentSlot.EquipmentSlotIDs.RightHand].EquippedItem.TryAs(out Weapon mainWeapon)
+        && __instance.Equipment.m_equipmentSlots[(int)EquipmentSlot.EquipmentSlotIDs.RightHand].EquippedItem.TryAs(out Weapon mainWeapon)
         && mainWeapon.Type == requiredType && mainWeapon.DurabilityRatio > 0)
             potentialTools.Add(mainWeapon);
 
         // Choose tool
-        Item chosenTool = null;
-        if (potentialTools.IsNotNullOrEmpty())
-        {
-            int minValue = potentialTools.Min(tool => tool.RawCurrentValue);
-            chosenTool = potentialTools.First(tool => tool.RawCurrentValue == minValue);
-        }
+        __result = potentialTools.OrderBy(tool => tool.RawCurrentValue).FirstOrDefault();
 
-        // Finalize
-        gatherInstance.ValidItem = chosenTool;
-        gatherInstance.IsCurrentWeapon = chosenTool != null && chosenTool.IsEquipped;
-        __result = chosenTool;
         return false;
     }
 
