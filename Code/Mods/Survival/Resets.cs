@@ -8,6 +8,15 @@ namespace Vheos.Mods.Outward;
 public class Resets : AMod
 {
     #region const
+    private static readonly AreaManager.AreaEnum[] ALL_CITIES = new[]
+    {
+        AreaManager.AreaEnum.CierzoVillage,
+        AreaManager.AreaEnum.Berg,
+        AreaManager.AreaEnum.Monsoon,
+        AreaManager.AreaEnum.Levant,
+        AreaManager.AreaEnum.Harmattan,
+        AreaManager.AreaEnum.NewSirocco
+    };
     private const float AREAS_RESET_HOURS = 168f;   // Area.m_resetTime
     private const float MERCHANTS_RESET_HOURS = 72f;   // MerchantPouch.InventoryRefreshRate
     private const float SIDEQUESTS_RESET_HOURS = int.MaxValue;   // ???
@@ -83,7 +92,6 @@ public class Resets : AMod
             2160031,
         },
     };
-
     private static readonly Dictionary<WeaponSet, int[]> RANGED_WEAPON_IDS_BY_SET = new()
     {
         [WeaponSet.Junk] = new[] { 2200000 },
@@ -275,9 +283,9 @@ public class Resets : AMod
             InternalUtility.GameTime = (float)__instance.GameTime;
 
         // Persistent areas
+
         AreaManager.AreaEnum areaEnum = (AreaManager.AreaEnum)AreaManager.Instance.GetAreaFromSceneName(__instance.AreaName).ID;
-        bool isAreaPermanent = AreaManager.Instance.PermenantAreas.Contains(areaEnum);
-        bool resetArea = _areasResetLayers.Value.HasFlag(AreasResetLayers.Cities) || !isAreaPermanent;
+        bool resetArea = _areasResetLayers.Value.HasFlag(AreasResetLayers.Cities) || areaEnum.IsNotContainedIn(ALL_CITIES);
 
         // Area modes
         float sinceLastVisit = InternalUtility.GameTime - (float)__instance.GameTime;
@@ -310,6 +318,10 @@ public class Resets : AMod
 
         return false;
     }
+
+    [HarmonyPatch(typeof(Item), nameof(Item.IsInPermanentZone), MethodType.Getter), HarmonyPostfix]
+    private static void ItemContainer_ContainerCapacity_Post(Item __instance, ref bool __result)
+    => __result &= !_areasToggle;
 
     // Gatherables
     [HarmonyPatch(typeof(Gatherable), nameof(Gatherable.StartInit)), HarmonyPostfix]
