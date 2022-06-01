@@ -176,7 +176,7 @@ public class Revive : AMod
             else
             {
                 // Common
-                PlayerSaveData data = new PlayerSaveData(___m_character);
+                PlayerSaveData data = new(___m_character);
                 PlayerCharacterStats stats = ___m_character.PlayerStats;
 
                 // Affect burns

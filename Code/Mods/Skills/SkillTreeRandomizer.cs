@@ -13,8 +13,8 @@ public class SkillTreeRandomizer : AMod, IDelayedInit
     private const string INNATE_TREE_NAME = "Innate";
     private const float REROLL_DELAY = 0.1f;
     private const string REROLL_STATS_FILE_NAME = "SkillTreeRandomizerStats.txt";
-    static private readonly Vector2 DEFAULT_SLOT_DISPLAY_SIZE = new Vector2(128, 54);
-    static private readonly Vector2 DEFAULT_TREE_LOCAL_POSITION = new Vector2(0, -24);
+    static private readonly Vector2 DEFAULT_SLOT_DISPLAY_SIZE = new(128, 54);
+    static private readonly Vector2 DEFAULT_TREE_LOCAL_POSITION = new(0, -24);
     static private readonly (string Name, int[] IDs)[] SIDE_SKILLS =
     {
         (WEAPON_SKILLS_TREE_NAME, new[]
@@ -372,15 +372,15 @@ public class SkillTreeRandomizer : AMod, IDelayedInit
         _sideSkillTrees = new List<SkillSchool>();
         foreach (var (Name, IDs) in SIDE_SKILLS)
         {
-            GameObject skillTreeHolder = new GameObject(Name);
+            GameObject skillTreeHolder = new(Name);
             skillTreeHolder.BecomeChildOf(_cachedSkillTreeHolder);
-            GameObject skillBranchHolder = new GameObject("0");
+            GameObject skillBranchHolder = new("0");
             skillBranchHolder.BecomeChildOf(skillTreeHolder);
 
             foreach (var id in IDs)
             {
                 Skill skill = Prefabs.SkillsByID[id];
-                GameObject skillSlotHolder = new GameObject(skill.Name);
+                GameObject skillSlotHolder = new(skill.Name);
                 skillSlotHolder.BecomeChildOf(skillBranchHolder);
                 skillSlotHolder.AddComponent<SkillSlot>().m_skill = skill;
             }
@@ -498,7 +498,7 @@ public class SkillTreeRandomizer : AMod, IDelayedInit
 
         // Initialize
         IEnumerable<SkillSchool> intputTrees = GetInputSkillTrees();
-        TraitEqualizer<BaseSkillSlot> equalizer = new TraitEqualizer<BaseSkillSlot>(outputTrees.Count, GetTraits(intputTrees).ToArray());
+        TraitEqualizer<BaseSkillSlot> equalizer = new(outputTrees.Count, GetTraits(intputTrees).ToArray());
 
         // Randomize (with equalization)
         Random.Initialize(_seed);

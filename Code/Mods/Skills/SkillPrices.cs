@@ -5,8 +5,8 @@ public class SkillPrices : AMod
 {
     #region const
     private const string ICONS_FOLDER = @"Prices\";
-    static private readonly Vector2 ALTERNATE_CURRENCY_ICON_SCALE = new Vector2(1.75f, 1.75f);
-    static private readonly Vector2 ALTERNATE_CURRENCY_ICON_PIVOT = new Vector2(-0.5f, 0.5f);
+    static private readonly Vector2 ALTERNATE_CURRENCY_ICON_SCALE = new(1.75f, 1.75f);
+    static private readonly Vector2 ALTERNATE_CURRENCY_ICON_PIVOT = new(-0.5f, 0.5f);
     #endregion
     #region enum
     private enum SlotLevel

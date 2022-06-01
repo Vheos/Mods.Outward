@@ -11,7 +11,7 @@ public class Various : AMod, IUpdatable
     #region const
     private const int DROP_ONE_ACTION_ID = -2;
     private const string DROP_ONE_ACTION_TEXT = "Drop one";
-    static private readonly Dictionary<AreaManager.AreaEnum, string> STASH_UIDS_BY_CITY = new Dictionary<AreaManager.AreaEnum, string>
+    static private readonly Dictionary<AreaManager.AreaEnum, string> STASH_UIDS_BY_CITY = new()
     {
         [AreaManager.AreaEnum.CierzoVillage] = "ImqRiGAT80aE2WtUHfdcMw",
         [AreaManager.AreaEnum.Berg] = "ImqRiGAT80aE2WtUHfdcMw",
@@ -20,7 +20,7 @@ public class Various : AMod, IUpdatable
         [AreaManager.AreaEnum.Harmattan] = "ImqRiGAT80aE2WtUHfdcMw",
         [AreaManager.AreaEnum.NewSirocco] = "IqUugGqBBkaOcQdRmhnMng",
     };
-    static private readonly Dictionary<AreaManager.AreaEnum, string> SOROBOREAN_CARAVANNER_UIDS_BY_CITY = new Dictionary<AreaManager.AreaEnum, string>
+    static private readonly Dictionary<AreaManager.AreaEnum, string> SOROBOREAN_CARAVANNER_UIDS_BY_CITY = new()
     {
         [AreaManager.AreaEnum.CierzoVillage] = "G_GyAVjRWkq8e2L8WP4TgA",
         [AreaManager.AreaEnum.Berg] = "-MSrkT502k63y3CV2j98TQ",
@@ -31,7 +31,7 @@ public class Various : AMod, IUpdatable
     };
     private const float DEFAULT_ENEMY_HEALTH_RESET_HOURS = 24f;   // Character.HoursToHealthReset
     private const int ARMOR_TRAINING_ID = 8205220;
-    static private readonly Dictionary<TemperatureSteps, Vector2> DEFAULT_TEMPERATURE_DATA_BY_ENUM = new Dictionary<TemperatureSteps, Vector2>
+    static private readonly Dictionary<TemperatureSteps, Vector2> DEFAULT_TEMPERATURE_DATA_BY_ENUM = new()
     {
         [TemperatureSteps.Coldest] = new Vector2(-45, -1),
         [TemperatureSteps.VeryCold] = new Vector2(-30, 14),

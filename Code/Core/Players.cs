@@ -45,10 +45,10 @@ static public class Players
 
         // Shortcuts
         public Vector2 CameraMovementInput
-        => new Vector2(GameInput.AxisValue(ID, ControlsInput.GameplayActions.RotateCameraHorizontal),
+        => new(GameInput.AxisValue(ID, ControlsInput.GameplayActions.RotateCameraHorizontal),
                        GameInput.AxisValue(ID, ControlsInput.GameplayActions.RotateCameraVertical));
         public Vector2 PlayerMovementInput
-        => new Vector2(GameInput.AxisValue(ID, ControlsInput.GameplayActions.MoveHorizontal),
+        => new(GameInput.AxisValue(ID, ControlsInput.GameplayActions.MoveHorizontal),
                        GameInput.AxisValue(ID, ControlsInput.GameplayActions.MoveVertical));
     }
     #endregion

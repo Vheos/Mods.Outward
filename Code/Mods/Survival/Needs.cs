@@ -13,7 +13,7 @@ public class Needs : AMod, IDelayedInit
         (Need.Sleep, new Vector2(25f, 50f), 1000f / 13.89f, "Tired", "sleeping", "stamina regen"),
     };
     static private readonly Dictionary<int, (Character.SpellCastType Vanilla, Character.SpellCastType Custom)> ANIMATION_PAIRS_BY_INGESTIBLE_ID
-    = new Dictionary<int, (Character.SpellCastType, Character.SpellCastType)>
+    = new()
     {
         ["Torcrab Egg".ItemID()] = (Character.SpellCastType.DrinkWater, Character.SpellCastType.Eat),
         ["Boreo Blubber".ItemID()] = (Character.SpellCastType.DrinkWater, Character.SpellCastType.Eat),
@@ -136,7 +136,7 @@ public class Needs : AMod, IDelayedInit
         _settingsByNeed = new Dictionary<Need, NeedSettings>();
         foreach (var data in NEEDS_DATA)
         {
-            NeedSettings tmp = new NeedSettings();
+            NeedSettings tmp = new();
             _settingsByNeed[data.Need] = tmp;
 
             string needPrefix = data.Need.ToString().ToLower();
@@ -343,8 +343,8 @@ public class Needs : AMod, IDelayedInit
         {
             StatusEffect statusEffect = element.Value.StatusEffect;
             statusEffect.RemoveAllEffects();
-            List<Effect> newEffects = new List<Effect>();
-            List<StatusData.EffectData> newEffectDatas = new List<StatusData.EffectData>();
+            List<Effect> newEffects = new();
+            List<StatusData.EffectData> newEffectDatas = new();
 
             float effectValue = _settingsByNeed[element.Key]._fulfilledEffectValue - 100f;
             switch (element.Key)

@@ -6,9 +6,9 @@ public class Traps : AMod
     static private Color TRAP_START_COLOR = Color.white;
     static private Color TRAP_TRANSITION_COLOR = Color.yellow;
     static private Color TRAP_ARMED_COLOR = Color.red;
-    static private Color RUNIC_TRAP_START_COLOR = new Color(1f, 1f, 1f, 0f);
-    static private Color RUNIC_TRAP_TRANSITION_COLOR = new Color(1f, 1f, 0.05f, 0.05f);
-    static private Color RUNIC_TRAP_ARMED_COLOR = new Color(1f, 0.05f, 0f, 1f);
+    static private Color RUNIC_TRAP_START_COLOR = new(1f, 1f, 1f, 0f);
+    static private Color RUNIC_TRAP_TRANSITION_COLOR = new(1f, 1f, 0.05f, 0.05f);
+    static private Color RUNIC_TRAP_ARMED_COLOR = new(1f, 0.05f, 0f, 1f);
     #endregion
 
     // Settings

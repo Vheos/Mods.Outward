@@ -16,9 +16,9 @@ static internal class InternalUtility
         if (System.IO.File.Exists(filePath))
         {
             byte[] byteData = System.IO.File.ReadAllBytes(filePath);
-            Texture2D texture = new Texture2D(0, 0, TextureFormat.RGBA32, false);
+            Texture2D texture = new(0, 0, TextureFormat.RGBA32, false);
             texture.LoadImage(byteData, true);
-            Rect textureRect = new Rect(0, 0, texture.width, texture.height);
+            Rect textureRect = new(0, 0, texture.width, texture.height);
             Sprite newSprite = Sprite.Create(texture, textureRect, Vector2.zero, 1, 0, SpriteMeshType.FullRect);
             return newSprite;
         }
@@ -33,7 +33,7 @@ static internal class InternalUtility
     }
     static public List<List<T>> CreateList2D<T>(int count)
     {
-        List<List<T>> list2D = new List<List<T>>();
+        List<List<T>> list2D = new();
         for (int i = 0; i < count; i++)
             list2D.Add(new List<T>());
         return list2D;
@@ -115,7 +115,7 @@ static internal class InternalUtility
         if (lists == null || !lists.Any())
             return new List<T>();
 
-        HashSet<T> hashSet = new HashSet<T>(lists.First());
+        HashSet<T> hashSet = new(lists.First());
         foreach (var list in lists.Skip(1))
             hashSet.IntersectWith(list);
         return hashSet.ToList();

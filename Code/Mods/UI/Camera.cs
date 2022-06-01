@@ -3,7 +3,7 @@
 public class Camera : AMod, IDelayedInit, IUpdatable
 {
     #region const
-    static private readonly Vector3 DEFAULT_OFFSET = new Vector3(0f, 1f, -3f);
+    static private readonly Vector3 DEFAULT_OFFSET = new(0f, 1f, -3f);
     private const float DEFAULT_FOV = 50f;
     private const float DEFAULT_FOLLOW_SPEED = 4.5f;
     private const float AIM_COROUTINE_UPDATE_SPEED = 0.2f;
@@ -94,7 +94,7 @@ public class Camera : AMod, IDelayedInit, IUpdatable
         _perPlayerSettings = new PerPlayerSettings[2];
         for (int i = 0; i < 2; i++)
         {
-            PerPlayerSettings tmp = new PerPlayerSettings();
+            PerPlayerSettings tmp = new();
             _perPlayerSettings[i] = tmp;
             string playerPrefix = $"player{i + 1}";
 
@@ -108,7 +108,7 @@ public class Camera : AMod, IDelayedInit, IUpdatable
             tmp._offsetAvg = CreateSetting(playerPrefix + nameof(tmp._offsetAvg), DEFAULT_OFFSET);
             tmp._offsetMax = CreateSetting(playerPrefix + nameof(tmp._offsetMax), DEFAULT_OFFSET.Add(0.75f, -0.25f, 1f));
 
-            Vector3 otherDefault = new Vector3(DEFAULT_FOV, DEFAULT_FOLLOW_SPEED, 1f);
+            Vector3 otherDefault = new(DEFAULT_FOV, DEFAULT_FOLLOW_SPEED, 1f);
             tmp._variousToggle = CreateSetting(playerPrefix + nameof(tmp._variousToggle), false);
             tmp._variousMin = CreateSetting(playerPrefix + nameof(tmp._variousMin), otherDefault.Mul(1.2f, 2 / 3f, 1f));
             tmp._variousAvg = CreateSetting(playerPrefix + nameof(tmp._variousAvg), otherDefault);

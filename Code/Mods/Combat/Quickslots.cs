@@ -3,7 +3,7 @@
 public class Quickslots : AMod
 {
     #region const
-    static private readonly Dictionary<SkillContext, Dictionary<Weapon.WeaponType, int>> SKILL_CONTEXT_GROUPS = new Dictionary<SkillContext, Dictionary<Weapon.WeaponType, int>>
+    static private readonly Dictionary<SkillContext, Dictionary<Weapon.WeaponType, int>> SKILL_CONTEXT_GROUPS = new()
     {
         [SkillContext.Innate] = new Dictionary<Weapon.WeaponType, int>
         {

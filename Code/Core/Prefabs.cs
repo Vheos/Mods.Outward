@@ -3,7 +3,7 @@
 static public class Prefabs
 {
     #region const
-    static public readonly Dictionary<string, int> ItemIDsByName = new Dictionary<string, int>
+    static public readonly Dictionary<string, int> ItemIDsByName = new()
     {
         ["Torcrab Egg"] = 4000480,
         ["Boreo Blubber"] = 4000500,
@@ -106,7 +106,7 @@ static public class Prefabs
         ["Makeshift Torch"] = 5100060,
         ["Ice-Flame Torch"] = 5100070,
     };
-    static public readonly Dictionary<string, int> SkillIDsByName = new Dictionary<string, int>
+    static public readonly Dictionary<string, int> SkillIDsByName = new()
     {
         // Weapon skills
         ["Puncture"] = 8100290,

@@ -6,7 +6,7 @@ public class Merchants : AMod
     #region const
     private const float DEFAULT_SELL_MODIFIER = 0.3f;
     private const int GOLD_INGOT_ID = 6300030;
-    static private readonly Color DEFAULT_PRICE_COLOR = new Color(0.8235294f, 0.8877006f, 1f);
+    static private readonly Color DEFAULT_PRICE_COLOR = new(0.8235294f, 0.8877006f, 1f);
     #endregion
 
     // Settings

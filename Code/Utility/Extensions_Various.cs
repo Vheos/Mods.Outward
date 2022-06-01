@@ -136,7 +136,7 @@ static public class Extensions_Various
     static public Dictionary<Effect, string[]> GetValuesByEffect(this StatusEffect statusEffect)
     {
         // Cache
-        Dictionary<Effect, string[]> valuesByEffect = new Dictionary<Effect, string[]>();
+        Dictionary<Effect, string[]> valuesByEffect = new();
         EffectSignature effectSignature = statusEffect.StatusData.EffectSignature;
         if (effectSignature == null)
             return valuesByEffect;
@@ -207,9 +207,9 @@ static public class Extensions_Various
 
     // Various
     static public Vector3 ToVector3(this (float X, float Y, float Z) t)
-    => new Vector3(t.X, t.Y, t.Z);
+    => new(t.X, t.Y, t.Z);
     static public CodeMatcher CodeMatcher(this IEnumerable<CodeInstruction> t)
-    => new CodeMatcher(t);
+    => new(t);
     static public string SplitCamelCase(this string t)
     => Regex.Replace(t, "([a-z](?=[A-Z])|[A-Z](?=[A-Z][a-z]))", "$1 ");
     static public int SetBitCount(this int t)
@@ -305,20 +305,20 @@ static public class Extensions_Various
     }
     static public List<T> GetAllComponentsInHierarchy<T>(this Transform root) where T : Component
     {
-        List<T> components = new List<T> { root.GetComponents<T>() };
+        List<T> components = new() { root.GetComponents<T>() };
         InternalUtility.AppendChildrenRecurisvely(root, components);
         return components;
     }
     static public List<Component> GetAllComponentsInHierarchy<T1, T2>(this Transform root) where T1 : Component where T2 : Component
     {
-        List<Component> components = new List<Component> { root.GetComponents<T1>(), root.GetComponents<T2>() };
+        List<Component> components = new() { root.GetComponents<T1>(), root.GetComponents<T2>() };
         InternalUtility.AppendChildrenRecurisvely(root, components);
         return components;
     }
     static public List<RaycastResult> GetMouseHits(this GraphicRaycaster t)
     {
-        PointerEventData eventData = new PointerEventData(null) { position = Input.mousePosition };
-        List<RaycastResult> hits = new List<RaycastResult>();
+        PointerEventData eventData = new(null) { position = Input.mousePosition };
+        List<RaycastResult> hits = new();
         t.Raycast(eventData, hits);
         return hits;
     }

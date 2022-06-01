@@ -7,7 +7,7 @@ public class SkillLimits : AMod
     #region const
     private const int UNLEARN_ACTION_ID = -1;
     private const string UNLEARN_ACTION_TEXT = "Forget";
-    private static readonly Dictionary<SkillTypes, string> NOTIFICATION_BY_SKILL_TYPE = new Dictionary<SkillTypes, string>
+    private static readonly Dictionary<SkillTypes, string> NOTIFICATION_BY_SKILL_TYPE = new()
     {
         [SkillTypes.Passive] = "You can't learn any more passive skills!",
         [SkillTypes.Active] = "You can't learn any more active skills!",
@@ -40,10 +40,10 @@ public class SkillLimits : AMod
         // Mana
         "Flamethrower".SkillID(),
     };
-    static private Color ICON_COLOR = new Color(1f, 1f, 1f, 1 / 3f);
-    static private Color BORDER_COLOR = new Color(1 / 3f, 0f, 1f, 1f);
-    static private Color INDICATOR_COLOR = new Color(0.75f, 0f, 1f, 1 / 3f);
-    static private Vector2 INDICATOR_SCALE = new Vector2(1.5f, 1.5f);
+    static private Color ICON_COLOR = new(1f, 1f, 1f, 1 / 3f);
+    static private Color BORDER_COLOR = new(1 / 3f, 0f, 1f, 1f);
+    static private Color INDICATOR_COLOR = new(0.75f, 0f, 1f, 1 / 3f);
+    static private Vector2 INDICATOR_SCALE = new(1.5f, 1.5f);
     #endregion
     #region enum
     [Flags]

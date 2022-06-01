@@ -4,7 +4,7 @@ public class Inns : AMod
 {
     #region const
     private const string INNS_QUEST_FAMILY_NAME = "Inns";
-    static private readonly Dictionary<AreaManager.AreaEnum, (string UID, Vector3[] Positions)> STASH_DATA_BY_CITY = new Dictionary<AreaManager.AreaEnum, (string, Vector3[])>
+    static private readonly Dictionary<AreaManager.AreaEnum, (string UID, Vector3[] Positions)> STASH_DATA_BY_CITY = new()
     {
         [AreaManager.AreaEnum.CierzoVillage] = ("ImqRiGAT80aE2WtUHfdcMw", new[] { new Vector3(-367.850f, -1488.250f, 596.277f),
                                                                                   new Vector3(-373.539f, -1488.250f, 583.187f) }),

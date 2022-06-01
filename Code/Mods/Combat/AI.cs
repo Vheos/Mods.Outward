@@ -5,7 +5,7 @@ public class AI : AMod
 {
     #region const
     private const float HUMAN_COLLISION_RADIUS = 0.4f;
-    static private readonly Dictionary<TargetingGroups, Character.Factions[]> NEUTRAL_FACTION_GROUPS = new Dictionary<TargetingGroups, Character.Factions[]>
+    static private readonly Dictionary<TargetingGroups, Character.Factions[]> NEUTRAL_FACTION_GROUPS = new()
     {
         [TargetingGroups.HumansAndNonHostileMonsters] = new[]
     {
@@ -172,7 +172,7 @@ public class AI : AMod
         Character.Factions characterFaction = __instance.m_character.Faction;
 
         // Gather ignored factions
-        List<Character.Factions> ignoreFactions = new List<Character.Factions>();
+        List<Character.Factions> ignoreFactions = new();
         foreach (var group in NEUTRAL_FACTION_GROUPS)
             if (group.Value.Contains(characterFaction))
                 foreach (var faction in group.Value)
@@ -180,7 +180,7 @@ public class AI : AMod
                         ignoreFactions.TryAddUnique(faction);
 
         // Initialize
-        List<Character.Factions> targetableFactions = new List<Character.Factions>();
+        List<Character.Factions> targetableFactions = new();
         foreach (var faction in InternalUtility.GetEnumValues<Character.Factions>())
         {
             if (faction == Character.Factions.NONE

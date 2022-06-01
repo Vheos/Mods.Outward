@@ -13,10 +13,10 @@ public class Interactions : AMod, IDelayedInit
     public const string DISALLOW_IN_COMBAT_NOTIFICATION = "Can't while in combat!";
     private const int HIGHLIGHT_MAX_PARTICLES = 6;
     private const int HIGHLIGHT_UPDATE_DURATION = 6;
-    static private readonly Color HIGHLIGHT_COLOR_EQUIP = new Color(1f, 0.125f, 0.063f, 1f);
-    static private readonly Color HIGHLIGHT_COLOR_INGESTIBLE = new Color(0.435f, 1f, 0.125f, 0.75f);
-    static private readonly Color HIGHLIGHT_COLOR_OTHER_ITEM = new Color(0.125f, 0.871f, 1f, 0.5f);
-    static private readonly Color HIGHLIGHT_COLOR_INTERACTION = new Color(0.686f, 0.125f, 1f, 0.75f);
+    static private readonly Color HIGHLIGHT_COLOR_EQUIP = new(1f, 0.125f, 0.063f, 1f);
+    static private readonly Color HIGHLIGHT_COLOR_INGESTIBLE = new(0.435f, 1f, 0.125f, 0.75f);
+    static private readonly Color HIGHLIGHT_COLOR_OTHER_ITEM = new(0.125f, 0.871f, 1f, 0.5f);
+    static private readonly Color HIGHLIGHT_COLOR_INTERACTION = new(0.686f, 0.125f, 1f, 0.75f);
     #endregion
     #region enum
     [Flags]
@@ -167,7 +167,7 @@ public class Interactions : AMod, IDelayedInit
         private void Bump(Item item, float force)
         {
             Vector2 directionXZ = Random.insideUnitCircle.normalized;
-            Vector3 direction = new Vector3(directionXZ.x, 1, directionXZ.y);
+            Vector3 direction = new(directionXZ.x, 1, directionXZ.y);
             item.GetComponent<Rigidbody>().AddForce(direction * force);
         }
     }

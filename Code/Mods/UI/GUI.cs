@@ -4,11 +4,11 @@ using UnityEngine.UI;
 public class GUI : AMod, IDelayedInit, IUpdatable
 {
     #region const
-    static public readonly Vector2 DEFAULT_SHOP_OFFSET_MIN = new Vector2(-1344f, -540f);
-    static public readonly Vector2 DEFAULT_SHOP_OFFSET_MAX = new Vector2(-20f, -20f);
+    static public readonly Vector2 DEFAULT_SHOP_OFFSET_MIN = new(-1344f, -540f);
+    static public readonly Vector2 DEFAULT_SHOP_OFFSET_MAX = new(-20f, -20f);
     static public readonly (Vector2 Default, Vector2 Alternative) MANA_BAR_POSITIONS = (new Vector2(65f, 18.6f), new Vector2(10f, 83f));
     private const float UI_RESIZE_DELAY = 0.1f;
-    static private readonly Dictionary<HUDGroup, (Type HUDComponentType, string PanelPath, Vector2 DefaultLocalPosition)> DATA_BY_HUD_GROUP = new Dictionary<HUDGroup, (Type, string, Vector2)>
+    static private readonly Dictionary<HUDGroup, (Type HUDComponentType, string PanelPath, Vector2 DefaultLocalPosition)> DATA_BY_HUD_GROUP = new()
     {
         [HUDGroup.KeyboardQuickslots] = (typeof(KeyboardQuickSlotPanel), "QuickSlot/Keyboard", new Vector2(5, -40)),
         [HUDGroup.GamepadQuickslots] = (typeof(QuickSlotPanelSwitcher), "QuickSlot/Controller", new Vector2(0, 0)),
@@ -132,7 +132,7 @@ public class GUI : AMod, IDelayedInit, IUpdatable
         _perPlayerSettings = new PerPlayerSettings[2];
         for (int i = 0; i < 2; i++)
         {
-            PerPlayerSettings tmp = new PerPlayerSettings();
+            PerPlayerSettings tmp = new();
             _perPlayerSettings[i] = tmp;
             string playerPrefix = $"player{i + 1}";
 

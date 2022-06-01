@@ -107,10 +107,10 @@ public class SurvivalTools : AMod
 
         // Cache
         Weapon.WeaponType requiredType = requiredItem.ItemID == "Fishing Harpoon".ItemID() ? Weapon.WeaponType.Spear_2H : Weapon.WeaponType.Mace_2H;
-        List<Item> potentialTools = new List<Item>();
+        List<Item> potentialTools = new();
 
         // Search bag & pouch
-        List<ItemContainer> containers = new List<ItemContainer>();
+        List<ItemContainer> containers = new();
         if (_character.Inventory.EquippedBag.TryNonNull(out var bag))
             containers.Add(bag.m_container);
         if (_character.Inventory.Pouch.TryNonNull(out var pouch))

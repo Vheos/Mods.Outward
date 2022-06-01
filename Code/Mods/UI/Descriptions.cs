@@ -8,21 +8,21 @@ using Tools.Utilities;
 public class Descriptions : AMod, IDelayedInit
 {
     #region const
-    static private readonly Vector2 BAR_MAX_SIZE = new Vector2(2.75f, 2.50f);
-    static private readonly Vector2 BAR_PIVOT = new Vector2(0f, 1f);
+    static private readonly Vector2 BAR_MAX_SIZE = new(2.75f, 2.50f);
+    static private readonly Vector2 BAR_PIVOT = new(0f, 1f);
     private const float DURABILITY_MAX_MAX = 777f;    // Duty (unique halberd)
     private const float DURABILITY_BAR_SCALING_CURVE = 0.75f;
     private const float FRESHNESS_LIFESPAN_MAX = 104f;   // Travel Ration
     private const float FRESHNESS_BAR_SCALING_CURVE = 2 / 3f;
     private const int DEFAULT_FONT_SIZE = 19;
     private const int WATER_ITEMS_FIRST_ID = 5600000;
-    static private Color HEALTH_COLOR = new Color(0.765f, 0.522f, 0.525f, 1f);
-    static private Color STAMINA_COLOR = new Color(0.827f, 0.757f, 0.584f, 1f);
-    static private Color MANA_COLOR = new Color(0.529f, 0.702f, 0.816f, 1f);
-    static private Color NEEDS_COLOR = new Color(0.584f, 0.761f, 0.522f, 1f);
-    static private Color CORRUPTION_COLOR = new Color(0.655f, 0.647f, 0.282f, 1f);
-    static private Color STATUSEFFECT_COLOR = new Color(0.780f, 1f, 0.702f, 1f);
-    static private Color STATUSCURES_COLOR = new Color(1f, 0.702f, 0.706f);
+    static private Color HEALTH_COLOR = new(0.765f, 0.522f, 0.525f, 1f);
+    static private Color STAMINA_COLOR = new(0.827f, 0.757f, 0.584f, 1f);
+    static private Color MANA_COLOR = new(0.529f, 0.702f, 0.816f, 1f);
+    static private Color NEEDS_COLOR = new(0.584f, 0.761f, 0.522f, 1f);
+    static private Color CORRUPTION_COLOR = new(0.655f, 0.647f, 0.282f, 1f);
+    static private Color STATUSEFFECT_COLOR = new(0.780f, 1f, 0.702f, 1f);
+    static private Color STATUSCURES_COLOR = new(1f, 0.702f, 0.706f);
     #endregion
     #region enum
     [Flags]
@@ -107,7 +107,7 @@ public class Descriptions : AMod, IDelayedInit
         private readonly Dictionary<int, List<Row>> _rowsByItem;
         private void CacheItemRows(Item item)
         {
-            List<Row> rows = new List<Row>();
+            List<Row> rows = new();
 
             if (item.TryAs(out Skill skill))
                 FormatSkillRows(skill, rows);
@@ -316,7 +316,7 @@ public class Descriptions : AMod, IDelayedInit
             // Status
             case AddStatusEffect addStatusEffect:
                 StatusEffect statusEffect = addStatusEffect.Status;
-                Row statusName = new Row("",
+                Row statusName = new("",
                                          $"+ {statusEffect.StatusName}",
                                          Details.StatusEffects, 61, STATUSEFFECT_COLOR);
                 if (addStatusEffect.ChancesToContract < 100)

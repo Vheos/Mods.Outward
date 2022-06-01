@@ -152,7 +152,7 @@ public class Crafting : AMod, IDelayedInit
     }
     static private List<Item> GetDestructibleIngredients(CraftingMenu craftingMenu)
     {
-        List<Item> destructibleIngredients = new List<Item>();
+        List<Item> destructibleIngredients = new();
         foreach (var ingredientSelector in craftingMenu.m_ingredientSelectors)
             if (ingredientSelector.AssignedIngredient.TryNonNull(out var ingredient))
                 foreach (var itemAmountByUID in ingredient.GetConsumedItems(false, out _))
@@ -166,7 +166,7 @@ public class Crafting : AMod, IDelayedInit
         // Choose recipe index
         int selectorIndex = craftingMenu.m_lastRecipeIndex;
         int recipeIndex = selectorIndex >= 0 ? craftingMenu.m_complexeRecipes[selectorIndex].Key : craftingMenu.m_lastFreeRecipeIndex;
-        List<Item> desctructibleResults = new List<Item>();
+        List<Item> desctructibleResults = new();
 
         // Execute
         if (recipeIndex >= 0)

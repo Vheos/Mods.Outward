@@ -16,7 +16,7 @@ public class Resets : AMod
     private const int FISHING_HARPOON_ID = 2130130;   //
     private const int MINING_PICK_ID = 2120050;   //
     private const float TIME_UNIT = 24f;   // Day = TIME_UNIT
-    static private readonly Dictionary<WeaponSet, int[]> MELEE_WEAPON_IDS_BY_SET = new Dictionary<WeaponSet, int[]>
+    static private readonly Dictionary<WeaponSet, int[]> MELEE_WEAPON_IDS_BY_SET = new()
     {
         [WeaponSet.Junk] = new[]
         {
@@ -84,7 +84,7 @@ public class Resets : AMod
         },
     };
 
-    static private readonly Dictionary<WeaponSet, int[]> RANGED_WEAPON_IDS_BY_SET = new Dictionary<WeaponSet, int[]>
+    static private readonly Dictionary<WeaponSet, int[]> RANGED_WEAPON_IDS_BY_SET = new()
     {
         [WeaponSet.Junk] = new[] { 2200000 },
         [WeaponSet.Iron] = new[] { 2200000 },
@@ -239,7 +239,7 @@ public class Resets : AMod
     // Utility
     static private void RemovePouchItemsFromSaveData(List<BasicSaveData> saveDataList)
     {
-        List<BasicSaveData> saveDatasToRemove = new List<BasicSaveData>();
+        List<BasicSaveData> saveDatasToRemove = new();
         foreach (var saveData in saveDataList)
             if (saveData.SyncData.ContainsSubstring("Pouch_") && !saveData.SyncData.ContainsSubstring("MerchantPouch_"))
                 saveDatasToRemove.Add(saveData);
