@@ -12,68 +12,64 @@
     <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
-    <TargetFrameworkProfile />
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == '-|AnyCPU'">
-    <Prefer32Bit>false</Prefer32Bit>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'UNITY|AnyCPU' ">
-    <OutputPath>bin\UNITY\</OutputPath>
-    <DocumentationFile>
-    </DocumentationFile>
-    <DefineConstants>DEBUG;UNITY</DefineConstants>
-    <LangVersion>9.0</LangVersion>
+    <LangVersion>10.0</LangVersion>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <Optimize>true</Optimize>
     <Prefer32Bit>false</Prefer32Bit>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == '-|AnyCPU'">
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'UNITY|AnyCPU' ">
+    <OutputPath>bin\UNITY\</OutputPath>
+    <DefineConstants>DEBUG;UNITY</DefineConstants>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'RELEASE_UNITY|AnyCPU' ">
     <OutputPath>bin\UNITY\</OutputPath>
     <DocumentationFile>bin\UNITY\Vheos.Tools.Outward.xml</DocumentationFile>
     <DefineConstants>UNITY</DefineConstants>
-    <LangVersion>9.0</LangVersion>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <Optimize>true</Optimize>
-    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup>
+    <RunPostBuildEvent>OnOutputUpdated</RunPostBuildEvent>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="Core\ModSections.cs" />
-    <Compile Include="Core\Players.cs" />
-    <Compile Include="Core\Prefabs.cs" />
-    <Compile Include="Core\GameInput.cs" />
-    <Compile Include="Core\Presets.cs" />
-    <Compile Include="Mods\Survival\Crafting.cs" />
-    <Compile Include="Mods\Combat\AI.cs" />
-    <Compile Include="Mods\Survival\Inns.cs" />
-    <Compile Include="Mods\Development\WIP.cs" />
-    <Compile Include="Mods\Survival\Durability.cs" />
-    <Compile Include="Mods\Survival\Camping.cs" />
-    <Compile Include="Mods\Combat\Quickslots.cs" />
-    <Compile Include="Mods\UI\Gamepad.cs" />
-    <Compile Include="Mods\Skills\SkillPrices.cs" />
-    <Compile Include="Mods\Survival\Merchants.cs" />
-    <Compile Include="Mods\Skills\SkillLimits.cs" />
-    <Compile Include="Mods\Skills\SkillTreeRandomizer.cs" />
-    <Compile Include="Mods\Combat\Targeting.cs" />
-    <Compile Include="Mods\UI\GUI.cs" />
-    <Compile Include="Mods\UI\KeyboardWalk.cs" />
-    <Compile Include="Mods\Development\Debug.cs" />
-    <Compile Include="Mods\UI\Descriptions.cs" />
-    <Compile Include="Mods\Combat\Speed.cs" />
-    <Compile Include="Mods\UI\Camera.cs" />
-    <Compile Include="Mods\Development\PistolTweaks.cs" />
-    <Compile Include="Mods\Survival\Resets.cs" />
-    <Compile Include="Mods\Combat\Damage.cs" />
-    <Compile Include="Mods\Survival\Revive.cs" />
-    <Compile Include="Mods\Survival\Needs.cs" />
-    <Compile Include="Mods\Survival\Interactions.cs" />
-    <Compile Include="Mods\Skills\SkillEditor.cs" />
-    <Compile Include="Mods\Combat\Traps.cs" />
-    <Compile Include="Mods\Survival\SurvivalTools.cs" />
-    <Compile Include="Mods\Various\Various.cs" />
-    <Compile Include="Utility\Extensions_Various.cs" />
-    <Compile Include="Utility\InternalUtility.cs" />
-    <Compile Include="Core\Main.cs" />
+    <Compile Include="Code\Core\ModSections.cs" />
+    <Compile Include="Code\Core\Players.cs" />
+    <Compile Include="Code\Core\Prefabs.cs" />
+    <Compile Include="Code\Core\GameInput.cs" />
+    <Compile Include="Code\Core\Presets.cs" />
+    <Compile Include="Code\Mods\Survival\Crafting.cs" />
+    <Compile Include="Code\Mods\Combat\AI.cs" />
+    <Compile Include="Code\Mods\Survival\Inns.cs" />
+    <Compile Include="Code\Mods\Development\WIP.cs" />
+    <Compile Include="Code\Mods\Survival\Durability.cs" />
+    <Compile Include="Code\Mods\Survival\Camping.cs" />
+    <Compile Include="Code\Mods\Combat\Quickslots.cs" />
+    <Compile Include="Code\Mods\UI\Gamepad.cs" />
+    <Compile Include="Code\Mods\Skills\SkillPrices.cs" />
+    <Compile Include="Code\Mods\Survival\Merchants.cs" />
+    <Compile Include="Code\Mods\Skills\SkillLimits.cs" />
+    <Compile Include="Code\Mods\Skills\SkillTreeRandomizer.cs" />
+    <Compile Include="Code\Mods\Combat\Targeting.cs" />
+    <Compile Include="Code\Mods\UI\GUI.cs" />
+    <Compile Include="Code\Mods\UI\KeyboardWalk.cs" />
+    <Compile Include="Code\Mods\Development\Debug.cs" />
+    <Compile Include="Code\Mods\UI\Descriptions.cs" />
+    <Compile Include="Code\Mods\Combat\Speed.cs" />
+    <Compile Include="Code\Mods\UI\Camera.cs" />
+    <Compile Include="Code\Mods\Development\PistolTweaks.cs" />
+    <Compile Include="Code\Mods\Survival\Resets.cs" />
+    <Compile Include="Code\Mods\Combat\Damage.cs" />
+    <Compile Include="Code\Mods\Survival\Revive.cs" />
+    <Compile Include="Code\Mods\Survival\Needs.cs" />
+    <Compile Include="Code\Mods\Survival\Interactions.cs" />
+    <Compile Include="Code\Mods\Skills\SkillEditor.cs" />
+    <Compile Include="Code\Mods\Combat\Traps.cs" />
+    <Compile Include="Code\Mods\Survival\SurvivalTools.cs" />
+    <Compile Include="Code\Mods\Various\Various.cs" />
+    <Compile Include="Code\Utility\Extensions_Various.cs" />
+    <Compile Include="Code\Utility\InternalUtility.cs" />
+    <Compile Include="Code\Core\Main.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Properties\" />
@@ -413,38 +409,40 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>:: Global settings
-set Releases_Global="$(ProjectDir)Private\Releases\"
-set Plugins_Local="BepInEx\Plugins\Vheos\"
-set TempCopy="$(ProjectDir)bin\.tmpcpy\"
-:: rd /s /q %25TempCopy%25
-xcopy /y $(TargetDir)$(TargetName).dll %25TempCopy%25
-xcopy /y $(TargetDir)Vheos.Mods.Core.dll %25TempCopy%25
-xcopy /y $(TargetDir)Vheos.Tools.Extensions.dll %25TempCopy%25
-xcopy /y $(TargetDir)Vheos.Tools.Utilities.dll %25TempCopy%25
+    <PostBuildEvent>:: Common
+set PluginsSubpath=BepInEx\Plugins\Vheos\
+set ResourcesPath=$(ProjectDir)Resources\
+set ReleasesPath=$(ProjectDir)Private\Releases\
+set ReadmePath=$(ProjectDir)README.md
+set IsDebug=$(DefineConstants.Contains('DEBUG'))
 
-    :: Project settings
-    set Game_Global="D:\Multiplayer\Outward - Definitive Edition\"
-    set Game_EXE="Outward Definitive Edition.exe"
-    set Zip_Name="VMP"
-    set Version_Suffix="_vX.Y.Z"
-    set GitHubNexus_Global="%25Releases_Global%25GitHubNexus\%25Plugins_Local%25"
-    set Thunderstore_Global="%25Releases_Global%25Thunderstore\%25Plugins_Local%25"
-    xcopy /y $(TargetDir)Vheos.Tools.TraitEqualizer.dll %25TempCopy%25
-    xcopy /y $(TargetDir)Vheos.Tools.Random.dll %25TempCopy%25
+    :: Project
+    set GamePath=D:\Multiplayer\Outward\
+    set ExeName=Outward Definitive Edition.exe
+    set ZipName=VMP
+    set Version=2.0.0
 
-    if $(DefineConstants.Contains('DEBUG'))==True (
-        :: Debug
-        rd /s /q %25Game_Global%25%25Plugins_Local%25
-        xcopy /e /y %25TempCopy%25 %25Game_Global%25%25Plugins_Local%25
-        start "" %25Game_Global%25%25Game_EXE%25
+:: Common
+rd /q /s "%25GamePath%25%25PluginsSubpath%25"
+xcopy /y /s "$(TargetDir)$(TargetName).dll" "%25GamePath%25%25PluginsSubpath%25"
+xcopy /y /s "$(TargetDir)Vheos.Mods.Core.dll" "%25GamePath%25%25PluginsSubpath%25"
+xcopy /y /s "$(TargetDir)Vheos.Tools.Extensions.dll" "%25GamePath%25%25PluginsSubpath%25"
+xcopy /y /s "$(TargetDir)Vheos.Tools.Utilities.dll" "%25GamePath%25%25PluginsSubpath%25"
+xcopy /y /s %25ResourcesPath%25 "%25GamePath%25%25PluginsSubpath%25"
 
-    ) else if $(DefineConstants.Contains('DEBUG'))==False (
-        :: Release
-        rd /s /q %25GitHubNexus_Global%25
-        xcopy /e /y %25TempCopy%25 %25GitHubNexus_Global%25
-        powershell Compress-Archive -Path %25Releases_Global%25GitHubNexus\BepInEx -DestinationPath %25Releases_Global%25%25Zip_Name%25%25Version_Suffix%25.zip -Force
-    
+    :: Project
+    xcopy /y /s "$(TargetDir)Vheos.Tools.TraitEqualizer.dll" "%25GamePath%25%25PluginsSubpath%25"
+    xcopy /y /s "$(TargetDir)Vheos.Tools.Random.dll" "%25GamePath%25%25PluginsSubpath%25"
+
+if %25IsDebug%25==True (
+    start "" "%25GamePath%25%25ExeName%25"
+) else if %25IsDebug%25==False (
+    xcopy /y /s "%25GamePath%25%25PluginsSubpath%25" "%25ReleasesPath%25%25PluginsSubpath%25"
+    powershell Compress-Archive -Path %25ReleasesPath%25BepInEx\ -DestinationPath %25ReleasesPath%25%25ZipName%25_%25Version%25.zip -Force
+    xcopy /y /s "%25ReadmePath%25" "%25ReleasesPath%25Thunderstore\"
+    xcopy /y /s "%25ReleasesPath%25BepInEx\Plugins\" "%25ReleasesPath%25Thunderstore\"
+    powershell Compress-Archive -Path %25ReleasesPath%25Thunderstore\* -DestinationPath %25ReleasesPath%25%25ZipName%25_%25Version%25_TS.zip -Force    
+    rd /q /s "%25ReleasesPath%25BepInEx\"
 )</PostBuildEvent>
   </PropertyGroup>
   <PropertyGroup>
