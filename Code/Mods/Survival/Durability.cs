@@ -1,12 +1,4 @@
 ﻿namespace Vheos.Mods.Outward;
-using System.Linq;
-using System.Collections.Generic;
-using HarmonyLib;
-using UnityEngine;
-using Mods.Core;
-using Tools.Extensions.Math;
-using Tools.Extensions.Collections;
-using Tools.Extensions.General;
 using Random = UnityEngine.Random;
 
 public class Durability : AMod

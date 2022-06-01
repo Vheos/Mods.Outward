@@ -1,11 +1,4 @@
 ﻿namespace Vheos.Mods.Outward;
-using System.Linq;
-using System.Collections.Generic;
-using HarmonyLib;
-using UnityEngine;
-using Mods.Core;
-using Tools.Extensions.General;
-using Tools.Extensions.Collections;
 
 public class Quickslots : AMod
 {

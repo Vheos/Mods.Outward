@@ -1,14 +1,6 @@
 ﻿namespace Vheos.Mods.Outward;
-using System.Linq;
-using System.Collections.Generic;
-using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
-using HarmonyLib;
-using Mods.Core;
-using Tools.Extensions.UnityObjects;
-using Tools.Extensions.General;
-using Tools.Extensions.Collections;
 
 public class Gamepad : AMod, IUpdatable
 {

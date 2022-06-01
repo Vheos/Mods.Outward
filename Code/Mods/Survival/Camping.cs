@@ -1,11 +1,4 @@
 ﻿namespace Vheos.Mods.Outward;
-using System;
-using System.Collections.Generic;
-using HarmonyLib;
-using UnityEngine;
-using Mods.Core;
-using Tools.Extensions.Math;
-using Tools.Extensions.General;
 using Random = UnityEngine.Random;
 
 public class Camping : AMod

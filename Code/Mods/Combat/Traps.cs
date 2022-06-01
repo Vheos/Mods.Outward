@@ -1,11 +1,4 @@
 ﻿namespace Vheos.Mods.Outward;
-using System;
-using HarmonyLib;
-using UnityEngine;
-using Mods.Core;
-using Tools.Extensions.UnityObjects;
-using Tools.Extensions.Collections;
-using Tools.Extensions.General;
 
 public class Traps : AMod
 {

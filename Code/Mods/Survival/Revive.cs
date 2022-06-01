@@ -1,9 +1,4 @@
 ﻿namespace Vheos.Mods.Outward;
-using HarmonyLib;
-using UnityEngine;
-using Mods.Core;
-using Tools.Extensions.Math;
-using Tools.Extensions.General;
 
 public class Revive : AMod
 {

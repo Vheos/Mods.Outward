@@ -1,9 +1,6 @@
 ﻿namespace Vheos.Mods.Outward;
-using System;
-using System.Linq;
 using System.Reflection;
 using BepInEx;
-using Mods.Core;
 using Utility = Tools.Utilities.Utility;
 
 [BepInDependency("com.bepis.bepinex.configurationmanager", BepInDependency.DependencyFlags.SoftDependency)]

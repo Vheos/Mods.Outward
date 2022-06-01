@@ -3,8 +3,6 @@
  */
 
 namespace Vheos.Mods.Outward;
-using HarmonyLib;
-using Mods.Core;
 
 public class Damage : AMod
 {

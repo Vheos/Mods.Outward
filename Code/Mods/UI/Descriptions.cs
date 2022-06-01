@@ -3,14 +3,6 @@
  */
 
 namespace Vheos.Mods.Outward;
-using System;
-using System.Collections.Generic;
-using HarmonyLib;
-using UnityEngine;
-using Mods.Core;
-using Tools.Extensions.Math;
-using Tools.Extensions.Collections;
-using Tools.Extensions.General;
 using Tools.Utilities;
 
 public class Descriptions : AMod, IDelayedInit

@@ -1,9 +1,4 @@
 ﻿namespace Vheos.Mods.Outward;
-using System;
-using HarmonyLib;
-using UnityEngine;
-using Mods.Core;
-using Tools.Extensions.Math;
 
 public class Camera : AMod, IDelayedInit, IUpdatable
 {

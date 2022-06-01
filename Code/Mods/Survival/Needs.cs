@@ -1,12 +1,5 @@
 ﻿namespace Vheos.Mods.Outward;
-using System.Collections.Generic;
-using UnityEngine;
 using BepInEx.Configuration;
-using Vheos.Tools.Extensions.Math;
-using HarmonyLib;
-using Mods.Core;
-using Tools.Extensions.UnityObjects;
-using Tools.Extensions.General;
 
 public class Needs : AMod, IDelayedInit
 {
