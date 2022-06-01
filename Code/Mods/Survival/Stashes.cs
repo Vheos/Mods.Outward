@@ -1,7 +1,4 @@
 ﻿namespace Vheos.Mods.Outward;
-
-using System.Runtime.CompilerServices;
-
 public class Stashes : AMod
 {
     #region const
@@ -167,7 +164,7 @@ public class Stashes : AMod
     { }
 
     [HarmonyPatch(typeof(TreasureChest), nameof(TreasureChest.ShowContent)), HarmonyPrefix]
-    static private bool TreasureChest_ShowContent_Pre(TreasureChest __instance, Character _character)
+    private static bool TreasureChest_ShowContent_Pre(TreasureChest __instance, Character _character)
     {
         ItemContainer stash = GetStash(_character);
         if (__instance.SpecialType == ItemContainer.SpecialContainerTypes.Stash)
@@ -186,7 +183,7 @@ public class Stashes : AMod
     }
 
     [HarmonyPatch(typeof(TreasureChest), nameof(TreasureChest.InitDrops)), HarmonyPostfix]
-    static private void TreasureChest_InitDrops_Post(TreasureChest __instance)
+    private static void TreasureChest_InitDrops_Post(TreasureChest __instance)
     {
         if (!_stashesStartEmpty)
             return;

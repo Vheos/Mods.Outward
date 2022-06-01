@@ -257,7 +257,7 @@ public class Crafting : AMod, IDelayedInit
         SetSingleIngredientCrafting(__instance, !isMulti);
     }
 
-    [HarmonyPatch(typeof(CraftingMenu), nameof(CraftingMenu.Show), new[] {typeof(CraftingStation)}), HarmonyPrefix]
+    [HarmonyPatch(typeof(CraftingMenu), nameof(CraftingMenu.Show), new[] { typeof(CraftingStation) }), HarmonyPrefix]
     private static bool CraftingMenu_Show_Post(CraftingMenu __instance, CraftingStation _ustensil)
     {
         #region quit

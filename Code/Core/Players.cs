@@ -76,7 +76,7 @@ public static class Players
     public static bool TryGetLocal(LocalCharacterControl localCharacterControl, out Data player)
     => TryGetLocal(GetPlayerID(localCharacterControl), out player);
     public static bool TryGetLocal(UIElement uiElement, out Data player)
-     => TryGetLocal(GetPlayerID(uiElement), out player);
+    => TryGetLocal(GetPlayerID(uiElement), out player);
     public static bool TryGetLocal(Character character, out Data player)
     => TryGetLocal(GetPlayerID(character), out player);
     public static bool TryGetLocal(CharacterUI characterUI, out Data player)
