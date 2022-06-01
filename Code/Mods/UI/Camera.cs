@@ -59,22 +59,18 @@ public class Camera : AMod, IDelayedInit, IUpdatable
         {
             get
             {
-                if (_zoomControlAmount < 0f)
-                    return Vector3.LerpUnclamped(_offsetMin, _offsetAvg, _zoomControlAmount + 1f);
-                if (_zoomControlAmount > 0f)
-                    return Vector3.LerpUnclamped(_offsetAvg, _offsetMax, _zoomControlAmount);
-                return _offsetAvg;
+                return _zoomControlAmount < 0f ? Vector3.LerpUnclamped(_offsetMin, _offsetAvg, _zoomControlAmount + 1f)
+                    : _zoomControlAmount > 0f ? Vector3.LerpUnclamped(_offsetAvg, _offsetMax, _zoomControlAmount) 
+                    : (Vector3)_offsetAvg;
             }
         }
         public Vector3 CurrentVarious
         {
             get
             {
-                if (_zoomControlAmount < 0f)
-                    return Vector3.LerpUnclamped(_variousMin, _variousAvg, _zoomControlAmount + 1f);
-                if (_zoomControlAmount > 0f)
-                    return Vector3.LerpUnclamped(_variousAvg, _variousMax, _zoomControlAmount);
-                return _variousAvg;
+                return _zoomControlAmount < 0f ? Vector3.LerpUnclamped(_variousMin, _variousAvg, _zoomControlAmount + 1f) :
+                    _zoomControlAmount > 0f ? Vector3.LerpUnclamped(_variousAvg, _variousMax, _zoomControlAmount) :
+                    (Vector3)_variousAvg;
             }
         }
         public float Sensitivity
@@ -139,7 +135,7 @@ public class Camera : AMod, IDelayedInit, IUpdatable
             // Settings
             tmp._toggle.Format($"Player {i + 1}");
             tmp._toggle.Description = $"Change settings for local player {i + 1}";
-            using(Indent)
+            using (Indent)
             {
                 tmp._zoomControlAmount.Format("Zoom amount", tmp._toggle);
                 tmp._zoomControlAmount.Description = "-1  -  max zoom out\n" +
@@ -149,7 +145,7 @@ public class Camera : AMod, IDelayedInit, IUpdatable
                 tmp._zoomControlSpeed.Description = "How quickly you want to zoom using mouse/gamepad\n" +
                     "Mouse: use mouse scroll wheel\n" +
                     "Gamepad: use right stick while holding defined actions";
-                using(Indent)
+                using (Indent)
                 {
                     tmp._gamepadInputs.Format("Gamepad hotkey", tmp._zoomControlSpeed, t => t > 0);
                     tmp._gamepadInputs.Description = "Gamepad actions you need to hold to control camera. Defaults:\n" +
@@ -160,7 +156,7 @@ public class Camera : AMod, IDelayedInit, IUpdatable
                 }
                 tmp._offsetToggle.Format("Offset", tmp._toggle);
                 tmp._offsetToggle.Description = "Change camera position (XYZ) presets";
-                using(Indent)
+                using (Indent)
                 {
                     tmp._offsetMin.Format("at zoom =  -1", tmp._offsetToggle);
                     tmp._offsetAvg.Format("at zoom =  0", tmp._offsetToggle);
@@ -172,7 +168,7 @@ public class Camera : AMod, IDelayedInit, IUpdatable
                     "X  -  field of view (vertical)\n" +
                     "Y  -  how quickly camera follows your character\n" +
                     "Z  -  how quickly camera rotates";
-                using(Indent)
+                using (Indent)
                 {
                     tmp._variousMin.Format("at zoom =  -1", tmp._variousToggle);
                     tmp._variousAvg.Format("at zoom =  0", tmp._variousToggle);

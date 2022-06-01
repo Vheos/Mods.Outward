@@ -270,10 +270,9 @@ public class Durability : AMod
         #endregion
 
         float ratio = __instance.m_item.DurabilityRatio;
-        if (ratio > 0)
-            __result = __instance.m_item.DurabilityRatio.MapFrom01(_minNonBrokenEffectiveness / 100f, 1f);
-        else
-            __result = _brokenEffectiveness / 100f;
+        __result = ratio > 0 
+            ? __instance.m_item.DurabilityRatio.MapFrom01(_minNonBrokenEffectiveness / 100f, 1f) 
+            : _brokenEffectiveness / 100f;
 
         return false;
     }

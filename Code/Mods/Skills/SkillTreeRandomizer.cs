@@ -244,7 +244,7 @@ public class SkillTreeRandomizer : AMod, IDelayedInit
     {
         _reroll.Format("Reroll");
         _reroll.DisplayResetButton = false;
-        using(Indent)
+        using (Indent)
         {
             _rerollOnGameStart.Format("on game start");
             _rerollOnGameStart.Description = "Automatically randomize skill trees when you start the game\n" +
@@ -303,7 +303,7 @@ public class SkillTreeRandomizer : AMod, IDelayedInit
         _randomizeBreakthroughSkills.Format("Randomize breakthroughs");
         _randomizeBreakthroughSkills.Description = "Breakthroughs will be randomized along with advanced skills\n" +
                                                    "Every tree will get a new breakthrough - chosen at random from all assigned advanced skills";
-        using(Indent)
+        using (Indent)
         {
             _preferPassiveBreakthroughs.Format("prefer passives", _randomizeBreakthroughSkills);
             _preferPassiveBreakthroughs.Description = "If possible, the new breakthrough will be a passive skill";
@@ -317,7 +317,7 @@ public class SkillTreeRandomizer : AMod, IDelayedInit
         _seed.Description = "The same number will always result in the same setup\n" +
                             "If you change it mid-playthrough, all trees will be rerolled\n" +
                             "(might result in lost breakthrough points if you're using \"Randomize breakthroughs\")";
-        using(Indent)
+        using (Indent)
         {
             _seedRandomize.Format("randomize");
             _seedRandomize.DisplayResetButton = false;
@@ -629,12 +629,9 @@ public class SkillTreeRandomizer : AMod, IDelayedInit
     static private SkillSchool FlagToSkillTree(Enum flag, bool fromCache = false)
     {
         SkillTreeHolder skillTreeHolder = fromCache ? _cachedSkillTreeHolder : SkillTreeHolder.Instance;
-        if (!FlagToSkillTreeName(Convert.ToInt32(flag)).TryNonNull(out var treeName)
+        return !FlagToSkillTreeName(Convert.ToInt32(flag)).TryNonNull(out var treeName)
         || !skillTreeHolder.transform.TryFind(treeName, out var treeTransform)
-        || !treeTransform.TryGetComponent(out SkillSchool tree))
-            return null;
-
-        return tree;
+        || !treeTransform.TryGetComponent(out SkillSchool tree) ? null : tree;
     }
     static private string FlagToSkillTreeName(int flag)
     {

@@ -108,13 +108,9 @@ public class Targeting : AMod
     static bool TargetingSystem_TrueRange_Pre(TargetingSystem __instance, ref float __result)
     {
         Character character = __instance.m_character;
-        if (HasRangedEquipment(character))
-            if (HasHuntersEye(character))
-                __result = _huntersEyeDistance;
-            else
-                __result = _rangedDistance;
-        else
-            __result = _meleeDistance;
+        __result = !HasRangedEquipment(character) ? (float)_meleeDistance
+            : HasHuntersEye(character) ? (float)_huntersEyeDistance
+            : (float)_rangedDistance;
         return false;
     }
 

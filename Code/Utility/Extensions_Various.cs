@@ -184,10 +184,7 @@ static public class Extensions_Various
             return false;
 
         StatusData.EffectData[] effectDatas = statusEffect.StatusData.EffectsData;
-        if (effectDatas.IsNullOrEmpty())
-            return false;
-
-        return true;
+        return !effectDatas.IsNullOrEmpty();
     }
     static public List<Effect> GetEffects(this StatusEffect statusEffect)
     => statusEffect.StatusData.EffectSignature.Effects;
@@ -395,9 +392,7 @@ static public class Extensions_Various
     => !text.IsEmpty();
     static public float ToFloat(this string text)
     {
-        if (float.TryParse(text, NumberStyles.Float, CultureInfo.InvariantCulture, out float value))
-            return value;
-        return float.NaN;
+        return float.TryParse(text, NumberStyles.Float, CultureInfo.InvariantCulture, out float value) ? value : float.NaN;
     }
 
     static public void SetX(ref this Vector2 t, float a)

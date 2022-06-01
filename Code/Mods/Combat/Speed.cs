@@ -120,10 +120,7 @@ public class Speed : AMod, IUpdatable
 
         float defaultSpeed = _defaultGameSpeed / 100f;
         float speedHackSpeed = defaultSpeed * _speedHackMultiplier / 100f;
-        if (Time.timeScale < speedHackSpeed)
-            Time.timeScale = speedHackSpeed;
-        else
-            Time.timeScale = defaultSpeed;
+        Time.timeScale = Time.timeScale < speedHackSpeed ? speedHackSpeed : defaultSpeed;
         Time.fixedDeltaTime = FIXED_TIME_DELTA * Time.timeScale;
     }
     static private bool TryUpdateAnimationSpeed(Character character)

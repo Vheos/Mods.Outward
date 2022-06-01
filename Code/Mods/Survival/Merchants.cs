@@ -46,7 +46,7 @@ public class Merchants : AMod
         _randomizePricesExtent.Format("Randomize prices");
         _randomizePricesExtent.Description = "Prices will range from [100% - X%] to [100% + X%]\n" +
                                              "and depend on current time, merchant and/or item";
-        using(Indent)
+        using (Indent)
         {
             _randomizePricesPerDays.Format("per days", _randomizePricesExtent, t => t > 0);
             _randomizePricesPerDays.Description = "All price modifiers will be rolled every X days";
@@ -56,7 +56,7 @@ public class Merchants : AMod
             _randomizePricesPerItem.Description = "Every item will have its own randomized price";
         }
         _pricesPerTypeToggle.Format("Prices by item type");
-        using(Indent)
+        using (Indent)
         {
             _pricesWeapons.Format("Weapons", _pricesPerTypeToggle);
             _pricesArmors.Format("Armors", _pricesPerTypeToggle);
@@ -163,10 +163,9 @@ public class Merchants : AMod
         if (item.ParentContainer is MerchantPouch)
             relativeIncrease *= -1;
 
-        if (relativeIncrease == 0)
-            priceText.color = DEFAULT_PRICE_COLOR;
-        else
-            priceText.color = Color.Lerp(Color.white, relativeIncrease > 0 ? Color.green : Color.red, relativeIncrease.Abs() * 100f / _randomizePricesExtent);
+        priceText.color = relativeIncrease == 0 ? DEFAULT_PRICE_COLOR
+            : Color.Lerp(Color.white, relativeIncrease > 0 ? Color.green
+            : Color.red, relativeIncrease.Abs() * 100f / _randomizePricesExtent);
     }
     static private void ApplyVanillaStatModifier(ref float price, Item item, Character player, Merchant merchant, bool isSelling)
     {

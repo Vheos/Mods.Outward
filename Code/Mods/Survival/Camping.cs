@@ -105,14 +105,10 @@ public class Camping : AMod
     static private bool IsCampingAllowed(Character character, Vector3 position)
     {
         AreaManager.AreaEnum currentArea = (AreaManager.AreaEnum)AreaManager.Instance.CurrentArea.ID;
-        bool result;
-        if (currentArea.IsContainedIn(CITIES))
-            result = _campingSpots.Value.HasFlag(CampingSpots.Cities);
-        else if (currentArea.IsContainedIn(OPEN_REGIONS))
-            result = _campingSpots.Value.HasFlag(CampingSpots.OpenRegions)
-                || _campingSpots.Value.HasFlag(CampingSpots.Butterflies) && IsNearButterflies(position);
-        else
-            result = _campingSpots.Value.HasFlag(CampingSpots.Dungeons);
+        bool result = currentArea.IsContainedIn(CITIES) ? _campingSpots.Value.HasFlag(CampingSpots.Cities)
+            : currentArea.IsContainedIn(OPEN_REGIONS) ? _campingSpots.Value.HasFlag(CampingSpots.OpenRegions)
+                || _campingSpots.Value.HasFlag(CampingSpots.Butterflies) && IsNearButterflies(position)
+            : _campingSpots.Value.HasFlag(CampingSpots.Dungeons);
 
         if (!result)
             character.CharacterUI.ShowInfoNotification(CANT_CAMP_NOTIFICATION);
