@@ -16,7 +16,7 @@ public class Initialization : AMod
     // Settings
     private static ModSetting<bool> _skipStartupVideos;
     private static ModSetting<TitleScreenCharacterVisibility> _titleScreenHideCharacters;
-    private static Dictionary<TemperatureSteps, ModSetting<Vector2>> _temperatureDataByEnum;
+    private static readonly Dictionary<TemperatureSteps, ModSetting<Vector2>> _temperatureDataByEnum;
     protected override void Initialize()
     {
         _skipStartupVideos = CreateSetting(nameof(_skipStartupVideos), false);

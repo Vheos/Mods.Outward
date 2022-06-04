@@ -4,8 +4,6 @@
  */
 
 namespace Vheos.Mods.Outward;
-using System.Collections;
-
 public class Various : AMod, IUpdatable, IDelayedInit
 {
     #region const
