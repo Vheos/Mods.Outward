@@ -315,10 +315,14 @@ public static class Extensions_Various
         t.Raycast(eventData, hits);
         return hits;
     }
-    public static int ItemID(this string name)
+    public static int ToItemID(this string name)
     => Prefabs.ItemIDsByName[name];
-    public static int SkillID(this string name)
+    public static Item ToItem(this string name)
+    => Prefabs.ItemsByID[Prefabs.ItemIDsByName[name].ToString()];
+    public static int ToSkillID(this string name)
     => Prefabs.SkillIDsByName[name];
+    public static Skill ToSkill(this string name)
+    => Prefabs.SkillsByID[Prefabs.ItemIDsByName[name]];
     public static Tag ToTag(this string name)
     {
         foreach (var tag in TagSourceManager.Instance.m_tags)
