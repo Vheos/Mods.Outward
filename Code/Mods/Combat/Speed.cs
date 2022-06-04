@@ -98,9 +98,8 @@ public class Speed : AMod, IUpdatable
     }
     public void OnUpdate()
     {
-        if (IsEnabled)
-            if (_speedHackKey.Value.ToKeyCode().Pressed())
-                ToggleSpeedHack();
+        if (_speedHackKey.Value.ToKeyCode().Pressed())
+            ToggleSpeedHack();
     }
 
     // Utility
