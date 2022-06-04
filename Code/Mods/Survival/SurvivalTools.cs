@@ -133,8 +133,8 @@ public class SurvivalTools : AMod
     }
 
     // Gathering durability cost
-    [HarmonyPatch(typeof(GatherableInteraction), nameof(GatherableInteraction.CharSpellTakeItem)), HarmonyPrefix]
-    private static void GatherableInteraction_CharSpellTakeItem_Pre(GatherableInteraction __instance, Character _character)
+    [HarmonyPatch(typeof(GatherableInteraction), nameof(GatherableInteraction.CharSpellTakeItem)), HarmonyPostfix]
+    private static void GatherableInteraction_CharSpellTakeItem_Post(GatherableInteraction __instance, Character _character)
     {
         #region quit
         if (!__instance.m_pendingAnims.TryGetValue(_character.UID, out var gatherInstance)
@@ -142,7 +142,8 @@ public class SurvivalTools : AMod
             return;
         #endregion
 
-        item.ReduceDurability(_gatheringDurabilityCost.Value.x + (_gatheringDurabilityCost.Value.y - 5) / 100f * item.MaxDurability);
+        item.ReduceDurability(-0.05f * item.MaxDurability);
+        item.ReduceDurability(_gatheringDurabilityCost.Value.x + _gatheringDurabilityCost.Value.y / 100f * item.MaxDurability);
         return;
     }
 
