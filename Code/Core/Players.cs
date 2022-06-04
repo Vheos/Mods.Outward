@@ -56,6 +56,8 @@ public static class Players
     // Publics        
     public static List<Data> Local
     { get; private set; }
+    public static Data GetFirst()
+    => Local.FirstOrDefault();
     public static Data GetLocal(int playerID)
     => Local.DefaultOnInvalid(playerID);
     public static Data GetLocal(LocalCharacterControl localCharacterControl)
@@ -68,6 +70,8 @@ public static class Players
     => GetLocal(GetPlayerID(characterUI));
     public static Data GetLocal(CharacterCamera characterCamera)
     => GetLocal(GetPlayerID(characterCamera));
+    public static bool TryGetFirst(out Data player)
+    => GetFirst().TryNonNull(out player);
     public static bool TryGetLocal(int playerID, out Data player)
     {
         player = GetLocal(playerID);
