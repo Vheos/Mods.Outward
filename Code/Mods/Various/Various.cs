@@ -4,7 +4,10 @@
  */
 
 namespace Vheos.Mods.Outward;
-public class Various : AMod, IUpdatable, IDelayedInit
+
+using System.Collections;
+
+public class Various : AMod, IUpdatable
 {
     #region const
     private const string INNS_QUEST_FAMILY_NAME = "Inns";
@@ -24,21 +27,14 @@ public class Various : AMod, IUpdatable, IDelayedInit
         [TemperatureSteps.VeryHot] = new Vector2(28, 92),
         [TemperatureSteps.Hottest] = new Vector2(40, 101),
     };
-    private static readonly Item[] ARROWS = new[]
-    {
-        "Arrow".ToItem(),
-        "Flaming Arrow".ToItem(),
-        "Poison Arrow".ToItem(),
-        "Venom Arrow".ToItem(),
-        "Palladium Arrow".ToItem(),
-        "Explosive Arrow".ToItem(),
-        "Forged Arrow".ToItem(),
-        "Holy Rage Arrow".ToItem(),
-        "Soul Rupture Arrow".ToItem(),
-        "Mana Arrow".ToItem(),
-    };
     #endregion
     #region enum
+    private enum TitleScreenCharacterVisibility
+    {
+        Enable = 1,
+        Disable = 2,
+        Randomize = 3,
+    }
     [Flags]
     private enum ArmorSlots
     {
@@ -47,15 +43,11 @@ public class Various : AMod, IUpdatable, IDelayedInit
         Chest = 1 << 2,
         Feet = 1 << 3,
     }
-    private enum TitleScreenCharacterVisibility
-    {
-        Enable = 1,
-        Disable = 2,
-        Randomize = 3,
-    }
     #endregion
 
     // Settings
+    private static ModSetting<bool> _skipStartupVideos;
+    private static ModSetting<TitleScreenCharacterVisibility> _titleScreenHideCharacters;
     private static ModSetting<bool> _enableCheats;
     private static ModSetting<string> _enableCheatsHotkey;
     private static ModSetting<ArmorSlots> _armorSlotsToHide;
@@ -66,8 +58,6 @@ public class Various : AMod, IUpdatable, IDelayedInit
     private static ModSetting<int> _armorTrainingPenaltyReduction;
     private static ModSetting<bool> _applyArmorTrainingToManaCost;
     private static ModSetting<bool> _refillArrowsFromInventory;
-    private static ModSetting<int> _arrowStackSize;
-    private static ModSetting<int> _bulletStackSize;
     private static ModSetting<float> _baseStaminaRegen;
     private static ModSetting<int> _rentDuration;
     private static ModSetting<bool> _itemActionDropOne;
@@ -75,6 +65,8 @@ public class Various : AMod, IUpdatable, IDelayedInit
     private static Dictionary<TemperatureSteps, ModSetting<Vector2>> _temperatureDataByEnum;
     protected override void Initialize()
     {
+        _skipStartupVideos = CreateSetting(nameof(_skipStartupVideos), false);
+        _titleScreenHideCharacters = CreateSetting(nameof(_titleScreenHideCharacters), TitleScreenCharacterVisibility.Enable);
         _enableCheats = CreateSetting(nameof(_enableCheats), false);
         _enableCheatsHotkey = CreateSetting(nameof(_enableCheatsHotkey), "");
         _armorSlotsToHide = CreateSetting(nameof(_armorSlotsToHide), ArmorSlots.None);
@@ -85,8 +77,6 @@ public class Various : AMod, IUpdatable, IDelayedInit
         _armorTrainingPenaltyReduction = CreateSetting(nameof(_armorTrainingPenaltyReduction), 50, IntRange(0, 100));
         _applyArmorTrainingToManaCost = CreateSetting(nameof(_applyArmorTrainingToManaCost), false);
         _refillArrowsFromInventory = CreateSetting(nameof(_refillArrowsFromInventory), false);
-        _arrowStackSize = CreateSetting(nameof(_arrowStackSize), 15, IntRange(0, 100));
-        _bulletStackSize = CreateSetting(nameof(_bulletStackSize), 12, IntRange(0, 100));
         _baseStaminaRegen = CreateSetting(nameof(_baseStaminaRegen), 2.4f, FloatRange(0, 10));
         _rentDuration = CreateSetting(nameof(_rentDuration), 12, IntRange(1, 168));
         _itemActionDropOne = CreateSetting(nameof(_itemActionDropOne), false);
@@ -104,12 +94,17 @@ public class Various : AMod, IUpdatable, IDelayedInit
             TryUpdateTemperatureData();
         });
 
-        // Events
-        _arrowStackSize.AddEvent(UpdateArrowsStackSize);
-        _bulletStackSize.AddEvent(() => "Bullet".ToItem().m_stackable.m_maxStackAmount = _bulletStackSize);
     }
     protected override void SetFormatting()
     {
+        _skipStartupVideos.Format("Skip startup videos");
+        _skipStartupVideos.Description =
+            "Saves ~3 seconds each time you launch the game";
+        _titleScreenHideCharacters.Format("Title screen characters");
+        _titleScreenHideCharacters.Description =
+            "If you think they are ruining the view :)\n" +
+            "(requires game restart)";
+
         _enableCheats.Format("Enable cheats");
         using (Indent)
         {
@@ -138,8 +133,6 @@ public class Various : AMod, IUpdatable, IDelayedInit
         }
         _refillArrowsFromInventory.Format("Refill arrows from inventory");
         _refillArrowsFromInventory.Description = "Whenever you shoot your bow, the lost arrow is instantly replaced with one from your backpack or pouch (in that order)";
-        _arrowStackSize.Format("Arrows stack size");
-        _bulletStackSize.Format("Bullets stack size");
         _baseStaminaRegen.Format("Base stamina regen");
         _rentDuration.Format("Inn rent duration");
         _rentDuration.Description = "Pay the rent once, sleep for up to a week (in hours)";
@@ -175,6 +168,8 @@ public class Various : AMod, IUpdatable, IDelayedInit
         {
             case nameof(Preset.Vheos_CoopSurvival):
                 ForceApply();
+                _skipStartupVideos.Value = true;
+                _titleScreenHideCharacters.Value = TitleScreenCharacterVisibility.Randomize;
                 _enableCheats.Value = false;
                 _enableCheatsHotkey.Value = KeyCode.Keypad0.ToString();
                 _removeCoopScaling.Value = true;
@@ -184,8 +179,6 @@ public class Various : AMod, IUpdatable, IDelayedInit
                 _armorTrainingPenaltyReduction.Value = 50;
                 _applyArmorTrainingToManaCost.Value = true;
                 _refillArrowsFromInventory.Value = true;
-                _arrowStackSize.Value = 20;
-                _bulletStackSize.Value = 20;
                 _rentDuration.Value = 120;
                 _itemActionDropOne.Value = true;
                 _temperatureToggle.Value = true;
@@ -258,13 +251,36 @@ public class Various : AMod, IUpdatable, IDelayedInit
                     environmentConditions.TemperatureCaps[step] = _temperatureDataByEnum[step].Value.y;
                 }
     }
-    private void UpdateArrowsStackSize()
-    {
-        foreach (var arrow in ARROWS)
-            arrow.m_stackable.m_maxStackAmount = _arrowStackSize;
-    }
+
 
     // Hooks
+    // Title screen
+    [HarmonyPatch(typeof(TitleScreenLoader), nameof(TitleScreenLoader.LoadTitleScreenCoroutine)), HarmonyPostfix]
+    private static IEnumerator TitleScreenLoader_LoadTitleScreenCoroutine_Post(IEnumerator original, TitleScreenLoader __instance)
+    {
+        while (original.MoveNext())
+            yield return original.Current;
+
+        #region quit
+        if (_titleScreenHideCharacters.Value == TitleScreenCharacterVisibility.Enable)
+            yield break;
+        #endregion
+
+        bool state = true;
+        switch (_titleScreenHideCharacters.Value)
+        {
+            case TitleScreenCharacterVisibility.Disable: state = false; break;
+            case TitleScreenCharacterVisibility.Randomize: state = System.DateTime.Now.Ticks % 2 == 0; break;
+        }
+
+        foreach (var characterVisuals in __instance.transform.GetAllComponentsInHierarchy<CharacterVisuals>())
+            characterVisuals.GOSetActive(state);
+    }
+
+    // Skip startup video
+    [HarmonyPatch(typeof(StartupVideo), nameof(StartupVideo.Awake)), HarmonyPrefix]
+    private static void StartupVideo_Awake_Pre()
+    => StartupVideo.HasPlayedOnce = _skipStartupVideos.Value;
     // Drop one
     [HarmonyPatch(typeof(ItemDisplayOptionPanel), nameof(ItemDisplayOptionPanel.GetActiveActions)), HarmonyPostfix]
     private static void ItemDisplayOptionPanel_GetActiveActions_Post(ItemDisplayOptionPanel __instance, ref List<int> __result)

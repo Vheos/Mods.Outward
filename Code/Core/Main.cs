@@ -11,7 +11,7 @@ public class Main : BepInExEntryPoint
     // Metadata
     public const string GUID = "Vheos.Mods.Outward";
     public const string NAME = "Vheos Mod Pack";
-    public const string VERSION = "2.0.1";
+    public const string VERSION = "2.0.3";
 
     // User logic
     protected override Assembly CurrentAssembly
@@ -74,8 +74,8 @@ public class Main : BepInExEntryPoint
         typeof(Gamepad),
 
         // Various
-        typeof(Initialization),
         typeof(Various),
+        typeof(VariousDelayed),
 
         // Development
         typeof(Debug),
