@@ -611,7 +611,7 @@ public class GUI : AMod, IDelayedInit, IUpdatable
 
     // Hooks
 #pragma warning disable IDE0051, IDE0060, IDE1006
-    [HarmonyPatch(typeof(LocalCharacterControl), nameof(LocalCharacterControl.RetrieveComponents)), HarmonyPostfix]
+    [HarmonyPostfix, HarmonyPatch(typeof(LocalCharacterControl), nameof(LocalCharacterControl.RetrieveComponents))]
     private static void LocalCharacterControl_RetrieveComponents_Post(LocalCharacterControl __instance)
     {
         UpdateSplitscreenMode();
@@ -626,7 +626,7 @@ public class GUI : AMod, IDelayedInit, IUpdatable
             __instance.ExecuteOnceAfterDelay(UI_RESIZE_DELAY, () => SaveLoadHUDOverrides(player, SettingsOperation.Load));
     }
 
-    [HarmonyPatch(typeof(RPCManager), nameof(RPCManager.SendPlayerHasLeft)), HarmonyPostfix]
+    [HarmonyPostfix, HarmonyPatch(typeof(RPCManager), nameof(RPCManager.SendPlayerHasLeft))]
     private static void RPCManager_SendPlayerHasLeft_Post(RPCManager __instance)
     {
         UpdateSplitscreenMode();
@@ -634,7 +634,7 @@ public class GUI : AMod, IDelayedInit, IUpdatable
     }
 
     // Sort by weight    
-    [HarmonyPatch(typeof(ItemListDisplay), nameof(ItemListDisplay.ByWeight)), HarmonyPrefix]
+    [HarmonyPrefix, HarmonyPatch(typeof(ItemListDisplay), nameof(ItemListDisplay.ByWeight))]
     private static bool ItemListDisplay_ByWeight_Pre(ItemListDisplay __instance, ref int __result, ItemDisplay _item1, ItemDisplay _item2)
     {
         float weight1 = _item1.TryAs(out ItemGroupDisplay group1) ? group1.TotalWeight : _item1.m_refItem.Weight;
@@ -644,7 +644,7 @@ public class GUI : AMod, IDelayedInit, IUpdatable
     }
 
     // Sort by durability    
-    [HarmonyPatch(typeof(ItemListDisplay), nameof(ItemListDisplay.ByDurability)), HarmonyPrefix]
+    [HarmonyPrefix, HarmonyPatch(typeof(ItemListDisplay), nameof(ItemListDisplay.ByDurability))]
     private static bool ItemListDisplay_ByDurability_Pre(ref int __result, ItemDisplay _display1, ItemDisplay _display2)
     {
         Item item1 = _display1.m_refItem;
@@ -672,12 +672,12 @@ public class GUI : AMod, IDelayedInit, IUpdatable
     }
 
     // Exclusive buy/sell panels
-    [HarmonyPatch(typeof(ShopMenu), nameof(ShopMenu.Show)), HarmonyPostfix]
+    [HarmonyPostfix, HarmonyPatch(typeof(ShopMenu), nameof(ShopMenu.Show))]
     private static void ShopMenu_Show_Post(ShopMenu __instance)
     => UpdateSeparateBuySellPanels(Players.GetLocal(__instance));
 
     // Disable quickslot button icons
-    [HarmonyPatch(typeof(QuickSlotDisplay), nameof(QuickSlotDisplay.Update)), HarmonyPostfix]
+    [HarmonyPostfix, HarmonyPatch(typeof(QuickSlotDisplay), nameof(QuickSlotDisplay.Update))]
     private static void QuickSlotDisplay_Update_Post(QuickSlotDisplay __instance)
     {
         Players.Data player = Players.GetLocal(__instance);
@@ -691,7 +691,7 @@ public class GUI : AMod, IDelayedInit, IUpdatable
     }
 
     // Vertical splitscreen
-    [HarmonyPatch(typeof(CharacterUI), nameof(CharacterUI.DelayedRefreshSize)), HarmonyPostfix]
+    [HarmonyPostfix, HarmonyPatch(typeof(CharacterUI), nameof(CharacterUI.DelayedRefreshSize))]
     private static void CharacterUI_DelayedRefreshSize_Post(CharacterUI __instance)
     {
         #region quit
@@ -703,7 +703,7 @@ public class GUI : AMod, IDelayedInit, IUpdatable
     }
 
     // Status effect duration
-    [HarmonyPatch(typeof(StatusEffectPanel), nameof(StatusEffectPanel.GetStatusIcon)), HarmonyPostfix]
+    [HarmonyPostfix, HarmonyPatch(typeof(StatusEffectPanel), nameof(StatusEffectPanel.GetStatusIcon))]
     private static void StatusEffectPanel_GetStatusIcon_Post(StatusEffectPanel __instance, ref StatusEffectIcon __result)
     {
         PerPlayerSettings settings = _perPlayerSettings[Players.GetLocal(__instance.LocalCharacter).ID];

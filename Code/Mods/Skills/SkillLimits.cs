@@ -41,8 +41,6 @@ public class SkillLimits : AMod
         "Flamethrower".ToSkillID(),
     };
     private static Color ICON_COLOR = new(1f, 1f, 1f, 1 / 3f);
-    private static Color BORDER_COLOR = new(1 / 3f, 0f, 1f, 1f);
-    private static Color INDICATOR_COLOR = new(0.75f, 0f, 1f, 1 / 3f);
     private static Vector2 INDICATOR_SCALE = new(1.5f, 1.5f);
     #endregion
     #region enum
@@ -71,6 +69,7 @@ public class SkillLimits : AMod
     private static ModSetting<int> _skillsLimit, _passiveSkillsLimit, _activeSkillsLimit;
     private static ModSetting<LimitedSkillTypes> _limitedSkillTypes;
     private static ModSetting<bool> _freePostBreakthroughBasicSkills;
+    private static ModSetting<Color> _limitedSkillColor;
     protected override void Initialize()
     {
         _separateLimits = CreateSetting(nameof(_separateLimits), false);
@@ -79,6 +78,7 @@ public class SkillLimits : AMod
         _activeSkillsLimit = CreateSetting(nameof(_activeSkillsLimit), 15, IntRange(1, 75));
         _limitedSkillTypes = CreateSetting(nameof(_limitedSkillTypes), (LimitedSkillTypes)~0);
         _freePostBreakthroughBasicSkills = CreateSetting(nameof(_freePostBreakthroughBasicSkills), false);
+        _limitedSkillColor = CreateSetting(nameof(_limitedSkillColor), new Color(1 / 3f, 0f, 1f, 1f));
     }
     protected override void SetFormatting()
     {
@@ -104,6 +104,7 @@ public class SkillLimits : AMod
             _freePostBreakthroughBasicSkills.Format("Basic skills are free post-break", _limitedSkillTypes, LimitedSkillTypes.Basic);
             _freePostBreakthroughBasicSkills.Description = "After you learn a breakthrough skill, basic skills from the same tree no longer count towards limit";
         }
+        _limitedSkillColor.Format("Limited skill color");
     }
     protected override string Description
     => "• Set limit on how many skills you can learn\n" +
@@ -217,7 +218,7 @@ public class SkillLimits : AMod
 
     // Hooks
 #pragma warning disable IDE0051, IDE0060, IDE1006
-    [HarmonyPatch(typeof(ItemDisplayOptionPanel), nameof(ItemDisplayOptionPanel.GetActiveActions)), HarmonyPostfix]
+    [HarmonyPostfix, HarmonyPatch(typeof(ItemDisplayOptionPanel), nameof(ItemDisplayOptionPanel.GetActiveActions))]
     private static void ItemDisplayOptionPanel_GetActiveActions_Post(ItemDisplayOptionPanel __instance, ref List<int> __result)
     {
         #region quit
@@ -228,7 +229,7 @@ public class SkillLimits : AMod
         __result.Add(UNLEARN_ACTION_ID);
     }
 
-    [HarmonyPatch(typeof(ItemDisplayOptionPanel), nameof(ItemDisplayOptionPanel.GetActionText)), HarmonyPrefix]
+    [HarmonyPrefix, HarmonyPatch(typeof(ItemDisplayOptionPanel), nameof(ItemDisplayOptionPanel.GetActionText))]
     private static bool ItemDisplayOptionPanel_GetActionText_Pre(ItemDisplayOptionPanel __instance, ref string __result, ref int _actionID)
     {
         #region quit
@@ -240,7 +241,7 @@ public class SkillLimits : AMod
         return false;
     }
 
-    [HarmonyPatch(typeof(ItemDisplayOptionPanel), nameof(ItemDisplayOptionPanel.ActionHasBeenPressed)), HarmonyPrefix]
+    [HarmonyPrefix, HarmonyPatch(typeof(ItemDisplayOptionPanel), nameof(ItemDisplayOptionPanel.ActionHasBeenPressed))]
     private static bool ItemDisplayOptionPanel_ActionHasBeenPressed_Pre(ItemDisplayOptionPanel __instance, ref int _actionID)
     {
         #region quit
@@ -255,7 +256,7 @@ public class SkillLimits : AMod
         return false;
     }
 
-    [HarmonyPatch(typeof(ItemDisplay), nameof(ItemDisplay.RefreshEnchantedIcon)), HarmonyPrefix]
+    [HarmonyPrefix, HarmonyPatch(typeof(ItemDisplay), nameof(ItemDisplay.RefreshEnchantedIcon))]
     private static bool ItemDisplay_RefreshEnchantedIcon_Pre(ItemDisplay __instance)
     {
         #region quit
@@ -279,19 +280,19 @@ public class SkillLimits : AMod
 
         // Custom
         icon.color = ICON_COLOR;
-        border.color = BORDER_COLOR;
-        indicator.color = INDICATOR_COLOR;
+        border.color = _limitedSkillColor.Value;
+        indicator.color = _limitedSkillColor.Value.AlphaMultiplied(1 / 3f);
         indicator.rectTransform.pivot = 1f.ToVector2();
         indicator.rectTransform.localScale = INDICATOR_SCALE;
         indicator.GOSetActive(true);
         return false;
     }
 
-    [HarmonyPatch(typeof(TrainerPanel), nameof(TrainerPanel.Show)), HarmonyPostfix]
+    [HarmonyPostfix, HarmonyPatch(typeof(TrainerPanel), nameof(TrainerPanel.Show))]
     private static void TrainerPanel_Show_Post(TrainerPanel __instance)
     => InitializeCacheOfAllSkills(__instance.m_trainerTree);
 
-    [HarmonyPatch(typeof(TrainerPanel), nameof(TrainerPanel.OnSkillSlotClicked)), HarmonyPrefix]
+    [HarmonyPrefix, HarmonyPatch(typeof(TrainerPanel), nameof(TrainerPanel.OnSkillSlotClicked))]
     private static bool TrainerPanel_OnSkillSlotClicked_Pre(TrainerPanel __instance, ref SkillTreeSlotDisplay _slotDisplay)
     {
         Skill skill = _slotDisplay.FocusedSkillSlot.Skill;
@@ -307,7 +308,7 @@ public class SkillLimits : AMod
         return true;
     }
 
-    [HarmonyPatch(typeof(Condition_KnowSkill), nameof(Condition_KnowSkill.OnCheck)), HarmonyPostfix]
+    [HarmonyPostfix, HarmonyPatch(typeof(Condition_KnowSkill), nameof(Condition_KnowSkill.OnCheck))]
     private static void Condition_KnowSkill_OnCheck_Post(Condition_KnowSkill __instance, ref bool __result)
     {
         Character character = __instance.character.value;

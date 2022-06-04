@@ -683,7 +683,7 @@ public class SkillTreeRandomizer : AMod, IDelayedInit
     => slot is SkillSlotFork;
 
     // Hooks
-    [HarmonyPatch(typeof(SkillTreeDisplay), nameof(SkillTreeDisplay.RefreshSkillsPosition)), HarmonyPrefix]
+    [HarmonyPrefix, HarmonyPatch(typeof(SkillTreeDisplay), nameof(SkillTreeDisplay.RefreshSkillsPosition))]
     private static void SkillTreeDisplay_RefreshSkillsPosition_Pre(SkillTreeDisplay __instance)
     {
         int basicCount = 0, advancedCount = 0;

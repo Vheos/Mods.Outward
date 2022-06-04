@@ -97,14 +97,14 @@ public class Targeting : AMod
 
     // Hooks
 #pragma warning disable IDE0051, IDE0060, IDE1006
-    [HarmonyPatch(typeof(CharacterCamera), nameof(CharacterCamera.LateUpdate)), HarmonyPostfix]
+    [HarmonyPostfix, HarmonyPatch(typeof(CharacterCamera), nameof(CharacterCamera.LateUpdate))]
     private static void CharacterCamera_LateUpdate_Post(CharacterCamera __instance)
     {
         if (__instance.m_targetCharacter.TargetingSystem.LockedCharacter != null)
             __instance.m_cameraVertHolder.rotation *= Quaternion.Euler(_targetingPitchOffset, 0, 0);
     }
 
-    [HarmonyPatch(typeof(TargetingSystem), nameof(TargetingSystem.TrueRange), MethodType.Getter), HarmonyPrefix]
+    [HarmonyPrefix, HarmonyPatch(typeof(TargetingSystem), nameof(TargetingSystem.TrueRange), MethodType.Getter)]
     private static bool TargetingSystem_TrueRange_Pre(TargetingSystem __instance, ref float __result)
     {
         Character character = __instance.m_character;
@@ -115,7 +115,7 @@ public class Targeting : AMod
     }
 
     // Auto-target
-    [HarmonyPatch(typeof(Character), nameof(Character.AttackInput)), HarmonyPostfix]
+    [HarmonyPostfix, HarmonyPatch(typeof(Character), nameof(Character.AttackInput))]
     private static void Character_AttackInput_Post(Character __instance)
     {
         #region quit
@@ -127,7 +127,7 @@ public class Targeting : AMod
         localCharacterControl.AcquireTarget();
     }
 
-    [HarmonyPatch(typeof(Character), nameof(Character.SetLastUsedSkill)), HarmonyPostfix]
+    [HarmonyPostfix, HarmonyPatch(typeof(Character), nameof(Character.SetLastUsedSkill))]
     private static void Character_SetLastUsedSkill_Post(Character __instance, ref Skill _skill)
     {
         #region quit
@@ -139,7 +139,7 @@ public class Targeting : AMod
         localCharacterControl.AcquireTarget();
     }
 
-    [HarmonyPatch(typeof(Character), nameof(Character.BlockInput)), HarmonyPostfix]
+    [HarmonyPostfix, HarmonyPatch(typeof(Character), nameof(Character.BlockInput))]
     private static void Character_BlockInput_Post(Character __instance, ref bool _active)
     {
         #region quit
@@ -151,7 +151,7 @@ public class Targeting : AMod
         localCharacterControl.AcquireTarget();
     }
 
-    [HarmonyPatch(typeof(Character), nameof(Character.DodgeInput), new[] { typeof(Vector3) }), HarmonyPostfix]
+    [HarmonyPostfix, HarmonyPatch(typeof(Character), nameof(Character.DodgeInput), new[] { typeof(Vector3) })]
     private static void Character_DodgeInput_Post(Character __instance)
     {
         #region quit

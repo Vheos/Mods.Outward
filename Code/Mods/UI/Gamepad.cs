@@ -198,7 +198,7 @@ public class Gamepad : AMod, IUpdatable
     => stashPanel.Find("Content/TopPanel/Shop PanelTop/lblShopName");
 
     // Hooks
-    [HarmonyPatch(typeof(StashPanel), nameof(StashPanel.Show)), HarmonyPostfix]
+    [HarmonyPostfix, HarmonyPatch(typeof(StashPanel), nameof(StashPanel.Show))]
     private static void StashPanel_Show_Post(StashPanel __instance)
     => UpdateStashName(Players.GetLocal(__instance));
 }

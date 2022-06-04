@@ -40,6 +40,8 @@ public class VariousDelayed : AMod, IDelayedInit
     => "• Mods that need to run after the game is initialized";
     protected override string SectionOverride
     => "";
+    protected override string ModName
+    => "Various (delayed)";
     protected override void LoadPreset(string presetName)
     {
         switch (presetName)

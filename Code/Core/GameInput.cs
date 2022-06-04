@@ -64,7 +64,7 @@ public static class GameInput
 
     // Hooks
 #pragma warning disable IDE0051, IDE0060, IDE1006
-    [HarmonyPatch(typeof(CharacterUI), nameof(CharacterUI.IsMenuFocused), MethodType.Getter), HarmonyPrefix]
+    [HarmonyPrefix, HarmonyPatch(typeof(CharacterUI), nameof(CharacterUI.IsMenuFocused), MethodType.Getter)]
     private static bool CharacterUI_IsMenuFocused_Getter_Pre(ref bool __result)
     {
         #region quit

@@ -264,7 +264,7 @@ public class Camera : AMod, IDelayedInit, IUpdatable
     }
 
     // Hooks
-    [HarmonyPatch(typeof(SplitScreenManager), nameof(SplitScreenManager.DelayedRefreshSplitScreen)), HarmonyPostfix]
+    [HarmonyPostfix, HarmonyPatch(typeof(SplitScreenManager), nameof(SplitScreenManager.DelayedRefreshSplitScreen))]
     private static void SplitScreenManager_DelayedRefreshSplitScreen_Post()
     {
         foreach (var player in Players.Local)
@@ -277,7 +277,7 @@ public class Camera : AMod, IDelayedInit, IUpdatable
         }
     }
 
-    [HarmonyPatch(typeof(Character), nameof(Character.SetZoomMode)), HarmonyPostfix]
+    [HarmonyPostfix, HarmonyPatch(typeof(Character), nameof(Character.SetZoomMode))]
     private static void Character_SetZoomMode_Post(Character __instance, ref bool _zoomed)
     {
         Players.Data player = Players.GetLocal(__instance);
@@ -290,11 +290,11 @@ public class Camera : AMod, IDelayedInit, IUpdatable
         _perPlayerSettings[player.ID].StartAimCoroutine(__instance, _zoomed);
     }
 
-    [HarmonyPatch(typeof(CharacterCamera), nameof(CharacterCamera.UpdateZoom)), HarmonyPrefix]
+    [HarmonyPrefix, HarmonyPatch(typeof(CharacterCamera), nameof(CharacterCamera.UpdateZoom))]
     private static bool CharacterCamera_UpdateZoom_Pre(CharacterCamera __instance)
     => !Players.TryGetLocal(__instance, out Players.Data player) || !_perPlayerSettings[player.ID]._toggle;
 
-    [HarmonyPatch(typeof(ControlsInput), nameof(ControlsInput.RotateCameraVertical)), HarmonyPostfix]
+    [HarmonyPostfix, HarmonyPatch(typeof(ControlsInput), nameof(ControlsInput.RotateCameraVertical))]
     private static void ControlsInput_RotateCameraVertical_Post(int _playerID, ref float __result)
     {
         #region quit
@@ -304,7 +304,7 @@ public class Camera : AMod, IDelayedInit, IUpdatable
         __result *= _perPlayerSettings[_playerID].Sensitivity;
     }
 
-    [HarmonyPatch(typeof(ControlsInput), nameof(ControlsInput.RotateCameraHorizontal)), HarmonyPostfix]
+    [HarmonyPostfix, HarmonyPatch(typeof(ControlsInput), nameof(ControlsInput.RotateCameraHorizontal))]
     private static void ControlsInput_RotateCameraHorizontal_Post(int _playerID, ref float __result)
     {
         #region quit

@@ -333,14 +333,14 @@ public class Interactions : AMod, IDelayedInit
     }
 
     // Hooks
-    [HarmonyPatch(typeof(InteractionBase), nameof(InteractionBase.HoldActivationTime), MethodType.Getter), HarmonyPrefix]
+    [HarmonyPrefix, HarmonyPatch(typeof(InteractionBase), nameof(InteractionBase.HoldActivationTime), MethodType.Getter)]
     private static bool InteractionBase_HoldActivationTime_Getter_Post(ref float __result, ref float ___m_holdActivationTimeOverride)
     {
         __result = ___m_holdActivationTimeOverride != -1 ? ___m_holdActivationTimeOverride : _holdInteractionsDuration;
         return false;
     }
 
-    [HarmonyPatch(typeof(InteractionActivator), nameof(InteractionActivator.OnLateInit)), HarmonyPostfix]
+    [HarmonyPostfix, HarmonyPatch(typeof(InteractionActivator), nameof(InteractionActivator.OnLateInit))]
     private static void InteractionActivator_OnLateInit_Post(InteractionActivator __instance, ref IInteraction ___m_defaultBasicInteraction, ref IInteraction ___m_defaultHoldInteraction)
     {
         SwapBasicAndHoldInteractions(__instance, ref ___m_defaultBasicInteraction, ref ___m_defaultHoldInteraction);
@@ -349,7 +349,7 @@ public class Interactions : AMod, IDelayedInit
     }
 
     // Disallow interactions in combat
-    [HarmonyPatch(typeof(InteractionTriggerBase), nameof(InteractionTriggerBase.TryActivateBasicAction), new[] { typeof(Character), typeof(int) }), HarmonyPrefix]
+    [HarmonyPrefix, HarmonyPatch(typeof(InteractionTriggerBase), nameof(InteractionTriggerBase.TryActivateBasicAction), new[] { typeof(Character), typeof(int) })]
     private static bool InteractionTriggerBase_TryActivate_Pre(InteractionTriggerBase __instance, ref Character _character)
     {
         DisallowedInCombat flags = _disallowedInCombat.Value;
@@ -370,7 +370,7 @@ public class Interactions : AMod, IDelayedInit
     }
 
     // Highlights
-    [HarmonyPatch(typeof(InteractionHighlight), nameof(InteractionHighlight.Update)), HarmonyPrefix]
+    [HarmonyPrefix, HarmonyPatch(typeof(InteractionHighlight), nameof(InteractionHighlight.Update))]
     private static bool InteractionHighlight_Update_Pre(InteractionHighlight __instance)
     {
         #region quit
@@ -437,7 +437,7 @@ static private ModSetting<bool> _overrideIsInCombat;
 _overrideIsInCombat = CreateSetting(nameof(_overrideIsInCombat), false);
 _overrideIsInCombat.Format("Override \"InCombat\"");
 
-[HarmonyPatch(typeof(Character), nameof(Character.InCombat), MethodType.Getter), HarmonyPrefix]
+[HarmonyPrefix, HarmonyPatch(typeof(Character), nameof(Character.InCombat), MethodType.Getter)]
 static bool Character_InCombat_Pre(Character __instance, ref bool __result)
 {
 __result = _overrideIsInCombat;

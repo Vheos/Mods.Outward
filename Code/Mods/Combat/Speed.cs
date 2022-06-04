@@ -136,16 +136,16 @@ public class Speed : AMod, IUpdatable
     }
 
     // Hooks
-    [HarmonyPatch(typeof(Character), nameof(Character.LateUpdate)), HarmonyPostfix]
+    [HarmonyPostfix, HarmonyPatch(typeof(Character), nameof(Character.LateUpdate))]
     private static void Character_LateUpdate_Post(Character __instance)
     => TryUpdateAnimationSpeed(__instance);
 
-    [HarmonyPatch(typeof(Character), nameof(Character.TempSlowDown)), HarmonyPrefix]
+    [HarmonyPrefix, HarmonyPatch(typeof(Character), nameof(Character.TempSlowDown))]
     private static void Character_TempSlowDown_Pre(Character __instance)
     => TryUpdateAnimationSpeed(__instance);
 
 
-    [HarmonyPatch(typeof(CharacterStats), nameof(CharacterStats.MovementSpeed), MethodType.Getter), HarmonyPostfix]
+    [HarmonyPostfix, HarmonyPatch(typeof(CharacterStats), nameof(CharacterStats.MovementSpeed), MethodType.Getter)]
     private static void CharacterStats_MovementSpeed_Getter_Post(CharacterStats __instance, ref float __result)
     {
         Character character = __instance.m_character;
@@ -155,7 +155,7 @@ public class Speed : AMod, IUpdatable
             __result *= _enemiesMovementSpeed / 100f;
     }
 
-    [HarmonyPatch(typeof(Weapon), nameof(Weapon.GetAttackSpeed)), HarmonyPostfix]
+    [HarmonyPostfix, HarmonyPatch(typeof(Weapon), nameof(Weapon.GetAttackSpeed))]
     private static void Weapon_GetAttackSpeed_Post(Weapon __instance, ref float __result)
     {
         Character owner = __instance.OwnerCharacter;
@@ -178,7 +178,7 @@ _pauseKey.Description = _speedHackKey.Description;
 if (Input.GetKeyDown(_pauseKey.Value.ToKeyCode()))
 PauseMenu.Pause(!Global.GamePaused);
 
-[HarmonyPatch(typeof(PauseMenu), nameof(PauseMenu.Pause)), HarmonyPostfix]
+[HarmonyPostfix, HarmonyPatch(typeof(PauseMenu), nameof(PauseMenu.Pause))]
 static void PauseMenu_Pause_Post()
 {
 #region quit
@@ -189,7 +189,7 @@ if (!_gameToggle)
 UpdateDefaultGameSpeed();
 }
 
-[HarmonyPatch(typeof(PauseMenu), nameof(PauseMenu.TogglePause)), HarmonyPostfix]
+[HarmonyPostfix, HarmonyPatch(typeof(PauseMenu), nameof(PauseMenu.TogglePause))]
 static void PauseMenu_TogglePause_Post()
 {
 #region quit

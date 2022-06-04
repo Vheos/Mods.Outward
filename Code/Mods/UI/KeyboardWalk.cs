@@ -74,7 +74,7 @@ public class KeyboardWalk : AMod, IUpdatable
     => Time.unscaledTime - _lastKeyPressTime;
 
     // Hooks
-    [HarmonyPatch(typeof(ControlsInput), nameof(ControlsInput.MoveHorizontal)), HarmonyPostfix]
+    [HarmonyPostfix, HarmonyPatch(typeof(ControlsInput), nameof(ControlsInput.MoveHorizontal))]
     private static void ControlsInput_MoveHorizontal_Post(ref float __result, ref int _playerID)
     {
         if (!GameInput.IsUsingGamepad(_playerID))
@@ -86,7 +86,7 @@ public class KeyboardWalk : AMod, IUpdatable
         }
     }
 
-    [HarmonyPatch(typeof(ControlsInput), nameof(ControlsInput.MoveVertical)), HarmonyPostfix]
+    [HarmonyPostfix, HarmonyPatch(typeof(ControlsInput), nameof(ControlsInput.MoveVertical))]
     private static void ControlsInput_MoveVertical_Post(ref float __result, ref int _playerID)
     {
         if (!GameInput.IsUsingGamepad(_playerID))

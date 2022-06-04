@@ -196,7 +196,7 @@ public class Stashes : AMod, IUpdatable
 
     // Hooks
     // Reset static scene data
-    [HarmonyPatch(typeof(NetworkLevelLoader), nameof(NetworkLevelLoader.UnPauseGameplay)), HarmonyPostfix]
+    [HarmonyPostfix, HarmonyPatch(typeof(NetworkLevelLoader), nameof(NetworkLevelLoader.UnPauseGameplay))]
     private static void NetworkLevelLoader_UnPauseGameplay_Post(NetworkLevelLoader __instance)
     {
         _cachedStash = null;
@@ -204,11 +204,11 @@ public class Stashes : AMod, IUpdatable
     }
 
     // City-bound stashes
-    [HarmonyPatch(typeof(ItemContainer), nameof(ItemContainer.ShowContent)), HarmonyReversePatch]
+    [HarmonyReversePatch, HarmonyPatch(typeof(ItemContainer), nameof(ItemContainer.ShowContent))]
     public static void ItemContainer_ShowContent(ItemContainer instance, Character _character)
     { }
 
-    [HarmonyPatch(typeof(TreasureChest), nameof(TreasureChest.ShowContent)), HarmonyPrefix]
+    [HarmonyPrefix, HarmonyPatch(typeof(TreasureChest), nameof(TreasureChest.ShowContent))]
     private static bool TreasureChest_ShowContent_Pre(TreasureChest __instance, Character _character)
     {
         if (__instance.SpecialType == ItemContainer.SpecialContainerTypes.Stash
@@ -227,7 +227,7 @@ public class Stashes : AMod, IUpdatable
         return false;
     }
 
-    [HarmonyPatch(typeof(TreasureChest), nameof(TreasureChest.InitDrops)), HarmonyPostfix]
+    [HarmonyPostfix, HarmonyPatch(typeof(TreasureChest), nameof(TreasureChest.InitDrops))]
     private static void TreasureChest_InitDrops_Post(TreasureChest __instance)
     {
         if (!_stashesStartEmpty
@@ -239,7 +239,7 @@ public class Stashes : AMod, IUpdatable
     }
 
     // Display prices in stash
-    [HarmonyPatch(typeof(ItemDisplay), nameof(ItemDisplay.UpdateValueDisplay)), HarmonyPrefix]
+    [HarmonyPrefix, HarmonyPatch(typeof(ItemDisplay), nameof(ItemDisplay.UpdateValueDisplay))]
     private static bool ItemDisplay_UpdateValueDisplay_Pre(ItemDisplay __instance)
     {
         #region quit
@@ -259,7 +259,7 @@ public class Stashes : AMod, IUpdatable
     }
 
     // Inn Stash
-    [HarmonyPatch(typeof(NetworkLevelLoader), nameof(NetworkLevelLoader.UnPauseGameplay)), HarmonyPostfix]
+    [HarmonyPostfix, HarmonyPatch(typeof(NetworkLevelLoader), nameof(NetworkLevelLoader.UnPauseGameplay))]
     private static void NetworkLevelLoader_UnPauseGameplay_Post(NetworkLevelLoader __instance, string _identifier)
     {
         #region quit
@@ -300,7 +300,7 @@ public class Stashes : AMod, IUpdatable
         }
     }
 
-    [HarmonyPatch(typeof(InteractionOpenChest), nameof(InteractionOpenChest.OnActivate)), HarmonyPrefix]
+    [HarmonyPrefix, HarmonyPatch(typeof(InteractionOpenChest), nameof(InteractionOpenChest.OnActivate))]
     private static void InteractionOpenChest_OnActivate_Pre(InteractionOpenChest __instance)
     {
         #region quit
@@ -312,10 +312,9 @@ public class Stashes : AMod, IUpdatable
     }
 
     // Craft from stash
-    [HarmonyPatch(typeof(CharacterInventory), nameof(CharacterInventory.InventoryIngredients),
+    [HarmonyPostfix, HarmonyPatch(typeof(CharacterInventory), nameof(CharacterInventory.InventoryIngredients),
         new[] { typeof(Tag), typeof(DictionaryExt<int, CompatibleIngredient>) },
-        new[] { ArgumentType.Normal, ArgumentType.Ref }),
-        HarmonyPostfix]
+        new[] { ArgumentType.Normal, ArgumentType.Ref })]
     private static void CharacterInventory_InventoryIngredients_Post(CharacterInventory __instance, Tag _craftingStationTag, ref DictionaryExt<int, CompatibleIngredient> _sortedIngredient)
     {
         #region quit
@@ -329,15 +328,15 @@ public class Stashes : AMod, IUpdatable
     }
 
     // Display stash amount
-    [HarmonyPatch(typeof(ItemDisplay), nameof(ItemDisplay.UpdateQuantityDisplay)), HarmonyPostfix]
+    [HarmonyPostfix, HarmonyPatch(typeof(ItemDisplay), nameof(ItemDisplay.UpdateQuantityDisplay))]
     private static void ItemDisplay_UpdateQuantityDisplay_Post(ItemDisplay __instance)
     => TryDisplayStashAmount(__instance);
 
-    [HarmonyPatch(typeof(CurrencyDisplay), nameof(CurrencyDisplay.UpdateQuantityDisplay)), HarmonyPostfix]
+    [HarmonyPostfix, HarmonyPatch(typeof(CurrencyDisplay), nameof(CurrencyDisplay.UpdateQuantityDisplay))]
     private static void CurrencyDisplay_UpdateQuantityDisplay_Post(CurrencyDisplay __instance)
     => TryDisplayStashAmount(__instance);
 
-    [HarmonyPatch(typeof(RecipeResultDisplay), nameof(RecipeResultDisplay.UpdateQuantityDisplay)), HarmonyPostfix]
+    [HarmonyPostfix, HarmonyPatch(typeof(RecipeResultDisplay), nameof(RecipeResultDisplay.UpdateQuantityDisplay))]
     private static void RecipeResultDisplay_UpdateQuantityDisplay_Post(RecipeResultDisplay __instance)
     => TryDisplayStashAmount(__instance);
 }

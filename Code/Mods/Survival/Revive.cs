@@ -129,7 +129,7 @@ public class Revive : AMod
     }
 
     // Hooks
-    [HarmonyPatch(typeof(Character), nameof(Character.UpdateReviveInteraction)), HarmonyPostfix]
+    [HarmonyPostfix, HarmonyPatch(typeof(Character), nameof(Character.UpdateReviveInteraction))]
     private static void Character_UpdateReviveInteraction_Pre(Character __instance)
     {
         #region quit
@@ -153,14 +153,14 @@ public class Revive : AMod
         }
     }
 
-    [HarmonyPatch(typeof(InteractionRevive), nameof(InteractionRevive.OnActivate)), HarmonyPrefix]
+    [HarmonyPrefix, HarmonyPatch(typeof(InteractionRevive), nameof(InteractionRevive.OnActivate))]
     private static void InteractionRevive_OnActivate_Pre(ref Character __state, ref Character ___m_character)
     {
         __state = ___m_character;
         ___m_character = null;
     }
 
-    [HarmonyPatch(typeof(InteractionRevive), nameof(InteractionRevive.OnActivate)), HarmonyPostfix]
+    [HarmonyPostfix, HarmonyPatch(typeof(InteractionRevive), nameof(InteractionRevive.OnActivate))]
     private static void InteractionRevive_OnActivate_Post(ref Character __state, ref Character ___m_character)
     {
         ___m_character = __state;

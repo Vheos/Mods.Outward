@@ -285,7 +285,7 @@ if (KeyCode.Keypad7.Pressed())
     }
 
     // Hooks
-    [HarmonyPatch(typeof(LocalCharacterControl), nameof(LocalCharacterControl.RetrieveComponents)), HarmonyPostfix]
+    [HarmonyPostfix, HarmonyPatch(typeof(LocalCharacterControl), nameof(LocalCharacterControl.RetrieveComponents))]
     static void LocalCharacterControl_RetrieveComponents_Post(LocalCharacterControl __instance)
     {
         if (_customBar != null)

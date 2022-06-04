@@ -255,7 +255,7 @@ public class Various : AMod, IUpdatable
 
     // Hooks
     // Title screen
-    [HarmonyPatch(typeof(TitleScreenLoader), nameof(TitleScreenLoader.LoadTitleScreenCoroutine)), HarmonyPostfix]
+    [HarmonyPostfix, HarmonyPatch(typeof(TitleScreenLoader), nameof(TitleScreenLoader.LoadTitleScreenCoroutine))]
     private static IEnumerator TitleScreenLoader_LoadTitleScreenCoroutine_Post(IEnumerator original, TitleScreenLoader __instance)
     {
         while (original.MoveNext())
@@ -278,11 +278,11 @@ public class Various : AMod, IUpdatable
     }
 
     // Skip startup video
-    [HarmonyPatch(typeof(StartupVideo), nameof(StartupVideo.Awake)), HarmonyPrefix]
+    [HarmonyPrefix, HarmonyPatch(typeof(StartupVideo), nameof(StartupVideo.Awake))]
     private static void StartupVideo_Awake_Pre()
     => StartupVideo.HasPlayedOnce = _skipStartupVideos.Value;
     // Drop one
-    [HarmonyPatch(typeof(ItemDisplayOptionPanel), nameof(ItemDisplayOptionPanel.GetActiveActions)), HarmonyPostfix]
+    [HarmonyPostfix, HarmonyPatch(typeof(ItemDisplayOptionPanel), nameof(ItemDisplayOptionPanel.GetActiveActions))]
     private static void ItemDisplayOptionPanel_GetActiveActions_Post(ItemDisplayOptionPanel __instance, ref List<int> __result)
     {
         #region quit
@@ -296,7 +296,7 @@ public class Various : AMod, IUpdatable
         __result.Add(DROP_ONE_ACTION_ID);
     }
 
-    [HarmonyPatch(typeof(ItemDisplayOptionPanel), nameof(ItemDisplayOptionPanel.GetActionText)), HarmonyPrefix]
+    [HarmonyPrefix, HarmonyPatch(typeof(ItemDisplayOptionPanel), nameof(ItemDisplayOptionPanel.GetActionText))]
     private static bool ItemDisplayOptionPanel_GetActionText_Pre(ItemDisplayOptionPanel __instance, ref string __result, ref int _actionID)
     {
         #region quit
@@ -308,7 +308,7 @@ public class Various : AMod, IUpdatable
         return false;
     }
 
-    [HarmonyPatch(typeof(ItemDisplayOptionPanel), nameof(ItemDisplayOptionPanel.ActionHasBeenPressed)), HarmonyPrefix]
+    [HarmonyPrefix, HarmonyPatch(typeof(ItemDisplayOptionPanel), nameof(ItemDisplayOptionPanel.ActionHasBeenPressed))]
     private static bool ItemDisplayOptionPanel_ActionHasBeenPressed_Pre(ItemDisplayOptionPanel __instance, ref int _actionID)
     {
         #region quit
@@ -321,17 +321,17 @@ public class Various : AMod, IUpdatable
     }
 
     // Temperature data
-    [HarmonyPatch(typeof(EnvironmentConditions), nameof(EnvironmentConditions.Start)), HarmonyPostfix]
+    [HarmonyPostfix, HarmonyPatch(typeof(EnvironmentConditions), nameof(EnvironmentConditions.Start))]
     private static void EnvironmentConditions_Start_Post(EnvironmentConditions __instance)
     => TryUpdateTemperatureData();
 
     // Stamina regen
-    [HarmonyPatch(typeof(PlayerCharacterStats), nameof(PlayerCharacterStats.OnStart)), HarmonyPostfix]
+    [HarmonyPostfix, HarmonyPatch(typeof(PlayerCharacterStats), nameof(PlayerCharacterStats.OnStart))]
     private static void PlayerCharacterStats_OnStart_Post(PlayerCharacterStats __instance)
     => UpdateBaseStaminaRegen(__instance);
 
     // Load arrows from inventory
-    [HarmonyPatch(typeof(WeaponLoadoutItem), nameof(WeaponLoadoutItem.ReduceShotAmount)), HarmonyPrefix]
+    [HarmonyPrefix, HarmonyPatch(typeof(WeaponLoadoutItem), nameof(WeaponLoadoutItem.ReduceShotAmount))]
     private static bool WeaponLoadoutItem_ReduceShotAmount_Pre(WeaponLoadoutItem __instance)
     {
         #region quit
@@ -356,7 +356,7 @@ public class Various : AMod, IUpdatable
         return false;
     }
 
-    [HarmonyPatch(typeof(CharacterInventory), nameof(CharacterInventory.GetAmmunitionCount)), HarmonyPostfix]
+    [HarmonyPostfix, HarmonyPatch(typeof(CharacterInventory), nameof(CharacterInventory.GetAmmunitionCount))]
     private static void CharacterInventory_GetAmmunitionCount_Post(CharacterInventory __instance, ref int __result)
     {
         #region quit
@@ -368,7 +368,7 @@ public class Various : AMod, IUpdatable
     }
 
     // Inn rent duration
-    [HarmonyPatch(typeof(QuestEventData), nameof(QuestEventData.HasExpired)), HarmonyPrefix]
+    [HarmonyPrefix, HarmonyPatch(typeof(QuestEventData), nameof(QuestEventData.HasExpired))]
     private static void QuestEventData_HasExpired_Pre(QuestEventData __instance, ref int _gameHourAllowed)
     {
         if (__instance.m_signature.ParentSection.Name == INNS_QUEST_FAMILY_NAME)
@@ -376,7 +376,7 @@ public class Various : AMod, IUpdatable
     }
 
     // Multiplicative stacking
-    [HarmonyPatch(typeof(Stat), nameof(Stat.GetModifier)), HarmonyPrefix]
+    [HarmonyPrefix, HarmonyPatch(typeof(Stat), nameof(Stat.GetModifier))]
     private static bool Stat_GetModifier_Pre(Stat __instance, ref float __result, ref IList<Tag> _tags, ref int baseModifier)
     {
         #region quit
@@ -400,20 +400,20 @@ public class Various : AMod, IUpdatable
         return false;
     }
 
-    [HarmonyPatch(typeof(CharacterEquipment), nameof(CharacterEquipment.GetTotalMovementModifier)), HarmonyPrefix]
+    [HarmonyPrefix, HarmonyPatch(typeof(CharacterEquipment), nameof(CharacterEquipment.GetTotalMovementModifier))]
     private static bool CharacterEquipment_GetTotalMovementModifier_Pre(CharacterEquipment __instance, ref float __result)
     => TryApplyMultiplicativeStacking(__instance, ref __result, slot => slot.EquippedItem.MovementPenalty, true, true);
 
-    [HarmonyPatch(typeof(CharacterEquipment), nameof(CharacterEquipment.GetTotalStaminaUseModifier)), HarmonyPrefix]
+    [HarmonyPrefix, HarmonyPatch(typeof(CharacterEquipment), nameof(CharacterEquipment.GetTotalStaminaUseModifier))]
     private static bool CharacterEquipment_GetTotalStaminaUseModifier_Pre(CharacterEquipment __instance, ref float __result)
     => TryApplyMultiplicativeStacking(__instance, ref __result, slot => slot.EquippedItem.StaminaUsePenalty, false, true);
 
-    [HarmonyPatch(typeof(CharacterEquipment), nameof(CharacterEquipment.GetTotalManaUseModifier)), HarmonyPrefix]
+    [HarmonyPrefix, HarmonyPatch(typeof(CharacterEquipment), nameof(CharacterEquipment.GetTotalManaUseModifier))]
     private static bool CharacterEquipment_GetTotalManaUseModifier_Pre(CharacterEquipment __instance, ref float __result)
     => TryApplyMultiplicativeStacking(__instance, ref __result, slot => slot.EquippedItem.ManaUseModifier, false, _applyArmorTrainingToManaCost);
 
     // Hide armor slots
-    [HarmonyPatch(typeof(CharacterVisuals), nameof(CharacterVisuals.EquipVisuals)), HarmonyPrefix]
+    [HarmonyPrefix, HarmonyPatch(typeof(CharacterVisuals), nameof(CharacterVisuals.EquipVisuals))]
     private static void CharacterVisuals_EquipVisuals_Pre(ref bool[] __state, ref EquipmentSlot.EquipmentSlotIDs _slotID, ref ArmorVisuals _visuals)
     {
         #region quit
@@ -435,7 +435,7 @@ public class Various : AMod, IUpdatable
         }
     }
 
-    [HarmonyPatch(typeof(CharacterVisuals), nameof(CharacterVisuals.EquipVisuals)), HarmonyPostfix]
+    [HarmonyPostfix, HarmonyPatch(typeof(CharacterVisuals), nameof(CharacterVisuals.EquipVisuals))]
     private static void CharacterVisuals_EquipVisuals_Post(ref bool[] __state, ref EquipmentSlot.EquipmentSlotIDs _slotID, ref ArmorVisuals _visuals)
     {
         #region quit
@@ -454,16 +454,16 @@ public class Various : AMod, IUpdatable
     }
 
     // Remove co-op scaling
-    [HarmonyPatch(typeof(CoopStats), nameof(CoopStats.ApplyToCharacter)), HarmonyPrefix]
+    [HarmonyPrefix, HarmonyPatch(typeof(CoopStats), nameof(CoopStats.ApplyToCharacter))]
     private static bool CoopStats_ApplyToCharacter_Pre()
     => !_removeCoopScaling;
 
-    [HarmonyPatch(typeof(CoopStats), nameof(CoopStats.RemoveFromCharacter)), HarmonyPrefix]
+    [HarmonyPrefix, HarmonyPatch(typeof(CoopStats), nameof(CoopStats.RemoveFromCharacter))]
     private static bool CoopStats_RemoveFromCharacter_Pre()
     => !_removeCoopScaling;
 
     // Remove dodge invulnerability
-    [HarmonyPatch(typeof(Character), nameof(Character.DodgeStep)), HarmonyPostfix]
+    [HarmonyPostfix, HarmonyPatch(typeof(Character), nameof(Character.DodgeStep))]
     private static void Character_DodgeStep_Post(ref Hitbox[] ___m_hitboxes, ref int _step)
     {
         #region quit
@@ -477,7 +477,7 @@ public class Various : AMod, IUpdatable
     }
 
     // Enemy health reset time
-    [HarmonyPatch(typeof(Character), nameof(Character.LoadCharSave)), HarmonyPrefix]
+    [HarmonyPrefix, HarmonyPatch(typeof(Character), nameof(Character.LoadCharSave))]
     private static void Character_LoadCharSave_Pre(Character __instance)
     {
         #region quit
@@ -527,7 +527,7 @@ _pouchCapacity.Format("Pouch size", _pouchToggle);
 _allowOverCapacity.Format("Allow over capacity", _pouchToggle);
 }
 
-[HarmonyPatch(typeof(CharacterInventory), nameof(CharacterInventory.ProcessStart)), HarmonyPostfix]
+[HarmonyPostfix, HarmonyPatch(typeof(CharacterInventory), nameof(CharacterInventory.ProcessStart))]
 static void CharacterInventory_ProcessStart_Post(CharacterInventory __instance, ref Character ___m_character)
 {
 #region quit

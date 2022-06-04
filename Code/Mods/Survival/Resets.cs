@@ -270,7 +270,7 @@ public class Resets : AMod
 
     // Hooks
     // Areas
-    [HarmonyPatch(typeof(EnvironmentSave), nameof(EnvironmentSave.ApplyData)), HarmonyPrefix]
+    [HarmonyPrefix, HarmonyPatch(typeof(EnvironmentSave), nameof(EnvironmentSave.ApplyData))]
     private static bool EnvironmentSave_ApplyData_Pre(EnvironmentSave __instance)
     {
         #region quit
@@ -319,12 +319,12 @@ public class Resets : AMod
         return false;
     }
 
-    [HarmonyPatch(typeof(Item), nameof(Item.IsInPermanentZone), MethodType.Getter), HarmonyPostfix]
+    [HarmonyPostfix, HarmonyPatch(typeof(Item), nameof(Item.IsInPermanentZone), MethodType.Getter)]
     private static void ItemContainer_ContainerCapacity_Post(Item __instance, ref bool __result)
     => __result &= !_areasToggle;
 
     // Gatherables
-    [HarmonyPatch(typeof(Gatherable), nameof(Gatherable.StartInit)), HarmonyPostfix]
+    [HarmonyPostfix, HarmonyPatch(typeof(Gatherable), nameof(Gatherable.StartInit))]
     private static void Gatherable_StartInit_Post(Gatherable __instance)
     {
         #region quit
@@ -369,7 +369,7 @@ public class Resets : AMod
     }
 
     // Merchants
-    [HarmonyPatch(typeof(MerchantPouch), nameof(MerchantPouch.RefreshInventory)), HarmonyPrefix]
+    [HarmonyPrefix, HarmonyPatch(typeof(MerchantPouch), nameof(MerchantPouch.RefreshInventory))]
     private static void MerchantPouch_RefreshInventory_Pre(MerchantPouch __instance, ref double ___m_nextRefreshTime)
     {
         #region quit
@@ -390,7 +390,7 @@ public class Resets : AMod
     }
 
     // Bandits fix
-    [HarmonyPatch(typeof(AISCombat), nameof(AISCombat.UpdateMed)), HarmonyPrefix]
+    [HarmonyPrefix, HarmonyPatch(typeof(AISCombat), nameof(AISCombat.UpdateMed))]
     private static void AISCombat_UpdateMed_Pre(AISCombat __instance)
     {
         Character character = __instance.m_character;

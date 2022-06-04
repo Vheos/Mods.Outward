@@ -128,11 +128,11 @@ public static class Players
     }
 
     // Hooks
-    [HarmonyPatch(typeof(LocalCharacterControl), nameof(LocalCharacterControl.RetrieveComponents)), HarmonyPostfix]
+    [HarmonyPostfix, HarmonyPatch(typeof(LocalCharacterControl), nameof(LocalCharacterControl.RetrieveComponents))]
     private static void LocalCharacterControl_RetrieveComponents_Post()
     => Recache();
 
-    [HarmonyPatch(typeof(RPCManager), nameof(RPCManager.SendPlayerHasLeft)), HarmonyPostfix]
+    [HarmonyPostfix, HarmonyPatch(typeof(RPCManager), nameof(RPCManager.SendPlayerHasLeft))]
     private static void RPCManager_SendPlayerHasLeft_Post()
     => Recache();
 }

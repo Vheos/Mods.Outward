@@ -84,7 +84,7 @@ public class Traps : AMod
     => __instance.CurrentVisual.FindChild("TrapVisual").GetComponentInChildren<MeshRenderer>().material;
 
     // Hooks
-    [HarmonyPatch(typeof(DeployableTrap), nameof(DeployableTrap.StartInit)), HarmonyPostfix]
+    [HarmonyPostfix, HarmonyPatch(typeof(DeployableTrap), nameof(DeployableTrap.StartInit))]
     private static void DeployableTrap_StartInit_Post(DeployableTrap __instance)
     {
         // Friendly fire
@@ -133,7 +133,7 @@ public class Traps : AMod
         );
     }
 
-    [HarmonyPatch(typeof(DeployableTrap), nameof(DeployableTrap.OnReceiveArmTrap)), HarmonyPostfix]
+    [HarmonyPostfix, HarmonyPatch(typeof(DeployableTrap), nameof(DeployableTrap.OnReceiveArmTrap))]
     private static void DeployableTrap_OnReceiveArmTrap_Post(DeployableTrap __instance)
     {
         #region quit
@@ -168,12 +168,12 @@ public class Traps : AMod
         );
     }
 
-    [HarmonyPatch(typeof(DeployableTrap), nameof(DeployableTrap.CleanUp)), HarmonyPrefix]
+    [HarmonyPrefix, HarmonyPatch(typeof(DeployableTrap), nameof(DeployableTrap.CleanUp))]
     private static void DeployableTrap_CleanUp_Pre(DeployableTrap __instance)
     => ResetColor(__instance);
 
 
-    [HarmonyPatch(typeof(DeployableTrap), nameof(DeployableTrap.Disassemble)), HarmonyPrefix]
+    [HarmonyPrefix, HarmonyPatch(typeof(DeployableTrap), nameof(DeployableTrap.Disassemble))]
     private static void DeployableTrap_Disassemble_Pre(DeployableTrap __instance)
     => ResetColor(__instance);
 }

@@ -192,14 +192,14 @@ public class Merchants : AMod, IDelayedInit
     => price *= (isSelling ? _pricesBarter.Value.y : _pricesBarter.Value.x) / 100f;
 
     // Hooks
-    [HarmonyPatch(typeof(Item), nameof(Item.GetBuyValue)), HarmonyPrefix]
+    [HarmonyPrefix, HarmonyPatch(typeof(Item), nameof(Item.GetBuyValue))]
     private static bool Item_GetBuyValue_Pre(Item __instance, ref int __result, ref Character _player, ref Merchant _merchant)
     {
         __result = GetFinalModifiedPrice(__instance, _player, _merchant, false);
         return false;
     }
 
-    [HarmonyPatch(typeof(Item), nameof(Item.GetSellValue)), HarmonyPrefix]
+    [HarmonyPrefix, HarmonyPatch(typeof(Item), nameof(Item.GetSellValue))]
     private static bool Item_GetSellValue_Pre(Item __instance, ref int __result, ref Character _player, ref Merchant _merchant)
     {
         __result = GetFinalModifiedPrice(__instance, _player, _merchant, true);

@@ -181,7 +181,7 @@ public class Durability : AMod
 
     // Hooks
 #pragma warning disable IDE0051, IDE0060, IDE1006
-    [HarmonyPatch(typeof(Item), nameof(Item.ReduceDurability)), HarmonyPrefix]
+    [HarmonyPrefix, HarmonyPatch(typeof(Item), nameof(Item.ReduceDurability))]
     private static void Item_ReduceDurability_Pre(Item __instance, ref float _durabilityLost)
     {
         #region quit
@@ -202,7 +202,7 @@ public class Durability : AMod
         _durabilityLost *= modifier / 100f;
     }
 
-    [HarmonyPatch(typeof(CharacterEquipment), nameof(CharacterEquipment.RepairEquipmentAfterRest)), HarmonyPrefix]
+    [HarmonyPrefix, HarmonyPatch(typeof(CharacterEquipment), nameof(CharacterEquipment.RepairEquipmentAfterRest))]
     private static bool CharacterEquipment_RepairEquipmentAfterRest_Pre(CharacterEquipment __instance)
     {
         #region quit
@@ -256,11 +256,11 @@ public class Durability : AMod
         return false;
     }
 
-    [HarmonyPatch(typeof(ItemContainer), nameof(ItemContainer.RepairContainedEquipment)), HarmonyPrefix]
+    [HarmonyPrefix, HarmonyPatch(typeof(ItemContainer), nameof(ItemContainer.RepairContainedEquipment))]
     private static bool ItemContainer_RepairContainedEquipment_Pre(ItemContainer __instance)
     => !_smithRepairsOnlyEquipped;
 
-    [HarmonyPatch(typeof(ItemStats), nameof(ItemStats.Effectiveness), MethodType.Getter), HarmonyPrefix]
+    [HarmonyPrefix, HarmonyPatch(typeof(ItemStats), nameof(ItemStats.Effectiveness), MethodType.Getter)]
     private static bool ItemStats_Effectiveness_Pre(ItemStats __instance, ref float __result)
     {
         #region quit
@@ -276,7 +276,7 @@ public class Durability : AMod
         return false;
     }
 
-    [HarmonyPatch(typeof(ItemDropper), nameof(ItemDropper.GenerateItem)), HarmonyPrefix]
+    [HarmonyPrefix, HarmonyPatch(typeof(ItemDropper), nameof(ItemDropper.GenerateItem))]
     private static void ItemDropper_GenerateItem_Pre(ItemDropper __instance, ref Item __state, ItemContainer _container, BasicItemDrop _itemDrop, int _spawnAmount)
     {
         #region quit
@@ -290,7 +290,7 @@ public class Durability : AMod
         __state = prefab;
     }
 
-    [HarmonyPatch(typeof(ItemDropper), nameof(ItemDropper.GenerateItem)), HarmonyPostfix]
+    [HarmonyPostfix, HarmonyPatch(typeof(ItemDropper), nameof(ItemDropper.GenerateItem))]
     private static void ItemDropper_GenerateItem_Post(ItemDropper __instance, ref Item __state)
     {
         #region quit
@@ -302,7 +302,7 @@ public class Durability : AMod
     }
 
     // Affect all stats
-    [HarmonyPatch(typeof(ItemDetailsDisplay), nameof(ItemDetailsDisplay.GetPenaltyDisplay)), HarmonyPrefix]
+    [HarmonyPrefix, HarmonyPatch(typeof(ItemDetailsDisplay), nameof(ItemDetailsDisplay.GetPenaltyDisplay))]
     private static bool ItemDetailsDisplay_GetPenaltyDisplay_Pre(ItemDetailsDisplay __instance, ref string __result, float _value, bool _negativeIsPositive, bool _showPercent)
     {
         #region quit
@@ -325,7 +325,7 @@ public class Durability : AMod
         return false;
     }
 
-    [HarmonyPatch(typeof(ItemDetailRowDisplay), nameof(ItemDetailRowDisplay.SetInfo), new[] { typeof(string), typeof(float) }), HarmonyPrefix]
+    [HarmonyPrefix, HarmonyPatch(typeof(ItemDetailRowDisplay), nameof(ItemDetailRowDisplay.SetInfo), new[] { typeof(string), typeof(float) })]
     private static bool ItemDetailRowDisplay_SetInfo_Pre(ItemDetailRowDisplay __instance, string _dataName, float _dataValue)
     {
         #region quit
@@ -337,11 +337,11 @@ public class Durability : AMod
         return false;
     }
 
-    [HarmonyPatch(typeof(Weapon), nameof(Weapon.BaseImpact), MethodType.Getter), HarmonyPostfix]
+    [HarmonyPostfix, HarmonyPatch(typeof(Weapon), nameof(Weapon.BaseImpact), MethodType.Getter)]
     private static void Weapon_BaseImpact_Post(Weapon __instance, ref float __result)
     => TryApplyEffectiveness(ref __result, __instance.Stats);
 
-    [HarmonyPatch(typeof(Weapon), nameof(Weapon.BaseAttackSpeed), MethodType.Getter), HarmonyPostfix]
+    [HarmonyPostfix, HarmonyPatch(typeof(Weapon), nameof(Weapon.BaseAttackSpeed), MethodType.Getter)]
     private static void Weapon_BaseAttackSpeed_Post(Weapon __instance, ref float __result)
     {
         float relativeAttackSpeed = __result - 1f;
@@ -349,56 +349,56 @@ public class Durability : AMod
         __result = relativeAttackSpeed + 1f;
     }
 
-    [HarmonyPatch(typeof(EquipmentStats), nameof(EquipmentStats.BarrierProtection), MethodType.Getter), HarmonyPostfix]
+    [HarmonyPostfix, HarmonyPatch(typeof(EquipmentStats), nameof(EquipmentStats.BarrierProtection), MethodType.Getter)]
     private static void EquipmentStats_BarrierProtection_Post(EquipmentStats __instance, ref float __result)
     => TryApplyEffectiveness(ref __result, __instance);
 
-    [HarmonyPatch(typeof(EquipmentStats), nameof(EquipmentStats.ImpactResistance), MethodType.Getter), HarmonyPrefix]
+    [HarmonyPrefix, HarmonyPatch(typeof(EquipmentStats), nameof(EquipmentStats.ImpactResistance), MethodType.Getter)]
     private static void EquipmentStats_ImpactResistance_Pre(EquipmentStats __instance)
     => __instance.m_impactResistEfficiencyAffected =
         _effectivenessAffectsAllStats || __instance.m_item.TryAs(out Weapon weapon) && weapon.Type == Weapon.WeaponType.Shield;
 
-    [HarmonyPatch(typeof(EquipmentStats), nameof(EquipmentStats.MovementPenalty), MethodType.Getter), HarmonyPostfix]
+    [HarmonyPostfix, HarmonyPatch(typeof(EquipmentStats), nameof(EquipmentStats.MovementPenalty), MethodType.Getter)]
     private static void EquipmentStats_MovementPenalty_Post(EquipmentStats __instance, ref float __result)
     => TryApplyEffectiveness(ref __result, __instance, true);
 
-    [HarmonyPatch(typeof(EquipmentStats), nameof(EquipmentStats.StaminaUsePenalty), MethodType.Getter), HarmonyPostfix]
+    [HarmonyPostfix, HarmonyPatch(typeof(EquipmentStats), nameof(EquipmentStats.StaminaUsePenalty), MethodType.Getter)]
     private static void EquipmentStats_StaminaUsePenalty_Post(EquipmentStats __instance, ref float __result)
     => TryApplyEffectiveness(ref __result, __instance, true);
 
-    [HarmonyPatch(typeof(EquipmentStats), nameof(EquipmentStats.ManaUseModifier), MethodType.Getter), HarmonyPostfix]
+    [HarmonyPostfix, HarmonyPatch(typeof(EquipmentStats), nameof(EquipmentStats.ManaUseModifier), MethodType.Getter)]
     private static void EquipmentStats_ManaUseModifier_Post(EquipmentStats __instance, ref float __result)
     => TryApplyEffectiveness(ref __result, __instance, true);
 
-    [HarmonyPatch(typeof(EquipmentStats), nameof(EquipmentStats.HeatProtection), MethodType.Getter), HarmonyPostfix]
+    [HarmonyPostfix, HarmonyPatch(typeof(EquipmentStats), nameof(EquipmentStats.HeatProtection), MethodType.Getter)]
     private static void EquipmentStats_HeatProtection_Post(EquipmentStats __instance, ref float __result)
     => TryApplyEffectiveness(ref __result, __instance);
 
-    [HarmonyPatch(typeof(EquipmentStats), nameof(EquipmentStats.ColdProtection), MethodType.Getter), HarmonyPostfix]
+    [HarmonyPostfix, HarmonyPatch(typeof(EquipmentStats), nameof(EquipmentStats.ColdProtection), MethodType.Getter)]
     private static void EquipmentStats_ColdProtection_Post(EquipmentStats __instance, ref float __result)
     => TryApplyEffectiveness(ref __result, __instance);
 
-    [HarmonyPatch(typeof(EquipmentStats), nameof(EquipmentStats.CorruptionResistance), MethodType.Getter), HarmonyPostfix]
+    [HarmonyPostfix, HarmonyPatch(typeof(EquipmentStats), nameof(EquipmentStats.CorruptionResistance), MethodType.Getter)]
     private static void EquipmentStats_CorruptionResistance_Post(EquipmentStats __instance, ref float __result)
     => TryApplyEffectiveness(ref __result, __instance);
 
-    [HarmonyPatch(typeof(EquipmentStats), nameof(EquipmentStats.CooldownReduction), MethodType.Getter), HarmonyPostfix]
+    [HarmonyPostfix, HarmonyPatch(typeof(EquipmentStats), nameof(EquipmentStats.CooldownReduction), MethodType.Getter)]
     private static void EquipmentStats_CooldownReduction_Post(EquipmentStats __instance, ref float __result)
     => TryApplyEffectiveness(ref __result, __instance, true);
 
-    [HarmonyPatch(typeof(EquipmentStats), nameof(EquipmentStats.HealthRegenBonus), MethodType.Getter), HarmonyPostfix]
+    [HarmonyPostfix, HarmonyPatch(typeof(EquipmentStats), nameof(EquipmentStats.HealthRegenBonus), MethodType.Getter)]
     private static void EquipmentStats_HealthRegenBonus_Post(EquipmentStats __instance, ref float __result)
     => TryApplyEffectiveness(ref __result, __instance);
 
-    [HarmonyPatch(typeof(EquipmentStats), nameof(EquipmentStats.ManaRegenBonus), MethodType.Getter), HarmonyPostfix]
+    [HarmonyPostfix, HarmonyPatch(typeof(EquipmentStats), nameof(EquipmentStats.ManaRegenBonus), MethodType.Getter)]
     private static void EquipmentStats_ManaRegenBonus_Post(EquipmentStats __instance, ref float __result)
     => TryApplyEffectiveness(ref __result, __instance);
 
-    [HarmonyPatch(typeof(EquipmentStats), nameof(EquipmentStats.StaminaCostReduction), MethodType.Getter), HarmonyPostfix]
+    [HarmonyPostfix, HarmonyPatch(typeof(EquipmentStats), nameof(EquipmentStats.StaminaCostReduction), MethodType.Getter)]
     private static void EquipmentStats_StaminaCostReduction_Post(EquipmentStats __instance, ref float __result)
     => TryApplyEffectiveness(ref __result, __instance);
 
-    [HarmonyPatch(typeof(EquipmentStats), nameof(EquipmentStats.StaminaRegenModifier), MethodType.Getter), HarmonyPostfix]
+    [HarmonyPostfix, HarmonyPatch(typeof(EquipmentStats), nameof(EquipmentStats.StaminaRegenModifier), MethodType.Getter)]
     private static void EquipmentStats_StaminaRegenModifier_Post(EquipmentStats __instance, ref float __result)
     => TryApplyEffectiveness(ref __result, __instance);
 }

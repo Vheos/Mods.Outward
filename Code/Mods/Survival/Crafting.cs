@@ -195,7 +195,7 @@ public class Crafting : AMod, IDelayedInit
 
     // Hooks
 #pragma warning disable IDE0051, IDE0060, IDE1006
-    [HarmonyPatch(typeof(CraftingMenu), nameof(CraftingMenu.CraftingDone)), HarmonyPrefix]
+    [HarmonyPrefix, HarmonyPatch(typeof(CraftingMenu), nameof(CraftingMenu.CraftingDone))]
     private static void CraftingMenu_CraftingDone_Pre(CraftingMenu __instance, ref List<Item> __state)
     {
         List<Item> ingredients = GetDestructibleIngredients(__instance);
@@ -217,7 +217,7 @@ public class Crafting : AMod, IDelayedInit
         __state = results;
     }
 
-    [HarmonyPatch(typeof(CraftingMenu), nameof(CraftingMenu.CraftingDone)), HarmonyPostfix]
+    [HarmonyPostfix, HarmonyPatch(typeof(CraftingMenu), nameof(CraftingMenu.CraftingDone))]
     private static void CraftingMenu_CraftingDone_Post(CraftingMenu __instance, ref List<Item> __state)
     {
         #region quit
@@ -230,7 +230,7 @@ public class Crafting : AMod, IDelayedInit
                 stats.StartingDurability = -1;
     }
 
-    [HarmonyPatch(typeof(CraftingMenu), nameof(CraftingMenu.OnRecipeSelected)), HarmonyPostfix]
+    [HarmonyPostfix, HarmonyPatch(typeof(CraftingMenu), nameof(CraftingMenu.OnRecipeSelected))]
     private static void CraftingMenu_OnRecipeSelected_Post(CraftingMenu __instance)
     {
         #region quit
@@ -241,7 +241,7 @@ public class Crafting : AMod, IDelayedInit
         SetSingleIngredientCrafting(__instance, __instance.m_lastRecipeIndex == -1);
     }
 
-    [HarmonyPatch(typeof(CraftingMenu), nameof(CraftingMenu.IngredientSelectorHasChanged)), HarmonyPostfix]
+    [HarmonyPostfix, HarmonyPatch(typeof(CraftingMenu), nameof(CraftingMenu.IngredientSelectorHasChanged))]
     private static void CraftingMenu_IngredientSelectorHasChanged_Post(CraftingMenu __instance, int _selectorIndex, int _itemID)
     {
         #region quit
@@ -256,7 +256,7 @@ public class Crafting : AMod, IDelayedInit
         SetSingleIngredientCrafting(__instance, !isMulti);
     }
 
-    [HarmonyPatch(typeof(CraftingMenu), nameof(CraftingMenu.Show), new[] { typeof(CraftingStation) }), HarmonyPrefix]
+    [HarmonyPrefix, HarmonyPatch(typeof(CraftingMenu), nameof(CraftingMenu.Show), new[] { typeof(CraftingStation) })]
     private static bool CraftingMenu_Show_Post(CraftingMenu __instance, CraftingStation _ustensil)
     {
         #region quit
@@ -270,7 +270,7 @@ public class Crafting : AMod, IDelayedInit
         return true;
     }
 
-    [HarmonyPatch(typeof(CraftingMenu), nameof(CraftingMenu.GenerateResult)), HarmonyPrefix]
+    [HarmonyPrefix, HarmonyPatch(typeof(CraftingMenu), nameof(CraftingMenu.GenerateResult))]
     private static void CraftingMenu_GenerateResult_Pre(CraftingMenu __instance, ref int __state, ItemReferenceQuantity _result)
     {
         #region quit
@@ -282,7 +282,7 @@ public class Crafting : AMod, IDelayedInit
         _result.Quantity = GetModifiedResultsAmount(_result);
     }
 
-    [HarmonyPatch(typeof(CraftingMenu), nameof(CraftingMenu.GenerateResult)), HarmonyPostfix]
+    [HarmonyPostfix, HarmonyPatch(typeof(CraftingMenu), nameof(CraftingMenu.GenerateResult))]
     private static void CraftingMenu_GenerateResult_Post(CraftingMenu __instance, ref int __state, ItemReferenceQuantity _result)
     {
         #region quit
@@ -293,7 +293,7 @@ public class Crafting : AMod, IDelayedInit
         _result.Quantity = __state;
     }
 
-    [HarmonyPatch(typeof(RecipeResultDisplay), nameof(RecipeResultDisplay.UpdateQuantityDisplay)), HarmonyPrefix]
+    [HarmonyPrefix, HarmonyPatch(typeof(RecipeResultDisplay), nameof(RecipeResultDisplay.UpdateQuantityDisplay))]
     private static bool RecipeResultDisplay_UpdateQuantityDisplay_Pre(RecipeResultDisplay __instance)
     {
         #region quit

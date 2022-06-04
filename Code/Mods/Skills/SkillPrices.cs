@@ -160,7 +160,7 @@ public class SkillPrices : AMod
 
     // Hooks
 #pragma warning disable IDE0051, IDE0060, IDE1006
-    [HarmonyPatch(typeof(TrainerPanel), nameof(TrainerPanel.OnSkillSlotSelected)), HarmonyPrefix]
+    [HarmonyPrefix, HarmonyPatch(typeof(TrainerPanel), nameof(TrainerPanel.OnSkillSlotSelected))]
     private static void TrainerPanel_OnSkillSlotSelected_Pre(TrainerPanel __instance, SkillTreeSlotDisplay _display)
     {
         // Cache
@@ -203,7 +203,7 @@ public class SkillPrices : AMod
                 slot.m_requiredMoney = (slot.m_requiredMoney * _exclusiveSkillCostMultiplier / 100f).Round();
     }
 
-    [HarmonyPatch(typeof(SkillSlot), nameof(SkillSlot.IsBlocked)), HarmonyPrefix]
+    [HarmonyPrefix, HarmonyPatch(typeof(SkillSlot), nameof(SkillSlot.IsBlocked))]
     private static bool SkillSlot_IsBlocked_Pre(SkillSlot __instance)
     => !_learnMutuallyExclusiveSkills;
 }

@@ -160,7 +160,7 @@ public class AI : AMod
 #pragma warning disable IDE0051, IDE0060, IDE1006
 
     // Prevent infighting
-    [HarmonyPatch(typeof(TargetingSystem), nameof(TargetingSystem.InitTargetableFaction)), HarmonyPrefix]
+    [HarmonyPrefix, HarmonyPatch(typeof(TargetingSystem), nameof(TargetingSystem.InitTargetableFaction))]
     private static bool TargetingSystem_InitTargetableFaction_Pre(TargetingSystem __instance)
     {
         #region quit
@@ -198,7 +198,7 @@ public class AI : AMod
     }
 
     // Enemy detection modifier
-    [HarmonyPatch(typeof(AIPreset), nameof(AIPreset.ApplyToCharAI)), HarmonyPostfix]
+    [HarmonyPostfix, HarmonyPatch(typeof(AIPreset), nameof(AIPreset.ApplyToCharAI))]
     private static void AIPreset_ApplyToCharAI_Post(AIPreset __instance, CharacterAI _charAI)
     {
         #region quit
@@ -226,16 +226,16 @@ public class AI : AMod
         }
     }
 
-    [HarmonyPatch(typeof(AISquadSpawnPoint), nameof(AISquadSpawnPoint.SpawnSquad)), HarmonyPrefix]
+    [HarmonyPrefix, HarmonyPatch(typeof(AISquadSpawnPoint), nameof(AISquadSpawnPoint.SpawnSquad))]
     private static void AISquadSpawnPoint_SpawnSquad_Pre(AISquadSpawnPoint __instance)
     => __instance.ChanceToWanderTowardsPlayers = _walkTowardsPlayerOnSpawn;
 
-    [HarmonyPatch(typeof(AICEnemyDetection), nameof(AICEnemyDetection.Init)), HarmonyPrefix]
+    [HarmonyPrefix, HarmonyPatch(typeof(AICEnemyDetection), nameof(AICEnemyDetection.Init))]
     private static void AICEnemyDetection_Init_Pre(AICEnemyDetection __instance)
     => __instance.ChanceToSwitchTargetOnHurt = _changeTargetOnHit;
 
     // Change target when far
-    [HarmonyPatch(typeof(CharacterAI), nameof(CharacterAI.SwitchAiState)), HarmonyPostfix]
+    [HarmonyPostfix, HarmonyPatch(typeof(CharacterAI), nameof(CharacterAI.SwitchAiState))]
     private static void CharacterAI_SwitchAiState_Post(CharacterAI __instance)
     {
         #region quit
@@ -257,7 +257,7 @@ public class AI : AMod
             __instance.Character.m_lastDealers.Clear();
     }
 
-    [HarmonyPatch(typeof(AICEnemyDetection), nameof(AICEnemyDetection.Detected)), HarmonyPostfix]
+    [HarmonyPostfix, HarmonyPatch(typeof(AICEnemyDetection), nameof(AICEnemyDetection.Detected))]
     private static void AICEnemyDetection_Detected_Post(AICEnemyDetection __instance, LockingPoint _point)
     {
         #region quit

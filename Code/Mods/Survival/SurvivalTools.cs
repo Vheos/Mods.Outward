@@ -94,7 +94,7 @@ public class SurvivalTools : AMod
 
     // Hooks
     // More gathering tools
-    [HarmonyPatch(typeof(CharacterInventory), nameof(CharacterInventory.GetCompatibleGatherableTool)), HarmonyPrefix]
+    [HarmonyPrefix, HarmonyPatch(typeof(CharacterInventory), nameof(CharacterInventory.GetCompatibleGatherableTool))]
     private static bool GatherableInteraction_GetCompatibleGatherableTool_Pre(CharacterInventory __instance, ref Item __result, int _sourceToolID)
     {
         #region quit
@@ -133,7 +133,7 @@ public class SurvivalTools : AMod
     }
 
     // Gathering durability cost
-    [HarmonyPatch(typeof(GatherableInteraction), nameof(GatherableInteraction.CharSpellTakeItem)), HarmonyPostfix]
+    [HarmonyPostfix, HarmonyPatch(typeof(GatherableInteraction), nameof(GatherableInteraction.CharSpellTakeItem))]
     private static void GatherableInteraction_CharSpellTakeItem_Post(GatherableInteraction __instance, Character _character)
     {
         #region quit
@@ -148,7 +148,7 @@ public class SurvivalTools : AMod
     }
 
     // Chance to break Flint and Steel
-    [HarmonyPatch(typeof(Item), nameof(Item.OnUse)), HarmonyPostfix]
+    [HarmonyPostfix, HarmonyPatch(typeof(Item), nameof(Item.OnUse))]
     private static void Item_OnUse_Post(Item __instance)
     {
         #region quit
@@ -162,12 +162,12 @@ public class SurvivalTools : AMod
     }
 
     // Waterskin capacity
-    [HarmonyPatch(typeof(WaterContainer), nameof(WaterContainer.RefreshDisplay)), HarmonyPrefix]
+    [HarmonyPrefix, HarmonyPatch(typeof(WaterContainer), nameof(WaterContainer.RefreshDisplay))]
     private static void WaterContainer_RefreshDisplay_Pre(WaterContainer __instance)
     => __instance.m_stackable.m_maxStackAmount = _waterskinCapacity;
 
 
-    [HarmonyPatch(typeof(Item), nameof(Item.OnAwake)), HarmonyPostfix]
+    [HarmonyPostfix, HarmonyPatch(typeof(Item), nameof(Item.OnAwake))]
     private static void Item_Awake_Post(Item __instance)
     {
         #region quit
@@ -179,7 +179,7 @@ public class SurvivalTools : AMod
     }
 
     // Remap backpack capacities
-    [HarmonyPatch(typeof(ItemContainer), nameof(ItemContainer.ContainerCapacity), MethodType.Getter), HarmonyPostfix]
+    [HarmonyPostfix, HarmonyPatch(typeof(ItemContainer), nameof(ItemContainer.ContainerCapacity), MethodType.Getter)]
     private static void ItemContainer_ContainerCapacity_Post(ItemContainer __instance, ref float __result)
     {
         if (__instance.RefBag == null || __instance.m_baseContainerCapacity <= 0)
@@ -190,7 +190,7 @@ public class SurvivalTools : AMod
     }
 
     // Torches temperature radius
-    [HarmonyPatch(typeof(TemperatureSource), nameof(TemperatureSource.Start)), HarmonyPostfix]
+    [HarmonyPostfix, HarmonyPatch(typeof(TemperatureSource), nameof(TemperatureSource.Start))]
     private static void TemperatureSource_Start_Post(TemperatureSource __instance)
     {
         #region quit
@@ -208,7 +208,7 @@ public class SurvivalTools : AMod
     }
 
     // Lights intensity
-    [HarmonyPatch(typeof(ItemLanternVisual), nameof(ItemLanternVisual.Awake)), HarmonyPostfix]
+    [HarmonyPostfix, HarmonyPatch(typeof(ItemLanternVisual), nameof(ItemLanternVisual.Awake))]
     private static void ItemLanternVisual_Awake_Post(ItemLanternVisual __instance)
     {
         float modifier = _lightsRange / 100f;
@@ -216,7 +216,7 @@ public class SurvivalTools : AMod
     }
 
     // Tents capacity
-    [HarmonyPatch(typeof(Sleepable), nameof(Sleepable.RequestSleepableRoom)), HarmonyPrefix]
+    [HarmonyPrefix, HarmonyPatch(typeof(Sleepable), nameof(Sleepable.RequestSleepableRoom))]
     private static void Sleepable_RequestSleepableRoom_Pre(Sleepable __instance)
     {
         #region quit

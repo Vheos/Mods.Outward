@@ -537,7 +537,7 @@ public class Needs : AMod, IDelayedInit
 
     // Hooks
     // Initialize
-    [HarmonyPatch(typeof(PlayerCharacterStats), nameof(PlayerCharacterStats.OnStart)), HarmonyPostfix]
+    [HarmonyPostfix, HarmonyPatch(typeof(PlayerCharacterStats), nameof(PlayerCharacterStats.OnStart))]
     private static void PlayerCharacterStats_OnAwake_Post(PlayerCharacterStats __instance)
     {
         UpdateThresholds(__instance);
@@ -545,7 +545,7 @@ public class Needs : AMod, IDelayedInit
     }
 
     // Prevent use
-    [HarmonyPatch(typeof(Item), nameof(Item.TryUse)), HarmonyPrefix]
+    [HarmonyPrefix, HarmonyPatch(typeof(Item), nameof(Item.TryUse))]
     private static bool Item_TryUse_Pre(Item __instance, ref bool __result, Character _character)
     {
         if (!_character.IsPlayer() || !__instance.IsIngestible() || CanIngest(_character, __instance))
@@ -556,7 +556,7 @@ public class Needs : AMod, IDelayedInit
         return false;
     }
 
-    [HarmonyPatch(typeof(Item), nameof(Item.TryQuickSlotUse)), HarmonyPrefix]
+    [HarmonyPrefix, HarmonyPatch(typeof(Item), nameof(Item.TryQuickSlotUse))]
     private static bool Item_TryQuickSlotUse_Pre(Item __instance)
     {
         Character character = __instance.OwnerCharacter;
@@ -567,7 +567,7 @@ public class Needs : AMod, IDelayedInit
         return false;
     }
 
-    [HarmonyPatch(typeof(Sleepable), nameof(Sleepable.OnReceiveSleepRequestResult)), HarmonyPrefix]
+    [HarmonyPrefix, HarmonyPatch(typeof(Sleepable), nameof(Sleepable.OnReceiveSleepRequestResult))]
     private static bool Sleepable_OnReceiveSleepRequestResult_Pre(ref Character _character)
     {
         if (!_character.IsPlayer() || !IsLimited(_character, Need.Sleep))
@@ -577,7 +577,7 @@ public class Needs : AMod, IDelayedInit
         return false;
     }
 
-    [HarmonyPatch(typeof(DrinkWaterInteraction), nameof(DrinkWaterInteraction.OnActivate)), HarmonyPrefix]
+    [HarmonyPrefix, HarmonyPatch(typeof(DrinkWaterInteraction), nameof(DrinkWaterInteraction.OnActivate))]
     private static bool DrinkWaterInteraction_OnActivate_Pre(DrinkWaterInteraction __instance)
     {
         Character character = __instance.LastCharacter;
@@ -589,7 +589,7 @@ public class Needs : AMod, IDelayedInit
     }
 
     // New limits
-    [HarmonyPatch(typeof(PlayerCharacterStats), nameof(PlayerCharacterStats.UpdateNeeds)), HarmonyPrefix]
+    [HarmonyPrefix, HarmonyPatch(typeof(PlayerCharacterStats), nameof(PlayerCharacterStats.UpdateNeeds))]
     private static void PlayerCharacterStats_UpdateNeeds_Pre(ref Stat ___m_maxFood, ref Stat ___m_maxDrink, ref Stat ___m_maxSleep)
     {
         if (_settingsByNeed[Need.Food].LimitingEnabled)
@@ -600,7 +600,7 @@ public class Needs : AMod, IDelayedInit
             ___m_maxSleep.m_currentValue = MaxNeedValue(Need.Sleep);
     }
 
-    [HarmonyPatch(typeof(PlayerCharacterStats), nameof(PlayerCharacterStats.UpdateNeeds)), HarmonyPostfix]
+    [HarmonyPostfix, HarmonyPatch(typeof(PlayerCharacterStats), nameof(PlayerCharacterStats.UpdateNeeds))]
     private static void PlayerCharacterStats_UpdateNeeds_Post(ref Stat ___m_maxFood, ref Stat ___m_maxDrink, ref Stat ___m_maxSleep)
     {
         ___m_maxFood.m_currentValue = DEFAULT_MAX_NEED_VALUE;
@@ -608,7 +608,7 @@ public class Needs : AMod, IDelayedInit
         ___m_maxSleep.m_currentValue = DEFAULT_MAX_NEED_VALUE;
     }
 
-    [HarmonyPatch(typeof(PlayerCharacterStats), nameof(PlayerCharacterStats.Food), MethodType.Setter), HarmonyPrefix]
+    [HarmonyPrefix, HarmonyPatch(typeof(PlayerCharacterStats), nameof(PlayerCharacterStats.Food), MethodType.Setter)]
     private static bool PlayerCharacterStats_Food_Setter_Pre(ref float value, ref float ___m_food)
     {
         #region quit
@@ -620,7 +620,7 @@ public class Needs : AMod, IDelayedInit
         return false;
     }
 
-    [HarmonyPatch(typeof(PlayerCharacterStats), nameof(PlayerCharacterStats.Drink), MethodType.Setter), HarmonyPrefix]
+    [HarmonyPrefix, HarmonyPatch(typeof(PlayerCharacterStats), nameof(PlayerCharacterStats.Drink), MethodType.Setter)]
     private static bool PlayerCharacterStats_Drink_Setter_Pre(ref float value, ref float ___m_drink)
     {
         #region quit
@@ -632,7 +632,7 @@ public class Needs : AMod, IDelayedInit
         return false;
     }
 
-    [HarmonyPatch(typeof(PlayerCharacterStats), nameof(PlayerCharacterStats.Sleep), MethodType.Setter), HarmonyPrefix]
+    [HarmonyPrefix, HarmonyPatch(typeof(PlayerCharacterStats), nameof(PlayerCharacterStats.Sleep), MethodType.Setter)]
     private static bool PlayerCharacterStats_Sleep_Setter_Pre(ref float value, ref float ___m_sleep)
     {
         #region quit
@@ -645,7 +645,7 @@ public class Needs : AMod, IDelayedInit
     }
 
     // Don't restore needs when travelling
-    [HarmonyPatch(typeof(FastTravelMenu), nameof(FastTravelMenu.OnConfirmFastTravel)), HarmonyPrefix]
+    [HarmonyPrefix, HarmonyPatch(typeof(FastTravelMenu), nameof(FastTravelMenu.OnConfirmFastTravel))]
     private static bool FastTravelMenu_OnConfirmFastTravel_Pre(FastTravelMenu __instance)
     {
         #region quit
@@ -658,18 +658,18 @@ public class Needs : AMod, IDelayedInit
     }
 
     // Don't restore food/drink when sleeping
-    [HarmonyPatch(typeof(CharacterResting), nameof(CharacterResting.GetFoodRestored)), HarmonyPrefix]
+    [HarmonyPrefix, HarmonyPatch(typeof(CharacterResting), nameof(CharacterResting.GetFoodRestored))]
     private static bool CharacterResting_GetFoodRestored_Pre(CharacterResting __instance)
     => !_dontRestoreFoodDrinkOnSleep;
 
-    [HarmonyPatch(typeof(CharacterResting), nameof(CharacterResting.GetDrinkRestored)), HarmonyPrefix]
+    [HarmonyPrefix, HarmonyPatch(typeof(CharacterResting), nameof(CharacterResting.GetDrinkRestored))]
     private static bool CharacterResting_GetDrinkRestored_Pre(CharacterResting __instance)
     => !_dontRestoreFoodDrinkOnSleep;
 }
 
 /*
 // No food/drink overlimit after bed sleep
-[HarmonyPatch(typeof(PlayerCharacterStats), nameof(PlayerCharacterStats.UpdateStatsAfterRest)), HarmonyPostfix]
+[HarmonyPostfix, HarmonyPatch(typeof(PlayerCharacterStats), nameof(PlayerCharacterStats.UpdateStatsAfterRest))]
 static void PlayerCharacterStats_UpdateStatsAfterRest_Post(PlayerCharacterStats __instance)
 {
 #region MyRegion

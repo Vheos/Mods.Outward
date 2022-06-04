@@ -446,7 +446,7 @@ public class Descriptions : AMod, IDelayedInit
     }
 
     // Hooks
-    [HarmonyPatch(typeof(ItemDetailsDisplay), nameof(ItemDetailsDisplay.ShowDetails)), HarmonyPrefix]
+    [HarmonyPrefix, HarmonyPatch(typeof(ItemDetailsDisplay), nameof(ItemDetailsDisplay.ShowDetails))]
     private static bool ItemDetailsDisplay_ShowDetails_Pre(ItemDetailsDisplay __instance)
     {
         TrySwapProtectionWithResistances(__instance.m_lastItem);
@@ -472,7 +472,7 @@ public class Descriptions : AMod, IDelayedInit
         return false;
     }
 
-    [HarmonyPatch(typeof(ItemDetailsDisplay), nameof(ItemDetailsDisplay.RefreshDetails)), HarmonyPostfix]
+    [HarmonyPostfix, HarmonyPatch(typeof(ItemDetailsDisplay), nameof(ItemDetailsDisplay.RefreshDetails))]
     private static void ItemDetailsDisplay_RefreshDetails_Post(ItemDetailsDisplay __instance)
     {
         Item item = __instance.m_lastItem;
@@ -508,7 +508,7 @@ public class Descriptions : AMod, IDelayedInit
         rectTransform.localScale = new Vector2(1f + sizeOffset, _barThickness / 100f * BAR_MAX_SIZE.y);
     }
 
-    [HarmonyPatch(typeof(ItemDetailsDisplay), nameof(ItemDetailsDisplay.RefreshDetail)), HarmonyPrefix]
+    [HarmonyPrefix, HarmonyPatch(typeof(ItemDetailsDisplay), nameof(ItemDetailsDisplay.RefreshDetail))]
     private static bool ItemDetailsDisplay_RefreshDetail_Post(ItemDetailsDisplay __instance, ref bool __result, int _rowIndex, ItemDetailsDisplay.DisplayedInfos _infoType)
     {
         if (_infoType == ItemDetailsDisplay.DisplayedInfos.AttackSpeed

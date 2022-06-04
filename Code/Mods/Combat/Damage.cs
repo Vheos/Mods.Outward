@@ -100,7 +100,7 @@ public class Damage : AMod
 
     // Hooks
 #pragma warning disable IDE0051, IDE0060, IDE1006
-    [HarmonyPatch(typeof(Weapon), nameof(Weapon.ElligibleFaction), new[] { typeof(Character) }), HarmonyPostfix]
+    [HarmonyPostfix, HarmonyPatch(typeof(Weapon), nameof(Weapon.ElligibleFaction), new[] { typeof(Character) })]
     private static void Weapon_ElligibleFaction_Post(Weapon __instance, ref bool __result, Character _character)
     {
         #region quit
@@ -111,7 +111,7 @@ public class Damage : AMod
         __result |= _character.IsAlly() && !_character.IsOwnerOf(__instance);
     }
 
-    [HarmonyPatch(typeof(MeleeHitDetector), nameof(MeleeHitDetector.ElligibleFaction), new[] { typeof(Character) }), HarmonyPostfix]
+    [HarmonyPostfix, HarmonyPatch(typeof(MeleeHitDetector), nameof(MeleeHitDetector.ElligibleFaction), new[] { typeof(Character) })]
     private static void MeleeHitDetector_ElligibleFaction_Post(MeleeHitDetector __instance, ref bool __result, Character _character)
     {
         #region quit
@@ -122,12 +122,12 @@ public class Damage : AMod
         __result |= _character.IsAlly() && !_character.IsOwnerOf(__instance);
     }
 
-    [HarmonyPatch(typeof(Character), nameof(Character.OnReceiveHitCombatEngaged)), HarmonyPrefix]
-    private static bool Character_OnReceiveHitCombatEngaged_Pre(Character __instance, ref Character _dealerChar)
+    [HarmonyPrefix, HarmonyPatch(typeof(Character), nameof(Character.OnReceiveHitCombatEngaged))]
+    private static bool Character_OnReceiveHitCombatEngaged_Pre(Character __instance, Character _dealerChar)
     => !_playersFriendlyFireToggle || _dealerChar == null || !_dealerChar.IsAlly();
 
 
-    [HarmonyPatch(typeof(Character), nameof(Character.VitalityHit)), HarmonyPrefix]
+    [HarmonyPrefix, HarmonyPatch(typeof(Character), nameof(Character.VitalityHit))]
     private static void Character_VitalityHit_Pre(Character __instance, Character _dealerChar, ref float _damage)
     {
         if (_dealerChar != null && _dealerChar.IsEnemy()
@@ -147,7 +147,7 @@ public class Damage : AMod
         }
     }
 
-    [HarmonyPatch(typeof(Character), nameof(Character.StabilityHit)), HarmonyPrefix]
+    [HarmonyPrefix, HarmonyPatch(typeof(Character), nameof(Character.StabilityHit))]
     private static void Character_StabilityHit_Pre(Character __instance, Character _dealerChar, ref float _knockValue)
     {
         if (_dealerChar != null && _dealerChar.IsEnemy()

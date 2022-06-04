@@ -301,7 +301,7 @@ public class SkillEditor : AMod, IDelayedInit
     }
 
     // Hooks
-    [HarmonyPatch(typeof(AddStatusEffect), nameof(AddStatusEffect.ActivateLocally)), HarmonyPrefix]
+    [HarmonyPrefix, HarmonyPatch(typeof(AddStatusEffect), nameof(AddStatusEffect.ActivateLocally))]
     private static void AddStatusEffect_ActivateLocally_Pre(AddStatusEffect __instance)
     {
         #region quit
@@ -322,7 +322,7 @@ public class SkillEditor : AMod, IDelayedInit
         emission.rateOverTime = intensity.MapFrom01(2, RUNIC_LANTERN_EMISSION_RATE);
     }
 
-    [HarmonyPatch(typeof(PlaySoundEffect), nameof(PlaySoundEffect.ActivateLocally)), HarmonyPrefix]
+    [HarmonyPrefix, HarmonyPatch(typeof(PlaySoundEffect), nameof(PlaySoundEffect.ActivateLocally))]
     private static bool PlaySoundEffect_ActivateLocally_Pre(PlaySoundEffect __instance)
     {
         #region quit
