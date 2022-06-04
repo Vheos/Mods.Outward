@@ -6,8 +6,8 @@ public class SurvivalTools : AMod
     private const float BED_DISTANCE_BETWEEN_PLAYERS = 0.4f;
     private static readonly int[] TORCH_IDS = new[]
     {
-        "Makeshift Torch".ItemID(),
-        "Ice-Flame Torch".ItemID(),
+        "Makeshift Torch".ToItemID(),
+        "Ice-Flame Torch".ToItemID(),
     };
     private const string FLINT_AND_STEEL_BREAK_NOTIFICATION = "Flint and Steel broke!";
     private const int PRIMITIVE_SATCHEL_CAPACITY = 25;
@@ -99,12 +99,12 @@ public class SurvivalTools : AMod
     {
         #region quit
         if (!_moreGatheringTools
-        || _sourceToolID != "Mining Pick".ItemID() && _sourceToolID != "Fishing Harpoon".ItemID())
+        || _sourceToolID != "Mining Pick".ToItemID() && _sourceToolID != "Fishing Harpoon".ToItemID())
             return true;
         #endregion
 
         // Cache
-        Weapon.WeaponType requiredType = _sourceToolID == "Fishing Harpoon".ItemID() ? Weapon.WeaponType.Spear_2H : Weapon.WeaponType.Mace_2H;
+        Weapon.WeaponType requiredType = _sourceToolID == "Fishing Harpoon".ToItemID() ? Weapon.WeaponType.Spear_2H : Weapon.WeaponType.Mace_2H;
         List<Item> potentialTools = new();
 
         // Search bag & pouch
@@ -151,7 +151,7 @@ public class SurvivalTools : AMod
     private static void Item_OnUse_Post(Item __instance)
     {
         #region quit
-        if (__instance.ItemID != "Flint and Steel".ItemID()
+        if (__instance.ItemID != "Flint and Steel".ToItemID()
         || UnityEngine.Random.value >= _chanceToBreakFlintAndSteel / 100f)
             return;
         #endregion

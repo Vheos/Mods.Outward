@@ -15,38 +15,38 @@ public class Needs : AMod, IDelayedInit
     private static readonly Dictionary<int, (Character.SpellCastType Vanilla, Character.SpellCastType Custom)> ANIMATION_PAIRS_BY_INGESTIBLE_ID
     = new()
     {
-        ["Torcrab Egg".ItemID()] = (Character.SpellCastType.DrinkWater, Character.SpellCastType.Eat),
-        ["Boreo Blubber".ItemID()] = (Character.SpellCastType.DrinkWater, Character.SpellCastType.Eat),
-        ["Pungent Paste".ItemID()] = (Character.SpellCastType.DrinkWater, Character.SpellCastType.Eat),
-        ["Gaberry Jam".ItemID()] = (Character.SpellCastType.DrinkWater, Character.SpellCastType.Eat),
-        ["Crawlberry Jam".ItemID()] = (Character.SpellCastType.DrinkWater, Character.SpellCastType.Eat),
-        ["Golden Jam".ItemID()] = (Character.SpellCastType.DrinkWater, Character.SpellCastType.Eat),
-        ["Raw Torcrab Meat".ItemID()] = (Character.SpellCastType.DrinkWater, Character.SpellCastType.Eat),
-        ["Miner’s Omelet".ItemID()] = (Character.SpellCastType.DrinkWater, Character.SpellCastType.Eat),
-        ["Turmmip Potage".ItemID()] = (Character.SpellCastType.DrinkWater, Character.SpellCastType.Eat),
-        ["Meat Stew".ItemID()] = (Character.SpellCastType.DrinkWater, Character.SpellCastType.Eat),
-        ["Marshmelon Jelly".ItemID()] = (Character.SpellCastType.DrinkWater, Character.SpellCastType.Eat),
-        ["Blood Mushroom".ItemID()] = (Character.SpellCastType.Potion, Character.SpellCastType.Eat),
-        ["Food Waste".ItemID()] = (Character.SpellCastType.DrinkWater, Character.SpellCastType.Eat),
-        ["Warm Boozu’s Milk".ItemID()] = (Character.SpellCastType.Potion, Character.SpellCastType.DrinkWater),
+        ["Torcrab Egg".ToItemID()] = (Character.SpellCastType.DrinkWater, Character.SpellCastType.Eat),
+        ["Boreo Blubber".ToItemID()] = (Character.SpellCastType.DrinkWater, Character.SpellCastType.Eat),
+        ["Pungent Paste".ToItemID()] = (Character.SpellCastType.DrinkWater, Character.SpellCastType.Eat),
+        ["Gaberry Jam".ToItemID()] = (Character.SpellCastType.DrinkWater, Character.SpellCastType.Eat),
+        ["Crawlberry Jam".ToItemID()] = (Character.SpellCastType.DrinkWater, Character.SpellCastType.Eat),
+        ["Golden Jam".ToItemID()] = (Character.SpellCastType.DrinkWater, Character.SpellCastType.Eat),
+        ["Raw Torcrab Meat".ToItemID()] = (Character.SpellCastType.DrinkWater, Character.SpellCastType.Eat),
+        ["Miner’s Omelet".ToItemID()] = (Character.SpellCastType.DrinkWater, Character.SpellCastType.Eat),
+        ["Turmmip Potage".ToItemID()] = (Character.SpellCastType.DrinkWater, Character.SpellCastType.Eat),
+        ["Meat Stew".ToItemID()] = (Character.SpellCastType.DrinkWater, Character.SpellCastType.Eat),
+        ["Marshmelon Jelly".ToItemID()] = (Character.SpellCastType.DrinkWater, Character.SpellCastType.Eat),
+        ["Blood Mushroom".ToItemID()] = (Character.SpellCastType.Potion, Character.SpellCastType.Eat),
+        ["Food Waste".ToItemID()] = (Character.SpellCastType.DrinkWater, Character.SpellCastType.Eat),
+        ["Warm Boozu’s Milk".ToItemID()] = (Character.SpellCastType.Potion, Character.SpellCastType.DrinkWater),
     };
     private static readonly int[] OTHER_DRINK_IDS = new[]
     {
-        "Able Tea".ItemID(),
-        "Bitter Spicy Tea".ItemID(),
-        "Greasy Tea".ItemID(),
-        "Iced Tea".ItemID(),
-        "Mineral Tea".ItemID(),
-        "Needle Tea".ItemID(),
-        "Soothing Tea".ItemID(),
-        "Boozu’s Milk".ItemID(),
-        "Warm Boozu’s Milk".ItemID(),
-        "Gaberry Wine".ItemID(),
+        "Able Tea".ToItemID(),
+        "Bitter Spicy Tea".ToItemID(),
+        "Greasy Tea".ToItemID(),
+        "Iced Tea".ToItemID(),
+        "Mineral Tea".ToItemID(),
+        "Needle Tea".ToItemID(),
+        "Soothing Tea".ToItemID(),
+        "Boozu’s Milk".ToItemID(),
+        "Warm Boozu’s Milk".ToItemID(),
+        "Gaberry Wine".ToItemID(),
     };
     private static readonly int[] MILK_IDS = new[]
     {
-        "Boozu’s Milk".ItemID(),
-        "Warm Boozu’s Milk".ItemID(),
+        "Boozu’s Milk".ToItemID(),
+        "Warm Boozu’s Milk".ToItemID(),
     };
     private static readonly string[] DOT_STATUS_EFFECTS = new[]
     {
@@ -451,8 +451,8 @@ public class Needs : AMod, IDelayedInit
         {
             Item ingestible = ingestibleByID.Value;
             if (!ingestible.IsDrinkable()
-            || ingestible.ItemID == "Ambraine".ItemID()
-            || ingestible.ItemID == "Waterskin".ItemID())
+            || ingestible.ItemID == "Ambraine".ToItemID()
+            || ingestible.ItemID == "Waterskin".ToItemID())
                 continue;
 
             AffectDrink affectDrink = ingestible.GetEffect<AffectDrink>();
@@ -506,7 +506,7 @@ public class Needs : AMod, IDelayedInit
         if (_allowOnlyDOTCures && !HasDOT(character))
             return false;
 
-        if (item.ItemID == "Waterskin".ItemID())
+        if (item.ItemID == "Waterskin".ToItemID())
             return character.IsBurning();
 
         foreach (var removeStatusEffect in item.GetEffects<RemoveStatusEffect>())
@@ -527,7 +527,7 @@ public class Needs : AMod, IDelayedInit
     => item.IsEatable() && !IsLimited(character, Need.Food)
        || item.IsDrinkable() && !IsLimited(character, Need.Drink)
        || _allowCuresWhileOverlimited && HasStatusEffectCuredBy(character, item)
-    || item.ItemID == "Ambraine".ItemID();
+    || item.ItemID == "Ambraine".ToItemID();
     private static bool IsLimited(Character character, Need need)
     => _settingsByNeed[need].LimitingEnabled && HasLimitingStatusEffect(character, need);
     private static bool HasLimitingStatusEffect(Character character, Need need)

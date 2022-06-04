@@ -16,29 +16,29 @@ public class SkillLimits : AMod
     private static readonly int[] SIDE_SKILL_IDS =
     {
         // Weapon skills
-        "Puncture".SkillID(),
-        "Pommel Counter".SkillID(),
-        "Talus Cleaver".SkillID(),
-        "Execution".SkillID(),
-        "Mace Infusion".SkillID(),
-        "Juggernaut".SkillID(),
-        "Simeon's Gambit".SkillID(),
-        "Moon Swipe".SkillID(),
-        "Prismatic Flurry".SkillID(),
+        "Puncture".ToSkillID(),
+        "Pommel Counter".ToSkillID(),
+        "Talus Cleaver".ToSkillID(),
+        "Execution".ToSkillID(),
+        "Mace Infusion".ToSkillID(),
+        "Juggernaut".ToSkillID(),
+        "Simeon's Gambit".ToSkillID(),
+        "Moon Swipe".ToSkillID(),
+        "Prismatic Flurry".ToSkillID(),
         // Boons
-        "Mist".SkillID(),
-        "Warm".SkillID(),
-        "Cool".SkillID(),
-        "Blessed".SkillID(),
-        "Possessed".SkillID(),
+        "Mist".ToSkillID(),
+        "Warm".ToSkillID(),
+        "Cool".ToSkillID(),
+        "Blessed".ToSkillID(),
+        "Possessed".ToSkillID(),
         // Hexes
-        "Haunt Hex".SkillID(),
-        "Scorch Hex".SkillID(),
-        "Chill Hex".SkillID(),
-        "Doom Hex".SkillID(),
-        "Curse Hex".SkillID(),
+        "Haunt Hex".ToSkillID(),
+        "Scorch Hex".ToSkillID(),
+        "Chill Hex".ToSkillID(),
+        "Doom Hex".ToSkillID(),
+        "Curse Hex".ToSkillID(),
         // Mana
-        "Flamethrower".SkillID(),
+        "Flamethrower".ToSkillID(),
     };
     private static Color ICON_COLOR = new(1f, 1f, 1f, 1 / 3f);
     private static Color BORDER_COLOR = new(1 / 3f, 0f, 1f, 1f);

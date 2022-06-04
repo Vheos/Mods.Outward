@@ -307,7 +307,7 @@ public class Interactions : AMod, IDelayedInit
                 vanillaHold = activator.gameObject.AddComponent<InteractionIngest>();
             else if (_groundInteractions.Value.HasFlag(GroundInteractions.EatAndDrink) && stack != null && stack.FirstItem().IsIngestible())
                 vanillaHold = activator.gameObject.AddComponent<InteractionUnpackAndIngest>();
-            else if (_groundInteractions.Value.HasFlag(GroundInteractions.UseBandage) && item.ItemID == "Bandages".ItemID())
+            else if (_groundInteractions.Value.HasFlag(GroundInteractions.UseBandage) && item.ItemID == "Bandages".ToItemID())
                 vanillaHold = activator.gameObject.AddComponent<InteractionUse>();
             else if (_groundInteractions.Value.HasFlag(GroundInteractions.InfuseWeapon) && item is InfuseConsumable)
                 vanillaHold = activator.gameObject.AddComponent<InteractionUse>();

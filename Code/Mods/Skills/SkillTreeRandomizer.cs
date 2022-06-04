@@ -19,32 +19,32 @@ public class SkillTreeRandomizer : AMod, IDelayedInit
     {
         (WEAPON_SKILLS_TREE_NAME, new[]
         {
-            "Puncture".SkillID(),
-            "Pommel Counter".SkillID(),
-            "Talus Cleaver".SkillID(),
-            "Execution".SkillID(),
-            "Mace Infusion".SkillID(),
-            "Juggernaut".SkillID(),
-            "Simeon's Gambit".SkillID(),
-            "Moon Swipe".SkillID(),
-            "Prismatic Flurry".SkillID(),
-            "Flamethrower".SkillID(), // Mana
+            "Puncture".ToSkillID(),
+            "Pommel Counter".ToSkillID(),
+            "Talus Cleaver".ToSkillID(),
+            "Execution".ToSkillID(),
+            "Mace Infusion".ToSkillID(),
+            "Juggernaut".ToSkillID(),
+            "Simeon's Gambit".ToSkillID(),
+            "Moon Swipe".ToSkillID(),
+            "Prismatic Flurry".ToSkillID(),
+            "Flamethrower".ToSkillID(), // Mana
         }),
         (BOONS_TREE_NAME, new[]
         {
-            "Mist".SkillID(),
-            "Warm".SkillID(),
-            "Cool".SkillID(),
-            "Blessed".SkillID(),
-            "Possessed".SkillID(),
+            "Mist".ToSkillID(),
+            "Warm".ToSkillID(),
+            "Cool".ToSkillID(),
+            "Blessed".ToSkillID(),
+            "Possessed".ToSkillID(),
         }),
         (HEXES_TREE_NAME, new[]
         {
-            "Haunt Hex".SkillID(),
-            "Scorch Hex".SkillID(),
-            "Chill Hex".SkillID(),
-            "Doom Hex".SkillID(),
-            "Curse Hex".SkillID(),
+            "Haunt Hex".ToSkillID(),
+            "Scorch Hex".ToSkillID(),
+            "Chill Hex".ToSkillID(),
+            "Doom Hex".ToSkillID(),
+            "Curse Hex".ToSkillID(),
         }),
     };
     private static readonly string[] MISSING_ICON_SKILL_NAMES =
