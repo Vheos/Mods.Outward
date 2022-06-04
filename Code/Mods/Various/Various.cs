@@ -355,11 +355,10 @@ public class Various : AMod, IUpdatable, IDelayedInit
 
     // Inn rent duration
     [HarmonyPatch(typeof(QuestEventData), nameof(QuestEventData.HasExpired)), HarmonyPrefix]
-    private static bool QuestEventData_HasExpired_Pre(QuestEventData __instance, ref int _gameHourAllowed)
+    private static void QuestEventData_HasExpired_Pre(QuestEventData __instance, ref int _gameHourAllowed)
     {
         if (__instance.m_signature.ParentSection.Name == INNS_QUEST_FAMILY_NAME)
             _gameHourAllowed = _rentDuration;
-        return true;
     }
 
     // Multiplicative stacking
@@ -401,11 +400,11 @@ public class Various : AMod, IUpdatable, IDelayedInit
 
     // Hide armor slots
     [HarmonyPatch(typeof(CharacterVisuals), nameof(CharacterVisuals.EquipVisuals)), HarmonyPrefix]
-    private static bool CharacterVisuals_EquipVisuals_Pre(ref bool[] __state, ref EquipmentSlot.EquipmentSlotIDs _slotID, ref ArmorVisuals _visuals)
+    private static void CharacterVisuals_EquipVisuals_Pre(ref bool[] __state, ref EquipmentSlot.EquipmentSlotIDs _slotID, ref ArmorVisuals _visuals)
     {
         #region quit
         if (_armorSlotsToHide == ArmorSlots.None)
-            return true;
+            return;
         #endregion
 
         // save original hide flags for postfix
@@ -420,7 +419,6 @@ public class Various : AMod, IUpdatable, IDelayedInit
             _visuals.HideHair = false;
             _visuals.DisableDefaultVisuals = false;
         }
-        return true;
     }
 
     [HarmonyPatch(typeof(CharacterVisuals), nameof(CharacterVisuals.EquipVisuals)), HarmonyPostfix]
@@ -466,15 +464,14 @@ public class Various : AMod, IUpdatable, IDelayedInit
 
     // Enemy health reset time
     [HarmonyPatch(typeof(Character), nameof(Character.LoadCharSave)), HarmonyPrefix]
-    private static bool Character_LoadCharSave_Pre(Character __instance)
+    private static void Character_LoadCharSave_Pre(Character __instance)
     {
         #region quit
         if (!__instance.IsEnemy())
-            return true;
+            return;
         #endregion
 
         __instance.HoursToHealthReset = _healEnemiesOnLoad ? 0 : DEFAULT_ENEMY_HEALTH_RESET_HOURS;
-        return true;
     }
 }
 

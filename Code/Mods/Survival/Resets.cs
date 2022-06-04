@@ -370,11 +370,11 @@ public class Resets : AMod
 
     // Merchants
     [HarmonyPatch(typeof(MerchantPouch), nameof(MerchantPouch.RefreshInventory)), HarmonyPrefix]
-    private static bool MerchantPouch_RefreshInventory_Pre(MerchantPouch __instance, ref double ___m_nextRefreshTime)
+    private static void MerchantPouch_RefreshInventory_Pre(MerchantPouch __instance, ref double ___m_nextRefreshTime)
     {
         #region quit
         if (!_merchantsToggle)
-            return true;
+            return;
         #endregion
 
         if (_merchantsMode == ResetMode.Always)
@@ -387,13 +387,11 @@ public class Resets : AMod
             if (___m_nextRefreshTime == double.PositiveInfinity)
                 ___m_nextRefreshTime = InternalUtility.GameTime + __instance.InventoryRefreshRate;
         }
-
-        return true;
     }
 
     // Bandits fix
     [HarmonyPatch(typeof(AISCombat), nameof(AISCombat.UpdateMed)), HarmonyPrefix]
-    private static bool AISCombat_UpdateMed_Pre(AISCombat __instance)
+    private static void AISCombat_UpdateMed_Pre(AISCombat __instance)
     {
         Character character = __instance.m_character;
         #region quit
@@ -401,13 +399,12 @@ public class Resets : AMod
         || character.Faction != Character.Factions.Bandits
         || character.m_animatorIsHumanDefault == false
         || !character.name.ToLowerInvariant().Contains("bandit"))
-            return true;
+            return;
         #endregion
 
         if (__instance is AISCombatMelee && !HasAnyMeleeWeapon(character))
             GenerateAndEquipPouchItem(character, MELEE_WEAPON_IDS_BY_SET[_fixUnarmedBandits].Random(), _fixUnarmedBanditsDurabilityRatio);
         if (__instance is AISCombatRanged && !HasAnyRangedWeapon(character))
             GenerateAndEquipPouchItem(character, RANGED_WEAPON_IDS_BY_SET[_fixUnarmedBandits].Random(), _fixUnarmedBanditsDurabilityRatio);
-        return true;
     }
 }

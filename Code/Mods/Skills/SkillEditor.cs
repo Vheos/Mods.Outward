@@ -302,11 +302,11 @@ public class SkillEditor : AMod, IDelayedInit
 
     // Hooks
     [HarmonyPatch(typeof(AddStatusEffect), nameof(AddStatusEffect.ActivateLocally)), HarmonyPrefix]
-    private static bool AddStatusEffect_ActivateLocally_Pre(AddStatusEffect __instance)
+    private static void AddStatusEffect_ActivateLocally_Pre(AddStatusEffect __instance)
     {
         #region quit
         if (!_runesToggle || __instance.Status == null || __instance.Status.IdentifierName != RUNIC_LANTERN_ID)
-            return true;
+            return;
         #endregion
 
         // Cache
@@ -320,7 +320,6 @@ public class SkillEditor : AMod, IDelayedInit
         newColor.a = intensity;
         main.startColor = newColor;
         emission.rateOverTime = intensity.MapFrom01(2, RUNIC_LANTERN_EMISSION_RATE);
-        return true;
     }
 
     [HarmonyPatch(typeof(PlaySoundEffect), nameof(PlaySoundEffect.ActivateLocally)), HarmonyPrefix]

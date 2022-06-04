@@ -301,15 +301,14 @@ public class Stashes : AMod, IUpdatable
     }
 
     [HarmonyPatch(typeof(InteractionOpenChest), nameof(InteractionOpenChest.OnActivate)), HarmonyPrefix]
-    private static bool InteractionOpenChest_OnActivate_Pre(InteractionOpenChest __instance)
+    private static void InteractionOpenChest_OnActivate_Pre(InteractionOpenChest __instance)
     {
         #region quit
         if (!_innStashes || !__instance.m_chest.TryNonNull(out var chest))
-            return true;
+            return;
         #endregion
 
         chest.GOSetActive(true);
-        return true;
     }
 
     // Craft from stash

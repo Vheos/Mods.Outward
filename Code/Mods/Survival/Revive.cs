@@ -154,18 +154,15 @@ public class Revive : AMod
     }
 
     [HarmonyPatch(typeof(InteractionRevive), nameof(InteractionRevive.OnActivate)), HarmonyPrefix]
-    private static bool InteractionRevive_OnActivate_Pre(ref Character __state, ref Character ___m_character)
+    private static void InteractionRevive_OnActivate_Pre(ref Character __state, ref Character ___m_character)
     {
-        // send m_character to postix and null it during original method
         __state = ___m_character;
         ___m_character = null;
-        return true;
     }
 
     [HarmonyPatch(typeof(InteractionRevive), nameof(InteractionRevive.OnActivate)), HarmonyPostfix]
     private static void InteractionRevive_OnActivate_Post(ref Character __state, ref Character ___m_character)
     {
-        // receive m_character from prefix
         ___m_character = __state;
 
         if (___m_character != null)

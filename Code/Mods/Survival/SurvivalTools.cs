@@ -134,16 +134,16 @@ public class SurvivalTools : AMod
 
     // Gathering durability cost
     [HarmonyPatch(typeof(GatherableInteraction), nameof(GatherableInteraction.CharSpellTakeItem)), HarmonyPrefix]
-    private static bool GatherableInteraction_CharSpellTakeItem_Pre(GatherableInteraction __instance, Character _character)
+    private static void GatherableInteraction_CharSpellTakeItem_Pre(GatherableInteraction __instance, Character _character)
     {
         #region quit
         if (!__instance.m_pendingAnims.TryGetValue(_character.UID, out var gatherInstance)
         || !gatherInstance.ValidItem.TryNonNull(out var item))
-            return true;
+            return;
         #endregion
 
         item.ReduceDurability(_gatheringDurabilityCost.Value.x + (_gatheringDurabilityCost.Value.y - 5) / 100f * item.MaxDurability);
-        return true;
+        return;
     }
 
     // Chance to break Flint and Steel
@@ -162,11 +162,9 @@ public class SurvivalTools : AMod
 
     // Waterskin capacity
     [HarmonyPatch(typeof(WaterContainer), nameof(WaterContainer.RefreshDisplay)), HarmonyPrefix]
-    private static bool WaterContainer_RefreshDisplay_Pre(WaterContainer __instance)
-    {
-        __instance.m_stackable.m_maxStackAmount = _waterskinCapacity;
-        return true;
-    }
+    private static void WaterContainer_RefreshDisplay_Pre(WaterContainer __instance)
+    => __instance.m_stackable.m_maxStackAmount = _waterskinCapacity;
+
 
     [HarmonyPatch(typeof(Item), nameof(Item.OnAwake)), HarmonyPostfix]
     private static void Item_Awake_Post(Item __instance)
@@ -218,15 +216,14 @@ public class SurvivalTools : AMod
 
     // Tents capacity
     [HarmonyPatch(typeof(Sleepable), nameof(Sleepable.RequestSleepableRoom)), HarmonyPrefix]
-    private static bool Sleepable_RequestSleepableRoom_Pre(Sleepable __instance)
+    private static void Sleepable_RequestSleepableRoom_Pre(Sleepable __instance)
     {
         #region quit
         if (!_twoPersonBeds || Global.Lobby.PlayersInLobbyCount <= 1)
-            return true;
+            return;
         #endregion
 
         __instance.Capacity = 2;
         __instance.CharAnimOffset.SetX(BED_DISTANCE_BETWEEN_PLAYERS / 2f * (__instance.m_occupants.Count == 0 ? -1f : +1f));
-        return true;
     }
 }

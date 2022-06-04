@@ -128,7 +128,7 @@ public class Damage : AMod
 
 
     [HarmonyPatch(typeof(Character), nameof(Character.VitalityHit)), HarmonyPrefix]
-    private static bool Character_VitalityHit_Pre(Character __instance, Character _dealerChar, ref float _damage)
+    private static void Character_VitalityHit_Pre(Character __instance, Character _dealerChar, ref float _damage)
     {
         if (_dealerChar != null && _dealerChar.IsEnemy()
         || _dealerChar == null && __instance.IsAlly())
@@ -145,12 +145,10 @@ public class Damage : AMod
             if (_playersFriendlyFireToggle && __instance.IsAlly())
                 _damage *= _playersFriendlyFireHealthDamage / 100f;
         }
-
-        return true;
     }
 
     [HarmonyPatch(typeof(Character), nameof(Character.StabilityHit)), HarmonyPrefix]
-    private static bool Character_StabilityHit_Pre(Character __instance, Character _dealerChar, ref float _knockValue)
+    private static void Character_StabilityHit_Pre(Character __instance, Character _dealerChar, ref float _knockValue)
     {
         if (_dealerChar != null && _dealerChar.IsEnemy()
         || _dealerChar == null && __instance.IsAlly())
@@ -167,7 +165,5 @@ public class Damage : AMod
             if (_playersFriendlyFireToggle && __instance.IsAlly())
                 _knockValue *= _playersFriendlyFireStabilityDamage / 100f;
         }
-
-        return true;
     }
 }

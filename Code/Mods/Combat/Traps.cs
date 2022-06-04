@@ -169,16 +169,11 @@ public class Traps : AMod
     }
 
     [HarmonyPatch(typeof(DeployableTrap), nameof(DeployableTrap.CleanUp)), HarmonyPrefix]
-    private static bool DeployableTrap_CleanUp_Pre(DeployableTrap __instance)
-    {
-        ResetColor(__instance);
-        return true;
-    }
+    private static void DeployableTrap_CleanUp_Pre(DeployableTrap __instance)
+    => ResetColor(__instance);
+
 
     [HarmonyPatch(typeof(DeployableTrap), nameof(DeployableTrap.Disassemble)), HarmonyPrefix]
-    private static bool DeployableTrap_Disassemble_Pre(DeployableTrap __instance)
-    {
-        ResetColor(__instance);
-        return true;
-    }
+    private static void DeployableTrap_Disassemble_Pre(DeployableTrap __instance)
+    => ResetColor(__instance);
 }

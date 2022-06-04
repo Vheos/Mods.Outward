@@ -121,19 +121,18 @@ public class Speed : AMod, IUpdatable
         Time.timeScale = Time.timeScale < speedHackSpeed ? speedHackSpeed : defaultSpeed;
         Time.fixedDeltaTime = FIXED_TIME_DELTA * Time.timeScale;
     }
-    private static bool TryUpdateAnimationSpeed(Character character)
+    private static void TryUpdateAnimationSpeed(Character character)
     {
         #region quit
         if (!_playersToggle && !_enemiesToggle
         || character.Stunned || character.IsPetrified)
-            return true;
+            return;
         #endregion
 
         if (_playersToggle && character.IsAlly())
             character.Animator.speed = _playersAnimationSpeed / 100f;
         else if (_enemiesToggle && character.IsEnemy())
             character.Animator.speed = _enemiesAnimationSpeed / 100f;
-        return true;
     }
 
     // Hooks
@@ -142,8 +141,9 @@ public class Speed : AMod, IUpdatable
     => TryUpdateAnimationSpeed(__instance);
 
     [HarmonyPatch(typeof(Character), nameof(Character.TempSlowDown)), HarmonyPrefix]
-    private static bool Character_TempSlowDown_Pre(Character __instance)
+    private static void Character_TempSlowDown_Pre(Character __instance)
     => TryUpdateAnimationSpeed(__instance);
+
 
     [HarmonyPatch(typeof(CharacterStats), nameof(CharacterStats.MovementSpeed), MethodType.Getter), HarmonyPostfix]
     private static void CharacterStats_MovementSpeed_Getter_Post(CharacterStats __instance, ref float __result)

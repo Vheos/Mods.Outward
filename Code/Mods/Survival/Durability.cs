@@ -182,11 +182,11 @@ public class Durability : AMod
     // Hooks
 #pragma warning disable IDE0051, IDE0060, IDE1006
     [HarmonyPatch(typeof(Item), nameof(Item.ReduceDurability)), HarmonyPrefix]
-    private static bool Item_ReduceDurability_Pre(Item __instance, ref float _durabilityLost)
+    private static void Item_ReduceDurability_Pre(Item __instance, ref float _durabilityLost)
     {
         #region quit
         if (!_lossMultipliers)
-            return true;
+            return;
         #endregion
 
         int modifier = 100;
@@ -200,7 +200,6 @@ public class Durability : AMod
             modifier = _lossIngestibles;
 
         _durabilityLost *= modifier / 100f;
-        return true;
     }
 
     [HarmonyPatch(typeof(CharacterEquipment), nameof(CharacterEquipment.RepairEquipmentAfterRest)), HarmonyPrefix]
@@ -278,18 +277,17 @@ public class Durability : AMod
     }
 
     [HarmonyPatch(typeof(ItemDropper), nameof(ItemDropper.GenerateItem)), HarmonyPrefix]
-    private static bool ItemDropper_GenerateItem_Pre(ItemDropper __instance, ref Item __state, ItemContainer _container, BasicItemDrop _itemDrop, int _spawnAmount)
+    private static void ItemDropper_GenerateItem_Pre(ItemDropper __instance, ref Item __state, ItemContainer _container, BasicItemDrop _itemDrop, int _spawnAmount)
     {
         #region quit
         if (_minStartingDurability >= 100
         || !_itemDrop.DroppedItem.TryNonNull(out var item) || !Prefabs.ItemsByID[item.ItemIDString].TryNonNull(out var prefab)
         || !prefab.Stats.TryNonNull(out var prefabStats) || prefabStats.MaxDurability <= 0)
-            return true;
+            return;
         #endregion
 
         prefabStats.StartingDurability = (prefab.MaxDurability * Random.Range(_minStartingDurability / 100f, 1f)).Round();
         __state = prefab;
-        return true;
     }
 
     [HarmonyPatch(typeof(ItemDropper), nameof(ItemDropper.GenerateItem)), HarmonyPostfix]
@@ -356,12 +354,9 @@ public class Durability : AMod
     => TryApplyEffectiveness(ref __result, __instance);
 
     [HarmonyPatch(typeof(EquipmentStats), nameof(EquipmentStats.ImpactResistance), MethodType.Getter), HarmonyPrefix]
-    private static bool EquipmentStats_ImpactResistance_Pre(EquipmentStats __instance)
-    {
-        __instance.m_impactResistEfficiencyAffected = _effectivenessAffectsAllStats
-                                                   || __instance.m_item.TryAs(out Weapon weapon) && weapon.Type == Weapon.WeaponType.Shield;
-        return true;
-    }
+    private static void EquipmentStats_ImpactResistance_Pre(EquipmentStats __instance)
+    => __instance.m_impactResistEfficiencyAffected =
+        _effectivenessAffectsAllStats || __instance.m_item.TryAs(out Weapon weapon) && weapon.Type == Weapon.WeaponType.Shield;
 
     [HarmonyPatch(typeof(EquipmentStats), nameof(EquipmentStats.MovementPenalty), MethodType.Getter), HarmonyPostfix]
     private static void EquipmentStats_MovementPenalty_Post(EquipmentStats __instance, ref float __result)

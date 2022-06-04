@@ -72,15 +72,14 @@ public class PistolTweaks : AMod, IDelayedInit
 
     // Hooks
     [HarmonyPatch(typeof(WeaponLoadoutItem), nameof(WeaponLoadoutItem.Load)), HarmonyPrefix]
-    private static bool WeaponLoadoutItem_Load_Pre(WeaponLoadoutItem __instance)
+    private static void WeaponLoadoutItem_Load_Pre(WeaponLoadoutItem __instance)
     {
         if (__instance.CompatibleAmmunition.ItemID == BULLET_ID)
             __instance.MaxProjectileLoaded = _bulletsPerReload.Value;
-        return true;
     }
 
     [HarmonyPatch(typeof(Character), nameof(Character.PerformSpellCast)), HarmonyPrefix]
-    private static bool Character_PerformSpellCast_Pre(Character __instance)
+    private static void Character_PerformSpellCast_Pre(Character __instance)
     {
         _overrideSpeed = float.NaN;
         if (__instance.CurrentSpellCast.IsContainedIn(SHOT_SPELLS))
@@ -93,17 +92,15 @@ public class PistolTweaks : AMod, IDelayedInit
             _originalSpeed = __instance.Animator.speed;
             __instance.Animator.speed = _overrideSpeed;
         }
-        return true;
     }
 
     [HarmonyPatch(typeof(Character), nameof(Character.CastDone)), HarmonyPrefix]
-    private static bool Character_CastDone_Pre(Character __instance)
+    private static void Character_CastDone_Pre(Character __instance)
     {
         if (!_overrideSpeed.IsNaN())
         {
             __instance.Animator.speed = _originalSpeed;
             _overrideSpeed = float.NaN;
         }
-        return true;
     }
 }

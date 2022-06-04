@@ -168,7 +168,7 @@ public class Camping : AMod
     => __instance.IsInnsBed || IsCampingAllowed(_character, __instance.transform.position);
 
     [HarmonyPatch(typeof(OrientOnTerrain), nameof(OrientOnTerrain.IsValid), MethodType.Getter), HarmonyPrefix]
-    private static bool OrientOnTerrain_IsValid_Pre(OrientOnTerrain __instance)
+    private static void OrientOnTerrain_IsValid_Pre(OrientOnTerrain __instance)
     {
         AreaManager.AreaEnum currentArea = (AreaManager.AreaEnum)AreaManager.Instance.CurrentArea.ID;
         #region quit
@@ -176,7 +176,7 @@ public class Camping : AMod
         || currentArea.IsNotContainedIn(OPEN_REGIONS)
         || _campingSpots.Value.HasFlag(CampingSpots.OpenRegions)
         || !_campingSpots.Value.HasFlag(CampingSpots.Butterflies))
-            return true;
+            return;
         #endregion
 
         return IsNearButterflies(__instance.transform.position);

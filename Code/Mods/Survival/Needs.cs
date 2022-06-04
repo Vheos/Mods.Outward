@@ -590,7 +590,7 @@ public class Needs : AMod, IDelayedInit
 
     // New limits
     [HarmonyPatch(typeof(PlayerCharacterStats), nameof(PlayerCharacterStats.UpdateNeeds)), HarmonyPrefix]
-    private static bool PlayerCharacterStats_UpdateNeeds_Pre(ref Stat ___m_maxFood, ref Stat ___m_maxDrink, ref Stat ___m_maxSleep)
+    private static void PlayerCharacterStats_UpdateNeeds_Pre(ref Stat ___m_maxFood, ref Stat ___m_maxDrink, ref Stat ___m_maxSleep)
     {
         if (_settingsByNeed[Need.Food].LimitingEnabled)
             ___m_maxFood.m_currentValue = MaxNeedValue(Need.Food);
@@ -598,7 +598,6 @@ public class Needs : AMod, IDelayedInit
             ___m_maxDrink.m_currentValue = MaxNeedValue(Need.Drink);
         if (_settingsByNeed[Need.Sleep].LimitingEnabled)
             ___m_maxSleep.m_currentValue = MaxNeedValue(Need.Sleep);
-        return true;
     }
 
     [HarmonyPatch(typeof(PlayerCharacterStats), nameof(PlayerCharacterStats.UpdateNeeds)), HarmonyPostfix]

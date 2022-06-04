@@ -75,9 +75,7 @@ public class Initialization : AMod
 
     // Skip startup video
     [HarmonyPatch(typeof(StartupVideo), nameof(StartupVideo.Awake)), HarmonyPrefix]
-    private static bool StartupVideo_Awake_Pre()
-    {
-        StartupVideo.HasPlayedOnce = _skipStartupVideos.Value;
-        return true;
-    }
+    private static void StartupVideo_Awake_Pre()
+    => StartupVideo.HasPlayedOnce = _skipStartupVideos.Value;
+
 }

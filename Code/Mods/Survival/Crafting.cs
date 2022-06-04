@@ -196,13 +196,13 @@ public class Crafting : AMod, IDelayedInit
     // Hooks
 #pragma warning disable IDE0051, IDE0060, IDE1006
     [HarmonyPatch(typeof(CraftingMenu), nameof(CraftingMenu.CraftingDone)), HarmonyPrefix]
-    private static bool CraftingMenu_CraftingDone_Pre(CraftingMenu __instance, ref List<Item> __state)
+    private static void CraftingMenu_CraftingDone_Pre(CraftingMenu __instance, ref List<Item> __state)
     {
         List<Item> ingredients = GetDestructibleIngredients(__instance);
         List<Item> results = GetDestructibleResults(__instance);
         #region quit
         if (!_preserveDurability || ingredients.IsNullOrEmpty() || ingredients.IsNullOrEmpty())
-            return true;
+            return;
         #endregion
 
         float averageRatio = 0;
@@ -215,7 +215,6 @@ public class Crafting : AMod, IDelayedInit
                 stats.StartingDurability = (stats.MaxDurability * averageRatio.Lerp(1f, _restoreMissingDurability / 100f)).Round();
 
         __state = results;
-        return true;
     }
 
     [HarmonyPatch(typeof(CraftingMenu), nameof(CraftingMenu.CraftingDone)), HarmonyPostfix]
@@ -272,16 +271,15 @@ public class Crafting : AMod, IDelayedInit
     }
 
     [HarmonyPatch(typeof(CraftingMenu), nameof(CraftingMenu.GenerateResult)), HarmonyPrefix]
-    private static bool CraftingMenu_GenerateResult_Pre(CraftingMenu __instance, ref int __state, ItemReferenceQuantity _result)
+    private static void CraftingMenu_GenerateResult_Pre(CraftingMenu __instance, ref int __state, ItemReferenceQuantity _result)
     {
         #region quit
         if (_extraResultsMultiplier == 100)
-            return true;
+            return;
         #endregion
 
         __state = _result.Quantity;
         _result.Quantity = GetModifiedResultsAmount(_result);
-        return true;
     }
 
     [HarmonyPatch(typeof(CraftingMenu), nameof(CraftingMenu.GenerateResult)), HarmonyPostfix]

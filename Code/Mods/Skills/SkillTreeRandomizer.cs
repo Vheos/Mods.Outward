@@ -684,7 +684,7 @@ public class SkillTreeRandomizer : AMod, IDelayedInit
 
     // Hooks
     [HarmonyPatch(typeof(SkillTreeDisplay), nameof(SkillTreeDisplay.RefreshSkillsPosition)), HarmonyPrefix]
-    private static bool SkillTreeDisplay_RefreshSkillsPosition_Pre(SkillTreeDisplay __instance)
+    private static void SkillTreeDisplay_RefreshSkillsPosition_Pre(SkillTreeDisplay __instance)
     {
         int basicCount = 0, advancedCount = 0;
         foreach (var slotDisplay in __instance.m_slotList)
@@ -700,7 +700,6 @@ public class SkillTreeRandomizer : AMod, IDelayedInit
         __instance.m_lblTreeName.GOSetActive(!hideTrainerName);
         __instance.RectTransform.localPosition = useCompactSpacing ? Vector2.zero : DEFAULT_TREE_LOCAL_POSITION;
         __instance.m_displaySlotSize = useCompactSpacing ? new Vector2(128, 112) : DEFAULT_SLOT_DISPLAY_SIZE;
-        return true;
     }
 }
 

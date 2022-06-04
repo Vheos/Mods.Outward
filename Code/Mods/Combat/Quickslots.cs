@@ -262,16 +262,16 @@ public class Quickslots : AMod
 
     // Hooks
     [HarmonyPatch(typeof(Item), nameof(Item.PerformEquip)), HarmonyPrefix]
-    private static bool Item_PerformEquip_Pre2(Item __instance, EquipmentSlot _slot)
+    private static void Item_PerformEquip_Pre2(Item __instance, EquipmentSlot _slot)
     {
         Character character = _slot.Character;
         if (!_contextualSkillQuickslots || !character.IsPlayer())
-            return true;
+            return;
 
         Weapon.WeaponType previousType = GetExtendedWeaponType(_slot.EquippedItem);
         Weapon.WeaponType currentType = GetExtendedWeaponType(__instance);
         if (currentType == previousType)
-            return true;
+            return;
 
         foreach (var quickslot in character.QuickSlotMngr.m_quickSlots)
             if (quickslot.ActiveItem.TryAs(out Skill quickslotSkill)
@@ -280,16 +280,14 @@ public class Quickslots : AMod
             && contextSkillGroup.TryGet(currentType, out var newContextSkillID)
             && GetLearnedSkillByID(character, newContextSkillID).TryNonNull(out var newContextSkill))
                 quickslot.SetQuickSlot(newContextSkill, true);
-
-        return true;
     }
 
     [HarmonyPatch(typeof(Item), nameof(Item.PerformEquip)), HarmonyPrefix]
-    private static bool Item_PerformEquip_Pre(Item __instance, EquipmentSlot _slot)
+    private static void Item_PerformEquip_Pre(Item __instance, EquipmentSlot _slot)
     {
         Character character = _slot.Character;
         if (!_replaceQuickslotsOnEquip || !character.IsPlayer())
-            return true;
+            return;
 
         // If equipping a 2h weapon, also check offhand
         Item previousItem = _slot.EquippedItem;
@@ -302,7 +300,7 @@ public class Quickslots : AMod
         }
 
         if (previousItem == null || HasItemAssignedToAnyQuickslot(character, previousItem))
-            return true;
+            return;
 
         foreach (var quickslot in _slot.Character.QuickSlotMngr.m_quickSlots)
             if (quickslot.ActiveItem == __instance)
@@ -310,8 +308,6 @@ public class Quickslots : AMod
                 quickslot.SetQuickSlot(previousItem, true);
                 break;
             }
-
-        return true;
     }
 
     [HarmonyPatch(typeof(QuickSlot), nameof(QuickSlot.Activate)), HarmonyPostfix]
@@ -367,14 +363,13 @@ public class Quickslots : AMod
     }
 
     [HarmonyPatch(typeof(CharacterQuickSlotManager), nameof(CharacterQuickSlotManager.Awake)), HarmonyPrefix]
-    private static bool CharacterQuickSlotManager_Awake_Pre(CharacterQuickSlotManager __instance)
+    private static void CharacterQuickSlotManager_Awake_Pre(CharacterQuickSlotManager __instance)
     {
         #region quit
         if (!_extraGamepadQuickslots)
-            return true;
+            return;
         #endregion
 
         SetupQuickslots(__instance.transform.Find("QuickSlots"));
-        return true;
     }
 }
