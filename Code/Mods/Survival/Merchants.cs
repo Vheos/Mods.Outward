@@ -1,22 +1,22 @@
 ﻿namespace Vheos.Mods.Outward;
 using Random = UnityEngine.Random;
 
-public class Merchants : AMod
+public class Merchants : AMod, IDelayedInit
 {
     #region const
     private const float DEFAULT_SELL_MODIFIER = 0.3f;
-    private const int GOLD_INGOT_ID = 6300030;
     private static readonly Color DEFAULT_PRICE_COLOR = new(0.8235294f, 0.8877006f, 1f);
     #endregion
 
     // Settings
     private static ModSetting<int> _pricesCurve;
     private static ModSetting<int> _sellModifier;
-    private static ModSetting<Vector2> _pricesGold;
+    private static ModSetting<Vector2> _pricesBarter;
     private static ModSetting<bool> _pricesPerTypeToggle;
     private static ModSetting<int> _pricesWeapons, _pricesArmors, _pricesIngestibles, _pricesRecipes, _pricesOther;
     private static ModSetting<int> _randomizePricesExtent, _randomizePricesPerDays;
     private static ModSetting<bool> _randomizePricesPerItem, _randomizePricesPerArea;
+    private static ModSetting<int> _goldBasePrice;
     protected override void Initialize()
     {
         _pricesCurve = CreateSetting(nameof(_pricesCurve), 100, IntRange(50, 100));
@@ -28,12 +28,17 @@ public class Merchants : AMod
         _pricesIngestibles = CreateSetting(nameof(_pricesIngestibles), 100, IntRange(0, 200));
         _pricesRecipes = CreateSetting(nameof(_pricesRecipes), 100, IntRange(0, 200));
         _pricesOther = CreateSetting(nameof(_pricesOther), 100, IntRange(0, 200));
-        _pricesGold = CreateSetting(nameof(_pricesGold), 100f.ToVector2());
+        _pricesBarter = CreateSetting(nameof(_pricesBarter), 100f.ToVector2());
+        _goldBasePrice = CreateSetting(nameof(_goldBasePrice), 100, IntRange(0, 1000));
 
         _randomizePricesExtent = CreateSetting(nameof(_randomizePricesExtent), 0, IntRange(0, 100));
         _randomizePricesPerDays = CreateSetting(nameof(_randomizePricesPerDays), 7, IntRange(1, 100));
         _randomizePricesPerItem = CreateSetting(nameof(_randomizePricesPerItem), true);
         _randomizePricesPerArea = CreateSetting(nameof(_randomizePricesPerArea), true);
+
+        // Events
+        Item goldIngot = Prefabs.ItemsByID["Gold Ingot".ToItemID().ToString()];
+        _goldBasePrice.AddEvent(() => goldIngot.Stats.m_baseValue = _goldBasePrice);
     }
     protected override void SetFormatting()
     {
@@ -42,7 +47,6 @@ public class Merchants : AMod
                                    "at the minimum valued (50%), all prices will be square-root'ed:\n" +
                                    "• Simple Bow: 13 -> 4\n" +
                                    "• War Bow: 1000 -> 32";
-        _sellModifier.Format("Selling multiplier");
         _randomizePricesExtent.Format("Randomize prices");
         _randomizePricesExtent.Description = "Prices will range from [100% - X%] to [100% + X%]\n" +
                                              "and depend on current time, merchant and/or item";
@@ -55,7 +59,7 @@ public class Merchants : AMod
             _randomizePricesPerItem.Format("per item", _randomizePricesExtent, t => t > 0);
             _randomizePricesPerItem.Description = "Every item will have its own randomized price";
         }
-        _pricesPerTypeToggle.Format("Prices by item type");
+        _pricesPerTypeToggle.Format("Price multipliers");
         using (Indent)
         {
             _pricesWeapons.Format("Weapons", _pricesPerTypeToggle);
@@ -64,9 +68,14 @@ public class Merchants : AMod
             _pricesRecipes.Format("Recipes", _pricesPerTypeToggle);
             _pricesOther.Format("Other items", _pricesPerTypeToggle);
         }
-        _pricesGold.Format("Gold");
-        _pricesGold.Description = "X   -   Gold ingot's buying price\n" +
-                                  "Y   -   Gold ingot's selling price";
+        _sellModifier.Format("Selling multiplier");
+        _pricesBarter.Format("Barter goods");
+        _pricesBarter.Description =
+            "Price modifier for items that buy and sell for the same value (gold ingot and gemstones)\n" +
+            "X   -   buying price modifier\n" +
+            "Y   -   selling price modifier";
+        _goldBasePrice.Format("Gold ingot base price");
+        _goldBasePrice.Description = "Gold ingot's price before applying \"Barter Goods\" multipliers and randomization";
     }
     protected override string Description
     => "• Change final buy/sell modifiers\n" +
@@ -82,7 +91,8 @@ public class Merchants : AMod
                 ForceApply();
                 _pricesCurve.Value = 90;
                 _sellModifier.Value = 20;
-                _pricesGold.Value = new Vector2(100, 90);
+                _pricesBarter.Value = new Vector2(50, 40);
+                _goldBasePrice.Value = 200;
                 _pricesPerTypeToggle.Value = true;
                 {
                     _pricesWeapons.Value = 67;
@@ -106,8 +116,8 @@ public class Merchants : AMod
     {
         float price = item.RawCurrentValue;
 
-        if (item.ItemID == GOLD_INGOT_ID)
-            ApplyGoldPrice(ref price, isSelling);
+        if (item.m_overrideSellModifier > 0)
+            ApplyBarterModifier(ref price, isSelling);
         else
         {
             ApplyCurve(ref price);
@@ -117,11 +127,14 @@ public class Merchants : AMod
             if (isSelling)
                 ApplySellModifier(ref price);
         }
+
         if (_randomizePricesExtent > 0)
             ApplyRandomModifier(ref price, item, true);
 
         return price.Round();
     }
+
+
     private static float GetRandomPriceModifier(Item item)
     {
         int itemSeed = _randomizePricesPerItem ? item.ItemID : 0;
@@ -175,8 +188,8 @@ public class Merchants : AMod
     }
     private static void ApplySellModifier(ref float price)
     => price *= _sellModifier / 100f;
-    private static void ApplyGoldPrice(ref float price, bool isSelling)
-    => price = isSelling ? _pricesGold.Value.y : _pricesGold.Value.x;
+    private static void ApplyBarterModifier(ref float price, bool isSelling)
+    => price *= (isSelling ? _pricesBarter.Value.y : _pricesBarter.Value.x) / 100f;
 
     // Hooks
     [HarmonyPatch(typeof(Item), nameof(Item.GetBuyValue)), HarmonyPrefix]
