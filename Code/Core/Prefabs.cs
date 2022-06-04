@@ -105,6 +105,18 @@ public static class Prefabs
 
         ["Makeshift Torch"] = 5100060,
         ["Ice-Flame Torch"] = 5100070,
+
+        ["Bullet"] = 4400080,
+        ["Arrow"] = 5200001,
+        ["Flaming Arrow"] = 5200002,
+        ["Poison Arrow"] = 5200003,
+        ["Venom Arrow"] = 5200004,
+        ["Palladium Arrow"] = 5200005,
+        ["Explosive Arrow"] = 5200007,
+        ["Forged Arrow"] = 5200008,
+        ["Holy Rage Arrow"] = 5200009,
+        ["Soul Rupture Arrow"] = 5200010,
+        ["Mana Arrow"] = 5200019,
     };
     public static readonly Dictionary<string, int> SkillIDsByName = new()
     {
@@ -211,7 +223,7 @@ public static class Prefabs
 
             if (item.IsUsable
             && (item.IsEatable() || item.IsDrinkable())
-            && item.ItemID != "MistakenIngestible".ItemID())
+            && item.ItemID != "MistakenIngestible".ToItemID())
                 IngestiblesByID.Add(item.ItemID, item);
         }
 
