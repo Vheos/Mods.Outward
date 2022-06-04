@@ -66,6 +66,7 @@
     <Compile Include="Code\Mods\Skills\SkillEditor.cs" />
     <Compile Include="Code\Mods\Combat\Traps.cs" />
     <Compile Include="Code\Mods\Survival\SurvivalTools.cs" />
+    <Compile Include="Code\Mods\Various\Initialization.cs" />
     <Compile Include="Code\Mods\Various\Various.cs" />
     <Compile Include="Code\Utility\Extensions_Various.cs" />
     <Compile Include="Code\Utility\GlobalUsings.cs" />
@@ -421,7 +422,7 @@ set IsDebug=$(DefineConstants.Contains('DEBUG'))
     set GamePath=D:\Multiplayer\Outward\
     set ExeName=Outward Definitive Edition.exe
     set ZipName=VMP
-    set Version=2.0.0
+    set Version=X.Y.Z
 
 :: Common
 rd /q /s "%25GamePath%25%25PluginsSubpath%25"

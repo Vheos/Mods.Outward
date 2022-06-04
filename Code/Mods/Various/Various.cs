@@ -6,7 +6,7 @@
 namespace Vheos.Mods.Outward;
 using System.Collections;
 
-public class Various : AMod, IUpdatable
+public class Various : AMod, IUpdatable, IDelayedInit
 {
     #region const
     private const string INNS_QUEST_FAMILY_NAME = "Inns";
@@ -26,6 +26,19 @@ public class Various : AMod, IUpdatable
         [TemperatureSteps.VeryHot] = new Vector2(28, 92),
         [TemperatureSteps.Hottest] = new Vector2(40, 101),
     };
+    private static readonly Item[] ARROWS = new[]
+    {
+        "Arrow".ToItem(),
+        "Flaming Arrow".ToItem(),
+        "Poison Arrow".ToItem(),
+        "Venom Arrow".ToItem(),
+        "Palladium Arrow".ToItem(),
+        "Explosive Arrow".ToItem(),
+        "Forged Arrow".ToItem(),
+        "Holy Rage Arrow".ToItem(),
+        "Soul Rupture Arrow".ToItem(),
+        "Mana Arrow".ToItem(),
+    };
     #endregion
     #region enum
     [Flags]
@@ -42,14 +55,11 @@ public class Various : AMod, IUpdatable
         Disable = 2,
         Randomize = 3,
     }
-
     #endregion
 
     // Settings
     private static ModSetting<bool> _enableCheats;
     private static ModSetting<string> _enableCheatsHotkey;
-    private static ModSetting<bool> _skipStartupVideos;
-    private static ModSetting<TitleScreenCharacterVisibility> _titleScreenHideCharacters;
     private static ModSetting<ArmorSlots> _armorSlotsToHide;
     private static ModSetting<bool> _removeCoopScaling;
     private static ModSetting<bool> _removeDodgeInvulnerability;
@@ -57,7 +67,9 @@ public class Various : AMod, IUpdatable
     private static ModSetting<bool> _multiplicativeStacking;
     private static ModSetting<int> _armorTrainingPenaltyReduction;
     private static ModSetting<bool> _applyArmorTrainingToManaCost;
-    private static ModSetting<bool> _loadArrowsFromInventory;
+    private static ModSetting<bool> _refillArrowsFromInventory;
+    private static ModSetting<int> _arrowStackSize;
+    private static ModSetting<int> _bulletStackSize;
     private static ModSetting<float> _baseStaminaRegen;
     private static ModSetting<int> _rentDuration;
     private static ModSetting<bool> _itemActionDropOne;
@@ -67,7 +79,6 @@ public class Various : AMod, IUpdatable
     {
         _enableCheats = CreateSetting(nameof(_enableCheats), false);
         _enableCheatsHotkey = CreateSetting(nameof(_enableCheatsHotkey), "");
-        _skipStartupVideos = CreateSetting(nameof(_skipStartupVideos), false);
         _armorSlotsToHide = CreateSetting(nameof(_armorSlotsToHide), ArmorSlots.None);
         _removeCoopScaling = CreateSetting(nameof(_removeCoopScaling), false);
         _removeDodgeInvulnerability = CreateSetting(nameof(_removeDodgeInvulnerability), false);
@@ -75,10 +86,11 @@ public class Various : AMod, IUpdatable
         _multiplicativeStacking = CreateSetting(nameof(_multiplicativeStacking), false);
         _armorTrainingPenaltyReduction = CreateSetting(nameof(_armorTrainingPenaltyReduction), 50, IntRange(0, 100));
         _applyArmorTrainingToManaCost = CreateSetting(nameof(_applyArmorTrainingToManaCost), false);
-        _loadArrowsFromInventory = CreateSetting(nameof(_loadArrowsFromInventory), false);
+        _refillArrowsFromInventory = CreateSetting(nameof(_refillArrowsFromInventory), false);
+        _arrowStackSize = CreateSetting(nameof(_arrowStackSize), 15, IntRange(0, 100));
+        _bulletStackSize = CreateSetting(nameof(_bulletStackSize), 12, IntRange(0, 100));
         _baseStaminaRegen = CreateSetting(nameof(_baseStaminaRegen), 2.4f, FloatRange(0, 10));
         _rentDuration = CreateSetting(nameof(_rentDuration), 12, IntRange(1, 168));
-        _titleScreenHideCharacters = CreateSetting(nameof(_titleScreenHideCharacters), TitleScreenCharacterVisibility.Enable);
         _itemActionDropOne = CreateSetting(nameof(_itemActionDropOne), false);
         _temperatureToggle = CreateSetting(nameof(_temperatureToggle), false);
         _temperatureDataByEnum = new Dictionary<TemperatureSteps, ModSetting<Vector2>>();
@@ -93,6 +105,10 @@ public class Various : AMod, IUpdatable
                 UpdateBaseStaminaRegen(player.Stats);
             TryUpdateTemperatureData();
         });
+
+        // Events
+        _arrowStackSize.AddEvent(UpdateArrowsStackSize);
+        _bulletStackSize.AddEvent(() => "Bullet".ToItem().m_stackable.m_maxStackAmount = _bulletStackSize);
     }
     protected override void SetFormatting()
     {
@@ -102,8 +118,6 @@ public class Various : AMod, IUpdatable
             _enableCheatsHotkey.Format("Hotkey");
         }
         _enableCheats.Description = "aka Debug Mode";
-        _skipStartupVideos.Format("Skip startup videos");
-        _skipStartupVideos.Description = "Saves ~3 seconds each time you launch the game";
         _armorSlotsToHide.Format("Armor slots to hide");
         _armorSlotsToHide.Description = "Used to hide ugly helmets (purely visual)";
 
@@ -124,15 +138,14 @@ public class Various : AMod, IUpdatable
             _applyArmorTrainingToManaCost.Format("\"Armor Training\" affects mana cost", _multiplicativeStacking);
             _applyArmorTrainingToManaCost.Description = "\"Armor Training\" will also lower equipment's mana cost penalties";
         }
-        _loadArrowsFromInventory.Format("Load arrows from inventory");
-        _loadArrowsFromInventory.Description = "Whenever you shoot your bow, the lost arrow is instantly replaced with one from your backpack or pouch (in that order)";
+        _refillArrowsFromInventory.Format("Refill arrows from inventory");
+        _refillArrowsFromInventory.Description = "Whenever you shoot your bow, the lost arrow is instantly replaced with one from your backpack or pouch (in that order)";
+        _arrowStackSize.Format("Arrows stack size");
+        _bulletStackSize.Format("Bullets stack size");
         _baseStaminaRegen.Format("Base stamina regen");
         _rentDuration.Format("Inn rent duration");
         _rentDuration.Description = "Pay the rent once, sleep for up to a week (in hours)";
 
-        _titleScreenHideCharacters.Format("Characters");
-        _titleScreenHideCharacters.Description = "If you think the character are ruining the view :)\n" +
-                                                 "(requires game restart)";
         _itemActionDropOne.Format("Add \"Drop one\" item action");
         _itemActionDropOne.Description = "Adds a button to stacked items' which skips the \"choose amount\" panel and drops exactly 1 of the item\n" +
                                          "(recommended when playing co-op for quick item sharing)";
@@ -166,15 +179,15 @@ public class Various : AMod, IUpdatable
                 ForceApply();
                 _enableCheats.Value = false;
                 _enableCheatsHotkey.Value = KeyCode.Keypad0.ToString();
-                _skipStartupVideos.Value = true;
-                _titleScreenHideCharacters.Value = TitleScreenCharacterVisibility.Randomize;
                 _removeCoopScaling.Value = true;
                 _removeDodgeInvulnerability.Value = true;
                 _healEnemiesOnLoad.Value = true;
                 _multiplicativeStacking.Value = true;
                 _armorTrainingPenaltyReduction.Value = 50;
                 _applyArmorTrainingToManaCost.Value = true;
-                _loadArrowsFromInventory.Value = true;
+                _refillArrowsFromInventory.Value = true;
+                _arrowStackSize.Value = 20;
+                _bulletStackSize.Value = 20;
                 _rentDuration.Value = 120;
                 _itemActionDropOne.Value = true;
                 _temperatureToggle.Value = true;
@@ -247,6 +260,11 @@ public class Various : AMod, IUpdatable
                     environmentConditions.TemperatureCaps[step] = _temperatureDataByEnum[step].Value.y;
                 }
     }
+    private void UpdateArrowsStackSize()
+    {
+        foreach (var arrow in ARROWS)
+            arrow.m_stackable.m_maxStackAmount = _arrowStackSize;
+    }
 
     // Hooks
     // Drop one
@@ -288,29 +306,6 @@ public class Various : AMod, IUpdatable
         return false;
     }
 
-    // Title screen
-    [HarmonyPatch(typeof(TitleScreenLoader), nameof(TitleScreenLoader.LoadTitleScreenCoroutine)), HarmonyPostfix]
-    private static IEnumerator TitleScreenLoader_LoadTitleScreenCoroutine_Post(IEnumerator original, TitleScreenLoader __instance)
-    {
-        while (original.MoveNext())
-            yield return original.Current;
-
-        #region quit
-        if (_titleScreenHideCharacters.Value == TitleScreenCharacterVisibility.Enable)
-            yield break;
-        #endregion
-
-        bool state = true;
-        switch (_titleScreenHideCharacters.Value)
-        {
-            case TitleScreenCharacterVisibility.Disable: state = false; break;
-            case TitleScreenCharacterVisibility.Randomize: state = System.DateTime.Now.Ticks % 2 == 0; break;
-        }
-
-        foreach (var characterVisuals in __instance.transform.GetAllComponentsInHierarchy<CharacterVisuals>())
-            characterVisuals.GOSetActive(state);
-    }
-
     // Temperature data
     [HarmonyPatch(typeof(EnvironmentConditions), nameof(EnvironmentConditions.Start)), HarmonyPostfix]
     private static void EnvironmentConditions_Start_Post(EnvironmentConditions __instance)
@@ -326,7 +321,7 @@ public class Various : AMod, IUpdatable
     private static bool WeaponLoadoutItem_ReduceShotAmount_Pre(WeaponLoadoutItem __instance)
     {
         #region quit
-        if (!_loadArrowsFromInventory
+        if (!_refillArrowsFromInventory
         || __instance.AmunitionType != WeaponLoadout.CompatibleAmmunitionType.WeaponType
         || __instance.CompatibleEquipment != Weapon.WeaponType.Arrow)
             return true;
@@ -351,7 +346,7 @@ public class Various : AMod, IUpdatable
     private static void CharacterInventory_GetAmmunitionCount_Post(CharacterInventory __instance, ref int __result)
     {
         #region quit
-        if (!_loadArrowsFromInventory || __result == 0)
+        if (!_refillArrowsFromInventory || __result == 0)
             return;
         #endregion
 
@@ -403,14 +398,6 @@ public class Various : AMod, IUpdatable
     [HarmonyPatch(typeof(CharacterEquipment), nameof(CharacterEquipment.GetTotalManaUseModifier)), HarmonyPrefix]
     private static bool CharacterEquipment_GetTotalManaUseModifier_Pre(CharacterEquipment __instance, ref float __result)
     => TryApplyMultiplicativeStacking(__instance, ref __result, slot => slot.EquippedItem.ManaUseModifier, false, _applyArmorTrainingToManaCost);
-
-    // Skip startup video
-    [HarmonyPatch(typeof(StartupVideo), nameof(StartupVideo.Awake)), HarmonyPrefix]
-    private static bool StartupVideo_Awake_Pre()
-    {
-        StartupVideo.HasPlayedOnce = _skipStartupVideos.Value;
-        return true;
-    }
 
     // Hide armor slots
     [HarmonyPatch(typeof(CharacterVisuals), nameof(CharacterVisuals.EquipVisuals)), HarmonyPrefix]
@@ -490,6 +477,9 @@ public class Various : AMod, IUpdatable
         return true;
     }
 }
+
+
+
 /*
 *         [Flags]
     private enum EquipmentStats
@@ -541,88 +531,4 @@ if (___m_character.IsPlayer() && pouch != null)
     pouch.AllowOverCapacity = _allowOverCapacity;
 }
 }
-*/
-
-/* Extra Controller Quickslots
-[HarmonyPatch(typeof(QuickSlotPanel), nameof(QuickSlotPanel.InitializeQuickSlotDisplays)), HarmonyPostfix]
-static void QuickSlotPanel_InitializeQuickSlotDisplays_Post(QuickSlotPanel __instance, ref QuickSlotDisplay[] ___m_quickSlotDisplays)
-{
-#region quit
-if (!_extraControllerQuickslots)
-    return;
-#endregion
-
-if (__instance.name == BOTH_TRIGGERS_PANEL_NAME)
-    for (int i = 0; i < ___m_quickSlotDisplays.Length; i++)
-        ___m_quickSlotDisplays[i].RefSlotID = i + 8;
-}
-
-[HarmonyPatch(typeof(LocalCharacterControl), nameof(LocalCharacterControl.UpdateQuickSlots)), HarmonyPostfix]
-static void LocalCharacterControl_UpdateQuickSlots_Pre(ref Character ___m_character)
-{
-#region quit
-if (!_extraControllerQuickslots)
-    return;
-if (___m_character == null || ___m_character.QuickSlotMngr == null || ___m_character.CharacterUI.IsMenuFocused)
-    return;
-#endregion
-
-int playerID = ___m_character.OwnerPlayerSys.PlayerID;
-
-if (QuickSlotInstant9(playerID))
-    ___m_character.QuickSlotMngr.QuickSlotInput(8);
-else if (QuickSlotInstant10(playerID))
-    ___m_character.QuickSlotMngr.QuickSlotInput(9);
-else if (QuickSlotInstant11(playerID))
-    ___m_character.QuickSlotMngr.QuickSlotInput(10);
-else if (QuickSlotInstant12(playerID))
-    ___m_character.QuickSlotMngr.QuickSlotInput(11);
-}
-
-    static void AddQuickSlot12()
-{
-foreach (var localPlayer in Utility.LocalPlayers)
-{
-    Transform quickSlotsHolder = localPlayer.ControlledCharacter.GetComponent<CharacterQuickSlotManager>().QuickslotTrans;
-    if (quickSlotsHolder.Find(QUICKSLOT_12_NAME) != null)
-        continue;
-
-    QuickSlot newQuickSlot = GameObject.Instantiate(quickSlotsHolder.Find("1"), quickSlotsHolder).GetComponent<QuickSlot>();
-    newQuickSlot.name = QUICKSLOT_12_NAME;
-    foreach (var quickSlot in quickSlotsHolder.GetComponents<QuickSlot>())
-        quickSlot.ItemQuickSlot = false;
-    localPlayer.ControlledCharacter.QuickSlotMngr.Awake();
-}
-}
-
-static void DrawExtraControllerQuickslotSwitcher()
-{
-foreach (var localPlayer in Utility.LocalPlayers)
-{
-    Transform panel = localPlayer.ControlledCharacter.CharacterUI.QuickSlotMenu.FindChild("PanelSwitcher/Controller/LT-RT").transform;
-    if (panel.Find(BOTH_TRIGGERS_PANEL_NAME) != null)
-        continue;
-
-    // Instantiate
-    Transform LT = panel.Find("LT").transform;
-    Transform RT = panel.Find("RT").transform;
-    foreach (var quickslotPlacer in LT.GetComponentsInChildren<EditorQuickSlotDisplayPlacer>())
-        quickslotPlacer.IsTemplate = true;
-    Transform LTRT = GameObject.Instantiate(LT.gameObject, panel).transform;
-    LTRT.name = BOTH_TRIGGERS_PANEL_NAME;
-    Transform imgLT = LTRT.Find("imgLT");
-    Transform imgRT = GameObject.Instantiate(RT.Find("imgRT"), LTRT).transform;
-    imgRT.name = "imgRT";
-
-    // Change
-    panel.Find("LeftDecoration").gameObject.SetActive(false);
-    panel.Find("RightDecoration").gameObject.SetActive(false);
-    LT.localPosition = new Vector2(-300f, 0);
-    RT.localPosition = new Vector2(0f, 0);
-    LTRT.localPosition = new Vector2(+300f, 0);
-    imgLT.localPosition = new Vector2(-22.5f, 22.5f);
-    imgRT.localPosition = new Vector2(+22.5f, 22.5f);
-}
-}
-
 */
