@@ -64,7 +64,7 @@ public class Dodge : AMod
     // Hooks
     // Mid-attack dodge
     [HarmonyPostfix, HarmonyPatch(typeof(Character), nameof(Character.StartAttack))]
-    static private void Character_StartAttack_Post(Character __instance, int _type, int _id)
+    private static void Character_StartAttack_Post(Character __instance, int _type, int _id)
     {
         if (!_allowMidAttack
         || !__instance.IsPlayer())
@@ -74,7 +74,7 @@ public class Dodge : AMod
     }
 
     [HarmonyPostfix, HarmonyPatch(typeof(Character), nameof(Character.OnReceiveHit))]
-    static private void Character_OnReceiveHit_Post(Character __instance, Character _dealerChar)
+    private static void Character_OnReceiveHit_Post(Character __instance, Character _dealerChar)
     {
         if (!_allowMidAttack)
             return;
@@ -92,7 +92,7 @@ public class Dodge : AMod
 
 
     [HarmonyPrefix, HarmonyPatch(typeof(Interactions.InteractionTakeAnimated), nameof(Interactions.InteractionTakeAnimated.OnActivate))]
-    static private void InteractionTakeAnimated_OnActivate_Pre(Interactions.InteractionTakeAnimated __instance)
+    private static void InteractionTakeAnimated_OnActivate_Pre(Interactions.InteractionTakeAnimated __instance)
     => __instance.LastCharacter.m_dodgeAllowedInAction = 0;
 
     // Remove dodge invulnerability
@@ -110,7 +110,7 @@ public class Dodge : AMod
     }
 
     [HarmonyPostfix, HarmonyPatch(typeof(Character), nameof(Character.DodgeStamCost), MethodType.Getter)]
-    static private void Character_DodgeStamCost_Getter_Post(Character __instance, ref int __result)
+    private static void Character_DodgeStamCost_Getter_Post(Character __instance, ref int __result)
     => __result = __instance.Inventory.SkillKnowledge.IsItemLearned(ACROBATICS_SKILLID)
         ? _staminaCostAcrobatics
         : _staminaCost;

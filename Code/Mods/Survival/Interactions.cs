@@ -99,6 +99,7 @@ public class Interactions : AMod, IDelayedInit
             // Execute
             if (!LastCharacter.Sheathed)
                 LastCharacter.SheatheInput();
+
             this.ExecuteOnceWhen(() => !LastCharacter.Sheathing, () =>
             {
                 // Sending SpellCast message to null to override default behaviour

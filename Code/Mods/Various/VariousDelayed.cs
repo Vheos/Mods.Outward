@@ -1,6 +1,4 @@
 ﻿namespace Vheos.Mods.Outward;
-using System.Collections;
-
 public class VariousDelayed : AMod, IDelayedInit
 {
     #region const

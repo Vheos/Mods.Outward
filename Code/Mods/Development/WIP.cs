@@ -1,6 +1,4 @@
 ﻿namespace Vheos.Mods.Outward;
-using UnityEngine.UI;
-
 public class WIP : AMod
 {
     private static ModSetting<Vector2> _temperatureMultiplier;
