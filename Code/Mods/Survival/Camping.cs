@@ -94,7 +94,7 @@ public class Camping : AMod
                 ForceApply();
                 _campingSpots.Value = CampingSpots.Butterflies | CampingSpots.Dungeons;
                 _butterfliesSpawnChance.Value = 50;
-                _butterfliesRadius.Value = 5;
+                _butterfliesRadius.Value = 10;
                 _campingActivities.Value = CampingActivities.Sleep | CampingActivities.Repair;
                 break;
         }

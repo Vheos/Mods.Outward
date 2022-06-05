@@ -84,7 +84,7 @@ public class SurvivalTools : AMod
                 _chanceToBreakFlintAndSteel.Value = 25;
                 _moreGatheringTools.Value = true;
                 _gatheringDurabilityCost.Value = new Vector2(15, 3);
-                _torchesTemperatureRadius.Value = 7.5f;
+                _torchesTemperatureRadius.Value = 10f;
                 _torchesDecayOnGround.Value = true;
                 _lightsRange.Value = 133;
                 _twoPersonBeds.Value = true;
@@ -95,7 +95,7 @@ public class SurvivalTools : AMod
     // Hooks
     // More gathering tools
     [HarmonyPrefix, HarmonyPatch(typeof(CharacterInventory), nameof(CharacterInventory.GetCompatibleGatherableTool))]
-    private static bool GatherableInteraction_GetCompatibleGatherableTool_Pre(CharacterInventory __instance, ref Item __result, int _sourceToolID)
+    private static bool CharacterInventory_GetCompatibleGatherableTool_Pre(CharacterInventory __instance, ref Item __result, int _sourceToolID)
     {
         #region quit
         if (!_moreGatheringTools

@@ -76,12 +76,12 @@ public class Damage : AMod
                 ForceApply();
                 _playersToggle.Value = true;
                 {
-                    _playersHealthDamage.Value = 40;
-                    _playersStabilityDamage.Value = 40;
+                    _playersHealthDamage.Value = 50;
+                    _playersStabilityDamage.Value = 50;
                     _playersFriendlyFireToggle.Value = true;
                     {
-                        _playersFriendlyFireHealthDamage.Value = 75;
-                        _playersFriendlyFireStabilityDamage.Value = 75;
+                        _playersFriendlyFireHealthDamage.Value = 50;
+                        _playersFriendlyFireStabilityDamage.Value = 50;
                     }
                 }
                 _enemiesToggle.Value = true;
