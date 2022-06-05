@@ -38,6 +38,7 @@
     <Compile Include="Code\Core\Prefabs.cs" />
     <Compile Include="Code\Core\GameInput.cs" />
     <Compile Include="Code\Core\Presets.cs" />
+    <Compile Include="Code\Mods\Combat\Dodge.cs" />
     <Compile Include="Code\Mods\Survival\Crafting.cs" />
     <Compile Include="Code\Mods\Combat\AI.cs" />
     <Compile Include="Code\Mods\Survival\Stashes.cs" />

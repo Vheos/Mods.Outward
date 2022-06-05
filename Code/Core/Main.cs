@@ -11,7 +11,7 @@ public class Main : BepInExEntryPoint
     // Metadata
     public const string GUID = "Vheos.Mods.Outward";
     public const string NAME = "Vheos Mod Pack";
-    public const string VERSION = "2.0.3";
+    public const string VERSION = "2.0.4";
 
     // User logic
     protected override Assembly CurrentAssembly
@@ -55,6 +55,7 @@ public class Main : BepInExEntryPoint
         // Combat
         typeof(Damage),
         typeof(Speed),
+        typeof(Dodge),
         typeof(Targeting),
         typeof(AI),
         typeof(Traps),
