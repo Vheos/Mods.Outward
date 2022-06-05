@@ -17,15 +17,6 @@ public class Stashes : AMod, IUpdatable
                                                                               new Vector3(-392.681f, -1504.820f, 586.551f)}),
         [AreaManager.AreaEnum.NewSirocco] = ("IqUugGqBBkaOcQdRmhnMng", new Vector3[0]),
     };
-    private static readonly Dictionary<AreaManager.AreaEnum, string> SOROBOREAN_CARAVANNER_UIDS_BY_CITY = new()
-    {
-        [AreaManager.AreaEnum.CierzoVillage] = "G_GyAVjRWkq8e2L8WP4TgA",
-        [AreaManager.AreaEnum.Berg] = "-MSrkT502k63y3CV2j98TQ",
-        [AreaManager.AreaEnum.Monsoon] = "9GAbQm8Ekk23M0LohPF7dg",
-        [AreaManager.AreaEnum.Levant] = "Tbq1PxS_iUO6vhnr7aGUhg",
-        [AreaManager.AreaEnum.Harmattan] = "WN0BVRJwtE-goNLvproxgw",
-        [AreaManager.AreaEnum.NewSirocco] = "-MSrkT502k63y3CV2j98TQ",
-    };
     #endregion
 
     #region enum
@@ -43,8 +34,6 @@ public class Stashes : AMod, IUpdatable
     private static ModSetting<bool> _playerSharedStash;
     private static ModSetting<bool> _craftFromStash;
     private static ModSetting<bool> _craftFromStashOutside;
-    private static ModSetting<bool> _displayStashAmount;
-    private static ModSetting<bool> _displayPricesInStash;
     private static ModSetting<bool> _stashesStartEmpty;
     protected override void Initialize()
     {
@@ -54,8 +43,6 @@ public class Stashes : AMod, IUpdatable
         _playerSharedStash = CreateSetting(nameof(_playerSharedStash), false);
         _craftFromStash = CreateSetting(nameof(_craftFromStash), false);
         _craftFromStashOutside = CreateSetting(nameof(_craftFromStashOutside), false);
-        _displayStashAmount = CreateSetting(nameof(_displayStashAmount), false);
-        _displayPricesInStash = CreateSetting(nameof(_displayPricesInStash), false);
         _stashesStartEmpty = CreateSetting(nameof(_stashesStartEmpty), false);
     }
     protected override void SetFormatting()
@@ -87,12 +74,6 @@ public class Stashes : AMod, IUpdatable
             _craftFromStashOutside.Description =
                 "Allows you to craft from stash anywhere - even outside cities";
         }
-        _displayStashAmount.Format("Display stashed item amounts");
-        _displayStashAmount.Description = "Displays how many of each items you have stored in your stash\n" +
-                                          "(shows in player/merchant inventory and crafting menu)";
-        _displayPricesInStash.Format("Display prices in stash");
-        _displayPricesInStash.Description = "Items in stash will have their sell prices displayed\n" +
-                                            "(if prices vary among merchants, Soroborean Caravanner is taken as reference)";
         _stashesStartEmpty.Format("Stashes start empty");
         _stashesStartEmpty.Description = "Stashes won't have any items inside the first time you open them";
 
@@ -110,8 +91,6 @@ public class Stashes : AMod, IUpdatable
                 _innStashes.Value = true;
                 _stashType.Value = StashType.CityBound;
                 _craftFromStash.Value = true;
-                _displayStashAmount.Value = true;
-                _displayPricesInStash.Value = true;
                 _stashesStartEmpty.Value = true;
                 break;
         }
@@ -132,8 +111,7 @@ public class Stashes : AMod, IUpdatable
     private static bool IsInCity()
     => AreaManager.Instance.CurrentArea.TryNonNull(out var currentArea)
     && STASH_DATA_BY_CITY.ContainsKey((AreaManager.AreaEnum)currentArea.ID);
-    private static Character GetStashCharacter(Character character) => _playerSharedStash ? Players.GetLocal(0).Character : character;
-    private static bool TryGetStash(Character character, out ItemContainer stash)
+    public static bool TryGetStash(Character character, out ItemContainer stash)
     {
         if (_stashType == StashType.CityBound)
         {
@@ -141,67 +119,26 @@ public class Stashes : AMod, IUpdatable
             && AreaManager.Instance.CurrentArea.TryNonNull(out var currentArea)
             && STASH_DATA_BY_CITY.TryGet((AreaManager.AreaEnum)currentArea.ID, out var data))
                 _cachedStash = (TreasureChest)ItemManager.Instance.GetItem(data.UID);
+
             stash = _cachedStash;
         }
         else
         {
             if (_playerSharedStash)
                 character = Players.GetFirst().Character;
-            stash = GetStashCharacter(character).Inventory.Stash;
+
+            stash = character != null ? character.Inventory.Stash : null;
         }
 
         return stash != null;
     }
-    private static Merchant _soroboreanCaravanner;
-    private static Merchant SoroboreanCaravanner
-    {
-        get
-        {
-            if (_soroboreanCaravanner == null
-            && AreaManager.Instance.CurrentArea.TryNonNull(out var currentArea)
-            && SOROBOREAN_CARAVANNER_UIDS_BY_CITY.TryGet((AreaManager.AreaEnum)currentArea.ID, out var uid)
-            && Merchant.m_sceneMerchants.ContainsKey(uid))
-                _soroboreanCaravanner = Merchant.m_sceneMerchants[uid];
-            return _soroboreanCaravanner;
-        }
-    }
-    private static void TryDisplayStashAmount(ItemDisplay itemDisplay)
-    {
-        #region quit
-        if (!_displayStashAmount
-        || !TryGetStash(itemDisplay.LocalCharacter, out var stash)
-        || !itemDisplay.m_lblQuantity.TryNonNull(out var quantity)
-        || !itemDisplay.RefItem.TryNonNull(out var item)
-        || item.ParentContainer is not MerchantPouch && itemDisplay is not RecipeResultDisplay)
-            return;
-        #endregion
 
-        int stashAmount = itemDisplay is CurrencyDisplay
-            ? stash.ContainedSilver
-            : stash.ItemStackCount(item.ItemID);
-
-        if (stashAmount <= 0)
-            return;
-
-        if (itemDisplay is not RecipeResultDisplay)
-            quantity.text = itemDisplay.m_lastQuantity.ToString();
-        else if (itemDisplay.m_dBarUses.TryNonNull(out var dotBar) && dotBar.GOActive())
-            quantity.text = "1";
-
-        int fontSize = (quantity.fontSize * 0.75f).Round();
-        quantity.alignment = TextAnchor.UpperRight;
-        quantity.lineSpacing = 0.75f;
-        quantity.text += $"\n<color=#00FF00FF><size={fontSize}><b>+{stashAmount}</b></size></color>";
-    }
 
     // Hooks
     // Reset static scene data
     [HarmonyPostfix, HarmonyPatch(typeof(NetworkLevelLoader), nameof(NetworkLevelLoader.UnPauseGameplay))]
     private static void NetworkLevelLoader_UnPauseGameplay_Post(NetworkLevelLoader __instance)
-    {
-        _cachedStash = null;
-        _soroboreanCaravanner = null;
-    }
+    => _cachedStash = null;
 
     // City-bound stashes
     [HarmonyReversePatch, HarmonyPatch(typeof(ItemContainer), nameof(ItemContainer.ShowContent))]
@@ -236,26 +173,6 @@ public class Stashes : AMod, IUpdatable
 
         __instance.m_hasGeneratedContent = true;
         __instance.m_ignoreHasGeneratedContent = false;
-    }
-
-    // Display prices in stash
-    [HarmonyPrefix, HarmonyPatch(typeof(ItemDisplay), nameof(ItemDisplay.UpdateValueDisplay))]
-    private static bool ItemDisplay_UpdateValueDisplay_Pre(ItemDisplay __instance)
-    {
-        #region quit
-        if (!_displayPricesInStash
-        || !__instance.CharacterUI.TryNonNull(out var characterUI)
-        || !characterUI.GetIsMenuDisplayed(CharacterUI.MenuScreens.Stash)
-        || !__instance.RefItem.TryNonNull(out var item)
-        || !__instance.m_lblValue.TryNonNull(out var priceText)
-        || SoroboreanCaravanner == null)
-            return true;
-        #endregion
-
-        if (!__instance.m_valueHolder.activeSelf)
-            __instance.m_valueHolder.SetActive(true);
-        priceText.text = item.GetSellValue(characterUI.TargetCharacter, SoroboreanCaravanner).ToString();
-        return false;
     }
 
     // Inn Stash
@@ -326,17 +243,4 @@ public class Stashes : AMod, IUpdatable
 
         __instance.InventoryIngredients(_craftingStationTag, ref _sortedIngredient, stash.GetContainedItems());
     }
-
-    // Display stash amount
-    [HarmonyPostfix, HarmonyPatch(typeof(ItemDisplay), nameof(ItemDisplay.UpdateQuantityDisplay))]
-    private static void ItemDisplay_UpdateQuantityDisplay_Post(ItemDisplay __instance)
-    => TryDisplayStashAmount(__instance);
-
-    [HarmonyPostfix, HarmonyPatch(typeof(CurrencyDisplay), nameof(CurrencyDisplay.UpdateQuantityDisplay))]
-    private static void CurrencyDisplay_UpdateQuantityDisplay_Post(CurrencyDisplay __instance)
-    => TryDisplayStashAmount(__instance);
-
-    [HarmonyPostfix, HarmonyPatch(typeof(RecipeResultDisplay), nameof(RecipeResultDisplay.UpdateQuantityDisplay))]
-    private static void RecipeResultDisplay_UpdateQuantityDisplay_Post(RecipeResultDisplay __instance)
-    => TryDisplayStashAmount(__instance);
 }

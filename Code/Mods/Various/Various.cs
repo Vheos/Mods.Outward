@@ -6,6 +6,7 @@
 namespace Vheos.Mods.Outward;
 
 using System.Collections;
+using UnityEngine.UI;
 
 public class Various : AMod, IUpdatable
 {
@@ -52,7 +53,6 @@ public class Various : AMod, IUpdatable
     private static ModSetting<string> _enableCheatsHotkey;
     private static ModSetting<ArmorSlots> _armorSlotsToHide;
     private static ModSetting<bool> _removeCoopScaling;
-    private static ModSetting<bool> _removeDodgeInvulnerability;
     private static ModSetting<bool> _healEnemiesOnLoad;
     private static ModSetting<bool> _multiplicativeStacking;
     private static ModSetting<int> _armorTrainingPenaltyReduction;
@@ -61,6 +61,8 @@ public class Various : AMod, IUpdatable
     private static ModSetting<float> _baseStaminaRegen;
     private static ModSetting<int> _rentDuration;
     private static ModSetting<bool> _itemActionDropOne;
+    private static ModSetting<bool> _highlightItemsWithLegacyUpgrade;
+    private static ModSetting<Color> _legacyItemUpgradeColor;
     private static ModSetting<bool> _temperatureToggle;
     private static Dictionary<TemperatureSteps, ModSetting<Vector2>> _temperatureDataByEnum;
     protected override void Initialize()
@@ -71,7 +73,6 @@ public class Various : AMod, IUpdatable
         _enableCheatsHotkey = CreateSetting(nameof(_enableCheatsHotkey), "");
         _armorSlotsToHide = CreateSetting(nameof(_armorSlotsToHide), ArmorSlots.None);
         _removeCoopScaling = CreateSetting(nameof(_removeCoopScaling), false);
-        _removeDodgeInvulnerability = CreateSetting(nameof(_removeDodgeInvulnerability), false);
         _healEnemiesOnLoad = CreateSetting(nameof(_healEnemiesOnLoad), false);
         _multiplicativeStacking = CreateSetting(nameof(_multiplicativeStacking), false);
         _armorTrainingPenaltyReduction = CreateSetting(nameof(_armorTrainingPenaltyReduction), 50, IntRange(0, 100));
@@ -80,6 +81,8 @@ public class Various : AMod, IUpdatable
         _baseStaminaRegen = CreateSetting(nameof(_baseStaminaRegen), 2.4f, FloatRange(0, 10));
         _rentDuration = CreateSetting(nameof(_rentDuration), 12, IntRange(1, 168));
         _itemActionDropOne = CreateSetting(nameof(_itemActionDropOne), false);
+        _highlightItemsWithLegacyUpgrade = CreateSetting(nameof(_highlightItemsWithLegacyUpgrade), false);
+        _legacyItemUpgradeColor = CreateSetting(nameof(_legacyItemUpgradeColor), new Color(1f, 0.75f, 0f, 0.5f));
         _temperatureToggle = CreateSetting(nameof(_temperatureToggle), false);
         _temperatureDataByEnum = new Dictionary<TemperatureSteps, ModSetting<Vector2>>();
         foreach (var step in InternalUtility.GetEnumValues<TemperatureSteps>())
@@ -116,9 +119,6 @@ public class Various : AMod, IUpdatable
 
         _removeCoopScaling.Format("Remove multiplayer scaling");
         _removeCoopScaling.Description = "Enemies in multiplayer will have the same stats as in singleplayer";
-        _removeDodgeInvulnerability.Format("Remove dodge invulnerability");
-        _removeDodgeInvulnerability.Description = "You can get hit during the dodge animation\n" +
-                                                  "(even without a backpack)";
         _healEnemiesOnLoad.Format("Heal enemies on load");
         _healEnemiesOnLoad.Description = "Every loading screen fully heals all enemies";
         _multiplicativeStacking.Format("Multiplicative stacking");
@@ -140,17 +140,23 @@ public class Various : AMod, IUpdatable
         _itemActionDropOne.Format("Add \"Drop one\" item action");
         _itemActionDropOne.Description = "Adds a button to stacked items' which skips the \"choose amount\" panel and drops exactly 1 of the item\n" +
                                          "(recommended when playing co-op for quick item sharing)";
+        _highlightItemsWithLegacyUpgrade.Format("Highlight items with legacy upgrades");
+        using (Indent)
+        {
+            _legacyItemUpgradeColor.Format("color", _highlightItemsWithLegacyUpgrade);
+        }
         _temperatureToggle.Format("Temperature");
-        _temperatureToggle.Description = "Change each environmental temperature level's value and cap:\n" +
-                                         "X   -   value; how much cold/hot weather defense you need to nullify this temperature level\n" +
-                                         "Y   -   cap; min/max player temperature at this environmental temperature level\n" +
-                                         "\n" +
-                                         "Player temperatures cheatsheet:\n" +
-                                         "Very cold   -   25\n" +
-                                         "Cold   -   40\n" +
-                                         "Neutral   -   50\n" +
-                                         "Hot   -   60\n" +
-                                         "Very Hot   -   75)";
+        _temperatureToggle.Description =
+            "Change each environmental temperature level's value and cap:\n" +
+            "X   -   value; how much cold/hot weather defense you need to nullify this temperature level\n" +
+            "Y   -   cap; min/max player temperature at this environmental temperature level\n" +
+            "\n" +
+            "Player temperatures cheatsheet:\n" +
+            "Very cold   -   25\n" +
+            "Cold   -   40\n" +
+            "Neutral   -   50\n" +
+            "Hot   -   60\n" +
+            "Very Hot   -   75)";
         using (Indent)
         {
             foreach (var step in InternalUtility.GetEnumValues<TemperatureSteps>())
@@ -173,7 +179,6 @@ public class Various : AMod, IUpdatable
                 _enableCheats.Value = false;
                 _enableCheatsHotkey.Value = KeyCode.Keypad0.ToString();
                 _removeCoopScaling.Value = true;
-                _removeDodgeInvulnerability.Value = true;
                 _healEnemiesOnLoad.Value = true;
                 _multiplicativeStacking.Value = true;
                 _armorTrainingPenaltyReduction.Value = 50;
@@ -251,7 +256,6 @@ public class Various : AMod, IUpdatable
                     environmentConditions.TemperatureCaps[step] = _temperatureDataByEnum[step].Value.y;
                 }
     }
-
 
     // Hooks
     // Title screen
@@ -462,20 +466,6 @@ public class Various : AMod, IUpdatable
     private static bool CoopStats_RemoveFromCharacter_Pre()
     => !_removeCoopScaling;
 
-    // Remove dodge invulnerability
-    [HarmonyPostfix, HarmonyPatch(typeof(Character), nameof(Character.DodgeStep))]
-    private static void Character_DodgeStep_Post(ref Hitbox[] ___m_hitboxes, ref int _step)
-    {
-        #region quit
-        if (!_removeDodgeInvulnerability)
-            return;
-        #endregion
-
-        if (_step > 0 && ___m_hitboxes != null)
-            foreach (var hitbox in ___m_hitboxes)
-                hitbox.gameObject.SetActive(true);
-    }
-
     // Enemy health reset time
     [HarmonyPrefix, HarmonyPatch(typeof(Character), nameof(Character.LoadCharSave))]
     private static void Character_LoadCharSave_Pre(Character __instance)
@@ -487,6 +477,41 @@ public class Various : AMod, IUpdatable
 
         __instance.HoursToHealthReset = _healEnemiesOnLoad ? 0 : DEFAULT_ENEMY_HEALTH_RESET_HOURS;
     }
+    // Mark items with legacy upgrades
+    [HarmonyPrefix, HarmonyPatch(typeof(ItemDisplay), nameof(ItemDisplay.RefreshEnchantedIcon))]
+    private static bool ItemDisplay_RefreshEnchantedIcon_Pre(ItemDisplay __instance)
+    {
+        #region quit
+        if (!_highlightItemsWithLegacyUpgrade
+        || __instance.m_refItem == null
+        || __instance.m_imgEnchantedIcon == null
+        || __instance.m_refItem is Skill)
+            return true;
+        #endregion
+
+        // Cache
+        Image icon = __instance.FindChild<Image>("Icon");
+        Image border = icon.FindChild<Image>("border");
+        Image indicator = __instance.m_imgEnchantedIcon;
+
+        //Defaults
+        icon.color = Color.white;
+        border.color = Color.white;
+        indicator.GOSetActive(false);
+
+        // Quit
+        if (__instance.m_refItem.LegacyItemID <= 0)
+            return true;
+
+        // Custom
+        border.color = _legacyItemUpgradeColor.Value.NewA(1f);
+        indicator.color = _legacyItemUpgradeColor;
+        indicator.rectTransform.pivot = 1f.ToVector2();
+        indicator.rectTransform.localScale = new Vector2(1.5f, 1.5f);
+        indicator.GOSetActive(true);
+        return false;
+    }
+
 }
 
 

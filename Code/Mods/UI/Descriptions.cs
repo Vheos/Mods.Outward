@@ -23,6 +23,15 @@ public class Descriptions : AMod, IDelayedInit
     private static Color CORRUPTION_COLOR = new(0.655f, 0.647f, 0.282f, 1f);
     private static Color STATUSEFFECT_COLOR = new(0.780f, 1f, 0.702f, 1f);
     private static Color STATUSCURES_COLOR = new(1f, 0.702f, 0.706f);
+    private static readonly Dictionary<AreaManager.AreaEnum, string> SOROBOREAN_CARAVANNER_UIDS_BY_CITY = new()
+    {
+        [AreaManager.AreaEnum.CierzoVillage] = "G_GyAVjRWkq8e2L8WP4TgA",
+        [AreaManager.AreaEnum.Berg] = "-MSrkT502k63y3CV2j98TQ",
+        [AreaManager.AreaEnum.Monsoon] = "9GAbQm8Ekk23M0LohPF7dg",
+        [AreaManager.AreaEnum.Levant] = "Tbq1PxS_iUO6vhnr7aGUhg",
+        [AreaManager.AreaEnum.Harmattan] = "WN0BVRJwtE-goNLvproxgw",
+        [AreaManager.AreaEnum.NewSirocco] = "-MSrkT502k63y3CV2j98TQ",
+    };
     #endregion
     #region enum
     [Flags]
@@ -141,6 +150,9 @@ public class Descriptions : AMod, IDelayedInit
     private static ModSetting<bool> _displayRelativeAttackSpeed, _normalizeImpactDisplay, _moveBarrierBelowProtection, _hideNumericalDurability;
     private static ModSetting<int> _durabilityBarSize, _freshnessBarSize, _barThickness;
     private static ModSetting<bool> _durabilityTiedToMax, _freshnessTiedToLifespan;
+    private static ModSetting<bool> _displaySellPricesInCities;
+    private static ModSetting<bool> _displayRawValuesOutsideCities;
+    private static ModSetting<bool> _displayStashAmount;
     protected override void Initialize()
     {
         _details = CreateSetting(nameof(_details), Details.None);
@@ -159,13 +171,14 @@ public class Descriptions : AMod, IDelayedInit
         _barThickness = CreateSetting(nameof(_barThickness), (100 / BAR_MAX_SIZE.y).Round(), IntRange(0, 100));
         _addBackgrounds = CreateSetting(nameof(_addBackgrounds), false);
 
-        AddEventOnConfigClosed(() => SetBackgrounds(_addBackgrounds));
+        _displaySellPricesInCities = CreateSetting(nameof(_displaySellPricesInCities), false);
+        _displayRawValuesOutsideCities = CreateSetting(nameof(_displayRawValuesOutsideCities), false);
+        _displayStashAmount = CreateSetting(nameof(_displayStashAmount), false);
 
-        _rowsCache = new RowsCache();
+        AddEventOnConfigClosed(() => SetBackgrounds(_addBackgrounds));
     }
     protected override void SetFormatting()
     {
-
         _details.Format("Details to display");
         _equipmentToggle.Format("Equipment");
         using (Indent)
@@ -199,6 +212,17 @@ public class Descriptions : AMod, IDelayedInit
 
         _addBackgrounds.Format("Add backgrounds to foods/drinks");
         _addBackgrounds.Description = "Display a big \"potions\" icon in the background of foods' and drinks' description box (by default, only Life Potion uses it)";
+
+        CreateHeader("Display item prices");
+        using (Indent)
+        {
+            _displaySellPricesInCities.Format("in cities");
+            _displaySellPricesInCities.Description = "Display actual sell prices when in city (if prices vary by merchant, Soroborean Caravanner is taken as a reference)";
+            _displayRawValuesOutsideCities.Format("outside cities");
+            _displayRawValuesOutsideCities.Description = "Display base buy values when not in a city";
+        }
+        _displayStashAmount.Format("Display stashed item amounts");
+        _displayStashAmount.Description = "Displays how many of each items you have stored in your stash";
     }
     protected override string Description
     => "• Display extra item details in inventory\n" +
@@ -228,13 +252,29 @@ public class Descriptions : AMod, IDelayedInit
                     _barThickness.Value = 60;
                 }
                 _addBackgrounds.Value = true;
+                _displaySellPricesInCities.Value = true;
+                _displayRawValuesOutsideCities.Value = false;
+                _displayStashAmount.Value = true;
                 break;
         }
     }
 
     // Utility
     private static Sprite _impactIcon;
-    private static RowsCache _rowsCache;
+    private static readonly RowsCache _rowsCache = new();
+    private static Merchant _soroboreanCaravanner;
+    private static Merchant SoroboreanCaravanner
+    {
+        get
+        {
+            if (_soroboreanCaravanner == null
+            && AreaManager.Instance.CurrentArea.TryNonNull(out var currentArea)
+            && SOROBOREAN_CARAVANNER_UIDS_BY_CITY.TryGet((AreaManager.AreaEnum)currentArea.ID, out var uid)
+            && Merchant.m_sceneMerchants.ContainsKey(uid))
+                _soroboreanCaravanner = Merchant.m_sceneMerchants[uid];
+            return _soroboreanCaravanner;
+        }
+    }
     private static void TryCacheImpactIcon(CharacterUI characterUI)
     {
         if (_impactIcon == null
@@ -444,8 +484,42 @@ public class Descriptions : AMod, IDelayedInit
 
         Utility.Swap(ref item.m_displayedInfos[resistancesIndex], ref item.m_displayedInfos[barrierIndex]);
     }
+    private static void TryDisplayStashAmount(ItemDisplay itemDisplay)
+    {
+        #region quit
+        if (!_displayStashAmount
+        || !itemDisplay.m_lblQuantity.TryNonNull(out var quantity)
+        || !itemDisplay.RefItem.TryNonNull(out var item)
+        || !item.ParentContainer.TryNonNull(out var container)
+        || container.SpecialType == ItemContainer.SpecialContainerTypes.Stash
+        || !Stashes.TryGetStash(itemDisplay.LocalCharacter, out var stash))
+            return;
+        #endregion
+
+        int stashAmount = itemDisplay is CurrencyDisplay
+            ? stash.ContainedSilver
+            : stash.ItemStackCount(item.ItemID);
+
+        if (stashAmount <= 0)
+            return;
+
+        if (itemDisplay is not RecipeResultDisplay)
+            quantity.text = itemDisplay.m_lastQuantity.ToString();
+        else if (itemDisplay.m_dBarUses.TryNonNull(out var dotBar) && dotBar.GOActive())
+            quantity.text = "1";
+
+        int fontSize = (quantity.fontSize * 0.75f).Round();
+        quantity.alignment = TextAnchor.UpperRight;
+        quantity.lineSpacing = 0.75f;
+        quantity.text += $"\n<color=#00FF00FF><size={fontSize}><b>+{stashAmount}</b></size></color>";
+    }
+
 
     // Hooks
+    [HarmonyPostfix, HarmonyPatch(typeof(NetworkLevelLoader), nameof(NetworkLevelLoader.UnPauseGameplay))]
+    private static void NetworkLevelLoader_UnPauseGameplay_Post(NetworkLevelLoader __instance)
+    => _soroboreanCaravanner = null;
+
     [HarmonyPrefix, HarmonyPatch(typeof(ItemDetailsDisplay), nameof(ItemDetailsDisplay.ShowDetails))]
     private static bool ItemDetailsDisplay_ShowDetails_Pre(ItemDetailsDisplay __instance)
     {
@@ -543,4 +617,40 @@ public class Descriptions : AMod, IDelayedInit
 
         return true;
     }
+
+    // Display prices in stash
+    [HarmonyPrefix, HarmonyPatch(typeof(ItemDisplay), nameof(ItemDisplay.UpdateValueDisplay))]
+    private static bool ItemDisplay_UpdateValueDisplay_Pre(ItemDisplay __instance)
+    {
+        #region quit
+        if (!__instance.CharacterUI.TryNonNull(out var characterUI)
+        || !__instance.RefItem.TryNonNull(out var item)
+        || item.ParentContainer is MerchantPouch
+        || !__instance.m_lblValue.TryNonNull(out var priceText))
+            return true;
+        #endregion
+
+        priceText.text =
+            _displaySellPricesInCities && SoroboreanCaravanner != null ? item.GetSellValue(characterUI.TargetCharacter, SoroboreanCaravanner).ToString()
+            : _displayRawValuesOutsideCities && SoroboreanCaravanner == null ? item.RawBaseValue.ToString()
+            : null;
+
+        if (__instance.m_valueHolder.activeSelf != priceText.text.IsNotNullOrEmpty())
+            __instance.m_valueHolder.SetActive(!__instance.m_valueHolder.activeSelf);
+
+        return false;
+    }
+
+    // Display stash amount
+    [HarmonyPostfix, HarmonyPatch(typeof(ItemDisplay), nameof(ItemDisplay.UpdateQuantityDisplay))]
+    private static void ItemDisplay_UpdateQuantityDisplay_Post(ItemDisplay __instance)
+    => TryDisplayStashAmount(__instance);
+
+    [HarmonyPostfix, HarmonyPatch(typeof(CurrencyDisplay), nameof(CurrencyDisplay.UpdateQuantityDisplay))]
+    private static void CurrencyDisplay_UpdateQuantityDisplay_Post(CurrencyDisplay __instance)
+    => TryDisplayStashAmount(__instance);
+
+    [HarmonyPostfix, HarmonyPatch(typeof(RecipeResultDisplay), nameof(RecipeResultDisplay.UpdateQuantityDisplay))]
+    private static void RecipeResultDisplay_UpdateQuantityDisplay_Post(RecipeResultDisplay __instance)
+    => TryDisplayStashAmount(__instance);
 }
