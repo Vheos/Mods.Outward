@@ -78,7 +78,7 @@ public class SkillLimits : AMod
         _activeSkillsLimit = CreateSetting(nameof(_activeSkillsLimit), 15, IntRange(1, 75));
         _limitedSkillTypes = CreateSetting(nameof(_limitedSkillTypes), (LimitedSkillTypes)~0);
         _freePostBreakthroughBasicSkills = CreateSetting(nameof(_freePostBreakthroughBasicSkills), false);
-        _limitedSkillColor = CreateSetting(nameof(_limitedSkillColor), new Color(1 / 3f, 0f, 1f, 1f));
+        _limitedSkillColor = CreateSetting(nameof(_limitedSkillColor), new Color(0.5f, 0f, 0.25f, 0.5f));
     }
     protected override void SetFormatting()
     {
@@ -280,8 +280,8 @@ public class SkillLimits : AMod
 
         // Custom
         icon.color = ICON_COLOR;
-        border.color = _limitedSkillColor.Value;
-        indicator.color = _limitedSkillColor.Value.AlphaMultiplied(1 / 3f);
+        border.color = _limitedSkillColor.Value.NewA(1f);
+        indicator.color = _limitedSkillColor.Value;
         indicator.rectTransform.pivot = 1f.ToVector2();
         indicator.rectTransform.localScale = INDICATOR_SCALE;
         indicator.GOSetActive(true);
