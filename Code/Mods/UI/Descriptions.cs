@@ -4,6 +4,7 @@
 
 namespace Vheos.Mods.Outward;
 using Tools.Utilities;
+using UnityEngine.UI;
 
 public class Descriptions : AMod, IDelayedInit
 {
@@ -153,6 +154,9 @@ public class Descriptions : AMod, IDelayedInit
     private static ModSetting<bool> _displaySellPricesInCities;
     private static ModSetting<bool> _displayRawValuesOutsideCities;
     private static ModSetting<bool> _displayStashAmount;
+    private static ModSetting<bool> _recolorLearnedRecipes;
+    private static ModSetting<Color> _learnedRecipeColor;
+
     protected override void Initialize()
     {
         _details = CreateSetting(nameof(_details), Details.None);
@@ -174,6 +178,8 @@ public class Descriptions : AMod, IDelayedInit
         _displaySellPricesInCities = CreateSetting(nameof(_displaySellPricesInCities), false);
         _displayRawValuesOutsideCities = CreateSetting(nameof(_displayRawValuesOutsideCities), false);
         _displayStashAmount = CreateSetting(nameof(_displayStashAmount), false);
+        _recolorLearnedRecipes = CreateSetting(nameof(_recolorLearnedRecipes), false);
+        _learnedRecipeColor = CreateSetting(nameof(_learnedRecipeColor), new Color(0.5f, 0.5f, 0.5f, 0.5f));
 
         AddEventOnConfigClosed(() => SetBackgrounds(_addBackgrounds));
     }
@@ -223,6 +229,11 @@ public class Descriptions : AMod, IDelayedInit
         }
         _displayStashAmount.Format("Display stashed item amounts");
         _displayStashAmount.Description = "Displays how many of each items you have stored in your stash";
+        _recolorLearnedRecipes.Format("Recolor learned recipes");
+        using(Indent)
+        {
+            _learnedRecipeColor.Format("color");
+        }
     }
     protected override string Description
     => "• Display extra item details in inventory\n" +
@@ -624,9 +635,11 @@ public class Descriptions : AMod, IDelayedInit
     {
         #region quit
         if (!__instance.CharacterUI.TryNonNull(out var characterUI)
+        || characterUI.GetIsMenuDisplayed(CharacterUI.MenuScreens.Shop)
+        || !__instance.m_lblValue.TryNonNull(out var priceText)
         || !__instance.RefItem.TryNonNull(out var item)
-        || item.ParentContainer is MerchantPouch
-        || !__instance.m_lblValue.TryNonNull(out var priceText))
+        || item is WaterContainer
+        || !item.IsSellable)
             return true;
         #endregion
 
@@ -653,4 +666,29 @@ public class Descriptions : AMod, IDelayedInit
     [HarmonyPostfix, HarmonyPatch(typeof(RecipeResultDisplay), nameof(RecipeResultDisplay.UpdateQuantityDisplay))]
     private static void RecipeResultDisplay_UpdateQuantityDisplay_Post(RecipeResultDisplay __instance)
     => TryDisplayStashAmount(__instance);
+
+    [HarmonyPrefix, HarmonyPatch(typeof(ItemDisplay), nameof(ItemDisplay.RefreshEnchantedIcon))]
+    private static void ItemDisplay_RefreshEnchantedIcon_Pre(ItemDisplay __instance)
+    {
+        #region quit
+        if (!__instance.m_refItem.TryAs(out RecipeItem recipe))
+            return;
+        #endregion
+
+        // Cache
+        Image icon = __instance.FindChild<Image>("Icon");
+        Image border = icon.FindChild<Image>("border");
+
+        //Defaults
+        icon.color = Color.white;
+        border.color = Color.white;
+
+        // Quit
+        if (!__instance.LocalCharacter.HasLearnedRecipe(recipe.Recipe))
+            return;
+
+        // Custom
+        icon.color = _learnedRecipeColor;
+        border.color = _learnedRecipeColor;
+    }
 }
