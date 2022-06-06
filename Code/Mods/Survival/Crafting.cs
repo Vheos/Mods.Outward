@@ -186,10 +186,7 @@ public class Crafting : AMod, IDelayedInit
         for (int i = 1; i < __instance.m_ingredientSelectors.Length; i++)
             __instance.m_ingredientSelectors[i].GOSetActive(!enabled);
     }
-    private static bool HasLearnedRecipe(Character character, Recipe recipe)
-    => character.Inventory.RecipeKnowledge.IsRecipeLearned(recipe.UID);
-    private static void LearnRecipe(Character character, Recipe recipe)
-    => character.Inventory.RecipeKnowledge.LearnRecipe(recipe);
+
     private static int GetModifiedResultsAmount(ItemReferenceQuantity result)
     => 1 + (result.Quantity - 1f).Mul(_extraResultsMultiplier / 100f).Round();
 
@@ -262,11 +259,11 @@ public class Crafting : AMod, IDelayedInit
         #region quit
         if (!_limitedManualCrafting
         || _ustensil.StationType != Recipe.CraftingType.Alchemy
-        || HasLearnedRecipe(__instance.LocalCharacter, _crystalPowderRecipe))
+        || __instance.LocalCharacter.HasLearnedRecipe(_crystalPowderRecipe))
             return true;
         #endregion
 
-        LearnRecipe(__instance.LocalCharacter, _crystalPowderRecipe);
+        __instance.LocalCharacter.LearnRecipe(_crystalPowderRecipe);
         return true;
     }
 

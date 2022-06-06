@@ -44,6 +44,10 @@ public static class Extensions_Various
                 return disease;
         return null;
     }
+    public static bool HasLearnedRecipe(this Character character, Recipe recipe)
+    => character.Inventory.RecipeKnowledge.IsRecipeLearned(recipe.UID);
+    public static void LearnRecipe(this Character character, Recipe recipe)
+    => character.Inventory.RecipeKnowledge.LearnRecipe(recipe);
 
     // Item effects
     public static T GetEffect<T>(this Item item) where T : Effect
