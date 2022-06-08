@@ -184,7 +184,7 @@ public class Crafting : AMod, IDelayedInit
         __instance.m_multipleIngrenentsBrackground.SetAlpha(enabled ? 0f : 1f);
         __instance.m_singleIngredientBackground.SetAlpha(enabled ? 1f : 0f);
         for (int i = 1; i < __instance.m_ingredientSelectors.Length; i++)
-            __instance.m_ingredientSelectors[i].GOSetActive(!enabled);
+            __instance.m_ingredientSelectors[i].SetActive(!enabled);
     }
 
     private static int GetModifiedResultsAmount(ItemReferenceQuantity result)

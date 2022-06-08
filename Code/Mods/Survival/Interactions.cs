@@ -1,5 +1,4 @@
 ﻿namespace Vheos.Mods.Outward;
-
 using Vheos.Helpers.RNG;
 
 public class Interactions : AMod, IDelayedInit
@@ -100,15 +99,15 @@ public class Interactions : AMod, IDelayedInit
             if (!LastCharacter.Sheathed)
                 LastCharacter.SheatheInput();
 
-            this.ExecuteOnceWhen(() => !LastCharacter.Sheathing, () =>
+            this.ExecuteAfterCheck(() => !LastCharacter.Sheathing, () =>
             {
                 // Sending SpellCast message to null to override default behaviour
                 // (will raise a few log messages, but no errors)
                 LastCharacter.CastSpell(animation, (GameObject)null, Character.SpellCastModifier.Immobilized, 1, -1f);
-                this.ExecuteOnceAfterDelay(ANIMATED_TAKE_DELAY, () =>
+                this.ExecuteAfterSeconds(ANIMATED_TAKE_DELAY, () =>
                 {
                     m_item.SetBeingTaken(true, RightHandTransform);
-                    this.ExecuteOnceWhen(() => LastCharacter.CurrentSpellCast == Character.SpellCastType.NONE, () =>
+                    this.ExecuteAfterCheck(() => LastCharacter.CurrentSpellCast == Character.SpellCastType.NONE, () =>
                     {
                         TryTake(m_item, false);
                         base.OnActivate();
@@ -149,7 +148,7 @@ public class Interactions : AMod, IDelayedInit
             Item firstItem = m_item.As<GroupContainer>().FirstItem();
             Unpack(firstItem, UNPACK_OFFSET_Y);
             Bump(firstItem, UNPACK_BUMP_FORCE);
-            firstItem.ExecuteOnceAfterDelay(UNPACK_USE_DELAY, () =>
+            firstItem.ExecuteAfterSeconds(UNPACK_USE_DELAY, () =>
             {
                 TryUse(firstItem);
                 base.OnActivate();

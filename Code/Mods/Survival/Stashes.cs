@@ -192,7 +192,7 @@ public class Stashes : AMod, IUpdatable
 
         // Cache
         TreasureChest stash = (TreasureChest)ItemManager.Instance.GetItem(stashData.UID);
-        stash.GOSetActive(true);
+        stash.Activate();
 
         int counter = 0;
         foreach (var position in stashData.Positions)
@@ -227,7 +227,7 @@ public class Stashes : AMod, IUpdatable
             return;
         #endregion
 
-        chest.GOSetActive(true);
+        chest.Activate();
     }
 
     // Craft from stash

@@ -250,7 +250,7 @@ public class Camera : AMod, IDelayedInit, IUpdatable
         else
             characterCamera.Offset = _perPlayerSettings[player.ID].CurrentOffset;
         characterCamera.CameraScript.fieldOfView = currentVarious.x;
-        characterCamera.DefaultFollowSpeed.SetX(currentVarious.y);
+        characterCamera.DefaultFollowSpeed.x = currentVarious.y;
         _perPlayerSettings[player.ID].Sensitivity = currentVarious.z;
     }
     private static bool CheckGamepadHotkey(Players.Data player)

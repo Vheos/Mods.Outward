@@ -391,7 +391,7 @@ public class GUI : AMod, IDelayedInit, IUpdatable
             {
                 float maxWidth = player.UI.m_rectTransform.rect.width.Neg();
                 float multiplier = playerData._shopAndStashWidth / 100f;
-                offsetMin.SetX(maxWidth * multiplier);
+                offsetMin.x = maxWidth * multiplier;
                 offsetMax = Vector2.zero;
             }
             // Set
@@ -417,20 +417,20 @@ public class GUI : AMod, IDelayedInit, IUpdatable
     private static void SwitchToBuySellPanel(Players.Data player, bool buyPanel)
     {
         Transform shopPanelHolder = GetShopPanel(player.UI);
-        GetPlayerShopInventoryPanel(shopPanelHolder).GOSetActive(!buyPanel);
-        GetMerchantShopInventoryPanel(shopPanelHolder).GOSetActive(buyPanel);
+        GetPlayerShopInventoryPanel(shopPanelHolder).SetActive(!buyPanel);
+        GetMerchantShopInventoryPanel(shopPanelHolder).SetActive(buyPanel);
         shopPanelHolder.GetComponent<ShopMenu>().GetFirstSelectable().Select();
 
     }
     private static void ToggleBuySellPanel(Players.Data player)
     {
-        bool isBuyPanel = GetMerchantShopInventoryPanel(GetShopPanel(player.UI)).GOActive();
+        bool isBuyPanel = GetMerchantShopInventoryPanel(GetShopPanel(player.UI)).IsActive();
         SwitchToBuySellPanel(player, !isBuyPanel);
     }
     private static void DisableSeparateMode(Players.Data player)
     {
-        GetPlayerShopInventoryPanel(GetShopPanel(player.UI)).GOSetActive(true);
-        GetMerchantShopInventoryPanel(GetShopPanel(player.UI)).GOSetActive(true);
+        GetPlayerShopInventoryPanel(GetShopPanel(player.UI)).SetActive(true);
+        GetMerchantShopInventoryPanel(GetShopPanel(player.UI)).SetActive(true);
     }
     private static void UpdatePendingBuySellPanels(Players.Data player)
     {
@@ -528,13 +528,13 @@ public class GUI : AMod, IDelayedInit, IUpdatable
         Transform arrowsHolder = hudHolder.Find("QuiverDisplay");
         Transform pauseHolder = player.UI.transform.Find("Canvas/Paused");
 
-        temperature.GOSetActive(state);
+        temperature.SetActive(state);
         statusEffect.GetComponent<StatusEffectIcon>().enabled = !state;
-        statusEffect.GOSetActive(state);
+        statusEffect.SetActive(state);
         quickslotsHolder.GetComponent<QuickSlotControllerSwitcher>().enabled = !state;
         if (state)
             foreach (Transform child in quickslotsHolder.transform)
-                child.GOSetActive(true);
+                child.Activate();
         arrowsHolder.GetComponent<QuiverDisplay>().enabled = !state;
         arrowsHolder.GetComponent<QuiverDisplay>().m_canvasGroup.alpha = 1f;
         pauseHolder.GetComponent<Image>().enabled = !state;
@@ -615,7 +615,7 @@ public class GUI : AMod, IDelayedInit, IUpdatable
     private static void LocalCharacterControl_RetrieveComponents_Post(LocalCharacterControl __instance)
     {
         UpdateSplitscreenMode();
-        __instance.ExecuteOnceAfterDelay(UI_RESIZE_DELAY, UpdateShopAndStashPanelsWidths);
+        __instance.ExecuteAfterSeconds(UI_RESIZE_DELAY, UpdateShopAndStashPanelsWidths);
 
         Players.Data player = Players.GetLocal(__instance);
         UpdateQuickslotButtonIcons(player);
@@ -623,14 +623,14 @@ public class GUI : AMod, IDelayedInit, IUpdatable
         UpdateManaBarPlacement(player);
         UpdateHUDTransparency(player);
         if (_perPlayerSettings[player.ID]._rearrangeHUD)
-            __instance.ExecuteOnceAfterDelay(UI_RESIZE_DELAY, () => SaveLoadHUDOverrides(player, SettingsOperation.Load));
+            __instance.ExecuteAfterSeconds(UI_RESIZE_DELAY, () => SaveLoadHUDOverrides(player, SettingsOperation.Load));
     }
 
     [HarmonyPostfix, HarmonyPatch(typeof(RPCManager), nameof(RPCManager.SendPlayerHasLeft))]
     private static void RPCManager_SendPlayerHasLeft_Post(RPCManager __instance)
     {
         UpdateSplitscreenMode();
-        __instance.ExecuteOnceAfterDelay(UI_RESIZE_DELAY, UpdateShopAndStashPanelsWidths);
+        __instance.ExecuteAfterSeconds(UI_RESIZE_DELAY, UpdateShopAndStashPanelsWidths);
     }
 
     // Sort by weight    

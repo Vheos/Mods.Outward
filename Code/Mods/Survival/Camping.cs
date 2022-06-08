@@ -120,18 +120,18 @@ public class Camping : AMod
             return;
 
         foreach (Transform fx in fxHolder.transform)
-            if (fx.GOName().ContainsSubstring("butterfly"))
+            if (fx.NameContains("butterfly"))
             {
                 AmbienceSound ambienceSound = fx.GetComponentInChildren<AmbienceSound>();
                 if ( _butterfliesSpawnChance.RollPercent())
                 {
-                    fx.GOSetActive(true);
+                    fx.Activate();
                     ambienceSound.MinVolume = ambienceSound.MaxVolume = 1;
                     _safeZoneColliders.Add(fx.GetComponent<SphereCollider>());
                 }
                 else
                 {
-                    fx.GOSetActive(false);
+                    fx.Deactivate();
                     ambienceSound.MinVolume = ambienceSound.MaxVolume = 0;
                 }
             }
@@ -167,7 +167,7 @@ public class Camping : AMod
     {
         foreach (Transform child in __instance.m_restingActivitiesHolder.transform)
             foreach (var campingActivity in new[] { CampingActivities.Sleep, CampingActivities.Guard, CampingActivities.Repair })
-                if (child.GOName().ContainsSubstring(campingActivity.ToString()))
-                    child.GOSetActive(_campingActivities.Value.HasFlag(campingActivity));
+                if (child.NameContains(campingActivity.ToString()))
+                    child.SetActive(_campingActivities.Value.HasFlag(campingActivity));
     }
 }

@@ -221,9 +221,9 @@ public class SkillTreeRandomizer : AMod, IDelayedInit
         {
             if (!_reroll)
                 return;
-            Global.Instance.ExecuteAtTheEndOfFrame
+            Global.Instance.ExecuteAfterUpdate
             (
-                () => Global.Instance.ExecuteOnceAfterDelay(REROLL_DELAY, RandomizeSkills)
+                () => Global.Instance.ExecuteAfterSeconds(REROLL_DELAY, RandomizeSkills)
             );
             _reroll.SetSilently(false);
         });
@@ -688,7 +688,7 @@ public class SkillTreeRandomizer : AMod, IDelayedInit
     {
         int basicCount = 0, advancedCount = 0;
         foreach (var slotDisplay in __instance.m_slotList)
-            if (slotDisplay.GOActive())
+            if (slotDisplay.IsActive())
                 switch (GetLevel(slotDisplay.m_cachedBaseSlot))
                 {
                     case SlotLevel.Basic: basicCount++; break;
@@ -697,7 +697,7 @@ public class SkillTreeRandomizer : AMod, IDelayedInit
 
         bool useCompactSpacing = basicCount.Max(advancedCount) > 10;
         bool hideTrainerName = advancedCount > 10;
-        __instance.m_lblTreeName.GOSetActive(!hideTrainerName);
+        __instance.m_lblTreeName.SetActive(!hideTrainerName);
         __instance.RectTransform.localPosition = useCompactSpacing ? Vector2.zero : DEFAULT_TREE_LOCAL_POSITION;
         __instance.m_displaySlotSize = useCompactSpacing ? new Vector2(128, 112) : DEFAULT_SLOT_DISPLAY_SIZE;
     }

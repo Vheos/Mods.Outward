@@ -300,7 +300,7 @@ public class Various : AMod, IUpdatable
         }
 
         foreach (var characterVisuals in __instance.transform.GetAllComponentsInHierarchy<CharacterVisuals>())
-            characterVisuals.GOSetActive(state);
+            characterVisuals.SetActive(state);
     }
 
     // Skip startup video

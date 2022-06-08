@@ -203,7 +203,7 @@ public class Quickslots : AMod
         QuickSlot[] quickslots = quickslotsHolder.GetComponentsInChildren<QuickSlot>();
         for (int i = 0; i < quickslots.Length; i++)
         {
-            quickslots[i].GOSetName((i + 1).ToString());
+            quickslots[i].name = (i + 1).ToString();
             quickslots[i].ItemQuickSlot = false;
         }
     }

@@ -229,7 +229,7 @@ public static class Prefabs
 
         AllSleepBuffs = new List<StatusEffect>();
         foreach (var statusEffect in Resources.FindObjectsOfTypeAll<StatusEffect>())
-            if (statusEffect.GOName().ContainsSubstring("SleepBuff"))
+            if (statusEffect.NameContains("SleepBuff"))
                 AllSleepBuffs.Add(statusEffect);
 
         IsInitialized = true;

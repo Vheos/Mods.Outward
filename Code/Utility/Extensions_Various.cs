@@ -206,8 +206,6 @@ public static class Extensions_Various
     => ControlsInput.GetMenuActionName(action);
 
     // Various
-    public static Vector3 ToVector3(this (float X, float Y, float Z) t)
-    => new(t.X, t.Y, t.Z);
     public static CodeMatcher CodeMatcher(this IEnumerable<CodeInstruction> t)
     => new(t);
     public static string SplitCamelCase(this string t)
@@ -235,8 +233,7 @@ public static class Extensions_Various
     => !t.Is<T>();
     public static bool IsNotAny<T1, T2>(this object t)
     => t.IsNot<T1>() && t.IsNot<T2>();
-    public static int ToInt(this string t)
-    => Convert.ToInt32(t);
+
     public static string FormatGameHours(this float t, bool showDays = true, bool showHours = true, bool showMinutes = true, bool showSeconds = true)
     {
         int days = t.Div(24).RoundDown();
@@ -275,7 +272,7 @@ public static class Extensions_Various
         return string.Empty;
     }
     public static bool ContainsSubstring(this string text, string find)
-    => text.IsNotEmpty() && text.IndexOf(find) >= 0;
+    => text.IsNotEmpty() && text.Contains(find);
     public static T GetFirstComponentsInHierarchy<T>(this Transform root) where T : Component
     {
         T component = root.GetComponent<T>();
@@ -370,51 +367,15 @@ public static class Extensions_Various
     => RNG.Range(t.x, t.y);
 
     // GOName
-    public static string GOName(this Component t)
-    => t.gameObject.name;
-    public static string GOSetName(this Component t, string name)
-    => t.gameObject.name = name;
-    public static bool GONameIs(this Component t, string name)
-    => t.gameObject.name == name;
-    public static bool GOActive(this Component t)
-    => t.gameObject.activeSelf;
-    public static void GOSetActive(this Component t, bool state)
-    => t.gameObject.SetActive(state);
-    public static void GOToggle(this Component t)
-    => t.GOSetActive(!t.GOActive());
+    public static bool NameContains(this GameObject t, string substring)
+        => t.name.ContainsSubstring(substring);
+    public static bool NameContains(this Component t, string substring)
+        => t.gameObject.NameContains(substring);
 
-    public static bool IsEmpty(this string text)
-    => string.IsNullOrEmpty(text);
-    public static bool IsNotEmpty(this string text)
-    => !text.IsEmpty();
-    public static float ToFloat(this string text)
-        => float.TryParse(text, NumberStyles.Float, CultureInfo.InvariantCulture, out float value) ? value : float.NaN;
-
-    public static void SetX(ref this Vector2 t, float a)
-    => t.x = a;
-    public static void SetY(ref this Vector2 t, float a)
-    => t.y = a;
-    public static void SetX(ref this Vector3 t, float a)
-    => t.x = a;
-    public static void SetY(ref this Vector3 t, float a)
-    => t.y = a;
-    public static void SetZ(ref this Vector3 t, float a)
-    => t.z = a;
     public static void SetSizeZ(this BoxCollider t, float a)
     {
         Vector3 size = t.size;
         size.z = a;
         t.size = size;
     }
-
-    public static Coroutine ExecuteAtTheEndOfFrame(this MonoBehaviour monoBehaviour, Action action)
-    => monoBehaviour.StartCoroutine(Utils.CoroutineWaitUntilEndOfFrame(action));
-    public static Coroutine ExecuteOnceAfterDelay(this MonoBehaviour monoBehaviour, float delay, Action action)
-    => monoBehaviour.StartCoroutine(Utils.CoroutineWaitForSeconds(delay, action));
-    public static Coroutine ExecuteOnceWhen(this MonoBehaviour monoBehaviour, Func<bool> test, Action action)
-    => monoBehaviour.StartCoroutine(Utils.CoroutineWaitUntil(test, action));
-    public static Coroutine ExecuteWhile(this MonoBehaviour monoBehaviour, Func<bool> test, Action action, Action finalAction = null)
-    => monoBehaviour.StartCoroutine(Utils.CoroutineWhile(test, action, finalAction));
-    public static Coroutine ExecuteUntil(this MonoBehaviour monoBehaviour, Func<bool> test, Action action, Action finalAction = null)
-    => monoBehaviour.StartCoroutine(Utils.CoroutineDoUntil(test, action, finalAction));
 }

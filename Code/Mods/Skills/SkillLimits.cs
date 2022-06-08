@@ -272,7 +272,7 @@ public class SkillLimits : AMod
         //Defaults
         icon.color = Color.white;
         border.color = Color.white;
-        indicator.GOSetActive(false);
+        indicator.Deactivate();
 
         // Quit
         if (!IsLimited(__instance.LocalCharacter, skill))
@@ -284,7 +284,7 @@ public class SkillLimits : AMod
         indicator.color = _limitedSkillColor.Value;
         indicator.rectTransform.pivot = 1f.ToVector2();
         indicator.rectTransform.localScale = INDICATOR_SCALE;
-        indicator.GOSetActive(true);
+        indicator.Activate();
         return false;
     }
 

@@ -227,6 +227,6 @@ public class SurvivalTools : AMod
         #endregion
 
         __instance.Capacity = 2;
-        __instance.CharAnimOffset.SetX(BED_DISTANCE_BETWEEN_PLAYERS / 2f * (__instance.m_occupants.Count == 0 ? -1f : +1f));
+        __instance.CharAnimOffset.x = BED_DISTANCE_BETWEEN_PLAYERS / 2f * (__instance.m_occupants.Count == 0 ? -1f : +1f);
     }
 }

@@ -524,7 +524,7 @@ public class Descriptions : AMod, IDelayedInit
 
         if (itemDisplay is not RecipeResultDisplay)
             quantity.text = itemDisplay.m_lastQuantity.ToString();
-        else if (itemDisplay.m_dBarUses.TryNonNull(out var dotBar) && dotBar.GOActive())
+        else if (itemDisplay.m_dBarUses.TryNonNull(out var dotBar) && dotBar.IsActive())
             quantity.text = "1";
 
         int fontSize = (quantity.fontSize * 0.75f).Round();
@@ -656,7 +656,7 @@ public class Descriptions : AMod, IDelayedInit
             : _displayRawValuesOutsideCities && SoroboreanCaravanner == null ? item.RawBaseValue.ToString()
             : null;
 
-        if (__instance.m_valueHolder.activeSelf != priceText.text.IsNotNullOrEmpty())
+        if (__instance.m_valueHolder.activeSelf != Helpers.Common.Extensions.IsNotEmpty(priceText.text))
             __instance.m_valueHolder.SetActive(!__instance.m_valueHolder.activeSelf);
 
         return false;
@@ -720,7 +720,7 @@ public class Descriptions : AMod, IDelayedInit
         //Defaults
         icon.color = Color.white;
         border.color = Color.white;
-        indicator.GOSetActive(false);
+        indicator.Deactivate();
 
         // Quit
         if (__instance.m_refItem.LegacyItemID <= 0)
@@ -731,7 +731,7 @@ public class Descriptions : AMod, IDelayedInit
         indicator.color = _legacyItemUpgradeColor;
         indicator.rectTransform.pivot = 1f.ToVector2();
         indicator.rectTransform.localScale = new Vector2(1.5f, 1.5f);
-        indicator.GOSetActive(true);
+        indicator.Activate();
         return false;
     }
 }
