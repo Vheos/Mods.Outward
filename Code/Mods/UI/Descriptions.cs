@@ -156,7 +156,8 @@ public class Descriptions : AMod, IDelayedInit
     private static ModSetting<bool> _displayStashAmount;
     private static ModSetting<bool> _recolorLearnedRecipes;
     private static ModSetting<Color> _learnedRecipeColor;
-
+    private static ModSetting<bool> _highlightItemsWithLegacyUpgrade;
+    private static ModSetting<Color> _legacyItemUpgradeColor;
     protected override void Initialize()
     {
         _details = CreateSetting(nameof(_details), Details.None);
@@ -180,6 +181,8 @@ public class Descriptions : AMod, IDelayedInit
         _displayStashAmount = CreateSetting(nameof(_displayStashAmount), false);
         _recolorLearnedRecipes = CreateSetting(nameof(_recolorLearnedRecipes), false);
         _learnedRecipeColor = CreateSetting(nameof(_learnedRecipeColor), new Color(0.5f, 0.5f, 0.5f, 0.5f));
+        _highlightItemsWithLegacyUpgrade = CreateSetting(nameof(_highlightItemsWithLegacyUpgrade), false);
+        _legacyItemUpgradeColor = CreateSetting(nameof(_legacyItemUpgradeColor), new Color(1f, 0.75f, 0f, 0.5f));
 
         AddEventOnConfigClosed(() => SetBackgrounds(_addBackgrounds));
     }
@@ -230,9 +233,14 @@ public class Descriptions : AMod, IDelayedInit
         _displayStashAmount.Format("Display stashed item amounts");
         _displayStashAmount.Description = "Displays how many of each items you have stored in your stash";
         _recolorLearnedRecipes.Format("Recolor learned recipes");
-        using(Indent)
+        using (Indent)
         {
             _learnedRecipeColor.Format("color");
+        }
+        _highlightItemsWithLegacyUpgrade.Format("Highlight items with legacy upgrades");
+        using (Indent)
+        {
+            _legacyItemUpgradeColor.Format("color", _highlightItemsWithLegacyUpgrade);
         }
     }
     protected override string Description
@@ -266,6 +274,7 @@ public class Descriptions : AMod, IDelayedInit
                 _displaySellPricesInCities.Value = true;
                 _displayRawValuesOutsideCities.Value = false;
                 _displayStashAmount.Value = true;
+                _recolorLearnedRecipes.Value = true;
                 break;
         }
     }
@@ -690,5 +699,40 @@ public class Descriptions : AMod, IDelayedInit
         // Custom
         icon.color = _learnedRecipeColor;
         border.color = _learnedRecipeColor;
+    }
+
+    // Mark items with legacy upgrades
+    [HarmonyPrefix, HarmonyPatch(typeof(ItemDisplay), nameof(ItemDisplay.RefreshEnchantedIcon))]
+    private static bool ItemDisplay_RefreshEnchantedIcon_Pre2(ItemDisplay __instance)
+    {
+        #region quit
+        if (!_highlightItemsWithLegacyUpgrade
+        || __instance.m_refItem == null
+        || __instance.m_imgEnchantedIcon == null
+        || __instance.m_refItem is Skill)
+            return true;
+        #endregion
+
+        // Cache
+        Image icon = __instance.FindChild<Image>("Icon");
+        Image border = icon.FindChild<Image>("border");
+        Image indicator = __instance.m_imgEnchantedIcon;
+
+        //Defaults
+        icon.color = Color.white;
+        border.color = Color.white;
+        indicator.GOSetActive(false);
+
+        // Quit
+        if (__instance.m_refItem.LegacyItemID <= 0)
+            return true;
+
+        // Custom
+        border.color = _legacyItemUpgradeColor.Value.NewA(1f);
+        indicator.color = _legacyItemUpgradeColor;
+        indicator.rectTransform.pivot = 1f.ToVector2();
+        indicator.rectTransform.localScale = new Vector2(1.5f, 1.5f);
+        indicator.GOSetActive(true);
+        return false;
     }
 }
