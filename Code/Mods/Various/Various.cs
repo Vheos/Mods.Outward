@@ -61,8 +61,12 @@ public class Various : AMod, IUpdatable
     private static ModSetting<float> _baseStaminaRegen;
     private static ModSetting<int> _rentDuration;
     private static ModSetting<bool> _itemActionDropOne;
-    private static ModSetting<bool> _highlightItemsWithLegacyUpgrade;
-    private static ModSetting<Color> _legacyItemUpgradeColor;
+    private static ModSetting<bool> _spawnsToggle;
+    private static ModSetting<int> _spawnsCheckInterval;
+    private static ModSetting<int> _spawnsMaxActiveSquads;
+    private static ModSetting<int> _spawnsSquadSpacing;
+    private static ModSetting<bool> _spawnsAlwaysResetPositions;
+    private static ModSetting<Vector2> _spawnsVisibilityRange;
     private static ModSetting<bool> _temperatureToggle;
     private static Dictionary<TemperatureSteps, ModSetting<Vector2>> _temperatureDataByEnum;
     protected override void Initialize()
@@ -81,11 +85,15 @@ public class Various : AMod, IUpdatable
         _baseStaminaRegen = CreateSetting(nameof(_baseStaminaRegen), 2.4f, FloatRange(0, 10));
         _rentDuration = CreateSetting(nameof(_rentDuration), 12, IntRange(1, 168));
         _itemActionDropOne = CreateSetting(nameof(_itemActionDropOne), false);
-        _highlightItemsWithLegacyUpgrade = CreateSetting(nameof(_highlightItemsWithLegacyUpgrade), false);
-        _legacyItemUpgradeColor = CreateSetting(nameof(_legacyItemUpgradeColor), new Color(1f, 0.75f, 0f, 0.5f));
+        _spawnsToggle = CreateSetting(nameof(_spawnsToggle), false);
+        _spawnsCheckInterval = CreateSetting(nameof(_spawnsCheckInterval), 15, IntRange(1, 60));
+        _spawnsMaxActiveSquads = CreateSetting(nameof(_spawnsMaxActiveSquads), 4, IntRange(1, 50));
+        _spawnsSquadSpacing = CreateSetting(nameof(_spawnsSquadSpacing), 50, IntRange(0, 100));
+        _spawnsVisibilityRange = CreateSetting(nameof(_spawnsVisibilityRange), new Vector2(50, 250));
+        _spawnsAlwaysResetPositions = CreateSetting(nameof(_spawnsAlwaysResetPositions), false);
         _temperatureToggle = CreateSetting(nameof(_temperatureToggle), false);
         _temperatureDataByEnum = new Dictionary<TemperatureSteps, ModSetting<Vector2>>();
-        foreach (var step in InternalUtility.GetEnumValues<TemperatureSteps>())
+        foreach (var step in Utils.GetEnumValues<TemperatureSteps>())
             if (step != TemperatureSteps.Count)
                 _temperatureDataByEnum.Add(step, CreateSetting(nameof(_temperatureDataByEnum) + step, DEFAULT_TEMPERATURE_DATA_BY_ENUM[step]));
 
@@ -140,11 +148,17 @@ public class Various : AMod, IUpdatable
         _itemActionDropOne.Format("Add \"Drop one\" item action");
         _itemActionDropOne.Description = "Adds a button to stacked items' which skips the \"choose amount\" panel and drops exactly 1 of the item\n" +
                                          "(recommended when playing co-op for quick item sharing)";
-        _highlightItemsWithLegacyUpgrade.Format("Highlight items with legacy upgrades");
+
+        _spawnsToggle.Format("Spawn settings");
         using (Indent)
         {
-            _legacyItemUpgradeColor.Format("color", _highlightItemsWithLegacyUpgrade);
+            _spawnsCheckInterval.Format("check interval", _spawnsToggle);
+            _spawnsMaxActiveSquads.Format("max active squads", _spawnsToggle);
+            _spawnsSquadSpacing.Format("squads spacing", _spawnsToggle);
+            _spawnsVisibilityRange.Format("visibility range", _spawnsToggle);
+            _spawnsAlwaysResetPositions.Format("always reset positions", _spawnsToggle);
         }
+
         _temperatureToggle.Format("Temperature");
         _temperatureToggle.Description =
             "Change each environmental temperature level's value and cap:\n" +
@@ -159,7 +173,7 @@ public class Various : AMod, IUpdatable
             "Very Hot   -   75)";
         using (Indent)
         {
-            foreach (var step in InternalUtility.GetEnumValues<TemperatureSteps>())
+            foreach (var step in Utils.GetEnumValues<TemperatureSteps>())
                 if (step != TemperatureSteps.Count)
                     _temperatureDataByEnum[step].Format(step.ToString(), _temperatureToggle);
         }
@@ -186,6 +200,14 @@ public class Various : AMod, IUpdatable
                 _refillArrowsFromInventory.Value = true;
                 _rentDuration.Value = 120;
                 _itemActionDropOne.Value = true;
+                _spawnsToggle.Value = true;
+                {
+                    _spawnsCheckInterval.Value = 5;
+                    _spawnsMaxActiveSquads.Value = 25;
+                    _spawnsSquadSpacing.Value = 25;
+                    _spawnsVisibilityRange.Value = new(25, 250);
+                    _spawnsAlwaysResetPositions.Value = true;                    
+                }
                 _temperatureToggle.Value = true;
                 {
                     _temperatureDataByEnum[TemperatureSteps.Coldest].Value = new Vector2(-50, 50 - (50 + 1));
@@ -249,7 +271,7 @@ public class Various : AMod, IUpdatable
         #endregion
 
         if (EnvironmentConditions.Instance.TryNonNull(out var environmentConditions))
-            foreach (var step in InternalUtility.GetEnumValues<TemperatureSteps>())
+            foreach (var step in Utils.GetEnumValues<TemperatureSteps>())
                 if (step != TemperatureSteps.Count)
                 {
                     environmentConditions.BodyTemperatureImpactPerStep[step] = _temperatureDataByEnum[step].Value.x;
@@ -477,41 +499,28 @@ public class Various : AMod, IUpdatable
 
         __instance.HoursToHealthReset = _healEnemiesOnLoad ? 0 : DEFAULT_ENEMY_HEALTH_RESET_HOURS;
     }
-    // Mark items with legacy upgrades
-    [HarmonyPrefix, HarmonyPatch(typeof(ItemDisplay), nameof(ItemDisplay.RefreshEnchantedIcon))]
-    private static bool ItemDisplay_RefreshEnchantedIcon_Pre(ItemDisplay __instance)
+
+    // Open region spawns
+    [HarmonyPrefix, HarmonyPatch(typeof(AISquadManager), nameof(AISquadManager.Awake))]
+    static private void AISquadManager_Awake_Pre(AISquadManager __instance)
     {
-        #region quit
-        if (!_highlightItemsWithLegacyUpgrade
-        || __instance.m_refItem == null
-        || __instance.m_imgEnchantedIcon == null
-        || __instance.m_refItem is Skill)
-            return true;
-        #endregion
+        if (!_spawnsToggle)
+            return;
 
-        // Cache
-        Image icon = __instance.FindChild<Image>("Icon");
-        Image border = icon.FindChild<Image>("border");
-        Image indicator = __instance.m_imgEnchantedIcon;
-
-        //Defaults
-        icon.color = Color.white;
-        border.color = Color.white;
-        indicator.GOSetActive(false);
-
-        // Quit
-        if (__instance.m_refItem.LegacyItemID <= 0)
-            return true;
-
-        // Custom
-        border.color = _legacyItemUpgradeColor.Value.NewA(1f);
-        indicator.color = _legacyItemUpgradeColor;
-        indicator.rectTransform.pivot = 1f.ToVector2();
-        indicator.rectTransform.localScale = new Vector2(1.5f, 1.5f);
-        indicator.GOSetActive(true);
-        return false;
+        __instance.SpawnTime = _spawnsCheckInterval;
+        __instance.MaxSquadCount = _spawnsMaxActiveSquads;
+        __instance.SquadSpacing = _spawnsSquadSpacing;
+        __instance.SpawnRange = _spawnsVisibilityRange;
     }
 
+    [HarmonyPrefix, HarmonyPatch(typeof(AISquad), nameof(AISquad.SetSquadActive))]
+    static private void AISquad_SetSquadActive_Pre(AISquad __instance, ref bool _resetPositions)
+    {
+        if (!_spawnsToggle)
+            return;
+
+        _resetPositions = _spawnsAlwaysResetPositions;
+    }
 }
 
 
