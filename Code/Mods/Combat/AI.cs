@@ -5,15 +5,15 @@ public class AI : AMod
 {
     #region Constants
     private const float HUMAN_COLLISION_RADIUS = 0.4f;
-    private static readonly Dictionary<TargetingGroups, Character.Factions[]> NEUTRAL_FACTION_GROUPS = new()
+    private static readonly Dictionary<FactionGroup, Character.Factions[]> FACTION_GROUPS_BY_ENUM = new()
     {
-        [TargetingGroups.HumansAndNonHostileMonsters] = new[]
-    {
+        [FactionGroup.HumansAndNonHostileMonsters] = new[]
+        {
             Character.Factions.Bandits,
             Character.Factions.Deer,
         },
-        [TargetingGroups.HostileMonsters] = new[]
-    {
+        [FactionGroup.HostileMonsters] = new[]
+        {
             Character.Factions.Mercs,
             Character.Factions.Tuanosaurs,
             Character.Factions.Hounds,
@@ -25,7 +25,7 @@ public class AI : AMod
     #endregion
     #region Enums
     [Flags]
-    private enum TargetingGroups
+    private enum FactionGroup
     {
         HumansAndNonHostileMonsters = 1 << 1,
         HostileMonsters = 1 << 2,
@@ -34,7 +34,7 @@ public class AI : AMod
 
     // Settings
     private static ModSetting<int> _enemyDetectionModifier;
-    private static ModSetting<TargetingGroups> _preventInfighting;
+    private static ModSetting<FactionGroup> _preventInfighting;
     private static ModSetting<int> _walkTowardsPlayerOnSpawn;
     private static ModSetting<int> _changeTargetOnHit;
     private static ModSetting<bool> _changeTargetWhenTooFar;
@@ -44,7 +44,7 @@ public class AI : AMod
     protected override void Initialize()
     {
         _enemyDetectionModifier = CreateSetting(nameof(_enemyDetectionModifier), 0, IntRange(-100, +100));
-        _preventInfighting = CreateSetting(nameof(_preventInfighting), (TargetingGroups)0);
+        _preventInfighting = CreateSetting(nameof(_preventInfighting), (FactionGroup)0);
         _changeTargetOnHit = CreateSetting(nameof(_changeTargetOnHit), 50, IntRange(0, 100));
         _walkTowardsPlayerOnSpawn = CreateSetting(nameof(_walkTowardsPlayerOnSpawn), 50, IntRange(0, 100));
         _changeTargetWhenTooFar = CreateSetting(nameof(_changeTargetWhenTooFar), false);
@@ -91,7 +91,7 @@ public class AI : AMod
             case nameof(Preset.Vheos_CoopSurvival):
                 ForceApply();
                 _enemyDetectionModifier.Value = +33;
-                _preventInfighting.Value = (TargetingGroups)~0;
+                _preventInfighting.Value = (FactionGroup)~0;
                 _changeTargetOnHit.Value = 0;
                 _walkTowardsPlayerOnSpawn.Value = 0;
                 _changeTargetWhenTooFar.Value = true;
@@ -164,7 +164,7 @@ public class AI : AMod
 
         // Gather ignored factions
         List<Character.Factions> ignoreFactions = new();
-        foreach (var group in NEUTRAL_FACTION_GROUPS)
+        foreach (var group in FACTION_GROUPS_BY_ENUM)
             if (group.Value.Contains(characterFaction))
                 foreach (var faction in group.Value)
                     if (faction != characterFaction)
