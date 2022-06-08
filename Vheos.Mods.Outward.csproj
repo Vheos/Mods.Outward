@@ -12,134 +12,386 @@
     <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
-    <TargetFrameworkProfile />
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == '-|AnyCPU'">
-    <Prefer32Bit>false</Prefer32Bit>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'UNITY|AnyCPU' ">
-    <OutputPath>bin\UNITY\</OutputPath>
-    <DocumentationFile>bin\UNITY\Vheos.Tools.Outward.xml</DocumentationFile>
-    <DefineConstants>DEBUG;UNITY</DefineConstants>
-    <LangVersion>9.0</LangVersion>
+    <LangVersion>10.0</LangVersion>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <Optimize>true</Optimize>
     <Prefer32Bit>false</Prefer32Bit>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == '-|AnyCPU'">
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'UNITY|AnyCPU' ">
+    <OutputPath>bin\UNITY\</OutputPath>
+    <DefineConstants>DEBUG;UNITY</DefineConstants>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'RELEASE_UNITY|AnyCPU' ">
     <OutputPath>bin\UNITY\</OutputPath>
     <DocumentationFile>bin\UNITY\Vheos.Tools.Outward.xml</DocumentationFile>
     <DefineConstants>UNITY</DefineConstants>
-    <LangVersion>9.0</LangVersion>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <Optimize>true</Optimize>
-    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup>
+    <RunPostBuildEvent>OnOutputUpdated</RunPostBuildEvent>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Assembly-CSharp-firstpass">
-      <HintPath>Private\Libraries\v21-05-28_1600\Assembly-CSharp-firstpass.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="Assembly-CSharp_publicized">
-      <HintPath>Private\Libraries\v21-05-28_1600\Assembly-CSharp_publicized.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="UnityEngine">
-      <HintPath>Private\Libraries\v21-05-28_1600\UnityEngine.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="UnityEngine.AnimationModule">
-      <HintPath>Private\Libraries\v21-05-28_1600\UnityEngine.AnimationModule.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="UnityEngine.CoreModule">
-      <HintPath>Private\Libraries\v21-05-28_1600\UnityEngine.CoreModule.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="UnityEngine.ImageConversionModule">
-      <HintPath>Private\Libraries\v21-05-28_1600\UnityEngine.ImageConversionModule.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="UnityEngine.ParticleSystemModule">
-      <HintPath>Private\Libraries\v21-05-28_1600\UnityEngine.ParticleSystemModule.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="UnityEngine.PhysicsModule">
-      <HintPath>Private\Libraries\v21-05-28_1600\UnityEngine.PhysicsModule.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="UnityEngine.TextRenderingModule">
-      <HintPath>Private\Libraries\v21-05-28_1600\UnityEngine.TextRenderingModule.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="UnityEngine.UI">
-      <HintPath>Private\Libraries\v21-05-28_1600\UnityEngine.UI.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="UnityEngine.UIModule">
-      <HintPath>Private\Libraries\v21-05-28_1600\UnityEngine.UIModule.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="BepInEx">
-      <HintPath>..\Core\Private\Libraries\BepInEx.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="0Harmony">
-      <HintPath>..\Core\Private\Libraries\0Harmony.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="System" />
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Include="Core\ModSections.cs" />
-    <Compile Include="Core\Players.cs" />
-    <Compile Include="Core\Prefabs.cs" />
-    <Compile Include="Core\GameInput.cs" />
-    <Compile Include="Core\Presets.cs" />
-    <Compile Include="Mods\Survival\Crafting.cs" />
-    <Compile Include="Mods\Combat\AI.cs" />
-    <Compile Include="Mods\Survival\Inns.cs" />
-    <Compile Include="Mods\Development\WIP.cs" />
-    <Compile Include="Mods\Survival\Durability.cs" />
-    <Compile Include="Mods\Survival\Camping.cs" />
-    <Compile Include="Mods\Combat\Quickslots.cs" />
-    <Compile Include="Mods\UI\Gamepad.cs" />
-    <Compile Include="Mods\Skills\SkillPrices.cs" />
-    <Compile Include="Mods\Survival\Merchants.cs" />
-    <Compile Include="Mods\Skills\SkillLimits.cs" />
-    <Compile Include="Mods\Skills\SkillTreeRandomizer.cs" />
-    <Compile Include="Mods\Combat\Targeting.cs" />
-    <Compile Include="Mods\UI\GUI.cs" />
-    <Compile Include="Mods\UI\KeyboardWalk.cs" />
-    <Compile Include="Mods\Development\Debug.cs" />
-    <Compile Include="Mods\UI\Descriptions.cs" />
-    <Compile Include="Mods\Combat\Speed.cs" />
-    <Compile Include="Mods\UI\Camera.cs" />
-    <Compile Include="Mods\Development\PistolTweaks.cs" />
-    <Compile Include="Mods\Survival\Resets.cs" />
-    <Compile Include="Mods\Combat\Damage.cs" />
-    <Compile Include="Mods\Survival\Revive.cs" />
-    <Compile Include="Mods\Survival\Needs.cs" />
-    <Compile Include="Mods\Survival\Interactions.cs" />
-    <Compile Include="Mods\Skills\SkillEditor.cs" />
-    <Compile Include="Mods\Combat\Traps.cs" />
-    <Compile Include="Mods\Survival\SurvivalTools.cs" />
-    <Compile Include="Mods\Various\Various.cs" />
-    <Compile Include="Utility\Extensions_Various.cs" />
-    <Compile Include="Utility\InternalUtility.cs" />
-    <Compile Include="Core\Main.cs" />
+    <Compile Include="Code\Core\ModSections.cs" />
+    <Compile Include="Code\Core\Players.cs" />
+    <Compile Include="Code\Core\Prefabs.cs" />
+    <Compile Include="Code\Core\GameInput.cs" />
+    <Compile Include="Code\Core\Presets.cs" />
+    <Compile Include="Code\Mods\Combat\Dodge.cs" />
+    <Compile Include="Code\Mods\Survival\Crafting.cs" />
+    <Compile Include="Code\Mods\Combat\AI.cs" />
+    <Compile Include="Code\Mods\Survival\Stashes.cs" />
+    <Compile Include="Code\Mods\Development\WIP.cs" />
+    <Compile Include="Code\Mods\Survival\Durability.cs" />
+    <Compile Include="Code\Mods\Survival\Camping.cs" />
+    <Compile Include="Code\Mods\Combat\Quickslots.cs" />
+    <Compile Include="Code\Mods\UI\Gamepad.cs" />
+    <Compile Include="Code\Mods\Skills\SkillPrices.cs" />
+    <Compile Include="Code\Mods\Survival\Merchants.cs" />
+    <Compile Include="Code\Mods\Skills\SkillLimits.cs" />
+    <Compile Include="Code\Mods\Skills\SkillTreeRandomizer.cs" />
+    <Compile Include="Code\Mods\Combat\Targeting.cs" />
+    <Compile Include="Code\Mods\UI\GUI.cs" />
+    <Compile Include="Code\Mods\UI\KeyboardWalk.cs" />
+    <Compile Include="Code\Mods\Development\Debug.cs" />
+    <Compile Include="Code\Mods\UI\Descriptions.cs" />
+    <Compile Include="Code\Mods\Combat\Speed.cs" />
+    <Compile Include="Code\Mods\UI\Camera.cs" />
+    <Compile Include="Code\Mods\Development\PistolTweaks.cs" />
+    <Compile Include="Code\Mods\Survival\Resets.cs" />
+    <Compile Include="Code\Mods\Combat\Damage.cs" />
+    <Compile Include="Code\Mods\Survival\Revive.cs" />
+    <Compile Include="Code\Mods\Survival\Needs.cs" />
+    <Compile Include="Code\Mods\Survival\Interactions.cs" />
+    <Compile Include="Code\Mods\Skills\SkillEditor.cs" />
+    <Compile Include="Code\Mods\Combat\Traps.cs" />
+    <Compile Include="Code\Mods\Survival\SurvivalTools.cs" />
+    <Compile Include="Code\Mods\Various\VariousDelayed.cs" />
+    <Compile Include="Code\Mods\Various\Various.cs" />
+    <Compile Include="Code\Utility\Extensions_Various.cs" />
+    <Compile Include="Code\Utility\GlobalUsings.cs" />
+    <Compile Include="Code\Utility\Utils.cs" />
+    <Compile Include="Code\Core\Main.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Properties\" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="app.config" />
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="0Harmony, Version=2.10.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\HarmonyX.2.10.0\lib\net45\0Harmony.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Assembly-CSharp, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\Outward.GameLibs.2022.5.18-r.0\lib\net472\Assembly-CSharp.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Assembly-CSharp-firstpass, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\Outward.GameLibs.2022.5.18-r.0\lib\net472\Assembly-CSharp-firstpass.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="BepInEx, Version=5.4.19.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\BepInEx.BaseLib.5.4.19\lib\net35\BepInEx.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Mono.Cecil, Version=0.11.4.0, Culture=neutral, PublicKeyToken=50cebf1cceb9d05e, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\Mono.Cecil.0.11.4\lib\net40\Mono.Cecil.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Mono.Cecil.Mdb, Version=0.11.4.0, Culture=neutral, PublicKeyToken=50cebf1cceb9d05e, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\Mono.Cecil.0.11.4\lib\net40\Mono.Cecil.Mdb.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Mono.Cecil.Pdb, Version=0.11.4.0, Culture=neutral, PublicKeyToken=50cebf1cceb9d05e, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\Mono.Cecil.0.11.4\lib\net40\Mono.Cecil.Pdb.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Mono.Cecil.Rocks, Version=0.11.4.0, Culture=neutral, PublicKeyToken=50cebf1cceb9d05e, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\Mono.Cecil.0.11.4\lib\net40\Mono.Cecil.Rocks.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="MonoMod.RuntimeDetour, Version=22.5.1.1, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\MonoMod.RuntimeDetour.22.5.1.1\lib\net452\MonoMod.RuntimeDetour.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="MonoMod.Utils, Version=22.5.1.1, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\MonoMod.Utils.22.5.1.1\lib\net452\MonoMod.Utils.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Photon3Unity3D, Version=4.1.4.1, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\Outward.GameLibs.2022.5.18-r.0\lib\net472\Photon3Unity3D.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="UnityEngine, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\UnityEngine.Modules.2022.2.0-alpha.13\lib\net45\UnityEngine.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.AccessibilityModule, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\UnityEngine.Modules.2022.2.0-alpha.13\lib\net45\UnityEngine.AccessibilityModule.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.AIModule, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\UnityEngine.Modules.2022.2.0-alpha.13\lib\net45\UnityEngine.AIModule.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.AndroidJNIModule, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\UnityEngine.Modules.2022.2.0-alpha.13\lib\net45\UnityEngine.AndroidJNIModule.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.AnimationModule, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\UnityEngine.Modules.2022.2.0-alpha.13\lib\net45\UnityEngine.AnimationModule.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.AssetBundleModule, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\UnityEngine.Modules.2022.2.0-alpha.13\lib\net45\UnityEngine.AssetBundleModule.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.AudioModule, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\UnityEngine.Modules.2022.2.0-alpha.13\lib\net45\UnityEngine.AudioModule.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.ClothModule, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\UnityEngine.Modules.2022.2.0-alpha.13\lib\net45\UnityEngine.ClothModule.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.ClusterInputModule, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\UnityEngine.Modules.2022.2.0-alpha.13\lib\net45\UnityEngine.ClusterInputModule.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.ClusterRendererModule, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\UnityEngine.Modules.2022.2.0-alpha.13\lib\net45\UnityEngine.ClusterRendererModule.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.ContentLoadModule, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\UnityEngine.Modules.2022.2.0-alpha.13\lib\net45\UnityEngine.ContentLoadModule.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.CoreModule, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\UnityEngine.Modules.2022.2.0-alpha.13\lib\net45\UnityEngine.CoreModule.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.CrashReportingModule, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\UnityEngine.Modules.2022.2.0-alpha.13\lib\net45\UnityEngine.CrashReportingModule.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.DirectorModule, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\UnityEngine.Modules.2022.2.0-alpha.13\lib\net45\UnityEngine.DirectorModule.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.DSPGraphModule, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\UnityEngine.Modules.2022.2.0-alpha.13\lib\net45\UnityEngine.DSPGraphModule.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.GameCenterModule, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\UnityEngine.Modules.2022.2.0-alpha.13\lib\net45\UnityEngine.GameCenterModule.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.GIModule, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\UnityEngine.Modules.2022.2.0-alpha.13\lib\net45\UnityEngine.GIModule.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.GridModule, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\UnityEngine.Modules.2022.2.0-alpha.13\lib\net45\UnityEngine.GridModule.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.HotReloadModule, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\UnityEngine.Modules.2022.2.0-alpha.13\lib\net45\UnityEngine.HotReloadModule.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.ImageConversionModule, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\UnityEngine.Modules.2022.2.0-alpha.13\lib\net45\UnityEngine.ImageConversionModule.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.IMGUIModule, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\UnityEngine.Modules.2022.2.0-alpha.13\lib\net45\UnityEngine.IMGUIModule.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.InputLegacyModule, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\UnityEngine.Modules.2022.2.0-alpha.13\lib\net45\UnityEngine.InputLegacyModule.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.InputModule, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\UnityEngine.Modules.2022.2.0-alpha.13\lib\net45\UnityEngine.InputModule.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.JSONSerializeModule, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\UnityEngine.Modules.2022.2.0-alpha.13\lib\net45\UnityEngine.JSONSerializeModule.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.LocalizationModule, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\UnityEngine.Modules.2022.2.0-alpha.13\lib\net45\UnityEngine.LocalizationModule.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.ParticleSystemModule, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\UnityEngine.Modules.2022.2.0-alpha.13\lib\net45\UnityEngine.ParticleSystemModule.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.PerformanceReportingModule, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\UnityEngine.Modules.2022.2.0-alpha.13\lib\net45\UnityEngine.PerformanceReportingModule.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.Physics2DModule, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\UnityEngine.Modules.2022.2.0-alpha.13\lib\net45\UnityEngine.Physics2DModule.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.PhysicsModule, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\UnityEngine.Modules.2022.2.0-alpha.13\lib\net45\UnityEngine.PhysicsModule.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.ProfilerModule, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\UnityEngine.Modules.2022.2.0-alpha.13\lib\net45\UnityEngine.ProfilerModule.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.RuntimeInitializeOnLoadManagerInitializerModule, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\UnityEngine.Modules.2022.2.0-alpha.13\lib\net45\UnityEngine.RuntimeInitializeOnLoadManagerInitializerModule.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.ScreenCaptureModule, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\UnityEngine.Modules.2022.2.0-alpha.13\lib\net45\UnityEngine.ScreenCaptureModule.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.SharedInternalsModule, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\UnityEngine.Modules.2022.2.0-alpha.13\lib\net45\UnityEngine.SharedInternalsModule.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.SpriteMaskModule, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\UnityEngine.Modules.2022.2.0-alpha.13\lib\net45\UnityEngine.SpriteMaskModule.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.SpriteShapeModule, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\UnityEngine.Modules.2022.2.0-alpha.13\lib\net45\UnityEngine.SpriteShapeModule.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.StreamingModule, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\UnityEngine.Modules.2022.2.0-alpha.13\lib\net45\UnityEngine.StreamingModule.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.SubstanceModule, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\UnityEngine.Modules.2022.2.0-alpha.13\lib\net45\UnityEngine.SubstanceModule.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.SubsystemsModule, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\UnityEngine.Modules.2022.2.0-alpha.13\lib\net45\UnityEngine.SubsystemsModule.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.TerrainModule, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\UnityEngine.Modules.2022.2.0-alpha.13\lib\net45\UnityEngine.TerrainModule.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.TerrainPhysicsModule, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\UnityEngine.Modules.2022.2.0-alpha.13\lib\net45\UnityEngine.TerrainPhysicsModule.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.TextCoreFontEngineModule, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\UnityEngine.Modules.2022.2.0-alpha.13\lib\net45\UnityEngine.TextCoreFontEngineModule.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.TextCoreTextEngineModule, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\UnityEngine.Modules.2022.2.0-alpha.13\lib\net45\UnityEngine.TextCoreTextEngineModule.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.TextRenderingModule, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\UnityEngine.Modules.2022.2.0-alpha.13\lib\net45\UnityEngine.TextRenderingModule.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.TilemapModule, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\UnityEngine.Modules.2022.2.0-alpha.13\lib\net45\UnityEngine.TilemapModule.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.TLSModule, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\UnityEngine.Modules.2022.2.0-alpha.13\lib\net45\UnityEngine.TLSModule.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.UI, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\Outward.GameLibs.2022.5.18-r.0\lib\net472\UnityEngine.UI.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.UIElementsModule, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\UnityEngine.Modules.2022.2.0-alpha.13\lib\net45\UnityEngine.UIElementsModule.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.UIModule, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\UnityEngine.Modules.2022.2.0-alpha.13\lib\net45\UnityEngine.UIModule.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.UmbraModule, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\UnityEngine.Modules.2022.2.0-alpha.13\lib\net45\UnityEngine.UmbraModule.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.UnityAnalyticsModule, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\UnityEngine.Modules.2022.2.0-alpha.13\lib\net45\UnityEngine.UnityAnalyticsModule.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.UnityConnectModule, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\UnityEngine.Modules.2022.2.0-alpha.13\lib\net45\UnityEngine.UnityConnectModule.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.UnityCurlModule, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\UnityEngine.Modules.2022.2.0-alpha.13\lib\net45\UnityEngine.UnityCurlModule.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.UnityTestProtocolModule, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\UnityEngine.Modules.2022.2.0-alpha.13\lib\net45\UnityEngine.UnityTestProtocolModule.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.UnityWebRequestAssetBundleModule, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\UnityEngine.Modules.2022.2.0-alpha.13\lib\net45\UnityEngine.UnityWebRequestAssetBundleModule.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.UnityWebRequestAudioModule, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\UnityEngine.Modules.2022.2.0-alpha.13\lib\net45\UnityEngine.UnityWebRequestAudioModule.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.UnityWebRequestModule, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\UnityEngine.Modules.2022.2.0-alpha.13\lib\net45\UnityEngine.UnityWebRequestModule.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.UnityWebRequestTextureModule, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\UnityEngine.Modules.2022.2.0-alpha.13\lib\net45\UnityEngine.UnityWebRequestTextureModule.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.UnityWebRequestWWWModule, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\UnityEngine.Modules.2022.2.0-alpha.13\lib\net45\UnityEngine.UnityWebRequestWWWModule.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.VehiclesModule, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\UnityEngine.Modules.2022.2.0-alpha.13\lib\net45\UnityEngine.VehiclesModule.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.VFXModule, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\UnityEngine.Modules.2022.2.0-alpha.13\lib\net45\UnityEngine.VFXModule.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.VideoModule, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\UnityEngine.Modules.2022.2.0-alpha.13\lib\net45\UnityEngine.VideoModule.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.VirtualTexturingModule, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\UnityEngine.Modules.2022.2.0-alpha.13\lib\net45\UnityEngine.VirtualTexturingModule.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.VRModule, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\UnityEngine.Modules.2022.2.0-alpha.13\lib\net45\UnityEngine.VRModule.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.WindModule, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\UnityEngine.Modules.2022.2.0-alpha.13\lib\net45\UnityEngine.WindModule.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.XRModule, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\UnityEngine.Modules.2022.2.0-alpha.13\lib\net45\UnityEngine.XRModule.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
     <ProjectReference Include="..\..\Tools\Extensions\Vheos.Tools.Extensions.csproj">
       <Project>{4afe5e8c-29c0-4389-aaa0-55584146becf}</Project>
       <Name>Vheos.Tools.Extensions</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\Tools\Utilities\Vheos.Tools.Utilities.csproj">
-      <Project>{96d2cdb1-5ee9-4666-812d-9ecb8df005c4}</Project>
-      <Name>Vheos.Tools.Utilities</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\Tools\Random\Vheos.Tools.Random.csproj">
       <Project>{f4c8a01e-9df7-4e31-8169-1cf24d2896e7}</Project>
@@ -149,6 +401,10 @@
       <Project>{23d233fc-b7d0-4709-baaa-e803fee61930}</Project>
       <Name>Vheos.Tools.TraitEqualizer</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\Tools\Utilities\Vheos.Tools.Utilities.csproj">
+      <Project>{96d2cdb1-5ee9-4666-812d-9ecb8df005c4}</Project>
+      <Name>Vheos.Tools.Utilities</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Core\Vheos.Mods.Core.csproj">
       <Project>{a48747d8-e698-4c2c-bf11-0efed7d79ef0}</Project>
       <Name>Vheos.Mods.Core</Name>
@@ -156,38 +412,41 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>:: Global settings
-set Releases_Global=E:\Creativity\Programs\C#\Mods\Outward\Private\Releases\
-set Plugins_Local=BepInEx\Plugins\Vheos\
-set Version_Suffix=_vX.Y.Z
-set TempCopy=$(ProjectDir)\bin\.tmpcpy\
-rd /s /q %25TempCopy%25
-xcopy /y $(TargetDir)$(TargetName).dll %25TempCopy%25
-xcopy /y $(TargetDir)Vheos.Mods.Core.dll %25TempCopy%25
-xcopy /y $(TargetDir)Vheos.Tools.Extensions.dll %25TempCopy%25
-xcopy /y $(TargetDir)Vheos.Tools.Utilities.dll %25TempCopy%25
+    <PostBuildEvent>:: Common
+set PluginsSubpath=BepInEx\Plugins\Vheos\
+set ResourcesPath=$(ProjectDir)Resources\
+set ReleasesPath=$(ProjectDir)Private\Releases\
+set ReadmePath=$(ProjectDir)README.md
+set IsDebug=$(DefineConstants.Contains('DEBUG'))
 
-    :: Project settings
-    set Game_Global=D:\Multiplayer\Outward\
-    set Game_EXE=Outward.exe
-    set Zip_Name=VMP
-    set GitHubNexus_Global=%25Releases_Global%25\GitHubNexus\%25Plugins_Local%25
-    set Thunderstore_Global=%25Releases_Global%25\Thunderstore\%25Plugins_Local%25
-    xcopy /y $(TargetDir)Vheos.Tools.TraitEqualizer.dll %25TempCopy%25
-    xcopy /y $(TargetDir)Vheos.Tools.Random.dll %25TempCopy%25
+    :: Project
+    set GamePath=D:\Multiplayer\Outward\
+    set ExeName=Outward Definitive Edition.exe
+    set ZipName=VMP
+    set Version=X.Y.Z
 
-    if $(DefineConstants.Contains('DEBUG'))==True (
-        :: Debug
-        rd /s /q %25Game_Global%25%25Plugins_Local%25 
-        xcopy /e /y %25TempCopy%25 %25Game_Global%25%25Plugins_Local%25
-        start "" %25Game_Global%25%25Game_EXE%25
+:: Common
+rd /q /s "%25GamePath%25%25PluginsSubpath%25"
+xcopy /y /s "$(TargetDir)$(TargetName).dll" "%25GamePath%25%25PluginsSubpath%25"
+xcopy /y /s "$(TargetDir)Vheos.Mods.Core.dll" "%25GamePath%25%25PluginsSubpath%25"
+xcopy /y /s "$(TargetDir)Vheos.Tools.Extensions.dll" "%25GamePath%25%25PluginsSubpath%25"
+xcopy /y /s "$(TargetDir)Vheos.Tools.Utilities.dll" "%25GamePath%25%25PluginsSubpath%25"
+xcopy /y /s %25ResourcesPath%25 "%25GamePath%25%25PluginsSubpath%25"
 
-    ) else if $(DefineConstants.Contains('DEBUG'))==False (
-        :: Release
-        rd /s /q %25GitHubNexus_Global%25 
-        xcopy /e /y %25TempCopy%25 %25GitHubNexus_Global%25
-        powershell Compress-Archive -Path %25Releases_Global%25\GitHubNexus\BepInEx -DestinationPath %25Releases_Global%25\%25Zip_Name%25%25Version_Suffix%25.zip -Force
-    )</PostBuildEvent>
+    :: Project
+    xcopy /y /s "$(TargetDir)Vheos.Tools.TraitEqualizer.dll" "%25GamePath%25%25PluginsSubpath%25"
+    xcopy /y /s "$(TargetDir)Vheos.Tools.Random.dll" "%25GamePath%25%25PluginsSubpath%25"
+
+if %25IsDebug%25==True (
+    start "" "%25GamePath%25%25ExeName%25"
+) else if %25IsDebug%25==False (
+    xcopy /y /s "%25GamePath%25%25PluginsSubpath%25" "%25ReleasesPath%25%25PluginsSubpath%25"
+    powershell Compress-Archive -Path %25ReleasesPath%25BepInEx\ -DestinationPath %25ReleasesPath%25%25ZipName%25_%25Version%25.zip -Force
+    xcopy /y /s "%25ReadmePath%25" "%25ReleasesPath%25Thunderstore\"
+    xcopy /y /s "%25ReleasesPath%25BepInEx\Plugins\" "%25ReleasesPath%25Thunderstore\"
+    powershell Compress-Archive -Path %25ReleasesPath%25Thunderstore\* -DestinationPath %25ReleasesPath%25%25ZipName%25_%25Version%25_TS.zip -Force    
+    rd /q /s "%25ReleasesPath%25BepInEx\"
+)</PostBuildEvent>
   </PropertyGroup>
   <PropertyGroup>
     <PreBuildEvent>
