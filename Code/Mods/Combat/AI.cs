@@ -38,8 +38,7 @@ public class AI : AMod
     private static ModSetting<int> _walkTowardsPlayerOnSpawn;
     private static ModSetting<int> _changeTargetOnHit;
     private static ModSetting<bool> _changeTargetWhenTooFar;
-    private static ModSetting<int> _changeTargetCheckFrequency;
-    private static ModSetting<int> _changeTargetChancePerCheck;
+    private static ModSetting<Vector2> _changeTargetCheckInterval;
     private static ModSetting<float> _changeTargetCurrentToNearestRatio;
     private static ModSetting<bool> _changeTargetDetectAllPlayers;
     protected override void Initialize()
@@ -49,8 +48,7 @@ public class AI : AMod
         _changeTargetOnHit = CreateSetting(nameof(_changeTargetOnHit), 50, IntRange(0, 100));
         _walkTowardsPlayerOnSpawn = CreateSetting(nameof(_walkTowardsPlayerOnSpawn), 50, IntRange(0, 100));
         _changeTargetWhenTooFar = CreateSetting(nameof(_changeTargetWhenTooFar), false);
-        _changeTargetCheckFrequency = CreateSetting(nameof(_changeTargetCheckFrequency), 2, IntRange(1, 10));
-        _changeTargetChancePerCheck = CreateSetting(nameof(_changeTargetChancePerCheck), 25, IntRange(1, 100));
+        _changeTargetCheckInterval = CreateSetting(nameof(_changeTargetCheckInterval), new Vector2(0f, 2f));
         _changeTargetCurrentToNearestRatio = CreateSetting(nameof(_changeTargetCurrentToNearestRatio), 1.5f, FloatRange(1f, 2f));
         _changeTargetDetectAllPlayers = CreateSetting(nameof(_changeTargetDetectAllPlayers), true);
     }
@@ -76,12 +74,10 @@ public class AI : AMod
                                               "Only detected characters and actual attackers are taken into account";
         using (Indent)
         {
-            _changeTargetCheckFrequency.Format("Check frequency", _changeTargetWhenTooFar);
-            _changeTargetCheckFrequency.Description = "How many times per second should the enemy try to change target";
-            _changeTargetChancePerCheck.Format("Chance per check", _changeTargetWhenTooFar);
-            _changeTargetChancePerCheck.Description = "at 100%, enemies will try to change target every second";
+            _changeTargetCheckInterval.Format("Check interval", _changeTargetWhenTooFar);
+            _changeTargetCheckInterval.Description = "After a distance check, enemies will wait for a random duration between x and y before performing another check";
             _changeTargetCurrentToNearestRatio.Format("Minimum target-nearest ratio", _changeTargetWhenTooFar);
-            _changeTargetCurrentToNearestRatio.Description = "Enemies will try to change target only if their current target is this many times further away then their nearest attacker";
+            _changeTargetCurrentToNearestRatio.Description = "Enemies will change target only if their current target is this many times further away then their nearest attacker";
             _changeTargetDetectAllPlayers.Format("Detect all players", _changeTargetWhenTooFar);
             _changeTargetDetectAllPlayers.Description = "When enemies detect any player, they will become aware of other players as well";
         }
@@ -99,8 +95,7 @@ public class AI : AMod
                 _changeTargetOnHit.Value = 0;
                 _walkTowardsPlayerOnSpawn.Value = 0;
                 _changeTargetWhenTooFar.Value = true;
-                _changeTargetCheckFrequency.Value = 2;
-                _changeTargetChancePerCheck.Value = 25;
+                _changeTargetCheckInterval.Value = new(0f, 2f);
                 _changeTargetCurrentToNearestRatio.Value = 1.2f;
                 _changeTargetDetectAllPlayers.Value = true;
                 break;
@@ -114,8 +109,7 @@ public class AI : AMod
         var lastAttackers = enemy.m_lastDealers;
         //Log.Debug($"{enemy.Name} - enemies:  {lastAttackers.Count}");
 
-        if (lastAttackers.Count <= 1
-        || UnityEngine.Random.value > _changeTargetChancePerCheck / 100f)
+        if (lastAttackers.Count <= 1)
             return;
 
         float currentDistance = enemy.DistanceTo(enemy.TargetingSystem.LockedCharacter);
@@ -152,7 +146,7 @@ public class AI : AMod
             }
 
             TryRetarget(ai);
-            yield return new WaitForSeconds(1f / _changeTargetCheckFrequency);
+            yield return new WaitForSeconds(_changeTargetCheckInterval.Value.RandomRange());
         }
     }
 
@@ -181,7 +175,7 @@ public class AI : AMod
 
         // Initialize
         List<Character.Factions> targetableFactions = new();
-        foreach (var faction in InternalUtility.GetEnumValues<Character.Factions>())
+        foreach (var faction in Utils.GetEnumValues<Character.Factions>())
         {
             if (faction == Character.Factions.NONE
             || faction == Character.Factions.COUNT
@@ -210,8 +204,8 @@ public class AI : AMod
         foreach (var detection in _charAI.GetComponentsInChildren<AICEnemyDetection>(true))
         {
             // View angles
-            detection.GoodViewAngle = InternalUtility.Lerp3(0, detection.GoodViewAngle, 90, multiplier / 2);
-            detection.ViewAngle = InternalUtility.Lerp3(0, detection.ViewAngle, 180, multiplier / 2);
+            detection.GoodViewAngle = Utils.Lerp3(0, detection.GoodViewAngle, 90, multiplier / 2);
+            detection.ViewAngle = Utils.Lerp3(0, detection.ViewAngle, 180, multiplier / 2);
 
             // View ranges
             detection.ViewRange *= multiplier;
