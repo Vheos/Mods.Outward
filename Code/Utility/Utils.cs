@@ -3,8 +3,28 @@ using System.Collections;
 using System.Diagnostics;
 using System.Reflection;
 
-internal static class InternalUtility
+internal static class Utils
 {
+    public static readonly AreaManager.AreaEnum[] OPEN_REGIONS = new[]
+{
+        AreaManager.AreaEnum.CierzoOutside,
+        AreaManager.AreaEnum.Emercar,
+        AreaManager.AreaEnum.HallowedMarsh,
+        AreaManager.AreaEnum.Abrassar,
+        AreaManager.AreaEnum.AntiqueField,
+        AreaManager.AreaEnum.Caldera,
+    };
+
+    public static readonly AreaManager.AreaEnum[] CITIES = new[]
+    {
+        AreaManager.AreaEnum.CierzoVillage,
+        AreaManager.AreaEnum.Berg,
+        AreaManager.AreaEnum.Monsoon,
+        AreaManager.AreaEnum.Levant,
+        AreaManager.AreaEnum.Harmattan,
+        AreaManager.AreaEnum.NewSirocco,
+    };
+
     public static Type CallerType
     => new StackFrame(1).GetMethod().DeclaringType;
     public static string AssemblyName
@@ -125,4 +145,10 @@ internal static class InternalUtility
         get => (float)EnvironmentConditions.GameTime;
         set => EnvironmentConditions.GameTime = value;
     }
+    public static AreaManager.AreaEnum CurrentArea
+    => (AreaManager.AreaEnum)AreaManager.Instance.CurrentArea.ID;
+    public static bool IsInCity
+    => CurrentArea.IsContainedIn(CITIES);
+    public static bool IsInOpenRegion
+    => CurrentArea.IsContainedIn(OPEN_REGIONS);
 }

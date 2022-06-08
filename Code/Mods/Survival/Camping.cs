@@ -5,24 +5,6 @@ public class Camping : AMod
 {
     #region const
     private const string CANT_CAMP_NOTIFICATION = "You can't camp here!";
-    private static readonly AreaManager.AreaEnum[] OPEN_REGIONS = new[]
-    {
-        AreaManager.AreaEnum.CierzoOutside,
-        AreaManager.AreaEnum.Emercar,
-        AreaManager.AreaEnum.HallowedMarsh,
-        AreaManager.AreaEnum.Abrassar,
-        AreaManager.AreaEnum.AntiqueField,
-        AreaManager.AreaEnum.Caldera,
-    };
-    private static readonly AreaManager.AreaEnum[] CITIES = new[]
-    {
-        AreaManager.AreaEnum.CierzoVillage,
-        AreaManager.AreaEnum.Berg,
-        AreaManager.AreaEnum.Monsoon,
-        AreaManager.AreaEnum.Levant,
-        AreaManager.AreaEnum.Harmattan,
-        AreaManager.AreaEnum.NewSirocco,
-    };
     #endregion
     #region enum
     [Flags]
@@ -92,8 +74,8 @@ public class Camping : AMod
         {
             case nameof(Preset.Vheos_CoopSurvival):
                 ForceApply();
-                _campingSpots.Value = CampingSpots.Butterflies | CampingSpots.Dungeons;
-                _butterfliesSpawnChance.Value = 50;
+                _campingSpots.Value = CampingSpots.Dungeons;
+                _butterfliesSpawnChance.Value = 100;
                 _butterfliesRadius.Value = 10;
                 _campingActivities.Value = CampingActivities.Sleep | CampingActivities.Repair;
                 break;
@@ -105,8 +87,8 @@ public class Camping : AMod
     private static bool IsCampingAllowed(Character character, Vector3 position)
     {
         AreaManager.AreaEnum currentArea = (AreaManager.AreaEnum)AreaManager.Instance.CurrentArea.ID;
-        bool result = currentArea.IsContainedIn(CITIES) ? _campingSpots.Value.HasFlag(CampingSpots.Cities)
-            : currentArea.IsContainedIn(OPEN_REGIONS) ? _campingSpots.Value.HasFlag(CampingSpots.OpenRegions)
+        bool result = currentArea.IsContainedIn(Utils.CITIES) ? _campingSpots.Value.HasFlag(CampingSpots.Cities)
+            : currentArea.IsContainedIn(Utils.OPEN_REGIONS) ? _campingSpots.Value.HasFlag(CampingSpots.OpenRegions)
                 || _campingSpots.Value.HasFlag(CampingSpots.Butterflies) && IsNearButterflies(position)
             : _campingSpots.Value.HasFlag(CampingSpots.Dungeons);
 
@@ -173,7 +155,7 @@ public class Camping : AMod
         AreaManager.AreaEnum currentArea = (AreaManager.AreaEnum)AreaManager.Instance.CurrentArea.ID;
         #region quit
         if (!__instance.m_detectionScript.DeployedItem.IsSleepKit
-        || currentArea.IsNotContainedIn(OPEN_REGIONS)
+        || currentArea.IsNotContainedIn(Utils.OPEN_REGIONS)
         || _campingSpots.Value.HasFlag(CampingSpots.OpenRegions)
         || !_campingSpots.Value.HasFlag(CampingSpots.Butterflies))
             return true;

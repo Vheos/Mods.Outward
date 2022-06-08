@@ -455,7 +455,7 @@ public class GUI : AMod, IDelayedInit, IUpdatable
             return;
 
         // Execute
-        InternalUtility.SwapHierarchyPositions(pendingBuy, pendingSell);
+        Utils.SwapHierarchyPositions(pendingBuy, pendingSell);
         pendingBuy.SetAsFirstSibling();
         pendingSell.SetAsFirstSibling();
     }
@@ -716,7 +716,7 @@ public class GUI : AMod, IDelayedInit, IUpdatable
         float progress;
         if (statusEffect.TryAs(out Disease disease) && disease.IsReceding)
         {
-            float elapsed = InternalUtility.GameTime - disease.m_healedGameTime;
+            float elapsed = Utils.GameTime - disease.m_healedGameTime;
             float duration = DiseaseLibrary.Instance.GetRecedingTime(disease.m_diseasesType);
             progress = 1f - elapsed / duration;
         }

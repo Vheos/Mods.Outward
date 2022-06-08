@@ -337,7 +337,7 @@ public class Needs : AMod, IDelayedInit
             StatusEffect statusEffect = element.Value.StatusEffect;
             statusEffect.m_nameLocKey = element.Value.Name;
             statusEffect.m_descriptionLocKey = element.Value.Description;
-            statusEffect.OverrideIcon = InternalUtility.CreateSpriteFromFile(InternalUtility.PluginFolderPath + ICONS_FOLDER + element.Key + ".PNG");
+            statusEffect.OverrideIcon = Utils.CreateSpriteFromFile(Utils.PluginFolderPath + ICONS_FOLDER + element.Key + ".PNG");
             statusEffect.IsMalusEffect = false;
             statusEffect.RefreshRate = 1f;
         }

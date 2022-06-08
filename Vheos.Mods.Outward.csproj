@@ -71,7 +71,7 @@
     <Compile Include="Code\Mods\Various\Various.cs" />
     <Compile Include="Code\Utility\Extensions_Various.cs" />
     <Compile Include="Code\Utility\GlobalUsings.cs" />
-    <Compile Include="Code\Utility\InternalUtility.cs" />
+    <Compile Include="Code\Utility\Utils.cs" />
     <Compile Include="Code\Core\Main.cs" />
   </ItemGroup>
   <ItemGroup>

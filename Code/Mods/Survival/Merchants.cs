@@ -139,7 +139,7 @@ public class Merchants : AMod, IDelayedInit
     {
         int itemSeed = _randomizePricesPerItem ? item.ItemID : 0;
         int areaSeed = _randomizePricesPerArea ? AreaManager.Instance.CurrentArea.ID : 0;
-        int timeSeed = (InternalUtility.GameTime / 24f / _randomizePricesPerDays).RoundDown();
+        int timeSeed = (Utils.GameTime / 24f / _randomizePricesPerDays).RoundDown();
         Random.InitState(itemSeed + areaSeed + timeSeed);
 
         return 1f + Random.Range(-_randomizePricesExtent, +_randomizePricesExtent) / 100f;

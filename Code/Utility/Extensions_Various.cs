@@ -303,13 +303,13 @@ public static class Extensions_Various
     public static List<T> GetAllComponentsInHierarchy<T>(this Transform root) where T : Component
     {
         List<T> components = new() { root.GetComponents<T>() };
-        InternalUtility.AppendChildrenRecurisvely(root, components);
+        Utils.AppendChildrenRecurisvely(root, components);
         return components;
     }
     public static List<Component> GetAllComponentsInHierarchy<T1, T2>(this Transform root) where T1 : Component where T2 : Component
     {
         List<Component> components = new() { root.GetComponents<T1>(), root.GetComponents<T2>() };
-        InternalUtility.AppendChildrenRecurisvely(root, components);
+        Utils.AppendChildrenRecurisvely(root, components);
         return components;
     }
     public static List<RaycastResult> GetMouseHits(this GraphicRaycaster t)
@@ -375,6 +375,8 @@ public static class Extensions_Various
         GameObject newLanternHolder = GameObject.Instantiate(lanternHolder, bag.LoadedVisual.transform);
         bag.m_lanternSlot = newLanternHolder.GetComponentInChildren<BagSlotVisual>();
     }
+    public static float RandomRange(this Vector2 t)
+    => UnityEngine.Random.Range(t.x, t.y);
 
     // GOName
     public static string GOName(this Component t)
@@ -415,13 +417,13 @@ public static class Extensions_Various
     }
 
     public static Coroutine ExecuteAtTheEndOfFrame(this MonoBehaviour monoBehaviour, Action action)
-    => monoBehaviour.StartCoroutine(InternalUtility.CoroutineWaitUntilEndOfFrame(action));
+    => monoBehaviour.StartCoroutine(Utils.CoroutineWaitUntilEndOfFrame(action));
     public static Coroutine ExecuteOnceAfterDelay(this MonoBehaviour monoBehaviour, float delay, Action action)
-    => monoBehaviour.StartCoroutine(InternalUtility.CoroutineWaitForSeconds(delay, action));
+    => monoBehaviour.StartCoroutine(Utils.CoroutineWaitForSeconds(delay, action));
     public static Coroutine ExecuteOnceWhen(this MonoBehaviour monoBehaviour, Func<bool> test, Action action)
-    => monoBehaviour.StartCoroutine(InternalUtility.CoroutineWaitUntil(test, action));
+    => monoBehaviour.StartCoroutine(Utils.CoroutineWaitUntil(test, action));
     public static Coroutine ExecuteWhile(this MonoBehaviour monoBehaviour, Func<bool> test, Action action, Action finalAction = null)
-    => monoBehaviour.StartCoroutine(InternalUtility.CoroutineWhile(test, action, finalAction));
+    => monoBehaviour.StartCoroutine(Utils.CoroutineWhile(test, action, finalAction));
     public static Coroutine ExecuteUntil(this MonoBehaviour monoBehaviour, Func<bool> test, Action action, Action finalAction = null)
-    => monoBehaviour.StartCoroutine(InternalUtility.CoroutineDoUntil(test, action, finalAction));
+    => monoBehaviour.StartCoroutine(Utils.CoroutineDoUntil(test, action, finalAction));
 }

@@ -124,7 +124,7 @@ public class Traps : AMod
         __instance.ExecuteUntil
         (
             () => Time.time - setupTime >= _trapsArmDelay,
-            () => particleSystemMain.startColor = InternalUtility.Lerp3(RUNIC_TRAP_START_COLOR, RUNIC_TRAP_TRANSITION_COLOR, RUNIC_TRAP_ARMED_COLOR, (Time.time - setupTime) / _trapsArmDelay),
+            () => particleSystemMain.startColor = Utils.Lerp3(RUNIC_TRAP_START_COLOR, RUNIC_TRAP_TRANSITION_COLOR, RUNIC_TRAP_ARMED_COLOR, (Time.time - setupTime) / _trapsArmDelay),
             () =>
             {
                 particleSystemMain.startColor = RUNIC_TRAP_ARMED_COLOR;
@@ -159,7 +159,7 @@ public class Traps : AMod
         __instance.ExecuteUntil
         (
             () => Time.time - setupTime >= _trapsArmDelay,
-            () => material.color = InternalUtility.Lerp3(TRAP_START_COLOR, TRAP_TRANSITION_COLOR, TRAP_ARMED_COLOR, (Time.time - setupTime) / _trapsArmDelay),
+            () => material.color = Utils.Lerp3(TRAP_START_COLOR, TRAP_TRANSITION_COLOR, TRAP_ARMED_COLOR, (Time.time - setupTime) / _trapsArmDelay),
             () =>
             {
                 material.color = TRAP_ARMED_COLOR;

@@ -396,7 +396,7 @@ public class SkillTreeRandomizer : AMod, IDelayedInit
         foreach (var name in MISSING_ICON_SKILL_NAMES)
         {
             int id = Prefabs.SkillIDsByName[name];
-            Prefabs.SkillsByID[id].SkillTreeIcon = InternalUtility.CreateSpriteFromFile(InternalUtility.PluginFolderPath + ICONS_FOLDER + name.Replace('/', '_') + ".PNG");
+            Prefabs.SkillsByID[id].SkillTreeIcon = Utils.CreateSpriteFromFile(Utils.PluginFolderPath + ICONS_FOLDER + name.Replace('/', '_') + ".PNG");
         }
     }
     private static void ResetSkillTreeHolders()
@@ -519,7 +519,7 @@ public class SkillTreeRandomizer : AMod, IDelayedInit
         CopyEqualizedSlotsToOutputTrees(equalizer.Results, outputTrees);
     }
     private static void LogResultsToFile(string results)
-    => System.IO.File.WriteAllText(InternalUtility.PluginFolderPath + REROLL_STATS_FILE_NAME, results);
+    => System.IO.File.WriteAllText(Utils.PluginFolderPath + REROLL_STATS_FILE_NAME, results);
     private static void CopyEqualizedSlotsToOutputTrees(IEnumerable<IEnumerable<BaseSkillSlot>> equalizedTrees, IList<SkillSchool> outputTrees)
     {
         foreach (var equalizedTree in equalizedTrees)

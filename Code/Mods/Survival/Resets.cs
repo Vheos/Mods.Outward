@@ -223,8 +223,8 @@ public class Resets : AMod
                 _areasToggle.Value = true;
                 {
                     _areasMode.Value = ResetMode.Timer;
-                    _areasTimer.Value = 4;
-                    _areasTimerSinceReset.Value = 14;
+                    _areasTimer.Value = 3;
+                    _areasTimerSinceReset.Value = 12;
                     _areasResetLayers.Value = AreasResetLayers.Enemies;
                     _fixUnarmedBandits.Value = WeaponSet.Fang;
                     _fixUnarmedBanditsDurabilityRatio.Value = 67;
@@ -232,11 +232,11 @@ public class Resets : AMod
                 _gatherablesToggle.Value = true;
                 {
                     _gatheringMode.Value = ResetMode.Timer;
-                    _gatheringTimer.Value = 7;
+                    _gatheringTimer.Value = 6;
                     _miningMode.Value = ResetMode.Timer;
-                    _miningTimer.Value = 11;
+                    _miningTimer.Value = 9;
                     _fishingMode.Value = ResetMode.Timer;
-                    _fishingTimer.Value = 4;
+                    _fishingTimer.Value = 3;
                 }
                 _merchantsToggle.Value = true;
                 _merchantsMode.Value = ResetMode.Never;
@@ -279,8 +279,8 @@ public class Resets : AMod
         #endregion
 
         // Initialize game time
-        if (InternalUtility.GameTime < (float)__instance.GameTime)
-            InternalUtility.GameTime = (float)__instance.GameTime;
+        if (Utils.GameTime < (float)__instance.GameTime)
+            Utils.GameTime = (float)__instance.GameTime;
 
         // Persistent areas
 
@@ -288,15 +288,15 @@ public class Resets : AMod
         bool resetArea = _areasResetLayers.Value.HasFlag(AreasResetLayers.Cities) || areaEnum.IsNotContainedIn(ALL_CITIES);
 
         // Area modes
-        float sinceLastVisit = InternalUtility.GameTime - (float)__instance.GameTime;
-        float sinceLastReset = InternalUtility.GameTime - __instance.SaveCreationGameTime;
+        float sinceLastVisit = Utils.GameTime - (float)__instance.GameTime;
+        float sinceLastReset = Utils.GameTime - __instance.SaveCreationGameTime;
         resetArea &= _areasMode == ResetMode.Always
                   || _areasMode == ResetMode.Timer
                                 && sinceLastVisit >= _areasTimer * TIME_UNIT
                                 && sinceLastReset >= _areasTimerSinceReset * TIME_UNIT;
         // Execute
         if (resetArea)
-            __instance.SaveCreationGameTime = InternalUtility.GameTime.RoundDown();
+            __instance.SaveCreationGameTime = Utils.GameTime.RoundDown();
 
         if (!resetArea || !_areasResetLayers.Value.HasFlag(AreasResetLayers.Enemies))
             CharacterManager.Instance.LoadAiCharactersFromSave(__instance.CharList.ToArray());
@@ -385,7 +385,7 @@ public class Resets : AMod
         {
             __instance.InventoryRefreshRate = _merchantsTimer * TIME_UNIT;
             if (___m_nextRefreshTime == double.PositiveInfinity)
-                ___m_nextRefreshTime = InternalUtility.GameTime + __instance.InventoryRefreshRate;
+                ___m_nextRefreshTime = Utils.GameTime + __instance.InventoryRefreshRate;
         }
     }
 

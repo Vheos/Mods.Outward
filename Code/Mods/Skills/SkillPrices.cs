@@ -39,7 +39,7 @@ public class SkillPrices : AMod
             ItemName = name;
             ItemID = Prefabs.ItemIDsByName[name];
             Amount = amount;
-            Icon = InternalUtility.CreateSpriteFromFile(InternalUtility.PluginFolderPath + ICONS_FOLDER + name + ".PNG");
+            Icon = Utils.CreateSpriteFromFile(Utils.PluginFolderPath + ICONS_FOLDER + name + ".PNG");
         }
     }
     #endregion
@@ -55,7 +55,7 @@ public class SkillPrices : AMod
     {
         _formulaToggle = CreateSetting(nameof(_formulaToggle), false);
         _formulaCoeffsByLevel = new Dictionary<SlotLevel, ModSetting<Vector4>>();
-        foreach (var level in InternalUtility.GetEnumValues<SlotLevel>())
+        foreach (var level in Utils.GetEnumValues<SlotLevel>())
         {
             Vector4 initialPrice = Vector4.zero;
             switch (level)
@@ -114,9 +114,9 @@ public class SkillPrices : AMod
                 ForceApply();
                 _formulaToggle.Value = true;
                 {
-                    _formulaCoeffsByLevel[SlotLevel.Basic].Value = new Vector4(0, 1, 1, 0);
-                    _formulaCoeffsByLevel[SlotLevel.Breakthrough].Value = new Vector4(0, 1, 1, 0);
-                    _formulaCoeffsByLevel[SlotLevel.Advanced].Value = new Vector4(0, 1, 1, 0);
+                    _formulaCoeffsByLevel[SlotLevel.Basic].Value = new Vector4(0, 1, 0, 0);
+                    _formulaCoeffsByLevel[SlotLevel.Breakthrough].Value = new Vector4(0, 0, 0, 0);
+                    _formulaCoeffsByLevel[SlotLevel.Advanced].Value = new Vector4(0, 1, 0, 0);
                     _formulaType.Value = FormulaType.Linear;
                 }
                 _learnMutuallyExclusiveSkills.Value = true;
