@@ -3,7 +3,7 @@ using System.Collections;
 
 public class AI : AMod
 {
-    #region const
+    #region Constants
     private const float HUMAN_COLLISION_RADIUS = 0.4f;
     private static readonly Dictionary<TargetingGroups, Character.Factions[]> NEUTRAL_FACTION_GROUPS = new()
     {
@@ -23,7 +23,7 @@ public class AI : AMod
         },
     };
     #endregion
-    #region quit
+    #region Enums
     [Flags]
     private enum TargetingGroups
     {

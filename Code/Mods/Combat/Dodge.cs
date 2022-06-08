@@ -2,7 +2,7 @@
 
 public class Dodge : AMod
 {
-    #region const
+    #region Constants
     private const int ACROBATICS_SKILLID = 8205450;
     #endregion
 

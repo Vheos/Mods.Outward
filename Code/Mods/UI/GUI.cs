@@ -3,7 +3,7 @@ using UnityEngine.UI;
 
 public class GUI : AMod, IDelayedInit, IUpdatable
 {
-    #region const
+    #region Constants
     public static readonly Vector2 DEFAULT_SHOP_OFFSET_MIN = new(-1344f, -540f);
     public static readonly Vector2 DEFAULT_SHOP_OFFSET_MAX = new(-20f, -20f);
     public static readonly (Vector2 Default, Vector2 Alternative) MANA_BAR_POSITIONS = (new Vector2(65f, 18.6f), new Vector2(10f, 83f));
@@ -20,7 +20,7 @@ public class GUI : AMod, IDelayedInit, IUpdatable
         [HUDGroup.Stability] = (typeof(StabilityDisplay_Simple), "Stability", new Vector2(0, -519)),
     };
     #endregion
-    #region enum
+    #region Enums
     private enum SeperatePanelsMode
     {
         Disabled = 0,

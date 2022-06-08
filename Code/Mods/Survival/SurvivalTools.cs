@@ -4,7 +4,7 @@ using Vheos.Helpers.RNG;
 
 public class SurvivalTools : AMod
 {
-    #region const
+    #region Constants
     private const float BED_DISTANCE_BETWEEN_PLAYERS = 0.4f;
     private static readonly int[] TORCH_IDS = new[]
     {

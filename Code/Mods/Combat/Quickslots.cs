@@ -2,7 +2,7 @@
 
 public class Quickslots : AMod
 {
-    #region const
+    #region Constants
     private static readonly Dictionary<SkillContext, Dictionary<Weapon.WeaponType, int>> SKILL_CONTEXT_GROUPS = new()
     {
         [SkillContext.Innate] = new Dictionary<Weapon.WeaponType, int>
@@ -64,7 +64,7 @@ public class Quickslots : AMod
         },
     };
     #endregion
-    #region enum
+    #region Enums
     private enum WeaponTypeExtended
     {
         Empty = -1,

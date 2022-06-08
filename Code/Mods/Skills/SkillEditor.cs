@@ -2,7 +2,7 @@
 
 public class SkillEditor : AMod, IDelayedInit
 {
-    #region const
+    #region Constants
     private const string RUNIC_LANTERN_ID = "Runic Lantern";
     private const float RUNIC_LANTERN_EMISSION_RATE = 20;
     private readonly (Vector3, Vector3, Vector3) DEFAULT_VALUES_DAGGER_SLASH =

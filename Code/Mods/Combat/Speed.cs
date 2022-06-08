@@ -2,7 +2,7 @@
 
 public class Speed : AMod, IUpdatable
 {
-    #region const
+    #region Constants
     private const float FIXED_TIME_DELTA = 0.022f;   // Global.Update(), PauseMenu.Pause(), PauseMenu.TogglePause()
     #endregion
 

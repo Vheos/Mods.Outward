@@ -3,7 +3,7 @@ using BepInEx.Configuration;
 
 public class Needs : AMod, IDelayedInit
 {
-    #region const
+    #region Constants
     private const string ICONS_FOLDER = @"Needs\";
     private const float DEFAULT_MAX_NEED_VALUE = 1000f;
     private static readonly (Need Need, Vector2 Thresholds, float DepletionRate, string NegativeName, string ActionName, string AffectedStat)[] NEEDS_DATA =
@@ -72,7 +72,7 @@ public class Needs : AMod, IDelayedInit
         "Infection3",
     };
     #endregion
-    #region enum
+    #region Enums
     private enum Need
     {
         Food = 0,

@@ -2,7 +2,7 @@
 
 public class Crafting : AMod, IDelayedInit
 {
-    #region const
+    #region Constants
     private const int CRYSTAL_POWDER_ID = 6600040;
     private static readonly int[] LANTERN_IDS =
     {
@@ -60,7 +60,7 @@ public class Crafting : AMod, IDelayedInit
         "Strange Rusted Sword".ToItemID(),
     };
     #endregion
-    #region enum
+    #region Enums
     [Flags]
     private enum CraftingExceptions
     {

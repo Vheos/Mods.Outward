@@ -4,7 +4,7 @@ using Vheos.Helpers.RNG;
 
 public class SkillTreeRandomizer : AMod, IDelayedInit
 {
-    #region const
+    #region Constants
     private const string ICONS_FOLDER = @"Skills\";
     private const string WEAPON_SKILLS_TREE_NAME = "WeaponSkills";
     private const string BOONS_TREE_NAME = "Boons";
@@ -89,7 +89,7 @@ public class SkillTreeRandomizer : AMod, IDelayedInit
         (4, 0),
     };
     #endregion
-    #region enum
+    #region Enums
     private enum SlotLevel
     {
         Basic = 1,

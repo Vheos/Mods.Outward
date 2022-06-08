@@ -10,7 +10,7 @@ using UnityEngine.UI;
 
 public class Various : AMod, IUpdatable
 {
-    #region const
+    #region Constants
     private const string INNS_QUEST_FAMILY_NAME = "Inns";
     private const int DROP_ONE_ACTION_ID = -2;
     private const string DROP_ONE_ACTION_TEXT = "Drop one";
@@ -38,7 +38,7 @@ public class Various : AMod, IUpdatable
         [AreaManager.AreaEnum.Caldera] = 65,
     };
     #endregion
-    #region enum
+    #region Enums
     [Flags]
     private enum ArmorSlots
     {

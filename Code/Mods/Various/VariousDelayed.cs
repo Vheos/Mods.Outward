@@ -1,7 +1,7 @@
 ﻿namespace Vheos.Mods.Outward;
 public class VariousDelayed : AMod, IDelayedInit
 {
-    #region const
+    #region Constants
     private static readonly Item[] ARROWS = new[]
 {
         "Arrow".ToItem(),

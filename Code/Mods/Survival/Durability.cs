@@ -3,10 +3,11 @@ using Vheos.Helpers.RNG;
 
 public class Durability : AMod
 {
-    #region const
+    #region Constants
     private const int FAST_MAINTENANCE_ID = 8205140;
     #endregion
-    #region enum
+
+    #region Enums
     private enum MultiRepairBehaviour
     {
         UseFixedValueForAllItems = 1,

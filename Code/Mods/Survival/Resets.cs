@@ -8,7 +8,7 @@ using Vheos.Helpers.RNG;
 
 public class Resets : AMod
 {
-    #region const
+    #region Constants
     private static readonly AreaManager.AreaEnum[] ALL_CITIES = new[]
     {
         AreaManager.AreaEnum.CierzoVillage,
@@ -102,7 +102,7 @@ public class Resets : AMod
         [WeaponSet.Savage] = new[] { 2200001 },
     };
     #endregion
-    #region enum
+    #region Enums
     private enum ResetMode
     {
         Always = 1,

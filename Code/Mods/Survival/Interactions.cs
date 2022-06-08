@@ -3,7 +3,7 @@ using Vheos.Helpers.RNG;
 
 public class Interactions : AMod, IDelayedInit
 {
-    #region const
+    #region Constants
     public const float ANIMATED_TAKE_DELAY = 0.3f;
     public const float STANDING_TAKE_MIN_HEIGHT = 0.7f;
     public const float UNPACK_OFFSET_Y = 0.2f;
@@ -17,7 +17,7 @@ public class Interactions : AMod, IDelayedInit
     private static readonly Color HIGHLIGHT_COLOR_OTHER_ITEM = new(0.125f, 0.871f, 1f, 0.5f);
     private static readonly Color HIGHLIGHT_COLOR_INTERACTION = new(0.686f, 0.125f, 1f, 0.75f);
     #endregion
-    #region enum
+    #region Enums
     [Flags]
     private enum GroundInteractions
     {

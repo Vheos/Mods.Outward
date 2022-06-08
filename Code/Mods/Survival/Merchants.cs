@@ -3,7 +3,7 @@ using Vheos.Helpers.RNG;
 
 public class Merchants : AMod, IDelayedInit
 {
-    #region const
+    #region Constants
     private const float DEFAULT_SELL_MODIFIER = 0.3f;
     private static readonly Color DEFAULT_PRICE_COLOR = new(0.8235294f, 0.8877006f, 1f);
     #endregion

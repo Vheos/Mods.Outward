@@ -2,7 +2,7 @@
 
 public static class Prefabs
 {
-    #region const
+    #region Constants
     public static readonly Dictionary<string, int> ItemIDsByName = new()
     {
         ["Torcrab Egg"] = 4000480,

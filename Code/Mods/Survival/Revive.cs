@@ -2,7 +2,7 @@
 
 public class Revive : AMod
 {
-    #region const       
+    #region Constants       
     private const float ITEM_INTERACT_RADIUS = 0.1f;   // InteractionTriggerBase.m_detectionColliderRadius
     private const float PLAYER_INTERACT_RADIUS = 1.4f;   // Character.ItemDetectionSphereRadius
     private const float BASE_MAX_NEED = 1000f;   // PlayerCharacterStats.m_maxFood

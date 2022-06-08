@@ -3,12 +3,12 @@ using UnityEngine.UI;
 
 public class SkillPrices : AMod
 {
-    #region const
+    #region Constants
     private const string ICONS_FOLDER = @"Prices\";
     private static readonly Vector2 ALTERNATE_CURRENCY_ICON_SCALE = new(1.75f, 1.75f);
     private static readonly Vector2 ALTERNATE_CURRENCY_ICON_PIVOT = new(-0.5f, 0.5f);
     #endregion
-    #region enum
+    #region Enums
     private enum SlotLevel
     {
         Basic = 1,

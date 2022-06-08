@@ -2,7 +2,7 @@
 
 public static class GameInput
 {
-    #region const
+    #region Constants
     public static float HOLD_DURATION = 1.25f;   // InteractionBase.HOLD_ACTIVATION_TIME
     public static float HOLD_THRESHOLD = 0.4f;   // Character.BASIC_INTERACT_THRESHOLD
     #endregion

@@ -4,7 +4,7 @@ using UnityEngine.UI;
 
 public class SkillLimits : AMod
 {
-    #region const
+    #region Constants
     private const int UNLEARN_ACTION_ID = -1;
     private const string UNLEARN_ACTION_TEXT = "Forget";
     private static readonly Dictionary<SkillTypes, string> NOTIFICATION_BY_SKILL_TYPE = new()
@@ -43,7 +43,7 @@ public class SkillLimits : AMod
     private static Color ICON_COLOR = new(1f, 1f, 1f, 1 / 3f);
     private static Vector2 INDICATOR_SCALE = new(1.5f, 1.5f);
     #endregion
-    #region enum
+    #region Enums
     [Flags]
     private enum SkillTypes
     {

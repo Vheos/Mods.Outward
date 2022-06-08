@@ -2,14 +2,14 @@
 
 public class Camera : AMod, IDelayedInit, IUpdatable
 {
-    #region const
+    #region Constants
     private static readonly Vector3 DEFAULT_OFFSET = new(0f, 1f, -3f);
     private const float DEFAULT_FOV = 50f;
     private const float DEFAULT_FOLLOW_SPEED = 4.5f;
     private const float AIM_COROUTINE_UPDATE_SPEED = 0.2f;
     private const float AIM_COROUTINE_MARGIN = 0.01f;
     #endregion
-    #region enum
+    #region Enums
     [Flags]
     private enum GamepadInputs
     {

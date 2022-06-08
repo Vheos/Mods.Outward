@@ -2,10 +2,10 @@
 
 public class Camping : AMod
 {
-    #region const
+    #region Constants
     private const string CANT_CAMP_NOTIFICATION = "You can't camp here!";
     #endregion
-    #region enum
+    #region Enums
     [Flags]
     private enum CampingSpots
     {
@@ -123,7 +123,7 @@ public class Camping : AMod
             if (fx.NameContains("butterfly"))
             {
                 AmbienceSound ambienceSound = fx.GetComponentInChildren<AmbienceSound>();
-                if ( _butterfliesSpawnChance.RollPercent())
+                if (_butterfliesSpawnChance.RollPercent())
                 {
                     fx.Activate();
                     ambienceSound.MinVolume = ambienceSound.MaxVolume = 1;

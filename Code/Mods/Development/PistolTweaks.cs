@@ -8,7 +8,7 @@ namespace Vheos.Mods.Outward;
 
 public class PistolTweaks : AMod, IDelayedInit
 {
-    #region const
+    #region Constants
     private const int MAX_LOADED_BULLETS = 1;   // WeaponLoadout.MaxProjectileLoaded 
     private const int BULLET_ID = 4400080;   // ResourcesPrefabManager.ITEM_PREFABS
     private const int BULLET_STACK_SIZE = 12;   // ResourcesPrefabManager.ITEM_PREFABS -> Item.MultipleUsage

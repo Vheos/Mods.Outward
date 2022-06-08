@@ -2,7 +2,7 @@
 
 public class Traps : AMod
 {
-    #region const
+    #region Constants
     private static Color TRAP_START_COLOR = Color.white;
     private static Color TRAP_TRANSITION_COLOR = Color.yellow;
     private static Color TRAP_ARMED_COLOR = Color.red;

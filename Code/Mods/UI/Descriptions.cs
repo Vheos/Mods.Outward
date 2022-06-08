@@ -7,7 +7,7 @@ using UnityEngine.UI;
 
 public class Descriptions : AMod, IDelayedInit
 {
-    #region const
+    #region Constants
     private static readonly Vector2 BAR_MAX_SIZE = new(2.75f, 2.50f);
     private static readonly Vector2 BAR_PIVOT = new(0f, 1f);
     private const float DURABILITY_MAX_MAX = 777f;    // Duty (unique halberd)
@@ -33,7 +33,7 @@ public class Descriptions : AMod, IDelayedInit
         [AreaManager.AreaEnum.NewSirocco] = "-MSrkT502k63y3CV2j98TQ",
     };
     #endregion
-    #region enum
+    #region Enums
     [Flags]
     private enum Details
     {

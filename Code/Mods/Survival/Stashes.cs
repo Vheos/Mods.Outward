@@ -1,7 +1,7 @@
 ﻿namespace Vheos.Mods.Outward;
 public class Stashes : AMod, IUpdatable
 {
-    #region const
+    #region Constants
     private static readonly Dictionary<AreaManager.AreaEnum, (string UID, Vector3[] Positions)> STASH_DATA_BY_CITY = new()
     {
         [AreaManager.AreaEnum.CierzoVillage] = ("ImqRiGAT80aE2WtUHfdcMw", new[] { new Vector3(-367.850f, -1488.250f, 596.277f),
@@ -19,7 +19,7 @@ public class Stashes : AMod, IUpdatable
     };
     #endregion
 
-    #region enum
+    #region Enums
     private enum StashType
     {
         PlayerBound,
