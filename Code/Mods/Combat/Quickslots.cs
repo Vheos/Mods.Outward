@@ -275,9 +275,9 @@ public class Quickslots : AMod
 
         foreach (var quickslot in character.QuickSlotMngr.m_quickSlots)
             if (quickslot.ActiveItem.TryAs(out Skill quickslotSkill)
-            && _skillContextsByID.TryGet(quickslotSkill.ItemID, out var context)
-            && SKILL_CONTEXT_GROUPS.TryGet(context, out var contextSkillGroup)
-            && contextSkillGroup.TryGet(currentType, out var newContextSkillID)
+            && _skillContextsByID.TryGetValue(quickslotSkill.ItemID, out var context)
+            && SKILL_CONTEXT_GROUPS.TryGetValue(context, out var contextSkillGroup)
+            && contextSkillGroup.TryGetValue(currentType, out var newContextSkillID)
             && GetLearnedSkillByID(character, newContextSkillID).TryNonNull(out var newContextSkill))
                 quickslot.SetQuickSlot(newContextSkill, true);
     }

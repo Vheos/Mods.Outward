@@ -117,7 +117,7 @@ public class Stashes : AMod, IUpdatable
         {
             if (_cachedStash == null
             && AreaManager.Instance.CurrentArea.TryNonNull(out var currentArea)
-            && STASH_DATA_BY_CITY.TryGet((AreaManager.AreaEnum)currentArea.ID, out var data))
+            && STASH_DATA_BY_CITY.TryGetValue((AreaManager.AreaEnum)currentArea.ID, out var data))
                 _cachedStash = (TreasureChest)ItemManager.Instance.GetItem(data.UID);
 
             stash = _cachedStash;

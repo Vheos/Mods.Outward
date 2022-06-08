@@ -3,7 +3,6 @@
  */
 
 namespace Vheos.Mods.Outward;
-using Tools.Utilities;
 using UnityEngine.UI;
 
 public class Descriptions : AMod, IDelayedInit
@@ -289,7 +288,7 @@ public class Descriptions : AMod, IDelayedInit
         {
             if (_soroboreanCaravanner == null
             && AreaManager.Instance.CurrentArea.TryNonNull(out var currentArea)
-            && SOROBOREAN_CARAVANNER_UIDS_BY_CITY.TryGet((AreaManager.AreaEnum)currentArea.ID, out var uid)
+            && SOROBOREAN_CARAVANNER_UIDS_BY_CITY.TryGetValue((AreaManager.AreaEnum)currentArea.ID, out var uid)
             && Merchant.m_sceneMerchants.ContainsKey(uid))
                 _soroboreanCaravanner = Merchant.m_sceneMerchants[uid];
             return _soroboreanCaravanner;

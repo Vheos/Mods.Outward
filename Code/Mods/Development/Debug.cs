@@ -1,5 +1,5 @@
 ﻿namespace Vheos.Mods.Outward;
-using Tools.Extensions.DumpN;
+using Vheos.Helpers.Dump;
 
 public class Debug : AMod, IDelayedInit, IUpdatable
 {

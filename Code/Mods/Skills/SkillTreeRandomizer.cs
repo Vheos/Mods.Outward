@@ -1,6 +1,6 @@
 ﻿namespace Vheos.Mods.Outward;
 using Tools.TraitEqualizer;
-using Random = Tools.RandomN.Random;
+using Vheos.Helpers.RNG;
 
 public class SkillTreeRandomizer : AMod, IDelayedInit
 {
@@ -501,7 +501,7 @@ public class SkillTreeRandomizer : AMod, IDelayedInit
         TraitEqualizer<BaseSkillSlot> equalizer = new(outputTrees.Count, GetTraits(intputTrees).ToArray());
 
         // Randomize (with equalization)
-        Random.Initialize(_seed);
+        RNG.Initialize(_seed);
         foreach (var slot in GetSlotsFromTrees(intputTrees))
             equalizer.Add(slot);
 

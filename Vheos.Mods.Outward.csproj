@@ -70,7 +70,7 @@
     <Compile Include="Code\Mods\Various\VariousDelayed.cs" />
     <Compile Include="Code\Mods\Various\Various.cs" />
     <Compile Include="Code\Utility\Extensions_Various.cs" />
-    <Compile Include="Code\Utility\GlobalUsings.cs" />
+    <Compile Include="Code\GlobalUsings.cs" />
     <Compile Include="Code\Utility\Utils.cs" />
     <Compile Include="Code\Core\Main.cs" />
   </ItemGroup>
@@ -389,21 +389,13 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\Tools\Extensions\Vheos.Tools.Extensions.csproj">
-      <Project>{4afe5e8c-29c0-4389-aaa0-55584146becf}</Project>
-      <Name>Vheos.Tools.Extensions</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\Tools\Random\Vheos.Tools.Random.csproj">
-      <Project>{f4c8a01e-9df7-4e31-8169-1cf24d2896e7}</Project>
-      <Name>Vheos.Tools.Random</Name>
-    </ProjectReference>
     <ProjectReference Include="..\..\Tools\TraitEqualizer\Vheos.Tools.TraitEqualizer.csproj">
       <Project>{23d233fc-b7d0-4709-baaa-e803fee61930}</Project>
       <Name>Vheos.Tools.TraitEqualizer</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\Tools\Utilities\Vheos.Tools.Utilities.csproj">
+    <ProjectReference Include="..\..\Tools\Utilities\Vheos.Helpers.csproj">
       <Project>{96d2cdb1-5ee9-4666-812d-9ecb8df005c4}</Project>
-      <Name>Vheos.Tools.Utilities</Name>
+      <Name>Vheos.Helpers</Name>
     </ProjectReference>
     <ProjectReference Include="..\Core\Vheos.Mods.Core.csproj">
       <Project>{a48747d8-e698-4c2c-bf11-0efed7d79ef0}</Project>
@@ -429,13 +421,11 @@ set IsDebug=$(DefineConstants.Contains('DEBUG'))
 rd /q /s "%25GamePath%25%25PluginsSubpath%25"
 xcopy /y /s "$(TargetDir)$(TargetName).dll" "%25GamePath%25%25PluginsSubpath%25"
 xcopy /y /s "$(TargetDir)Vheos.Mods.Core.dll" "%25GamePath%25%25PluginsSubpath%25"
-xcopy /y /s "$(TargetDir)Vheos.Tools.Extensions.dll" "%25GamePath%25%25PluginsSubpath%25"
-xcopy /y /s "$(TargetDir)Vheos.Tools.Utilities.dll" "%25GamePath%25%25PluginsSubpath%25"
+xcopy /y /s "$(TargetDir)Vheos.Helpers.dll" "%25GamePath%25%25PluginsSubpath%25"
 xcopy /y /s %25ResourcesPath%25 "%25GamePath%25%25PluginsSubpath%25"
 
     :: Project
     xcopy /y /s "$(TargetDir)Vheos.Tools.TraitEqualizer.dll" "%25GamePath%25%25PluginsSubpath%25"
-    xcopy /y /s "$(TargetDir)Vheos.Tools.Random.dll" "%25GamePath%25%25PluginsSubpath%25"
 
 if %25IsDebug%25==True (
     start "" "%25GamePath%25%25ExeName%25"

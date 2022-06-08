@@ -1,7 +1,7 @@
 ﻿namespace Vheos.Mods.Outward;
 using BepInEx;
 using System.Reflection;
-using Utility = Tools.Utilities.Utility;
+using Utility = Vheos.Helpers.Common.Utility;
 
 [BepInDependency("com.bepis.bepinex.configurationmanager", BepInDependency.DependencyFlags.SoftDependency)]
 [BepInDependency("io.mefino.configurationmanager", BepInDependency.DependencyFlags.SoftDependency)]
@@ -10,8 +10,8 @@ public class Main : BepInExEntryPoint
 {
     // Metadata
     public const string GUID = "Vheos.Mods.Outward";
-    public const string NAME = "Vheos Mod Pack";
-    public const string VERSION = "2.0.5";
+    public const string NAME = "VMP";
+    public const string VERSION = "2.0.6";
 
     // User logic
     protected override Assembly CurrentAssembly

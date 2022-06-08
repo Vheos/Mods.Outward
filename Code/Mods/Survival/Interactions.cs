@@ -1,6 +1,5 @@
 ﻿namespace Vheos.Mods.Outward;
-using Tools.Utilities;
-using Random = UnityEngine.Random;
+using UnityRandom = UnityEngine.Random;
 
 public class Interactions : AMod, IDelayedInit
 {
@@ -167,7 +166,7 @@ public class Interactions : AMod, IDelayedInit
         }
         private void Bump(Item item, float force)
         {
-            Vector2 directionXZ = Random.insideUnitCircle.normalized;
+            Vector2 directionXZ = UnityRandom.insideUnitCircle.normalized;
             Vector3 direction = new(directionXZ.x, 1, directionXZ.y);
             item.GetComponent<Rigidbody>().AddForce(direction * force);
         }
