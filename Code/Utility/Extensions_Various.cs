@@ -1,5 +1,4 @@
 ﻿namespace Vheos.Mods.Outward;
-using System.Globalization;
 using System.Text;
 using System.Text.RegularExpressions;
 using UnityEngine.EventSystems;

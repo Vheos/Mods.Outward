@@ -6,7 +6,6 @@
 namespace Vheos.Mods.Outward;
 
 using System.Collections;
-using UnityEngine.UI;
 
 public class Various : AMod, IUpdatable
 {
@@ -472,7 +471,7 @@ public class Various : AMod, IUpdatable
 
     // Open region spawns
     [HarmonyPrefix, HarmonyPatch(typeof(AISquadManager), nameof(AISquadManager.Awake))]
-    static private void AISquadManager_Awake_Pre(AISquadManager __instance)
+    private static void AISquadManager_Awake_Pre(AISquadManager __instance)
     {
         if (_openRegionsEnemyDensity.Value == 0
         || !SQUAD_COUNTS_BY_REGION.TryGetValue(Utils.CurrentArea, out var squadsCount))
