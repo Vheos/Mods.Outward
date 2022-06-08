@@ -18,24 +18,27 @@ public class Various : AMod, IUpdatable
     private const int ARMOR_TRAINING_ID = 8205220;
     private static readonly Dictionary<TemperatureSteps, Vector2> DEFAULT_TEMPERATURE_DATA_BY_ENUM = new()
     {
-        [TemperatureSteps.Coldest] = new Vector2(-45, -1),
-        [TemperatureSteps.VeryCold] = new Vector2(-30, 14),
-        [TemperatureSteps.Cold] = new Vector2(-20, 26),
-        [TemperatureSteps.Fresh] = new Vector2(-14, 38),
-        [TemperatureSteps.Neutral] = new Vector2(0, 50),
-        [TemperatureSteps.Warm] = new Vector2(14, 62),
-        [TemperatureSteps.Hot] = new Vector2(20, 80),
-        [TemperatureSteps.VeryHot] = new Vector2(28, 92),
         [TemperatureSteps.Hottest] = new Vector2(40, 101),
+        [TemperatureSteps.VeryHot] = new Vector2(28, 92),
+        [TemperatureSteps.Hot] = new Vector2(20, 80),
+        [TemperatureSteps.Warm] = new Vector2(14, 62),
+        [TemperatureSteps.Neutral] = new Vector2(0, 50),
+        [TemperatureSteps.Fresh] = new Vector2(-14, 38),
+        [TemperatureSteps.Cold] = new Vector2(-20, 26),
+        [TemperatureSteps.VeryCold] = new Vector2(-30, 14),
+        [TemperatureSteps.Coldest] = new Vector2(-45, -1),
+    };
+    private static readonly Dictionary<AreaManager.AreaEnum, int> SQUAD_COUNTS_BY_REGION = new()
+    {
+        [AreaManager.AreaEnum.CierzoOutside] = 41,
+        [AreaManager.AreaEnum.Emercar] = 34,
+        [AreaManager.AreaEnum.HallowedMarsh] = 36,
+        [AreaManager.AreaEnum.Abrassar] = 30,
+        [AreaManager.AreaEnum.AntiqueField] = 36,
+        [AreaManager.AreaEnum.Caldera] = 65,
     };
     #endregion
     #region enum
-    private enum TitleScreenCharacterVisibility
-    {
-        Enable = 1,
-        Disable = 2,
-        Randomize = 3,
-    }
     [Flags]
     private enum ArmorSlots
     {
@@ -43,61 +46,52 @@ public class Various : AMod, IUpdatable
         Head = 1 << 1,
         Chest = 1 << 2,
         Feet = 1 << 3,
+        All = Head | Chest | Feet,
     }
     #endregion
 
     // Settings
-    private static ModSetting<bool> _skipStartupVideos;
-    private static ModSetting<TitleScreenCharacterVisibility> _titleScreenHideCharacters;
-    private static ModSetting<bool> _enableCheats;
-    private static ModSetting<string> _enableCheatsHotkey;
-    private static ModSetting<ArmorSlots> _armorSlotsToHide;
-    private static ModSetting<bool> _removeCoopScaling;
-    private static ModSetting<bool> _healEnemiesOnLoad;
-    private static ModSetting<bool> _multiplicativeStacking;
+    private static ModSetting<bool> _introLogos;
+    private static ModSetting<bool> _titleScreenCharacters;
+    private static ModSetting<bool> _debugMode;
+    private static ModSetting<string> _debugModeToggleKey;
+    private static ModSetting<ArmorSlots> _visibleArmorSlots;
+    private static ModSetting<bool> _multiplayerScaling;
+    private static ModSetting<bool> _enemiesHealOnLoad;
+    private static ModSetting<bool> _multiplicativeStatsStacking;
     private static ModSetting<int> _armorTrainingPenaltyReduction;
-    private static ModSetting<bool> _applyArmorTrainingToManaCost;
+    private static ModSetting<bool> _armorTrainingAffectManaCost;
     private static ModSetting<bool> _refillArrowsFromInventory;
-    private static ModSetting<float> _baseStaminaRegen;
+    private static ModSetting<float> _staminaRegen;
     private static ModSetting<int> _rentDuration;
     private static ModSetting<bool> _itemActionDropOne;
-    private static ModSetting<bool> _spawnsToggle;
-    private static ModSetting<int> _spawnsCheckInterval;
-    private static ModSetting<int> _spawnsMaxActiveSquads;
-    private static ModSetting<int> _spawnsSquadSpacing;
-    private static ModSetting<bool> _spawnsAlwaysResetPositions;
-    private static ModSetting<Vector2> _spawnsVisibilityRange;
+    private static ModSetting<int> _openRegionsEnemyDensity;
     private static ModSetting<bool> _temperatureToggle;
     private static Dictionary<TemperatureSteps, ModSetting<Vector2>> _temperatureDataByEnum;
     protected override void Initialize()
     {
-        _skipStartupVideos = CreateSetting(nameof(_skipStartupVideos), false);
-        _titleScreenHideCharacters = CreateSetting(nameof(_titleScreenHideCharacters), TitleScreenCharacterVisibility.Enable);
-        _enableCheats = CreateSetting(nameof(_enableCheats), false);
-        _enableCheatsHotkey = CreateSetting(nameof(_enableCheatsHotkey), "");
-        _armorSlotsToHide = CreateSetting(nameof(_armorSlotsToHide), ArmorSlots.None);
-        _removeCoopScaling = CreateSetting(nameof(_removeCoopScaling), false);
-        _healEnemiesOnLoad = CreateSetting(nameof(_healEnemiesOnLoad), false);
-        _multiplicativeStacking = CreateSetting(nameof(_multiplicativeStacking), false);
+        _introLogos = CreateSetting(nameof(_introLogos), true);
+        _titleScreenCharacters = CreateSetting(nameof(_titleScreenCharacters), true);
+        _debugMode = CreateSetting(nameof(_debugMode), false);
+        _debugModeToggleKey = CreateSetting(nameof(_debugModeToggleKey), "");
+        _visibleArmorSlots = CreateSetting(nameof(_visibleArmorSlots), ArmorSlots.None);
+        _multiplayerScaling = CreateSetting(nameof(_multiplayerScaling), false);
+        _enemiesHealOnLoad = CreateSetting(nameof(_enemiesHealOnLoad), false);
+        _multiplicativeStatsStacking = CreateSetting(nameof(_multiplicativeStatsStacking), false);
         _armorTrainingPenaltyReduction = CreateSetting(nameof(_armorTrainingPenaltyReduction), 50, IntRange(0, 100));
-        _applyArmorTrainingToManaCost = CreateSetting(nameof(_applyArmorTrainingToManaCost), false);
+        _armorTrainingAffectManaCost = CreateSetting(nameof(_armorTrainingAffectManaCost), false);
         _refillArrowsFromInventory = CreateSetting(nameof(_refillArrowsFromInventory), false);
-        _baseStaminaRegen = CreateSetting(nameof(_baseStaminaRegen), 2.4f, FloatRange(0, 10));
+        _staminaRegen = CreateSetting(nameof(_staminaRegen), 2.4f, FloatRange(0, 10));
         _rentDuration = CreateSetting(nameof(_rentDuration), 12, IntRange(1, 168));
         _itemActionDropOne = CreateSetting(nameof(_itemActionDropOne), false);
-        _spawnsToggle = CreateSetting(nameof(_spawnsToggle), false);
-        _spawnsCheckInterval = CreateSetting(nameof(_spawnsCheckInterval), 15, IntRange(1, 60));
-        _spawnsMaxActiveSquads = CreateSetting(nameof(_spawnsMaxActiveSquads), 4, IntRange(1, 50));
-        _spawnsSquadSpacing = CreateSetting(nameof(_spawnsSquadSpacing), 50, IntRange(0, 100));
-        _spawnsVisibilityRange = CreateSetting(nameof(_spawnsVisibilityRange), new Vector2(50, 250));
-        _spawnsAlwaysResetPositions = CreateSetting(nameof(_spawnsAlwaysResetPositions), false);
+        _openRegionsEnemyDensity = CreateSetting(nameof(_openRegionsEnemyDensity), 0, IntRange(0, 100));
         _temperatureToggle = CreateSetting(nameof(_temperatureToggle), false);
         _temperatureDataByEnum = new Dictionary<TemperatureSteps, ModSetting<Vector2>>();
         foreach (var step in Utils.GetEnumValues<TemperatureSteps>())
             if (step != TemperatureSteps.Count)
                 _temperatureDataByEnum.Add(step, CreateSetting(nameof(_temperatureDataByEnum) + step, DEFAULT_TEMPERATURE_DATA_BY_ENUM[step]));
 
-        _enableCheats.AddEvent(() => Global.CheatsEnabled = _enableCheats);
+        _debugMode.AddEvent(() => Global.CheatsEnabled = _debugMode);
         AddEventOnConfigClosed(() =>
         {
             foreach (var player in Players.Local)
@@ -108,74 +102,89 @@ public class Various : AMod, IUpdatable
     }
     protected override void SetFormatting()
     {
-        _skipStartupVideos.Format("Skip startup videos");
-        _skipStartupVideos.Description =
-            "Saves ~3 seconds each time you launch the game";
-        _titleScreenHideCharacters.Format("Title screen characters");
-        _titleScreenHideCharacters.Description =
-            "If you think they are ruining the view :)\n" +
-            "(requires game restart)";
-
-        _enableCheats.Format("Enable cheats");
+        _introLogos.Format("Intro logos");
+        _introLogos.Description =
+            "Allows you to skip the intro logos and save ~3 seconds of your precious life each time you launch the game" +
+            "\n(requires game restart to take effect)";
+        _titleScreenCharacters.Format("Title screen characters");
+        _titleScreenCharacters.Description =
+            "Allows you to hide characters in title screens - if you think they are ruining the view :)" +
+            "\n(requires game restart to take effect)";
+        _debugMode.Format("Debug mode");
+        _debugMode.Description = "Read about the debug mode at:" +
+            "\nhttps://outward.fandom.com/wiki/Debug_Mode";
         using (Indent)
         {
-            _enableCheatsHotkey.Format("Hotkey");
+            _debugModeToggleKey.Format("toggle key");
+            _debugModeToggleKey.Description =
+                $"\n\nvalue type: case-insensitive {nameof(KeyCode)} enum" +
+                "\n(https://docs.unity3d.com/ScriptReference/KeyCode.html)";
         }
-        _enableCheats.Description = "aka Debug Mode";
-        _armorSlotsToHide.Format("Armor slots to hide");
-        _armorSlotsToHide.Description = "Used to hide ugly helmets (purely visual)";
 
-        _removeCoopScaling.Format("Remove multiplayer scaling");
-        _removeCoopScaling.Description = "Enemies in multiplayer will have the same stats as in singleplayer";
-        _healEnemiesOnLoad.Format("Heal enemies on load");
-        _healEnemiesOnLoad.Description = "Every loading screen fully heals all enemies";
-        _multiplicativeStacking.Format("Multiplicative stacking");
-        _multiplicativeStacking.Description = "Some stats will stack multiplicatively instead of additvely\n" +
-                                              "(movement speed, stamina cost, mana cost)";
+        _visibleArmorSlots.Format("Visible armor slots");
+        _visibleArmorSlots.Description =
+            "Allows you to hides ugly armor parts (mostly helmets)";
+        _multiplayerScaling.Format("Multiplayer scaling");
+        _multiplayerScaling.Description =
+            "Makes enemies' stats scale up in multiplayer";
+        _enemiesHealOnLoad.Format("Enemies heal on load");
+        _enemiesHealOnLoad.Description =
+            "Makes enemies fully heal after every loading screen";
+        _multiplicativeStatsStacking.Format("Multiplicative stats stacking");
+        _multiplicativeStatsStacking.Description =
+            "Makes movement speed, stamina cost, mana cost modifiers stack multiplicatively instead of additvely" +
+            "\nAs a result, stacking MINUS effects is less effective, while stacking PLUS effects is more effective" +
+            $"\n(enabling this will allow you to configure ArmorTraining passive skill)";
         using (Indent)
         {
-            _armorTrainingPenaltyReduction.Format("\"Armor Training\" penalty reduction", _multiplicativeStacking);
-            _armorTrainingPenaltyReduction.Description = "How much of equipment's movement speed and stamina cost penalties should \"Armor Training\" ignore";
-            _applyArmorTrainingToManaCost.Format("\"Armor Training\" affects mana cost", _multiplicativeStacking);
-            _applyArmorTrainingToManaCost.Description = "\"Armor Training\" will also lower equipment's mana cost penalties";
+            _armorTrainingPenaltyReduction.Format("\"Armor Training\" penalty reduction", _multiplicativeStatsStacking);
+            _armorTrainingPenaltyReduction.Description =
+                "How much of equipment's movement speed and stamina cost penalties should \"Armor Training\" ignore";
+            _armorTrainingAffectManaCost.Format("\"Armor Training\" affects mana cost", _multiplicativeStatsStacking);
+            _armorTrainingAffectManaCost.Description =
+                "\"Armor Training\" will also lower equipment's mana cost penalties";
         }
         _refillArrowsFromInventory.Format("Refill arrows from inventory");
-        _refillArrowsFromInventory.Description = "Whenever you shoot your bow, the lost arrow is instantly replaced with one from your backpack or pouch (in that order)";
-        _baseStaminaRegen.Format("Base stamina regen");
+        _refillArrowsFromInventory.Description =
+            "Automatically refills your equipped arrows with ones from your backpack or pouch (in that order)";
+        _staminaRegen.Format("Stamina regen");
+        _staminaRegen.Description =
+            "How quickly your character regenerates stamina without any modifiers" +
+            "\n\nUnit: stamina points per second";
         _rentDuration.Format("Inn rent duration");
-        _rentDuration.Description = "Pay the rent once, sleep for up to a week (in hours)";
-
-        _itemActionDropOne.Format("Add \"Drop one\" item action");
-        _itemActionDropOne.Description = "Adds a button to stacked items' which skips the \"choose amount\" panel and drops exactly 1 of the item\n" +
-                                         "(recommended when playing co-op for quick item sharing)";
-
-        _spawnsToggle.Format("Spawn settings");
-        using (Indent)
-        {
-            _spawnsCheckInterval.Format("check interval", _spawnsToggle);
-            _spawnsMaxActiveSquads.Format("max active squads", _spawnsToggle);
-            _spawnsSquadSpacing.Format("squads spacing", _spawnsToggle);
-            _spawnsVisibilityRange.Format("visibility range", _spawnsToggle);
-            _spawnsAlwaysResetPositions.Format("always reset positions", _spawnsToggle);
-        }
-
+        _rentDuration.Description =
+            "How long you can stay at the inn before you have to pay again" +
+            "\n\nUnit: hours";
+        _itemActionDropOne.Format("\"Drop one\" item action");
+        _itemActionDropOne.Description =
+            "Adds a \"Drop one\" button to stacked items' context menu which skips the \"choose amount\" panel and drops exactly 1 of the item" +
+            "\n(recommended during co-op for quick sharing)";
+        _openRegionsEnemyDensity.Format("Open regions enemy density");
+        _openRegionsEnemyDensity.Description =
+            "How densely random squads can spawn in open regions" +
+            "\nIncreasing this value lowers the following spawn restrictions:" +
+            "\n• spawn check interval" +
+            "\n• maximum active squads" +
+            "\n• minimum distance from other squads" +
+            "\n• minimum distance from the player" +
+            "\nDisclaimer: this allows you to wipe out all available squads in a region quicker than with restricted spawns, and the only way to respawn them is triggering an area reset" +
+            "\n\nUnit: subjective linear scale, where 0% represents the default game settings";
         _temperatureToggle.Format("Temperature");
         _temperatureToggle.Description =
-            "Change each environmental temperature level's value and cap:\n" +
-            "X   -   value; how much cold/hot weather defense you need to nullify this temperature level\n" +
-            "Y   -   cap; min/max player temperature at this environmental temperature level\n" +
-            "\n" +
-            "Player temperatures cheatsheet:\n" +
-            "Very cold   -   25\n" +
-            "Cold   -   40\n" +
-            "Neutral   -   50\n" +
-            "Hot   -   60\n" +
-            "Very Hot   -   75)";
+            "Overrides environmental temperature settings:" +
+            "\nX   -   value; how much weather defense you need to completely ignore the effects of this temperature level" +
+            "\nY   -   cap; your temperature won't go above/below this value even if you don't have any weather defense" +
+            "\n\nCharacter temperatures cheatsheet:" +
+            "\nVery Hot   -   75" +
+            "\nHot   -   60" +
+            "\nNeutral   -   50" +
+            "\nCold   -   40" +
+            "\nVery cold   -   25" +
+            "\n\nUnit: in-game temperature unit";
         using (Indent)
         {
-            foreach (var step in Utils.GetEnumValues<TemperatureSteps>())
-                if (step != TemperatureSteps.Count)
-                    _temperatureDataByEnum[step].Format(step.ToString(), _temperatureToggle);
+            foreach (var step in Utils.GetEnumValues<TemperatureSteps>().Reverse().Skip(1))
+                _temperatureDataByEnum[step].Format(step.ToString(), _temperatureToggle);
         }
     }
     protected override string Description
@@ -188,52 +197,46 @@ public class Various : AMod, IUpdatable
         {
             case nameof(Preset.Vheos_CoopSurvival):
                 ForceApply();
-                _skipStartupVideos.Value = true;
-                _titleScreenHideCharacters.Value = TitleScreenCharacterVisibility.Randomize;
-                _enableCheats.Value = false;
-                _enableCheatsHotkey.Value = KeyCode.Keypad0.ToString();
-                _removeCoopScaling.Value = true;
-                _healEnemiesOnLoad.Value = true;
-                _multiplicativeStacking.Value = true;
+                _introLogos.Value = false;
+                _titleScreenCharacters.Value = true;
+                _debugMode.Value = false;
+                _debugModeToggleKey.Value = KeyCode.Keypad0.ToString();
+                _visibleArmorSlots.Value = ArmorSlots.All;
+                _multiplayerScaling.Value = false;
+                _enemiesHealOnLoad.Value = true;
+                _multiplicativeStatsStacking.Value = true;
                 _armorTrainingPenaltyReduction.Value = 50;
-                _applyArmorTrainingToManaCost.Value = true;
+                _armorTrainingAffectManaCost.Value = true;
                 _refillArrowsFromInventory.Value = true;
                 _rentDuration.Value = 120;
                 _itemActionDropOne.Value = true;
-                _spawnsToggle.Value = true;
-                {
-                    _spawnsCheckInterval.Value = 5;
-                    _spawnsMaxActiveSquads.Value = 25;
-                    _spawnsSquadSpacing.Value = 25;
-                    _spawnsVisibilityRange.Value = new(25, 250);
-                    _spawnsAlwaysResetPositions.Value = true;                    
-                }
+                _openRegionsEnemyDensity.Value = 50;
                 _temperatureToggle.Value = true;
                 {
-                    _temperatureDataByEnum[TemperatureSteps.Coldest].Value = new Vector2(-50, 50 - (50 + 1));
-                    _temperatureDataByEnum[TemperatureSteps.VeryCold].Value = new Vector2(-40, 50 - (50 - 1));
-                    _temperatureDataByEnum[TemperatureSteps.Cold].Value = new Vector2(-30, 50 - (25 + 1));
-                    _temperatureDataByEnum[TemperatureSteps.Fresh].Value = new Vector2(-20, 50 - (10 + 1));
-                    _temperatureDataByEnum[TemperatureSteps.Neutral].Value = new Vector2(0, 50);
-                    _temperatureDataByEnum[TemperatureSteps.Warm].Value = new Vector2(+20, 50 + (10 + 1));
-                    _temperatureDataByEnum[TemperatureSteps.Hot].Value = new Vector2(+30, 50 + (25 + 1));
-                    _temperatureDataByEnum[TemperatureSteps.VeryHot].Value = new Vector2(+40, 50 + (50 - 1));
                     _temperatureDataByEnum[TemperatureSteps.Hottest].Value = new Vector2(+50, 50 + (50 + 1));
+                    _temperatureDataByEnum[TemperatureSteps.VeryHot].Value = new Vector2(+40, 50 + (50 - 1));
+                    _temperatureDataByEnum[TemperatureSteps.Hot].Value = new Vector2(+30, 50 + (25 + 1));
+                    _temperatureDataByEnum[TemperatureSteps.Warm].Value = new Vector2(+20, 50 + (10 + 1));
+                    _temperatureDataByEnum[TemperatureSteps.Neutral].Value = new Vector2(0, 50);
+                    _temperatureDataByEnum[TemperatureSteps.Fresh].Value = new Vector2(-20, 50 - (10 + 1));
+                    _temperatureDataByEnum[TemperatureSteps.Cold].Value = new Vector2(-30, 50 - (25 + 1));
+                    _temperatureDataByEnum[TemperatureSteps.VeryCold].Value = new Vector2(-40, 50 - (50 - 1));
+                    _temperatureDataByEnum[TemperatureSteps.Coldest].Value = new Vector2(-50, 50 - (50 + 1));
                 }
                 break;
         }
     }
     public void OnUpdate()
     {
-        if (_enableCheatsHotkey.Value.ToKeyCode().Pressed())
-            _enableCheats.Value = !_enableCheats;
+        if (_debugModeToggleKey.Value.ToKeyCode().Pressed())
+            _debugMode.Value = !_debugMode;
     }
 
     // Utility
     private static bool ShouldArmorSlotBeHidden(EquipmentSlot.EquipmentSlotIDs slot)
-    => slot == EquipmentSlot.EquipmentSlotIDs.Helmet && _armorSlotsToHide.Value.HasFlag(ArmorSlots.Head)
-    || slot == EquipmentSlot.EquipmentSlotIDs.Chest && _armorSlotsToHide.Value.HasFlag(ArmorSlots.Chest)
-    || slot == EquipmentSlot.EquipmentSlotIDs.Foot && _armorSlotsToHide.Value.HasFlag(ArmorSlots.Feet);
+    => slot == EquipmentSlot.EquipmentSlotIDs.Helmet && !_visibleArmorSlots.Value.HasFlag(ArmorSlots.Head)
+    || slot == EquipmentSlot.EquipmentSlotIDs.Chest && !_visibleArmorSlots.Value.HasFlag(ArmorSlots.Chest)
+    || slot == EquipmentSlot.EquipmentSlotIDs.Foot && !_visibleArmorSlots.Value.HasFlag(ArmorSlots.Feet);
     private static bool HasLearnedArmorTraining(Character character)
     => character.Inventory.SkillKnowledge.IsItemLearned(ARMOR_TRAINING_ID);
     public static bool IsAnythingEquipped(EquipmentSlot slot)
@@ -242,10 +245,8 @@ public class Various : AMod, IUpdatable
     => !(slot.SlotType == EquipmentSlot.EquipmentSlotIDs.LeftHand && slot.EquippedItem.TwoHanded);
     private static bool TryApplyMultiplicativeStacking(CharacterEquipment equipment, ref float result, Func<EquipmentSlot, float> getStatValue, bool invertedPositivity = false, bool applyArmorTraining = false)
     {
-        #region quit
-        if (!_multiplicativeStacking)
+        if (!_multiplicativeStatsStacking)
             return true;
-        #endregion
 
         float invCoeff = invertedPositivity ? -1f : +1f;
         bool canApplyArmorTraining = applyArmorTraining && HasLearnedArmorTraining(equipment.m_character);
@@ -262,13 +263,11 @@ public class Various : AMod, IUpdatable
         return false;
     }
     private static void UpdateBaseStaminaRegen(CharacterStats characterStats)
-    => characterStats.m_staminaRegen.BaseValue = _baseStaminaRegen;
+    => characterStats.m_staminaRegen.BaseValue = _staminaRegen;
     private static void TryUpdateTemperatureData()
     {
-        #region quit
         if (!_temperatureToggle)
             return;
-        #endregion
 
         if (EnvironmentConditions.Instance.TryNonNull(out var environmentConditions))
             foreach (var step in Utils.GetEnumValues<TemperatureSteps>())
@@ -287,37 +286,24 @@ public class Various : AMod, IUpdatable
         while (original.MoveNext())
             yield return original.Current;
 
-        #region quit
-        if (_titleScreenHideCharacters.Value == TitleScreenCharacterVisibility.Enable)
-            yield break;
-        #endregion
-
-        bool state = true;
-        switch (_titleScreenHideCharacters.Value)
-        {
-            case TitleScreenCharacterVisibility.Disable: state = false; break;
-            case TitleScreenCharacterVisibility.Randomize: state = System.DateTime.Now.Ticks % 2 == 0; break;
-        }
-
-        foreach (var characterVisuals in __instance.transform.GetAllComponentsInHierarchy<CharacterVisuals>())
-            characterVisuals.SetActive(state);
+        if (!_titleScreenCharacters)
+            foreach (var characterVisuals in __instance.transform.GetAllComponentsInHierarchy<CharacterVisuals>())
+                characterVisuals.Deactivate();
     }
 
     // Skip startup video
     [HarmonyPrefix, HarmonyPatch(typeof(StartupVideo), nameof(StartupVideo.Awake))]
     private static void StartupVideo_Awake_Pre()
-    => StartupVideo.HasPlayedOnce = _skipStartupVideos.Value;
+    => StartupVideo.HasPlayedOnce = !_introLogos.Value;
+
     // Drop one
     [HarmonyPostfix, HarmonyPatch(typeof(ItemDisplayOptionPanel), nameof(ItemDisplayOptionPanel.GetActiveActions))]
     private static void ItemDisplayOptionPanel_GetActiveActions_Post(ItemDisplayOptionPanel __instance, ref List<int> __result)
     {
-        #region quit
-        //!itemDisplay.RefItem.TryNonNull(out var item) || item.MoveStackAsOne  
         if (!_itemActionDropOne || __instance == null ||
         !__instance.m_activatedItemDisplay.TryNonNull(out var itemDisplay)
         || itemDisplay.StackCount <= 1)
             return;
-        #endregion
 
         __result.Add(DROP_ONE_ACTION_ID);
     }
@@ -325,10 +311,8 @@ public class Various : AMod, IUpdatable
     [HarmonyPrefix, HarmonyPatch(typeof(ItemDisplayOptionPanel), nameof(ItemDisplayOptionPanel.GetActionText))]
     private static bool ItemDisplayOptionPanel_GetActionText_Pre(ItemDisplayOptionPanel __instance, ref string __result, ref int _actionID)
     {
-        #region quit
         if (_actionID != DROP_ONE_ACTION_ID)
             return true;
-        #endregion
 
         __result = DROP_ONE_ACTION_TEXT;
         return false;
@@ -337,10 +321,8 @@ public class Various : AMod, IUpdatable
     [HarmonyPrefix, HarmonyPatch(typeof(ItemDisplayOptionPanel), nameof(ItemDisplayOptionPanel.ActionHasBeenPressed))]
     private static bool ItemDisplayOptionPanel_ActionHasBeenPressed_Pre(ItemDisplayOptionPanel __instance, ref int _actionID)
     {
-        #region quit
         if (_actionID != DROP_ONE_ACTION_ID)
             return true;
-        #endregion
 
         __instance.m_activatedItemDisplay.OnConfirmDropStack(1);
         return false;
@@ -360,12 +342,10 @@ public class Various : AMod, IUpdatable
     [HarmonyPrefix, HarmonyPatch(typeof(WeaponLoadoutItem), nameof(WeaponLoadoutItem.ReduceShotAmount))]
     private static bool WeaponLoadoutItem_ReduceShotAmount_Pre(WeaponLoadoutItem __instance)
     {
-        #region quit
         if (!_refillArrowsFromInventory
         || __instance.AmunitionType != WeaponLoadout.CompatibleAmmunitionType.WeaponType
         || __instance.CompatibleEquipment != Weapon.WeaponType.Arrow)
             return true;
-        #endregion
 
         CharacterInventory inventory = __instance.m_projectileWeapon.OwnerCharacter.Inventory;
         int ammoID = inventory.GetEquippedAmmunition().ItemID;
@@ -385,10 +365,8 @@ public class Various : AMod, IUpdatable
     [HarmonyPostfix, HarmonyPatch(typeof(CharacterInventory), nameof(CharacterInventory.GetAmmunitionCount))]
     private static void CharacterInventory_GetAmmunitionCount_Post(CharacterInventory __instance, ref int __result)
     {
-        #region quit
         if (!_refillArrowsFromInventory || __result == 0)
             return;
-        #endregion
 
         __result += __instance.ItemCount(__instance.GetEquippedAmmunition().ItemID);
     }
@@ -405,10 +383,8 @@ public class Various : AMod, IUpdatable
     [HarmonyPrefix, HarmonyPatch(typeof(Stat), nameof(Stat.GetModifier))]
     private static bool Stat_GetModifier_Pre(Stat __instance, ref float __result, ref IList<Tag> _tags, ref int baseModifier)
     {
-        #region quit
-        if (!_multiplicativeStacking)
+        if (!_multiplicativeStatsStacking)
             return true;
-        #endregion
 
         DictionaryExt<string, StatStack> multipliers = __instance.m_multiplierStack;
         __result = baseModifier;
@@ -436,16 +412,14 @@ public class Various : AMod, IUpdatable
 
     [HarmonyPrefix, HarmonyPatch(typeof(CharacterEquipment), nameof(CharacterEquipment.GetTotalManaUseModifier))]
     private static bool CharacterEquipment_GetTotalManaUseModifier_Pre(CharacterEquipment __instance, ref float __result)
-    => TryApplyMultiplicativeStacking(__instance, ref __result, slot => slot.EquippedItem.ManaUseModifier, false, _applyArmorTrainingToManaCost);
+    => TryApplyMultiplicativeStacking(__instance, ref __result, slot => slot.EquippedItem.ManaUseModifier, false, _armorTrainingAffectManaCost);
 
     // Hide armor slots
     [HarmonyPrefix, HarmonyPatch(typeof(CharacterVisuals), nameof(CharacterVisuals.EquipVisuals))]
     private static void CharacterVisuals_EquipVisuals_Pre(ref bool[] __state, ref EquipmentSlot.EquipmentSlotIDs _slotID, ref ArmorVisuals _visuals)
     {
-        #region quit
-        if (_armorSlotsToHide == ArmorSlots.None)
+        if (_visibleArmorSlots == ArmorSlots.All)
             return;
-        #endregion
 
         // save original hide flags for postfix
         __state = new bool[3];
@@ -464,10 +438,8 @@ public class Various : AMod, IUpdatable
     [HarmonyPostfix, HarmonyPatch(typeof(CharacterVisuals), nameof(CharacterVisuals.EquipVisuals))]
     private static void CharacterVisuals_EquipVisuals_Post(ref bool[] __state, ref EquipmentSlot.EquipmentSlotIDs _slotID, ref ArmorVisuals _visuals)
     {
-        #region quit
-        if (_armorSlotsToHide == ArmorSlots.None)
+        if (_visibleArmorSlots == ArmorSlots.All)
             return;
-        #endregion
 
         // hide chosen pieces of armor
         if (ShouldArmorSlotBeHidden(_slotID))
@@ -482,44 +454,35 @@ public class Various : AMod, IUpdatable
     // Remove co-op scaling
     [HarmonyPrefix, HarmonyPatch(typeof(CoopStats), nameof(CoopStats.ApplyToCharacter))]
     private static bool CoopStats_ApplyToCharacter_Pre()
-    => !_removeCoopScaling;
+    => _multiplayerScaling;
 
     [HarmonyPrefix, HarmonyPatch(typeof(CoopStats), nameof(CoopStats.RemoveFromCharacter))]
     private static bool CoopStats_RemoveFromCharacter_Pre()
-    => !_removeCoopScaling;
+    => _multiplayerScaling;
 
     // Enemy health reset time
     [HarmonyPrefix, HarmonyPatch(typeof(Character), nameof(Character.LoadCharSave))]
     private static void Character_LoadCharSave_Pre(Character __instance)
     {
-        #region quit
         if (!__instance.IsEnemy())
             return;
-        #endregion
 
-        __instance.HoursToHealthReset = _healEnemiesOnLoad ? 0 : DEFAULT_ENEMY_HEALTH_RESET_HOURS;
+        __instance.HoursToHealthReset = _enemiesHealOnLoad ? 0 : DEFAULT_ENEMY_HEALTH_RESET_HOURS;
     }
 
     // Open region spawns
     [HarmonyPrefix, HarmonyPatch(typeof(AISquadManager), nameof(AISquadManager.Awake))]
     static private void AISquadManager_Awake_Pre(AISquadManager __instance)
     {
-        if (!_spawnsToggle)
+        if (_openRegionsEnemyDensity.Value == 0
+        || !SQUAD_COUNTS_BY_REGION.TryGetValue(Utils.CurrentArea, out var squadsCount))
             return;
 
-        __instance.SpawnTime = _spawnsCheckInterval;
-        __instance.MaxSquadCount = _spawnsMaxActiveSquads;
-        __instance.SquadSpacing = _spawnsSquadSpacing;
-        __instance.SpawnRange = _spawnsVisibilityRange;
-    }
-
-    [HarmonyPrefix, HarmonyPatch(typeof(AISquad), nameof(AISquad.SetSquadActive))]
-    static private void AISquad_SetSquadActive_Pre(AISquad __instance, ref bool _resetPositions)
-    {
-        if (!_spawnsToggle)
-            return;
-
-        _resetPositions = _spawnsAlwaysResetPositions;
+        float alpha = _openRegionsEnemyDensity / 100f;
+        __instance.MaxSquadCount = __instance.MaxSquadCount.Lerp(squadsCount, alpha).Round();
+        __instance.SpawnTime.SetLerp(1, alpha);
+        __instance.SquadSpacing.SetLerp(1, alpha);
+        __instance.SpawnRange.x.SetLerp(1, alpha);
     }
 }
 
@@ -564,7 +527,6 @@ _allowOverCapacity.Format("Allow over capacity", _pouchToggle);
 [HarmonyPostfix, HarmonyPatch(typeof(CharacterInventory), nameof(CharacterInventory.ProcessStart))]
 static void CharacterInventory_ProcessStart_Post(CharacterInventory __instance, ref Character ___m_character)
 {
-#region quit
 if (!_pouchToggle)
     return;
 #endregion
