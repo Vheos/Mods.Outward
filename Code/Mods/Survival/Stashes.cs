@@ -103,7 +103,7 @@ public class Stashes : AMod, IUpdatable
         {
             firstPlayer.Character.CharacterUI.StashPanel.SetStash(stash);
             stash.ShowContent(firstPlayer.Character);
-        };
+        }
     }
 
     // Utility
@@ -127,7 +127,9 @@ public class Stashes : AMod, IUpdatable
             if (_playerSharedStash)
                 character = Players.GetFirst().Character;
 
-            stash = character != null ? character.Inventory.Stash : null;
+            stash = character != null
+                ? character.Inventory.Stash
+                : null;
         }
 
         return stash != null;

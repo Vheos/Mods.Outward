@@ -4,6 +4,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
+using Vheos.Helpers.RNG;
 
 public static class Extensions_Various
 {
@@ -236,16 +237,6 @@ public static class Extensions_Various
     => t.IsNot<T1>() && t.IsNot<T2>();
     public static int ToInt(this string t)
     => Convert.ToInt32(t);
-    public static T Random<T>(this IList<T> t)
-    => t[UnityEngine.Random.Range(0, t.Count)];
-    public static void Shuffle<T>(this IList<T> t)
-    {
-        for (int i = 0; i < t.Count - 1; ++i)
-        {
-            int j = UnityEngine.Random.Range(i, t.Count);
-            (t[j], t[i]) = (t[i], t[j]);
-        }
-    }
     public static string FormatGameHours(this float t, bool showDays = true, bool showHours = true, bool showMinutes = true, bool showSeconds = true)
     {
         int days = t.Div(24).RoundDown();
@@ -376,7 +367,7 @@ public static class Extensions_Various
         bag.m_lanternSlot = newLanternHolder.GetComponentInChildren<BagSlotVisual>();
     }
     public static float RandomRange(this Vector2 t)
-    => UnityEngine.Random.Range(t.x, t.y);
+    => RNG.Range(t.x, t.y);
 
     // GOName
     public static string GOName(this Component t)

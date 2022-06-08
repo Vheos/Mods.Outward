@@ -4,6 +4,7 @@
  */
 
 namespace Vheos.Mods.Outward;
+using Vheos.Helpers.RNG;
 
 public class Resets : AMod
 {

@@ -7,9 +7,7 @@ public class Gamepad : AMod, IUpdatable
     // Setting
     public ModSetting<bool> _betterStashNavigation;
     protected override void Initialize()
-    {
-        _betterStashNavigation = CreateSetting(nameof(_betterStashNavigation), false);
-    }
+        => _betterStashNavigation = CreateSetting(nameof(_betterStashNavigation), false);
     protected override void SetFormatting()
     {
         _betterStashNavigation.Format("Better stash navigation");

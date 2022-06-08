@@ -1,5 +1,4 @@
 ﻿namespace Vheos.Mods.Outward;
-using Random = UnityEngine.Random;
 
 public class Camping : AMod
 {
@@ -112,7 +111,6 @@ public class Camping : AMod
     }
 
     // Hooks
-#pragma warning disable IDE0051, IDE0060, IDE1006
     [HarmonyPostfix, HarmonyPatch(typeof(EnvironmentSave), nameof(EnvironmentSave.ApplyData))]
     private static void EnvironmentSave_ApplyData_Post(EnvironmentSave __instance)
     {
@@ -125,7 +123,7 @@ public class Camping : AMod
             if (fx.GOName().ContainsSubstring("butterfly"))
             {
                 AmbienceSound ambienceSound = fx.GetComponentInChildren<AmbienceSound>();
-                if (Random.value <= _butterfliesSpawnChance / 100f)
+                if ( _butterfliesSpawnChance.RollPercent())
                 {
                     fx.GOSetActive(true);
                     ambienceSound.MinVolume = ambienceSound.MaxVolume = 1;

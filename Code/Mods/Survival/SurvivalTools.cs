@@ -1,5 +1,7 @@
 ﻿namespace Vheos.Mods.Outward;
 
+using Vheos.Helpers.RNG;
+
 public class SurvivalTools : AMod
 {
     #region const
@@ -153,7 +155,7 @@ public class SurvivalTools : AMod
     {
         #region quit
         if (__instance.ItemID != "Flint and Steel".ToItemID()
-        || UnityEngine.Random.value >= _chanceToBreakFlintAndSteel / 100f)
+        || _chanceToBreakFlintAndSteel.RollPercent())
             return;
         #endregion
 

@@ -1,5 +1,5 @@
 ﻿namespace Vheos.Mods.Outward;
-using Random = UnityEngine.Random;
+using Vheos.Helpers.RNG;
 
 public class Merchants : AMod, IDelayedInit
 {
@@ -140,9 +140,9 @@ public class Merchants : AMod, IDelayedInit
         int itemSeed = _randomizePricesPerItem ? item.ItemID : 0;
         int areaSeed = _randomizePricesPerArea ? AreaManager.Instance.CurrentArea.ID : 0;
         int timeSeed = (Utils.GameTime / 24f / _randomizePricesPerDays).RoundDown();
-        Random.InitState(itemSeed + areaSeed + timeSeed);
+        RNG.Initialize(itemSeed + areaSeed + timeSeed);
 
-        return 1f + Random.Range(-_randomizePricesExtent, +_randomizePricesExtent) / 100f;
+        return 1f + RNG.RangeInclusive(-_randomizePricesExtent, +_randomizePricesExtent) / 100f;
     }
     private static void ApplyCurve(ref float price)
     => price = price.Pow(_pricesCurve / 100f);
