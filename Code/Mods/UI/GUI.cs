@@ -610,7 +610,6 @@ public class GUI : AMod, IDelayedInit, IUpdatable
     => hudHolder.Find("MainCharacterBars/Mana");
 
     // Hooks
-#pragma warning disable IDE0051, IDE0060, IDE1006
     [HarmonyPostfix, HarmonyPatch(typeof(LocalCharacterControl), nameof(LocalCharacterControl.RetrieveComponents))]
     private static void LocalCharacterControl_RetrieveComponents_Post(LocalCharacterControl __instance)
     {

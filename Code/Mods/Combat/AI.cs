@@ -150,9 +150,6 @@ public class AI : AMod
         }
     }
 
-    // Hooks
-#pragma warning disable IDE0051, IDE0060, IDE1006
-
     // Prevent infighting
     [HarmonyPrefix, HarmonyPatch(typeof(TargetingSystem), nameof(TargetingSystem.InitTargetableFaction))]
     private static bool TargetingSystem_InitTargetableFaction_Pre(TargetingSystem __instance)

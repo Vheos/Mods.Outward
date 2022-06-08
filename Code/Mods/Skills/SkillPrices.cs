@@ -159,7 +159,6 @@ public class SkillPrices : AMod
     }
 
     // Hooks
-#pragma warning disable IDE0051, IDE0060, IDE1006
     [HarmonyPrefix, HarmonyPatch(typeof(TrainerPanel), nameof(TrainerPanel.OnSkillSlotSelected))]
     private static void TrainerPanel_OnSkillSlotSelected_Pre(TrainerPanel __instance, SkillTreeSlotDisplay _display)
     {

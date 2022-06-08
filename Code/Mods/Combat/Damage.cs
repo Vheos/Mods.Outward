@@ -99,7 +99,6 @@ public class Damage : AMod
     }
 
     // Hooks
-#pragma warning disable IDE0051, IDE0060, IDE1006
     [HarmonyPostfix, HarmonyPatch(typeof(Weapon), nameof(Weapon.ElligibleFaction), new[] { typeof(Character) })]
     private static void Weapon_ElligibleFaction_Post(Weapon __instance, ref bool __result, Character _character)
     {

@@ -96,7 +96,6 @@ public class Targeting : AMod
     => character.LeftHandEquipment != null && character.LeftHandEquipment.IKType == Equipment.IKMode.Lexicon;
 
     // Hooks
-#pragma warning disable IDE0051, IDE0060, IDE1006
     [HarmonyPostfix, HarmonyPatch(typeof(CharacterCamera), nameof(CharacterCamera.LateUpdate))]
     private static void CharacterCamera_LateUpdate_Post(CharacterCamera __instance)
     {

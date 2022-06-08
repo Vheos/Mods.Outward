@@ -172,7 +172,7 @@ public class SkillLimits : AMod
     private static bool IsBreakthrough(Skill skill)
     => TryGetSkillTree(skill, out SkillSchool tree)
     && tree.BreakthroughSkill != null && tree.BreakthroughSkill.Contains(skill);
-    private static bool IsAdvanced(Skill skill)
+    private static new bool IsAdvanced(Skill skill)
     {
         if (TryGetSkillTree(skill, out SkillSchool tree) && tree.BreakthroughSkill != null)
             foreach (var slot in tree.SkillSlots)
@@ -217,7 +217,6 @@ public class SkillLimits : AMod
     }
 
     // Hooks
-#pragma warning disable IDE0051, IDE0060, IDE1006
     [HarmonyPostfix, HarmonyPatch(typeof(ItemDisplayOptionPanel), nameof(ItemDisplayOptionPanel.GetActiveActions))]
     private static void ItemDisplayOptionPanel_GetActiveActions_Post(ItemDisplayOptionPanel __instance, ref List<int> __result)
     {

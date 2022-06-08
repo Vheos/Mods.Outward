@@ -181,7 +181,6 @@ public class Durability : AMod
     }
 
     // Hooks
-#pragma warning disable IDE0051, IDE0060, IDE1006
     [HarmonyPrefix, HarmonyPatch(typeof(Item), nameof(Item.ReduceDurability))]
     private static void Item_ReduceDurability_Pre(Item __instance, ref float _durabilityLost)
     {

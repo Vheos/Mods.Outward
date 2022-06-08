@@ -191,7 +191,6 @@ public class Crafting : AMod, IDelayedInit
     => 1 + (result.Quantity - 1f).Mul(_extraResultsMultiplier / 100f).Round();
 
     // Hooks
-#pragma warning disable IDE0051, IDE0060, IDE1006
     [HarmonyPrefix, HarmonyPatch(typeof(CraftingMenu), nameof(CraftingMenu.CraftingDone))]
     private static void CraftingMenu_CraftingDone_Pre(CraftingMenu __instance, ref List<Item> __state)
     {

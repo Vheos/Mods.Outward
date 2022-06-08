@@ -52,7 +52,7 @@ public static class GameInput
     public static void Initialize()
     {
         _keyCodesByName = new Dictionary<string, KeyCode>();
-        foreach (KeyCode keyCode in System.Enum.GetValues(typeof(KeyCode)))
+        foreach (KeyCode keyCode in Enum.GetValues(typeof(KeyCode)))
         {
             string keyName = keyCode.ToString();
             if (!keyName.Contains("Joystick") && !_keyCodesByName.ContainsKey(keyName))
@@ -63,7 +63,7 @@ public static class GameInput
     }
 
     // Hooks
-#pragma warning disable IDE0051, IDE0060, IDE1006
+#pragma warning disable IDE0051
     [HarmonyPrefix, HarmonyPatch(typeof(CharacterUI), nameof(CharacterUI.IsMenuFocused), MethodType.Getter)]
     private static bool CharacterUI_IsMenuFocused_Getter_Pre(ref bool __result)
     {
