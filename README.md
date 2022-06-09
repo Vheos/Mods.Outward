@@ -28,20 +28,25 @@
 
 # Table of contents
 - [VMP?](https://github.com/Vheos/Mods.Outward#vmp)
-- [Highlights](https://github.com/Vheos777/Mods.UNSIGHTED#highlights)
 - [How to?](https://github.com/Vheos777/Mods.UNSIGHTED#how-to)
 - [FAQ](https://github.com/Vheos777/Mods.UNSIGHTED#faq)
-- [Contact](https://github.com/Vheos777/Mods.UNSIGHTED#contact)
 - [Changelog](https://github.com/Vheos777/Mods.UNSIGHTED#changelog)
 <br/>
+
+
 
 # VMP?
 - **V** stands for *Vheos* - that's me! My nickname's there to emphasize that all mods in this collection were written from scratch by one person, and as such are 100% compatible with each other :)
 - **M** stands for *Mod* - it's a collection of mods, so duuuh. I could've left this one out, it's pretty redundant :P
 - **P** stands for *Pack* - under the hood, this mod is actually a collection of many independent mods that can be individually turned on/off. It's like a tiny mod manager!
+<br/>
+
+
 
 And together, they form the mighty **VHEOS MOD PACK**!!! ...which is probably the *least* creative name I've ever come up with, but it already stuck on, so let it be ¯\\\_(ツ)\_/¯
 <br/>
+
+
 
 # How to:
 - Download the [Mono version](https://outward.fandom.com/wiki/Installing_Mods#Modding_Branch) of Outward
@@ -51,6 +56,9 @@ And together, they form the mighty **VHEOS MOD PACK**!!! ...which is probably th
 - Move the unzipped `BepInEx` folder next to the game exe
 - Press `F1` (or `F5` for Outward fork) in game to open the `Configuration Manager` window
 - Set up VMP to your liking and enjoy <3
+<br/>
+
+
 
 # FAQ:
 - **How to change the default `Configuration Manager` hotkey?**
@@ -65,66 +73,182 @@ And together, they form the mighty **VHEOS MOD PACK**!!! ...which is probably th
 - **I change some settings but nothing happens! Why?**
   - some settings update instantly, others on a loading screen, and some require a game restart.
 - **I found a bug! How to report?**
-  - choose one of the contact options, then describe what's wrong and attach your output log: ([Pastebin](https://pastebin.com/))
+  - choose one of the contact options on top, then describe what's wrong and attach your output log: (use [Pastebin](https://pastebin.com/))
     - DefEd: `AppData\LocalLow\Nine Dots Studio\Outward_ Definitive Edition\Player.log`
     - Oldward: `AppData\LocalLow\Nine Dots Studio\Outward\output_log.txt`
 - **Can I see the source code?**
   - yep, all my mods are open source and available at [GitHub](https://github.com/Vheos/Mods.Outward)! Feel free to do with them as you please ;)
+<br/>
+
+
 
 # Credits:
 `Sinai`, `raphendyr`, `ehaugw`, `SpicerXD`, `IggyTheMad`, `Tau37`, `Yansilv`, `AsierM`
 <br/> and other passionate people in the [Outward Modding Community](https://discord.gg/exMfgYXDmC) Discord server!
 <br/> Love you all <3
+<br/>
 
-# Overview:
-**Coming soon!**  
-In the meantime, you can check out the [Nexus mod page](https://www.nexusmods.com/outward/mods/203) :)
+
 
 # Changelog:
+
+- **2.0.6**
+  - public release of DefEd update \o/
+  - *a lot* of undocumented changes :)
+
+<details>
+  <summary>Oldward</summary>
+
 - **1.12.1**
-    - added a global advanced setting to `Unlock settings' limits`
-    - `SKILLS -> Prices -> Mutually exclusive prices`: changed the price multiplier from integers to percents
+  - added a global advanced setting to `Unlock settings' limits`
+  - `SKILLS -> Prices -> Mutually exclusive prices`: changed the price multiplier from integers to percents
+
 - **1.12.0**
-    - added `AI` mod with `Enemy detection modifier`, `Prevent infighting between`, `Walk towards player on spawn`, `Change target on hit`, and `Change target when too far` settings
-    - moved some settings from `Various` into the new `AI` mod
-    - `Various`: added `Display prices in stash` setting
-    - `Tools`: added `Torches temperature radius`, `Torches burn out on ground`, `Lights range` and `Two-person beds` settings
-    - `Tree Randomizer -> Randomize breakthroughs`:  added an option to avoid choices
-    - `SKILLS -> Prices`: reworked, now allows the user to define a formula (linear and exponential)
-    - `Resets -> Areas`: added an advanced workaround fix for unarmed bandits when resetting enemies but not items
-    - *bugfix: `Various -> Craft from stash` was inconsistent because of incorrect quit condition*
-    - *bugfix: `Various -> Display stashed item amounts` made recipes display incorrect results amount*
-    - *bugfix: `Crafting -> Limited manual crafting` removed the other 3 ingredient slots when swapping the first ingredient of a learned recipe*
-    - *bugfix: `Quickslots -> Contextual skills` always replaced Push Kick with a corresponding innate skill when equipping offhand*
-    - *bugfix: some `Quickslots` settings crashed the game when switching areas with an active Summoned Ghost*
+  - added `AI` mod with `Enemy detection modifier`, `Prevent infighting between`, `Walk towards player on spawn`, `Change target on hit`, and `Change target when too far` settings
+  - moved some settings from `Various` into the new `AI` mod
+  - `Various`: added `Display prices in stash` setting
+  - `Tools`: added `Torches temperature radius`, `Torches burn out on ground`, `Lights range` and `Two-person beds` settings
+  - `Tree Randomizer -> Randomize breakthroughs`:  added an option to avoid choices
+  - `SKILLS -> Prices`: reworked, now allows the user to define a formula (linear and exponential)
+  - `Resets -> Areas`: added an advanced workaround fix for unarmed bandits when resetting enemies but not items
+  - *bugfix: `Various -> Craft from stash` was inconsistent because of incorrect quit condition*
+  - *bugfix: `Various -> Display stashed item amounts` made recipes display incorrect results amount*
+  - *bugfix: `Crafting -> Limited manual crafting` removed the other 3 ingredient slots when swapping the first ingredient of a learned recipe*
+  - *bugfix: `Quickslots -> Contextual skills` always replaced Push Kick with a corresponding innate skill when equipping offhand*
+  - *bugfix: some `Quickslots` settings crashed the game when switching areas with an active Summoned Ghost*
+
 - **1.11.0**
-    - added `Tools` mod with `More gathering tools`, `Gathering tools durability cost` and `Chance to break Flint and Steel` settings
-    - added `Quickslots` mod with `Contextual skills`, `Replace quickslots on equip` and `Assign by using free quickslot` settings
-    - added `Various` mod with `Randomize title screen`, `Craft with stash items`, `Display stashed item amounts` and `Add "Drop one" item action` settings
-    - moved some settings from `Various`, `Needs` and `Gamepad` into the new `Inns`, `Tools` and `Quickslots` mods
-    - removed `Various` section and moved `Various` mod to the top of the mods list
-    - *bugfix: `Various -> Inn rent duration` was initialized too early to take effect*
-    - *bugfix: `Tree Randomizer` mod was tagged with IDevelopmentOnly and didn't appear in the mods list*
-    - *bugfix: some mods crashed when using the Mefino fork of `ConfigurationManager`*
+  - added `Tools` mod with `More gathering tools`, `Gathering tools durability cost` and `Chance to break Flint and Steel` settings
+  - added `Quickslots` mod with `Contextual skills`, `Replace quickslots on equip` and `Assign by using free quickslot` settings
+  - added `Various` mod with `Randomize title screen`, `Craft with stash items`, `Display stashed item amounts` and `Add "Drop one" item action` settings
+  - moved some settings from `Various`, `Needs` and `Gamepad` into the new `Inns`, `Tools` and `Quickslots` mods
+  - removed `Various` section and moved `Various` mod to the top of the mods list
+  - *bugfix: `Various -> Inn rent duration` was initialized too early to take effect*
+  - *bugfix: `Tree Randomizer` mod was tagged with IDevelopmentOnly and didn't appear in the mods list*
+  - *bugfix: some mods crashed when using the Mefino fork of `ConfigurationManager`*
+
 - **1.10.0**
-    - `Various`: added `Inn stashes` setting and `Enable cheats` hotkey
-    - `GUI`: added `Text scale` setting
-    - `Interactions`: added `Highlights` settings
-    - *bugfix: `Crafting -> Preserve durability ratios` produced broken results when all ingredients were indestructible*
-    - *bugfix: `Descriptions -> Freshness bar` settings didn't work for foods in shops*
+  - `Various`: added `Inn stashes` setting and `Enable cheats` hotkey
+  - `GUI`: added `Text scale` setting
+  - `Interactions`: added `Highlights` settings
+  - *bugfix: `Crafting -> Preserve durability ratios` produced broken results when all ingredients were indestructible*
+  - *bugfix: `Descriptions -> Freshness bar` settings didn't work for foods in shops*
+
 - **1.9.0**
-    - `Various`: added `Inn rent duration`, `Base stamina regen` and `Temperature` settings
-    - added `Tree Randomizer` mod (`Skills` section)
-    - added a global advanced setting to `Reset to defaults` and `Load preset` (for now, only my personal presets)
-    - split `Prices` mod into `Merchants` and `Prices` (`Skills` section)
-    - renamed `Skill Editor` to `Editor`
-    - renamed `Skill Limits` to `Limits`
-    - *bugfix: `Prices -> Learn mutually exclusive skills` was multiplying the price every time the skill was highlighted*
+  - `Various`: added `Inn rent duration`, `Base stamina regen` and `Temperature` settings
+  - added `Tree Randomizer` mod (`Skills` section)
+  - added a global advanced setting to `Reset to defaults` and `Load preset` (for now, only my personal presets)
+  - split `Prices` mod into `Merchants` and `Prices` (`Skills` section)
+  - renamed `Skill Editor` to `Editor`
+  - renamed `Skill Limits` to `Limits`
+  - *bugfix: `Prices -> Learn mutually exclusive skills` was multiplying the price every time the skill was highlighted*
+  - 
 - **1.8.1**
-    - `Interactions -> Disallowed in combat`: added `PullLevers`, removed `Talk` and `Revive`
-    - renamed `Skills` mod to `Skill Editor`
-    - created a new section called `Skills` and moved relevant mods
-    - added debug logging to help track down user-submitted bugs
-    - *bugfix: `Targeting -> Auto-target actions` didn't work at all*
+  - `Interactions -> Disallowed in combat`: added `PullLevers`, removed `Talk` and `Revive`
+  - renamed `Skills` mod to `Skill Editor`
+  - created a new section called `Skills` and moved relevant mods
+  - added debug logging to help track down user-submitted bugs
+  - *bugfix: `Targeting -> Auto-target actions` didn't work at all*
+
 - **1.8.0**
-    - Thunderstore release \o/
+  - new Durability mod: define how durability affects item stats, change loss rate per item type
+  (moved relevant settings from Camping and Various)
+  - new Crafting mod: inherit durability ratio from ingredients, limit manual crafting, change results amount
+  - reworked Prices mod and added new settings: change prices curve, change prices per item type
+  - new Descriptions settings: better display for attack speed, impact damage/resistance and barrier
+  - new Skills settings: rune casting SFX volume, Runic Lantern glowing orb intensity
+  - new Various settings: remap backpack capacities, change waterskin capacity
+  - bugfix: heal enemies on load sometimes killed the player
+  - bugfix: detailed descriptions didn't work with waterskins
+  - bugfix: when enemies were reset, but items weren't, enemy pouches would have wrong contents
+
+- **1.7.0**
+  - new Skills mod: change effects, costs and cooldowns of select skills (for starters: dagger, bow and runes)
+  - new Interactions setting: disallow revive in combat
+  - minimized drink categories in Needs: potions and cures are now Potions, teas and other are now Other
+  - bugfix: 16 gamepad quickslots were initialized too late to have any in-game effect
+
+- **1.6.0**
+  - new Traps mod: arming delay, friendly fire, trigger sizes
+  - new Gamepad mod: 16 gamepad quickslots (same old), better stash navigation
+  - new Camping settings: customize repair mechanics
+  - new Interactions settings: disallow looting/travelling while in combat
+  - new Needs settings: well-rested % mana loss, limit food/drink to 100% after sleep
+  - bugfix: Gold Ingot price was affected by fixed price multiplier
+  - bugfix: despawned butterflies were still emitting ambient sound
+  - updated ConfiguratioManager dependency to 16.2+ and removed the Always expanded setting
+
+- **1.5.2**
+  - new Various setting: automatically reload arrows from inventory
+  - free trainer skills (from other mods) are no longer overridden by the Prices mod
+
+- **1.5.1**
+  - replaced per merchant random price modifiers with per city (to prevent gold-reselling exploit)
+  - bugfix: merchants' and skill trainers' prices were overridden even if their settings were disabled
+
+- **1.5.0**
+  - new Skill Limits mod: bring back decison-making to skill-building!
+  - new Prices mod: control the silver economy, set the price for learning mutually exclusive skills!
+  - new Needs setting: don't restore needs when travelling (useful for mages)
+  - new Various settings: multiplicative stacking (for select stats), Armor Training customization
+  - added hotkey customization to Camera zoom control
+  - changed need overlimits positive effects to be symmetrical to unfulfilled (negative) effects
+  (well-fed reduces health burn rate, well-hydrated reduces stamina burn rate, ...)
+  - removed color formatting settings from Descriptions (colors are now enabled by default)
+  - refactored (and reset) all Needs settings
+  - bugfix: friendly fire was triggering combat music
+  - bugfix: lingering interaction prompt when using Instant "Hold" interactions
+  - bugfix: merchant restock timer wasn't applied when interacting with a merchant for the first time
+  - changed zipped file folder structure to a standardized one, so VMP should now be compatible with Vortex!
+  - all mods now use lazy initialization, which speeds up VMP loading - the fewer mods enabled, the more gain!
+
+- **1.4.2**
+  - new Descriptions setting: display cured status effects
+  - new Needs setting: cure negative status effects even when above 100% need level
+  - new Camera setting: customize gamepad hotkey for controlling zoom
+  - new Damage setting: change damage dealt by enemies to other enemies
+
+- **1.4.1**
+  - added descriptions to Targeting settings
+  - marked Allow targeting players as WIP/Advanced and moved it to Various
+
+- **1.4.0**
+  - new Targeting mod: change targeting ranges, Hunter's Eye tweaks, auto-target, more top-down camera
+  - new Camping mod: restrict camping spots, butterflies spawn chance & radius
+  - new Various setting: smith repairs only equipment
+
+- **1.3.2**
+  - new Descriptions setting: skill cooldowns and costs
+  - new Various setting: heal enemies on load
+
+- **1.3.1**
+  - new GUI settings: fading status effect icons, copy settings from another player
+
+- **1.3.0**
+  - new GUI settings: rearrange HUD elements, change HUD transparency!
+
+- **1.2.1**
+  - bugfix: Hide wasn't applied after game restart
+  - made a separate category for Teas in the Items' drink values setting
+  - fixed GUI settings format and order
+
+- **1.2.0**
+  - bugfix: detailed item descriptions didn't work at all (whoops!)
+  - new GUI mod - vertical splitscreen, shop menu tweaks, hide quickslot hints!
+  - due to internal refactoring, this release will reset your previous Camera mod settings. Sorry!
+
+- **1.1.0**
+  - bugfix: a few mods didn't work when using non-english game language
+  - new various mod: 16 controller quickslots - combine LT/RT with d-pad for additional 8 quickslots!
+  - renamed the old Hide option (which was merely collapsing mod's settings) to Collapse
+  - added option to actually Hide unwanted mods (they can be unhidden in Advanced Settings)
+  - made the modpack always expanded in Configuration Manager to prevent annoying auto-collapsing
+  - removed all usage of System.Reflection so the code should be safer and faster
+
+- **1.0.1**
+  - bugfix: Well-hydrated prevented from using non-eatable items (like bedroll, or flint & steel)
+    
+- **1.0.0**
+  - public release \o/
+    
+</details>
