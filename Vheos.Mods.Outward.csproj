@@ -411,7 +411,7 @@
 set PluginsSubpath=BepInEx\Plugins\Vheos\
 set ResourcesPath=$(ProjectDir)Resources\
 set ReleasesPath=$(ProjectDir)Private\Releases\
-set ReadmePath=$(ProjectDir)README.md
+set ReadmeName=README.md
 set IsDebug=$(DefineConstants.Contains('DEBUG'))
 
     :: Project
@@ -419,6 +419,7 @@ set IsDebug=$(DefineConstants.Contains('DEBUG'))
     set ExeName=Outward Definitive Edition.exe
     set ZipName=VMP
     set Version=X.Y.Z
+    set ThunderstorePath=%25ReleasesPath%25Thunderstore\
 
 :: Common
 rd /q /s "%25GamePath%25%25PluginsSubpath%25"
@@ -433,12 +434,12 @@ xcopy /y /s %25ResourcesPath%25 "%25GamePath%25%25PluginsSubpath%25"
 if %25IsDebug%25==True (
     start "" "%25GamePath%25%25ExeName%25"
 ) else if %25IsDebug%25==False (
-    xcopy /y /s "%25GamePath%25%25PluginsSubpath%25" "%25ReleasesPath%25%25PluginsSubpath%25"
-    powershell Compress-Archive -Path %25ReleasesPath%25BepInEx\ -DestinationPath %25ReleasesPath%25%25ZipName%25_%25Version%25.zip -Force
-    xcopy /y /s "%25ReadmePath%25" "%25ReleasesPath%25Thunderstore\"
-    xcopy /y /s "%25ReleasesPath%25BepInEx\Plugins\" "%25ReleasesPath%25Thunderstore\"
-    powershell Compress-Archive -Path %25ReleasesPath%25Thunderstore\* -DestinationPath %25ReleasesPath%25%25ZipName%25_%25Version%25_TS.zip -Force    
-    rd /q /s "%25ReleasesPath%25BepInEx\"
+    xcopy /y /s "%25GamePath%25%25PluginsSubpath%25" "%25ThunderstorePath%25%25PluginsSubpath%25"
+    xcopy /y "$(ProjectDir)%25ReadmeName%25" "%25ThunderstorePath%25"
+    powershell Compress-Archive -Path %25ThunderstorePath%25* -DestinationPath %25ReleasesPath%25%25ZipName%25_%25Version%25_TS.zip -Force    
+    powershell Compress-Archive -Path %25ThunderstorePath%25BepInEx\ -DestinationPath %25ReleasesPath%25%25ZipName%25_%25Version%25.zip -Force  
+    rd /q /s "%25ThunderstorePath%25BepInEx\"
+    del /q "%25ThunderstorePath%25%25ReadmeName%25"
 )</PostBuildEvent>
   </PropertyGroup>
   <PropertyGroup>
