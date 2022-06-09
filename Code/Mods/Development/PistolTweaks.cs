@@ -46,7 +46,7 @@ public class PistolTweaks : AMod, IDelayedInit
         _bulletPrice = CreateSetting(nameof(_bulletPrice), BULLET_PRICE, IntRange(1, 15));
 
         // Events
-        Item bulletPrefab = Prefabs.ItemsByID[BULLET_ID.ToString()];
+        Item bulletPrefab = "Bullet".ToItemPrefab();
         _bulletStackSize.AddEvent(() => bulletPrefab.m_stackable.m_maxStackAmount = _bulletStackSize.Value);
         _bulletWeight.AddEvent(() => bulletPrefab.Stats.m_rawWeight = _bulletWeight.Value);
         _bulletPrice.AddEvent(() => bulletPrefab.Stats.m_baseValue = _bulletPrice.Value);
@@ -74,7 +74,7 @@ public class PistolTweaks : AMod, IDelayedInit
     [HarmonyPrefix, HarmonyPatch(typeof(WeaponLoadoutItem), nameof(WeaponLoadoutItem.Load))]
     private static void WeaponLoadoutItem_Load_Pre(WeaponLoadoutItem __instance)
     {
-        if (__instance.CompatibleAmmunition.ItemID == BULLET_ID)
+        if (__instance.CompatibleAmmunition.SharesPrefabWith(BULLET_ID))
             __instance.MaxProjectileLoaded = _bulletsPerReload.Value;
     }
 

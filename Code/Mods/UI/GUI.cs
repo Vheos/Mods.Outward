@@ -723,7 +723,7 @@ public class GUI : AMod, IDelayedInit, IUpdatable
             progress = 1f;
         else
         {
-            float maxDuration = Prefabs.StatusEffectsByID[statusEffect.IdentifierName].StartLifespan;
+            float maxDuration = Prefabs.StatusEffectsByNameID[statusEffect.IdentifierName].StartLifespan;
             float remainingDuration = statusEffect.RemainingLifespan;
             progress = remainingDuration / maxDuration;
         }

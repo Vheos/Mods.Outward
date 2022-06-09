@@ -9,12 +9,6 @@ public class SkillPrices : AMod
     private static readonly Vector2 ALTERNATE_CURRENCY_ICON_PIVOT = new(-0.5f, 0.5f);
     #endregion
     #region Enums
-    private enum SlotLevel
-    {
-        Basic = 1,
-        Breakthrough = 2,
-        Advanced = 3,
-    }
     private enum FormulaType
     {
         Linear = 1,
@@ -37,7 +31,7 @@ public class SkillPrices : AMod
         public SkillRequirement(string name, int amount = 1)
         {
             ItemName = name;
-            ItemID = Prefabs.ItemIDsByName[name];
+            ItemID = name.ToItemID();
             Amount = amount;
             Icon = Utils.CreateSpriteFromFile(Utils.PluginFolderPath + ICONS_FOLDER + name + ".PNG");
         }
@@ -46,7 +40,7 @@ public class SkillPrices : AMod
 
     // Settings       
     private static ModSetting<bool> _formulaToggle;
-    private static Dictionary<SlotLevel, ModSetting<Vector4>> _formulaCoeffsByLevel;
+    private static Dictionary<SkillSlotLevel, ModSetting<Vector4>> _formulaCoeffsByLevel;
     private static ModSetting<FormulaType> _formulaType;
     private static ModSetting<bool> _learnMutuallyExclusiveSkills;
     private static ModSetting<bool> _exclusiveSkillCostsTsar;
@@ -54,17 +48,11 @@ public class SkillPrices : AMod
     protected override void Initialize()
     {
         _formulaToggle = CreateSetting(nameof(_formulaToggle), false);
-        _formulaCoeffsByLevel = new Dictionary<SlotLevel, ModSetting<Vector4>>();
-        foreach (var level in Utils.GetEnumValues<SlotLevel>())
+        _formulaCoeffsByLevel = new Dictionary<SkillSlotLevel, ModSetting<Vector4>>();
+        foreach (var level in Utility.GetEnumValues<SkillSlotLevel>())
         {
-            Vector4 initialPrice = Vector4.zero;
-            switch (level)
-            {
-                case SlotLevel.Basic: initialPrice.x = 50; break;
-                case SlotLevel.Breakthrough: initialPrice.x = 500; break;
-                case SlotLevel.Advanced: initialPrice.x = 600; break;
-            }
-            _formulaCoeffsByLevel.Add(level, CreateSetting(nameof(_formulaCoeffsByLevel) + level, initialPrice));
+            Vector4 defaultPrice = new(Defaults.PricesBySkillSlotLevel[level], 0, 0, 0);
+            _formulaCoeffsByLevel.Add(level, CreateSetting(nameof(_formulaCoeffsByLevel) + level, defaultPrice));
         }
         _formulaType = CreateSetting(nameof(_formulaType), FormulaType.Linear);
         _learnMutuallyExclusiveSkills = CreateSetting(nameof(_learnMutuallyExclusiveSkills), false);
@@ -81,8 +69,8 @@ public class SkillPrices : AMod
         {
             foreach (var priceCoeffByLevel in _formulaCoeffsByLevel)
                 priceCoeffByLevel.Value.Format(priceCoeffByLevel.Key.ToString(), _formulaToggle);
-            _formulaCoeffsByLevel[SlotLevel.Basic].Description = "below the breakthrough skill in a tree";
-            _formulaCoeffsByLevel[SlotLevel.Advanced].Description = "above breakthrough in a tree";
+            _formulaCoeffsByLevel[SkillSlotLevel.Basic].Description = "below the breakthrough skill in a tree";
+            _formulaCoeffsByLevel[SkillSlotLevel.Advanced].Description = "above breakthrough in a tree";
             _formulaType.Format("Type", _formulaToggle);
             _formulaType.Description = "Linear   -        X   +      Y x B     +      Z x C     +      W x D  \n" +
                                    "Exponential   -   X  x  (1+Y%) ^ B  x  (1+Z%) ^ C  x  (1+W%) ^ D\n" +
@@ -114,9 +102,9 @@ public class SkillPrices : AMod
                 ForceApply();
                 _formulaToggle.Value = true;
                 {
-                    _formulaCoeffsByLevel[SlotLevel.Basic].Value = new Vector4(0, 1, 0, 0);
-                    _formulaCoeffsByLevel[SlotLevel.Breakthrough].Value = new Vector4(0, 0, 0, 0);
-                    _formulaCoeffsByLevel[SlotLevel.Advanced].Value = new Vector4(0, 1, 0, 0);
+                    _formulaCoeffsByLevel[SkillSlotLevel.Basic].Value = new Vector4(0, 1, 0, 0);
+                    _formulaCoeffsByLevel[SkillSlotLevel.Breakthrough].Value = new Vector4(0, 0, 0, 0);
+                    _formulaCoeffsByLevel[SkillSlotLevel.Advanced].Value = new Vector4(0, 1, 0, 0);
                     _formulaType.Value = FormulaType.Linear;
                 }
                 _learnMutuallyExclusiveSkills.Value = true;
@@ -129,14 +117,14 @@ public class SkillPrices : AMod
     private static SkillRequirement _exclusiveSkillRequirement;
     private static bool HasMutuallyExclusiveSkill(Character character, SkillSlot skillSlot)
     => skillSlot.SiblingSlot != null && skillSlot.SiblingSlot.HasSkill(character);
-    private static SlotLevel GetLevel(BaseSkillSlot slot)
+    private static SkillSlotLevel GetLevel(BaseSkillSlot slot)
         => !slot.ParentBranch.ParentTree.BreakthroughSkill.TryNonNull(out var breakthroughSlot)
-            ? SlotLevel.Basic
+            ? SkillSlotLevel.Basic
             : slot.ParentBranch.Index.CompareTo(breakthroughSlot.ParentBranch.Index) switch
             {
-                -1 => SlotLevel.Basic,
-                0 => SlotLevel.Breakthrough,
-                +1 => SlotLevel.Advanced,
+                -1 => SkillSlotLevel.Basic,
+                0 => SkillSlotLevel.Breakthrough,
+                +1 => SkillSlotLevel.Advanced,
                 _ => default,
             };
     private static int GetPrice(Character character, SkillSlot slot)

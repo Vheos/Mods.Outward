@@ -13,29 +13,9 @@ public class Various : AMod, IUpdatable
     private const string INNS_QUEST_FAMILY_NAME = "Inns";
     private const int DROP_ONE_ACTION_ID = -2;
     private const string DROP_ONE_ACTION_TEXT = "Drop one";
-    private const float DEFAULT_ENEMY_HEALTH_RESET_HOURS = 24f;   // Character.HoursToHealthReset
     private const int ARMOR_TRAINING_ID = 8205220;
-    private static readonly Dictionary<TemperatureSteps, Vector2> DEFAULT_TEMPERATURE_DATA_BY_ENUM = new()
-    {
-        [TemperatureSteps.Hottest] = new Vector2(40, 101),
-        [TemperatureSteps.VeryHot] = new Vector2(28, 92),
-        [TemperatureSteps.Hot] = new Vector2(20, 80),
-        [TemperatureSteps.Warm] = new Vector2(14, 62),
-        [TemperatureSteps.Neutral] = new Vector2(0, 50),
-        [TemperatureSteps.Fresh] = new Vector2(-14, 38),
-        [TemperatureSteps.Cold] = new Vector2(-20, 26),
-        [TemperatureSteps.VeryCold] = new Vector2(-30, 14),
-        [TemperatureSteps.Coldest] = new Vector2(-45, -1),
-    };
-    private static readonly Dictionary<AreaManager.AreaEnum, int> SQUAD_COUNTS_BY_REGION = new()
-    {
-        [AreaManager.AreaEnum.CierzoOutside] = 41,
-        [AreaManager.AreaEnum.Emercar] = 34,
-        [AreaManager.AreaEnum.HallowedMarsh] = 36,
-        [AreaManager.AreaEnum.Abrassar] = 30,
-        [AreaManager.AreaEnum.AntiqueField] = 36,
-        [AreaManager.AreaEnum.Caldera] = 65,
-    };
+
+
     #endregion
     #region Enums
     [Flags]
@@ -77,18 +57,18 @@ public class Various : AMod, IUpdatable
         _multiplayerScaling = CreateSetting(nameof(_multiplayerScaling), false);
         _enemiesHealOnLoad = CreateSetting(nameof(_enemiesHealOnLoad), false);
         _multiplicativeStatsStacking = CreateSetting(nameof(_multiplicativeStatsStacking), false);
-        _armorTrainingPenaltyReduction = CreateSetting(nameof(_armorTrainingPenaltyReduction), 50, IntRange(0, 100));
+        _armorTrainingPenaltyReduction = CreateSetting(nameof(_armorTrainingPenaltyReduction), Defaults.ArmorTrainingPenaltyReduction, IntRange(0, 100));
         _armorTrainingAffectManaCost = CreateSetting(nameof(_armorTrainingAffectManaCost), false);
         _refillArrowsFromInventory = CreateSetting(nameof(_refillArrowsFromInventory), false);
-        _staminaRegen = CreateSetting(nameof(_staminaRegen), 2.4f, FloatRange(0, 10));
-        _rentDuration = CreateSetting(nameof(_rentDuration), 12, IntRange(1, 168));
+        _staminaRegen = CreateSetting(nameof(_staminaRegen), Defaults.BaseStaminaRegen, FloatRange(0, 10));
+        _rentDuration = CreateSetting(nameof(_rentDuration), Defaults.InnRentTime, IntRange(1, 168));
         _itemActionDropOne = CreateSetting(nameof(_itemActionDropOne), false);
         _openRegionsEnemyDensity = CreateSetting(nameof(_openRegionsEnemyDensity), 0, IntRange(0, 100));
         _temperatureToggle = CreateSetting(nameof(_temperatureToggle), false);
-        _temperatureDataByEnum = new Dictionary<TemperatureSteps, ModSetting<Vector2>>();
-        foreach (var step in Utils.GetEnumValues<TemperatureSteps>())
+        _temperatureDataByEnum = new();
+        foreach (var step in Utils.TemperatureSteps)
             if (step != TemperatureSteps.Count)
-                _temperatureDataByEnum.Add(step, CreateSetting(nameof(_temperatureDataByEnum) + step, DEFAULT_TEMPERATURE_DATA_BY_ENUM[step]));
+                _temperatureDataByEnum.Add(step, CreateSetting(nameof(_temperatureDataByEnum) + step, Defaults.TemperateDataByStep[step]));
 
         _debugMode.AddEvent(() => Global.CheatsEnabled = _debugMode);
         AddEventOnConfigClosed(() =>
@@ -166,7 +146,7 @@ public class Various : AMod, IUpdatable
             "\n• maximum active squads" +
             "\n• minimum distance from other squads" +
             "\n• minimum distance from the player" +
-            "\nDisclaimer: this allows you to wipe out all available squads in a region quicker than with restricted spawns, and the only way to respawn them is triggering an area reset" +
+            "\n\nDisclaimer: this allows you to wipe out all available squads in a region quicker than with restricted spawns, and the only way to respawn them is triggering an area reset" +
             "\n\nUnit: subjective linear scale, where 0% represents the default game settings";
         _temperatureToggle.Format("Temperature");
         _temperatureToggle.Description =
@@ -182,7 +162,7 @@ public class Various : AMod, IUpdatable
             "\n\nUnit: in-game temperature unit";
         using (Indent)
         {
-            foreach (var step in Utils.GetEnumValues<TemperatureSteps>().Reverse().Skip(1))
+            foreach (var step in Utils.TemperatureSteps)
                 _temperatureDataByEnum[step].Format(step.ToString(), _temperatureToggle);
         }
     }
@@ -269,7 +249,7 @@ public class Various : AMod, IUpdatable
             return;
 
         if (EnvironmentConditions.Instance.TryNonNull(out var environmentConditions))
-            foreach (var step in Utils.GetEnumValues<TemperatureSteps>())
+            foreach (var step in Utils.TemperatureSteps)
                 if (step != TemperatureSteps.Count)
                 {
                     environmentConditions.BodyTemperatureImpactPerStep[step] = _temperatureDataByEnum[step].Value.x;
@@ -466,7 +446,7 @@ public class Various : AMod, IUpdatable
         if (!__instance.IsEnemy())
             return;
 
-        __instance.HoursToHealthReset = _enemiesHealOnLoad ? 0 : DEFAULT_ENEMY_HEALTH_RESET_HOURS;
+        __instance.HoursToHealthReset = _enemiesHealOnLoad ? 0 : Defaults.EnemyHealthResetTime;
     }
 
     // Open region spawns
@@ -474,7 +454,7 @@ public class Various : AMod, IUpdatable
     private static void AISquadManager_Awake_Pre(AISquadManager __instance)
     {
         if (_openRegionsEnemyDensity.Value == 0
-        || !SQUAD_COUNTS_BY_REGION.TryGetValue(Utils.CurrentArea, out var squadsCount))
+        || !Defaults.SquadCountsByRegion.TryGetValue(Utils.CurrentArea, out var squadsCount))
             return;
 
         float alpha = _openRegionsEnemyDensity / 100f;

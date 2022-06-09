@@ -281,8 +281,10 @@ public class Durability : AMod
     {
         #region quit
         if (_minStartingDurability >= 100
-        || !_itemDrop.DroppedItem.TryNonNull(out var item) || !Prefabs.ItemsByID[item.ItemIDString].TryNonNull(out var prefab)
-        || !prefab.Stats.TryNonNull(out var prefabStats) || prefabStats.MaxDurability <= 0)
+        || !_itemDrop.DroppedItem.TryNonNull(out var item)
+        || !item.Prefab().TryNonNull(out var prefab)
+        || !prefab.Stats.TryNonNull(out var prefabStats)
+        || prefabStats.MaxDurability <= 0)
             return;
         #endregion
 

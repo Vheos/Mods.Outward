@@ -112,7 +112,7 @@ public class SkillEditor : AMod, IDelayedInit
         {
             _mod = mod;
             _skillName = skillName;
-            CreateSettings(skillSettingName, Prefabs.GetSkillByName(_skillName),
+            CreateSettings(skillSettingName, _skillName.ToSkillPrefab(),
                            defaultValues.Effects, defaultValues.VitalCosts, defaultValues.OtherCosts);
         }
 

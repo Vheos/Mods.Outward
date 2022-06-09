@@ -37,7 +37,7 @@ public class Merchants : AMod, IDelayedInit
         _randomizePricesPerArea = CreateSetting(nameof(_randomizePricesPerArea), true);
 
         // Events
-        Item goldIngot = Prefabs.ItemsByID["Gold Ingot".ToItemID().ToString()];
+        Item goldIngot = "Gold Ingot".ToItemPrefab();
         _goldBasePrice.AddEvent(() => goldIngot.Stats.m_baseValue = _goldBasePrice);
     }
     protected override void SetFormatting()

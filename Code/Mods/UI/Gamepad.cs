@@ -177,7 +177,7 @@ public class Gamepad : AMod, IUpdatable
     private static ItemDisplay FindItemInContainerDisplay(ItemDisplay item, List<ItemDisplay> otherContainerItems)
     {
         foreach (var otherItem in otherContainerItems)
-            if (otherItem.m_refItem.ItemID == item.m_refItem.ItemID)
+            if (otherItem.m_refItem.SharesPrefabWith(item.m_refItem))
                 return otherItem;
         return null;
     }

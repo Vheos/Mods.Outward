@@ -152,7 +152,7 @@ public class Quickslots : AMod
         return false;
     }
     private static Item GetLearnedSkillByID(Character character, int id)
-    => character.Inventory.SkillKnowledge.GetLearnedItems().FirstOrDefault(skill => skill.ItemID == id);
+    => character.Inventory.SkillKnowledge.GetLearnedItems().FirstOrDefault(skill => skill.SharesPrefabWith(id));
     private static void TryOverrideVanillaQuickslotInput(ref bool input, int playerID)
     {
         #region quit
@@ -357,9 +357,8 @@ public class Quickslots : AMod
             return;
         #endregion
 
-        CharacterUI charUIPrefab = __instance.m_charUIPrefab;
-        GameObject.DontDestroyOnLoad(charUIPrefab);
-        SetupQuickslotPanels(charUIPrefab);
+        GameObject.DontDestroyOnLoad(__instance.m_charUIPrefab);
+        SetupQuickslotPanels(__instance.m_charUIPrefab);
     }
 
     [HarmonyPrefix, HarmonyPatch(typeof(CharacterQuickSlotManager), nameof(CharacterQuickSlotManager.Awake))]

@@ -181,7 +181,7 @@ public class SkillLimits : AMod
         return false;
     }
     private static bool IsSide(Skill skill)
-    => skill.ItemID.IsContainedIn(SIDE_SKILL_IDS);
+    => skill.SharesPrefabWithAny(SIDE_SKILL_IDS);
     private static bool TryGetSkillTree(Skill skill, out SkillSchool skillTree)
     {
         skillTree = SkillTreeHolder.Instance.m_skillTrees.DefaultOnInvalid(skill.SchoolIndex - 1);

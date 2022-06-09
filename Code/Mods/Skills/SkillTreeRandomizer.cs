@@ -15,36 +15,36 @@ public class SkillTreeRandomizer : AMod, IDelayedInit
     private const string REROLL_STATS_FILE_NAME = "SkillTreeRandomizerStats.txt";
     private static readonly Vector2 DEFAULT_SLOT_DISPLAY_SIZE = new(128, 54);
     private static readonly Vector2 DEFAULT_TREE_LOCAL_POSITION = new(0, -24);
-    private static readonly (string Name, int[] IDs)[] SIDE_SKILLS =
+    private static readonly (string Name, Skill[] Prefabs)[] SIDE_SKILLS =
     {
         (WEAPON_SKILLS_TREE_NAME, new[]
         {
-            "Puncture".ToSkillID(),
-            "Pommel Counter".ToSkillID(),
-            "Talus Cleaver".ToSkillID(),
-            "Execution".ToSkillID(),
-            "Mace Infusion".ToSkillID(),
-            "Juggernaut".ToSkillID(),
-            "Simeon's Gambit".ToSkillID(),
-            "Moon Swipe".ToSkillID(),
-            "Prismatic Flurry".ToSkillID(),
-            "Flamethrower".ToSkillID(), // Mana
+            "Puncture".ToSkillPrefab(),
+            "Pommel Counter".ToSkillPrefab(),
+            "Talus Cleaver".ToSkillPrefab(),
+            "Execution".ToSkillPrefab(),
+            "Mace Infusion".ToSkillPrefab(),
+            "Juggernaut".ToSkillPrefab(),
+            "Simeon's Gambit".ToSkillPrefab(),
+            "Moon Swipe".ToSkillPrefab(),
+            "Prismatic Flurry".ToSkillPrefab(),
+            "Flamethrower".ToSkillPrefab(), // Mana
         }),
         (BOONS_TREE_NAME, new[]
         {
-            "Mist".ToSkillID(),
-            "Warm".ToSkillID(),
-            "Cool".ToSkillID(),
-            "Blessed".ToSkillID(),
-            "Possessed".ToSkillID(),
+            "Mist".ToSkillPrefab(),
+            "Warm".ToSkillPrefab(),
+            "Cool".ToSkillPrefab(),
+            "Blessed".ToSkillPrefab(),
+            "Possessed".ToSkillPrefab(),
         }),
         (HEXES_TREE_NAME, new[]
         {
-            "Haunt Hex".ToSkillID(),
-            "Scorch Hex".ToSkillID(),
-            "Chill Hex".ToSkillID(),
-            "Doom Hex".ToSkillID(),
-            "Curse Hex".ToSkillID(),
+            "Haunt Hex".ToSkillPrefab(),
+            "Scorch Hex".ToSkillPrefab(),
+            "Chill Hex".ToSkillPrefab(),
+            "Doom Hex".ToSkillPrefab(),
+            "Curse Hex".ToSkillPrefab(),
         }),
     };
     private static readonly string[] MISSING_ICON_SKILL_NAMES =
@@ -370,19 +370,18 @@ public class SkillTreeRandomizer : AMod, IDelayedInit
     private static void CreateSideSkillTrees()
     {
         _sideSkillTrees = new List<SkillSchool>();
-        foreach (var (Name, IDs) in SIDE_SKILLS)
+        foreach (var (Name, Prefab) in SIDE_SKILLS)
         {
             GameObject skillTreeHolder = new(Name);
             skillTreeHolder.BecomeChildOf(_cachedSkillTreeHolder);
             GameObject skillBranchHolder = new("0");
             skillBranchHolder.BecomeChildOf(skillTreeHolder);
 
-            foreach (var id in IDs)
+            foreach (var prefab in Prefab)
             {
-                Skill skill = Prefabs.SkillsByID[id];
-                GameObject skillSlotHolder = new(skill.Name);
+                GameObject skillSlotHolder = new(prefab.Name);
                 skillSlotHolder.BecomeChildOf(skillBranchHolder);
-                skillSlotHolder.AddComponent<SkillSlot>().m_skill = skill;
+                skillSlotHolder.AddComponent<SkillSlot>().m_skill = prefab;
             }
 
             skillBranchHolder.AddComponent<SkillBranch>();
@@ -394,10 +393,7 @@ public class SkillTreeRandomizer : AMod, IDelayedInit
     private static void LoadMissingSkillIcons()
     {
         foreach (var name in MISSING_ICON_SKILL_NAMES)
-        {
-            int id = Prefabs.SkillIDsByName[name];
-            Prefabs.SkillsByID[id].SkillTreeIcon = Utils.CreateSpriteFromFile(Utils.PluginFolderPath + ICONS_FOLDER + name.Replace('/', '_') + ".PNG");
-        }
+            name.ToSkillPrefab().SkillTreeIcon = Utils.CreateSpriteFromFile(Utils.PluginFolderPath + ICONS_FOLDER + name + ".PNG");
     }
     private static void ResetSkillTreeHolders()
     {

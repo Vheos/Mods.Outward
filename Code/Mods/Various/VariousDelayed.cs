@@ -4,16 +4,16 @@ public class VariousDelayed : AMod, IDelayedInit
     #region Constants
     private static readonly Item[] ARROWS = new[]
 {
-        "Arrow".ToItem(),
-        "Flaming Arrow".ToItem(),
-        "Poison Arrow".ToItem(),
-        "Venom Arrow".ToItem(),
-        "Palladium Arrow".ToItem(),
-        "Explosive Arrow".ToItem(),
-        "Forged Arrow".ToItem(),
-        "Holy Rage Arrow".ToItem(),
-        "Soul Rupture Arrow".ToItem(),
-        "Mana Arrow".ToItem(),
+        "Arrow".ToItemPrefab(),
+        "Flaming Arrow".ToItemPrefab(),
+        "Poison Arrow".ToItemPrefab(),
+        "Venom Arrow".ToItemPrefab(),
+        "Palladium Arrow".ToItemPrefab(),
+        "Explosive Arrow".ToItemPrefab(),
+        "Forged Arrow".ToItemPrefab(),
+        "Holy Rage Arrow".ToItemPrefab(),
+        "Soul Rupture Arrow".ToItemPrefab(),
+        "Mana Arrow".ToItemPrefab(),
     };
     #endregion
 
@@ -27,7 +27,7 @@ public class VariousDelayed : AMod, IDelayedInit
 
         // Events
         _arrowStackSize.AddEvent(UpdateArrowsStackSize);
-        _bulletStackSize.AddEvent(() => "Bullet".ToItem().m_stackable.m_maxStackAmount = _bulletStackSize);
+        _bulletStackSize.AddEvent(() => "Bullet".ToItemPrefab().m_stackable.m_maxStackAmount = _bulletStackSize);
     }
     protected override void SetFormatting()
     {

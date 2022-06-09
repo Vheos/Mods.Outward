@@ -1,9 +1,9 @@
 ﻿namespace Vheos.Mods.Outward;
 
-public class Crafting : AMod, IDelayedInit
+public class Crafting : AMod
 {
     #region Constants
-    private const int CRYSTAL_POWDER_ID = 6600040;
+    private const string CRYSTAL_POWDER_RECIPE_UID = "-SEtMHRqWUmvrmyvryV8Ng";
     private static readonly int[] LANTERN_IDS =
     {
         "Explorer Lantern".ToItemID(),
@@ -86,8 +86,6 @@ public class Crafting : AMod, IDelayedInit
         _limitedManualCrafting = CreateSetting(nameof(_limitedManualCrafting), false);
         _limitedManulCraftingExceptions = CreateSetting(nameof(CraftingExceptions), (CraftingExceptions)~0);
         _extraResultsMultiplier = CreateSetting(nameof(_extraResultsMultiplier), 100, IntRange(0, 200));
-
-        _crystalPowderRecipe = FindCrystalPowderRecipe();
     }
     protected override void SetFormatting()
     {
@@ -141,15 +139,6 @@ public class Crafting : AMod, IDelayedInit
     }
 
     // Utility
-    private static Recipe _crystalPowderRecipe;
-    private static Recipe FindCrystalPowderRecipe()
-    {
-        foreach (var recipeByUID in RecipeManager.Instance.m_recipes)
-            foreach (var result in recipeByUID.Value.m_results)
-                if (result.m_itemID == CRYSTAL_POWDER_ID)
-                    return recipeByUID.Value;
-        return null;
-    }
     private static List<Item> GetDestructibleIngredients(CraftingMenu craftingMenu)
     {
         List<Item> destructibleIngredients = new();
@@ -186,7 +175,6 @@ public class Crafting : AMod, IDelayedInit
         for (int i = 1; i < __instance.m_ingredientSelectors.Length; i++)
             __instance.m_ingredientSelectors[i].SetActive(!enabled);
     }
-
     private static int GetModifiedResultsAmount(ItemReferenceQuantity result)
     => 1 + (result.Quantity - 1f).Mul(_extraResultsMultiplier / 100f).Round();
 
@@ -253,17 +241,18 @@ public class Crafting : AMod, IDelayedInit
     }
 
     [HarmonyPrefix, HarmonyPatch(typeof(CraftingMenu), nameof(CraftingMenu.Show), new[] { typeof(CraftingStation) })]
-    private static bool CraftingMenu_Show_Post(CraftingMenu __instance, CraftingStation _ustensil)
+    private static void CraftingMenu_Show_Pre(CraftingMenu __instance, CraftingStation _ustensil)
     {
         #region quit
         if (!_limitedManualCrafting
         || _ustensil.StationType != Recipe.CraftingType.Alchemy
-        || __instance.LocalCharacter.HasLearnedRecipe(_crystalPowderRecipe))
-            return true;
+        || !RecipeManager.Instance.m_recipes.TryGetValue(CRYSTAL_POWDER_RECIPE_UID, out var crystalPowderRecipe)
+        || __instance.LocalCharacter.HasLearnedRecipe(crystalPowderRecipe))
+            return;
         #endregion
 
-        __instance.LocalCharacter.LearnRecipe(_crystalPowderRecipe);
-        return true;
+        __instance.LocalCharacter.LearnRecipe(crystalPowderRecipe);
+        return;
     }
 
     [HarmonyPrefix, HarmonyPatch(typeof(CraftingMenu), nameof(CraftingMenu.GenerateResult))]

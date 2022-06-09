@@ -337,12 +337,12 @@ public class Resets : AMod
         ModSetting<ResetMode> mode = _gatheringMode;
         ModSetting<int> timer = _gatheringTimer;
         if (__instance.RequiredItem != null)
-            if (__instance.RequiredItem.ItemID == MINING_PICK_ID)
+            if (__instance.RequiredItem.SharesPrefabWith(MINING_PICK_ID))
             {
                 mode = _miningMode;
                 timer = _miningTimer;
             }
-            else if (__instance.RequiredItem.ItemID == FISHING_HARPOON_ID)
+            else if (__instance.RequiredItem.SharesPrefabWith(FISHING_HARPOON_ID))
             {
                 mode = _fishingMode;
                 timer = _fishingTimer;

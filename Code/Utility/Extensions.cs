@@ -5,7 +5,7 @@ using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using Vheos.Helpers.RNG;
 
-public static class Extensions_Various
+public static class Extensions
 {
     // Game
     public static bool IsPlayer(this Character character)
@@ -306,14 +306,29 @@ public static class Extensions_Various
         t.Raycast(eventData, hits);
         return hits;
     }
+
     public static int ToItemID(this string name)
-    => Prefabs.ItemIDsByName[name];
-    public static Item ToItem(this string name)
-    => Prefabs.ItemsByID[Prefabs.ItemIDsByName[name].ToString()];
+    => Lists.ItemIDsByName[name];
+    public static Item ToItemPrefab(this string name)
+    => Prefabs.ItemsByID[name.ToItemID()];
+
     public static int ToSkillID(this string name)
-    => Prefabs.SkillIDsByName[name];
-    public static Skill ToSkill(this string name)
-    => Prefabs.SkillsByID[Prefabs.ItemIDsByName[name]];
+    => Lists.SkillIDsByName[name];
+    public static Skill ToSkillPrefab(this string name)
+    => Prefabs.SkillsByID[name.ToSkillID()];
+
+    public static T Prefab<T>(this T item) where T : Item
+    => Prefabs.ItemsByID[item.ItemID] as T;
+
+    public static bool SharesPrefabWith(this Item item, Item other)
+    => item.ItemID == other.ItemID;
+    public static bool SharesPrefabWith(this Item item, int other)
+    => item.ItemID == other;
+    public static bool SharesPrefabWithAny(this Item item, IEnumerable<Item> others)
+    => others.Any(other => item.SharesPrefabWith(other));
+    public static bool SharesPrefabWithAny(this Item item, IEnumerable<int> others)
+    => others.Any(other => item.SharesPrefabWith(other));
+
     public static Tag ToTag(this string name)
     {
         foreach (var tag in TagSourceManager.Instance.m_tags)
@@ -357,7 +372,7 @@ public static class Extensions_Various
             return;
         #endregion
 
-        Bag adventurerBackpack = Prefabs.ItemsByID["5300000"] as Bag;
+        Bag adventurerBackpack = "Adventurer Backpack".ToItemPrefab() as Bag;
         GameObject lanternHolder = adventurerBackpack.LoadedVisual.FindChild("LanternSlotAnchor");
         GameObject newLanternHolder = GameObject.Instantiate(lanternHolder, bag.LoadedVisual.transform);
         bag.m_lanternSlot = newLanternHolder.GetComponentInChildren<BagSlotVisual>();

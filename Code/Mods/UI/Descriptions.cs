@@ -305,11 +305,10 @@ public class Descriptions : AMod, IDelayedInit
     }
     private static void SetBackgrounds(bool state)
     {
-        Item lifePotion = Prefabs.GetIngestibleByName("Life Potion");
+        Item lifePotion = "Life Potion".ToItemPrefab();
         Sprite potionBackground = lifePotion.m_overrideSigil;
         foreach (var ingestibleByID in Prefabs.IngestiblesByID)
-            if (ingestibleByID.Value != lifePotion)
-                ingestibleByID.Value.m_overrideSigil = state ? potionBackground : null;
+            ingestibleByID.Value.m_overrideSigil = state ? potionBackground : null;
     }
     private static Row GetFormattedItemRow(Effect effect)
     {

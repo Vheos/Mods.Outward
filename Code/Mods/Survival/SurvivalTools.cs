@@ -14,6 +14,9 @@ public class SurvivalTools : AMod
     private const string FLINT_AND_STEEL_BREAK_NOTIFICATION = "Flint and Steel broke!";
     private const int PRIMITIVE_SATCHEL_CAPACITY = 25;
     private const int TRADER_BACKPACK = 100;
+    private static readonly int FLINT_AND_STEEL_ID = "Flint and Steel".ToItemID();
+    private static readonly int MINING_PICK_ID = "Mining Pick".ToItemID();
+    private static readonly int FISHING_HARPOON_ID = "Fishing Harpoon".ToItemID();
     #endregion
 
     // Settings
@@ -101,12 +104,12 @@ public class SurvivalTools : AMod
     {
         #region quit
         if (!_moreGatheringTools
-        || _sourceToolID != "Mining Pick".ToItemID() && _sourceToolID != "Fishing Harpoon".ToItemID())
+        || _sourceToolID != MINING_PICK_ID && _sourceToolID != FISHING_HARPOON_ID)
             return true;
         #endregion
 
         // Cache
-        Weapon.WeaponType requiredType = _sourceToolID == "Fishing Harpoon".ToItemID() ? Weapon.WeaponType.Spear_2H : Weapon.WeaponType.Mace_2H;
+        Weapon.WeaponType requiredType = _sourceToolID == FISHING_HARPOON_ID ? Weapon.WeaponType.Spear_2H : Weapon.WeaponType.Mace_2H;
         List<Item> potentialTools = new();
 
         // Search bag & pouch
@@ -154,8 +157,8 @@ public class SurvivalTools : AMod
     private static void Item_OnUse_Post(Item __instance)
     {
         #region quit
-        if (__instance.ItemID != "Flint and Steel".ToItemID()
-        || _chanceToBreakFlintAndSteel.RollPercent())
+        if (!__instance.SharesPrefabWith(FLINT_AND_STEEL_ID)
+        || !_chanceToBreakFlintAndSteel.RollPercent())
             return;
         #endregion
 
@@ -196,7 +199,8 @@ public class SurvivalTools : AMod
     private static void TemperatureSource_Start_Post(TemperatureSource __instance)
     {
         #region quit
-        if (!__instance.m_item.TryNonNull(out var item) || item.ItemID.IsNotContainedIn(TORCH_IDS))
+        if (!__instance.m_item.TryNonNull(out var item)
+        || !item.SharesPrefabWithAny(TORCH_IDS))
             return;
         #endregion
 

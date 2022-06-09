@@ -172,11 +172,9 @@ public class AI : AMod
 
         // Initialize
         List<Character.Factions> targetableFactions = new();
-        foreach (var faction in Utils.GetEnumValues<Character.Factions>())
+        foreach (var faction in Utils.Factions)
         {
-            if (faction == Character.Factions.NONE
-            || faction == Character.Factions.COUNT
-            || faction.IsContainedIn(ignoreFactions)
+            if (faction.IsContainedIn(ignoreFactions)
             || faction.IsContainedIn(__instance.StartAlliedFactions)
             || __instance.AlliedToSameFaction && faction == characterFaction)
                 continue;

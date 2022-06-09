@@ -16,6 +16,7 @@ public class Interactions : AMod, IDelayedInit
     private static readonly Color HIGHLIGHT_COLOR_INGESTIBLE = new(0.435f, 1f, 0.125f, 0.75f);
     private static readonly Color HIGHLIGHT_COLOR_OTHER_ITEM = new(0.125f, 0.871f, 1f, 0.5f);
     private static readonly Color HIGHLIGHT_COLOR_INTERACTION = new(0.686f, 0.125f, 1f, 0.75f);
+    private static readonly int BANDAGES_ID = "Bandages".ToItemID();
     #endregion
     #region Enums
     [Flags]
@@ -307,7 +308,7 @@ public class Interactions : AMod, IDelayedInit
                 vanillaHold = activator.gameObject.AddComponent<InteractionIngest>();
             else if (_groundInteractions.Value.HasFlag(GroundInteractions.EatAndDrink) && stack != null && stack.FirstItem().IsIngestible())
                 vanillaHold = activator.gameObject.AddComponent<InteractionUnpackAndIngest>();
-            else if (_groundInteractions.Value.HasFlag(GroundInteractions.UseBandage) && item.ItemID == "Bandages".ToItemID())
+            else if (_groundInteractions.Value.HasFlag(GroundInteractions.UseBandage) && item.SharesPrefabWith(BANDAGES_ID))
                 vanillaHold = activator.gameObject.AddComponent<InteractionUse>();
             else if (_groundInteractions.Value.HasFlag(GroundInteractions.InfuseWeapon) && item is InfuseConsumable)
                 vanillaHold = activator.gameObject.AddComponent<InteractionUse>();

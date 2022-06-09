@@ -1,5 +1,6 @@
 ﻿namespace Vheos.Mods.Outward;
 using BepInEx.Configuration;
+using Anim = Character.SpellCastType;
 
 public class Needs : AMod, IDelayedInit
 {
@@ -12,41 +13,42 @@ public class Needs : AMod, IDelayedInit
         (Need.Drink, new Vector2(50f, 75f), 1000f / 27.77f, "Thirsty", "drinking", "stamina burn rate"),
         (Need.Sleep, new Vector2(25f, 50f), 1000f / 13.89f, "Tired", "sleeping", "stamina regen"),
     };
-    private static readonly Dictionary<int, (Character.SpellCastType Vanilla, Character.SpellCastType Custom)> ANIMATION_PAIRS_BY_INGESTIBLE_ID
-    = new()
+    private static readonly Item AMBRAINE = "Ambraine".ToItemPrefab();
+    private static readonly Item WATERSKIN = "Waterskin".ToItemPrefab();
+    private static readonly Dictionary<Item, Anim> FIXED_ANIMATIONS_BY_INGESTIBLE = new()
     {
-        ["Torcrab Egg".ToItemID()] = (Character.SpellCastType.DrinkWater, Character.SpellCastType.Eat),
-        ["Boreo Blubber".ToItemID()] = (Character.SpellCastType.DrinkWater, Character.SpellCastType.Eat),
-        ["Pungent Paste".ToItemID()] = (Character.SpellCastType.DrinkWater, Character.SpellCastType.Eat),
-        ["Gaberry Jam".ToItemID()] = (Character.SpellCastType.DrinkWater, Character.SpellCastType.Eat),
-        ["Crawlberry Jam".ToItemID()] = (Character.SpellCastType.DrinkWater, Character.SpellCastType.Eat),
-        ["Golden Jam".ToItemID()] = (Character.SpellCastType.DrinkWater, Character.SpellCastType.Eat),
-        ["Raw Torcrab Meat".ToItemID()] = (Character.SpellCastType.DrinkWater, Character.SpellCastType.Eat),
-        ["Miner’s Omelet".ToItemID()] = (Character.SpellCastType.DrinkWater, Character.SpellCastType.Eat),
-        ["Turmmip Potage".ToItemID()] = (Character.SpellCastType.DrinkWater, Character.SpellCastType.Eat),
-        ["Meat Stew".ToItemID()] = (Character.SpellCastType.DrinkWater, Character.SpellCastType.Eat),
-        ["Marshmelon Jelly".ToItemID()] = (Character.SpellCastType.DrinkWater, Character.SpellCastType.Eat),
-        ["Blood Mushroom".ToItemID()] = (Character.SpellCastType.Potion, Character.SpellCastType.Eat),
-        ["Food Waste".ToItemID()] = (Character.SpellCastType.DrinkWater, Character.SpellCastType.Eat),
-        ["Warm Boozu’s Milk".ToItemID()] = (Character.SpellCastType.Potion, Character.SpellCastType.DrinkWater),
+        ["Torcrab Egg".ToItemPrefab()] = Anim.Eat,
+        ["Boreo Blubber".ToItemPrefab()] = Anim.Eat,
+        ["Pungent Paste".ToItemPrefab()] = Anim.Eat,
+        ["Gaberry Jam".ToItemPrefab()] = Anim.Eat,
+        ["Crawlberry Jam".ToItemPrefab()] = Anim.Eat,
+        ["Golden Jam".ToItemPrefab()] = Anim.Eat,
+        ["Raw Torcrab Meat".ToItemPrefab()] = Anim.Eat,
+        ["Miner’s Omelet".ToItemPrefab()] = Anim.Eat,
+        ["Turmmip Potage".ToItemPrefab()] = Anim.Eat,
+        ["Meat Stew".ToItemPrefab()] = Anim.Eat,
+        ["Marshmelon Jelly".ToItemPrefab()] = Anim.Eat,
+        ["Blood Mushroom".ToItemPrefab()] = Anim.Eat,
+        ["Food Waste".ToItemPrefab()] = Anim.Eat,
+        ["Warm Boozu’s Milk".ToItemPrefab()] = Anim.DrinkWater,
     };
-    private static readonly int[] OTHER_DRINK_IDS = new[]
+    private static readonly Item[] OTHER_DRINKS = new[]
     {
-        "Able Tea".ToItemID(),
-        "Bitter Spicy Tea".ToItemID(),
-        "Greasy Tea".ToItemID(),
-        "Iced Tea".ToItemID(),
-        "Mineral Tea".ToItemID(),
-        "Needle Tea".ToItemID(),
-        "Soothing Tea".ToItemID(),
-        "Boozu’s Milk".ToItemID(),
-        "Warm Boozu’s Milk".ToItemID(),
-        "Gaberry Wine".ToItemID(),
+        "Able Tea".ToItemPrefab(),
+        "Bitter Spicy Tea".ToItemPrefab(),
+        "Greasy Tea".ToItemPrefab(),
+        "Iced Tea".ToItemPrefab(),
+        "Mineral Tea".ToItemPrefab(),
+        "Needle Tea".ToItemPrefab(),
+        "Soothing Tea".ToItemPrefab(),
+        "Boozu’s Milk".ToItemPrefab(),
+        "Warm Boozu’s Milk".ToItemPrefab(),
+        "Gaberry Wine".ToItemPrefab(),
     };
-    private static readonly int[] MILK_IDS = new[]
+    private static readonly Item[] MILKS = new[]
     {
-        "Boozu’s Milk".ToItemID(),
-        "Warm Boozu’s Milk".ToItemID(),
+        "Boozu’s Milk".ToItemPrefab(),
+        "Warm Boozu’s Milk".ToItemPrefab(),
     };
     private static readonly string[] DOT_STATUS_EFFECTS = new[]
     {
@@ -166,7 +168,7 @@ public class Needs : AMod, IDelayedInit
         {
             if (!_isInitialized)
             {
-                UpdateIngestibleAnimations(true);
+                FixIngestibleAnimations();
                 InitializeStatusEffectPrefabs();
                 RemoveMilkFoodValues();
                 _isInitialized = true;
@@ -308,7 +310,7 @@ public class Needs : AMod, IDelayedInit
         {
             [Need.Food] = new FulfilledData
             (
-                Prefabs.StatusEffectsByID["Full"],
+                Prefabs.StatusEffectsByNameID["Full"],
                 "Well-fed",
                 $"Your max health burns more slowly, but you can't eat any more.",
                 "You're well-fed!",
@@ -316,7 +318,7 @@ public class Needs : AMod, IDelayedInit
             ),
             [Need.Drink] = new FulfilledData
             (
-                Prefabs.StatusEffectsByID["Refreshed"],
+                Prefabs.StatusEffectsByNameID["Refreshed"],
                 "Well-hydrated",
                 $"Your max stamina burns more slowly, but you can't eat any more.",
                 "You're well-hydrated!",
@@ -324,7 +326,7 @@ public class Needs : AMod, IDelayedInit
             ),
             [Need.Sleep] = new FulfilledData
             (
-                Prefabs.StatusEffectsByID["DEPRECATED_Energized"],
+                Prefabs.StatusEffectsByNameID["DEPRECATED_Energized"],
                 "Well-rested",
                 $"Your stamina regens faster, but you lose mana and can't sleep any more.",
                 "You're well-rested!",
@@ -435,15 +437,10 @@ public class Needs : AMod, IDelayedInit
         stats.m_drinkDepletionRate.BaseValue = _settingsByNeed[Need.Drink].DepletionPerHour;
         stats.m_sleepDepletionRate.BaseValue = _settingsByNeed[Need.Sleep].DepletionPerHour;
     }
-    private static void UpdateIngestibleAnimations(bool fix)
+    private static void FixIngestibleAnimations()
     {
-        foreach (var animationPairByIngestibleID in ANIMATION_PAIRS_BY_INGESTIBLE_ID)
-        {
-            int id = animationPairByIngestibleID.Key;
-            var (vanillaAnim, customAnim) = animationPairByIngestibleID.Value;
-            Character.SpellCastType animation = fix ? customAnim : vanillaAnim;
-            Prefabs.IngestiblesByID[id].m_activateEffectAnimType = animation;
-        }
+        foreach (var animByIngestible in FIXED_ANIMATIONS_BY_INGESTIBLE)
+            animByIngestible.Key.m_activateEffectAnimType = animByIngestible.Value;
     }
     private static void UpdateDrinkValues()
     {
@@ -451,29 +448,29 @@ public class Needs : AMod, IDelayedInit
         {
             Item ingestible = ingestibleByID.Value;
             if (!ingestible.IsDrinkable()
-            || ingestible.ItemID == "Ambraine".ToItemID()
-            || ingestible.ItemID == "Waterskin".ToItemID())
+            || ingestible == AMBRAINE
+            || ingestible == WATERSKIN)
                 continue;
 
             AffectDrink affectDrink = ingestible.GetEffect<AffectDrink>();
             if (affectDrink == null)
                 affectDrink = ingestible.AddEffect<AffectDrink>();
 
-            float drinkValue = _drinkValuesPotions;
-            if (ingestible.ItemID.IsContainedIn(OTHER_DRINK_IDS))
-                drinkValue = _drinkValuesOther;
+            float drinkValue = ingestible.IsContainedIn(OTHER_DRINKS)
+                ? _drinkValuesOther
+                : _drinkValuesPotions;
 
             affectDrink.SetAffectDrinkQuantity(drinkValue * 10f);
         }
     }
     private static void RemoveMilkFoodValues()
     {
-        foreach (var milkID in MILK_IDS)
-            Prefabs.IngestiblesByID[milkID].GetEffect<AffectFood>().Destroy();
+        foreach (var milk in MILKS)
+            milk.GetEffect<AffectFood>().Destroy();
     }
     private static void UpdateSleepBuffsDuration()
     {
-        foreach (var sleepBuff in Prefabs.AllSleepBuffs)
+        foreach (var sleepBuff in Prefabs.SleepBuffs)
             sleepBuff.StatusData.LifeSpan = _sleepBuffsDuration * 60f;
     }
     private static void DisplayPreventedNotification(Character character, Need need)
@@ -506,20 +503,22 @@ public class Needs : AMod, IDelayedInit
         if (_allowOnlyDOTCures && !HasDOT(character))
             return false;
 
-        if (item.ItemID == "Waterskin".ToItemID())
+        if (item is WaterContainer)
             return character.IsBurning();
 
         foreach (var removeStatusEffect in item.GetEffects<RemoveStatusEffect>())
             switch (removeStatusEffect.CleanseType)
             {
-                case RemoveStatusEffect.RemoveTypes.StatusSpecific: return character.StatusEffectMngr.HasStatusEffect(removeStatusEffect.StatusEffect.IdentifierName);
-                case RemoveStatusEffect.RemoveTypes.StatusType: return character.StatusEffectMngr.HasStatusEffect(removeStatusEffect.StatusType);
+                case RemoveStatusEffect.RemoveTypes.StatusSpecific:
+                    return character.StatusEffectMngr.HasStatusEffect(removeStatusEffect.StatusEffect.IdentifierName);
+                case RemoveStatusEffect.RemoveTypes.StatusType:
+                    return character.StatusEffectMngr.HasStatusEffect(removeStatusEffect.StatusType);
                 case RemoveStatusEffect.RemoveTypes.StatusFamily:
-                    Disease disease = character.GetDiseaseOfFamily(removeStatusEffect.StatusFamily);
-                    if (disease != null)
-                        return !disease.IsReceding;
-                    return character.StatusEffectMngr.HasStatusEffect(removeStatusEffect.StatusFamily);
-                case RemoveStatusEffect.RemoveTypes.NegativeStatuses: return character.HasAnyPurgeableNegativeStatusEffect();
+                    return character.GetDiseaseOfFamily(removeStatusEffect.StatusFamily).TryNonNull(out var disease)
+                        ? !disease.IsReceding
+                        : character.StatusEffectMngr.HasStatusEffect(removeStatusEffect.StatusFamily);
+                case RemoveStatusEffect.RemoveTypes.NegativeStatuses:
+                    return character.HasAnyPurgeableNegativeStatusEffect();
             }
         return false;
     }
@@ -527,7 +526,7 @@ public class Needs : AMod, IDelayedInit
     => item.IsEatable() && !IsLimited(character, Need.Food)
        || item.IsDrinkable() && !IsLimited(character, Need.Drink)
        || _allowCuresWhileOverlimited && HasStatusEffectCuredBy(character, item)
-    || item.ItemID == "Ambraine".ToItemID();
+       || item.SharesPrefabWith(AMBRAINE);
     private static bool IsLimited(Character character, Need need)
     => _settingsByNeed[need].LimitingEnabled && HasLimitingStatusEffect(character, need);
     private static bool HasLimitingStatusEffect(Character character, Need need)
