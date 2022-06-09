@@ -34,7 +34,7 @@
     <a href="">   
         <img src="https://img.shields.io/static/v1?logo=discord&color=657ac7&logoColor=white&label=%20&message=Vheos%235865" height=25/>
     </a>
-    <a href="https://ko-fi.com/vheos">
+    <a href="https://ko-fi.com/Vheos">
         <img src="https://img.shields.io/static/v1?logo=kofi&color=ff5e5b&logoColor=white&label=%20&message=Ko-fi" height="25"/>
     </a>
 </p>
@@ -78,7 +78,7 @@ Coming in `v2.1.0` ;)
 # How to:
 - Download the [Mono version](https://outward.fandom.com/wiki/Installing_Mods#Modding_Branch) of Outward
 - Download and install [BepInEx](https://github.com/BepInEx/BepInEx/releases/latest/) and **ConfigurationManager** ([Official](https://github.com/BepInEx/BepInEx.ConfigurationManager/releases/latest) **OR** [Outward fork](https://github.com/Mefino/BepInEx.ConfigurationManager/releases/latest) + [SideLoader](https://github.com/sinai-dev/Outward-SideLoader/releases/latest))
-- Download this mod from [GitHub](https://github.com/Vheos/Mods.Outward/releases), [Thunderstore](https://outward.thunderstore.io/package/Vheos/VheosModPack/) or [Nexus](https://www.nexusmods.com/outward/mods/203?tab=files)
+- Download this mod from [GitHub](https://github.com/Vheos/Mods.Outward/releases/latest), [Thunderstore](https://outward.thunderstore.io/package/Vheos/VheosModPack/) or [Nexus](https://www.nexusmods.com/outward/mods/203?tab=files)
   - if you play **Oldward**, use [VMP v1.12.1](https://github.com/Vheos/Mods.Outward/releases/tag/v1.12.1)
 - Move the unzipped `BepInEx` folder next to the game exe
 - Press `F1` (or `F5` for Outward fork) in game to open the `Configuration Manager` window
