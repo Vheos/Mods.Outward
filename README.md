@@ -34,7 +34,7 @@
     <a href="">   
         <img src="https://img.shields.io/static/v1?logo=discord&color=657ac7&logoColor=white&label=%20&message=Vheos%235865" height=25/>
     </a>
-    <a href="https://ko-fi.com/vheos777">
+    <a href="https://ko-fi.com/vheos">
         <img src="https://img.shields.io/static/v1?logo=kofi&color=ff5e5b&logoColor=white&label=%20&message=Ko-fi" height="25"/>
     </a>
 </p>
