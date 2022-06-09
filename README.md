@@ -1,5 +1,11 @@
 <p align="center">
     <a href="">
+        <img src="https://github.com/Vheos/Mods.Outward/blob/master/ReadmeAssets/Logo.png"/>
+    </a>
+</p> 
+
+<p align="center">
+    <a href="">
         <img src="https://img.shields.io/github/v/release/Vheos/Mods.Outward?labelColor=808080&color=404040&label=Mod" height=25/>
         <img src="https://img.shields.io/static/v1?labelColor=808080&color=404040&label=Game&message=v2022.06.01" height=25/>
         <img src="https://img.shields.io/github/downloads/Vheos/Mods.Outward/total?labelColor=808080&color=404040&label=Downloads" height=25/>
