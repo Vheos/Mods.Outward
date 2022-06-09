@@ -27,7 +27,7 @@
 
 
 # Still in beta!
-All `v2.0.x` versions are considered *beta*, so settings might and randomly change and get tossed around! Things will stabilize only when `v2.1.0` hits the store - and that's where you come in! Since I don't have the time to both rewrite *and test* the mods, I'm outsourcing the testing to you <3 Keep the bug reports coming so I know what to fix in my spare time :)
+All `v2.0.x` versions are considered *beta*, so settings might randomly change and get tossed around. Things will stabilize only when `v2.1.0` hits the store - and that's where you come in! Since I don't have the time to both rewrite *and test* the mods, I'm outsourcing the testing to you <3 Keep the bug reports coming so I know what to fix in my spare time :)
 <br/><br/>Thanks!
 <br/><br/><br/>
 
@@ -105,7 +105,7 @@ Coming in `v2.1.0` ;)
 # Changelog:
 
 - **2.0.6**
-  - public release of DefEd update \o/
+  - public beta release of DefEd update\o/
   - *a lot* of undocumented changes :)
 
 <details>
