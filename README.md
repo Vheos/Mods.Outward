@@ -13,7 +13,7 @@
 </p>
     
 <p align="center">
-    <a href="https://github.com/Vheos777/Mods.UNSIGHTED/issues">
+    <a href="https://github.com/Vheos/Mods.Outward">
         <img src="https://img.shields.io/static/v1?logo=github&color=282828&logoColor=white&label=%20&message=GitHub" height=25/>
     </a>
     <a href="https://outward.thunderstore.io/package/Vheos/VheosModPack/">             
