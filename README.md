@@ -1,11 +1,5 @@
 <p align="center">
     <a href="">
-        <img src=""/>
-    </a>
-</p>    
-
-<p align="center">
-    <a href="">
         <img src="https://img.shields.io/github/v/release/Vheos/Mods.Outward?labelColor=808080&color=404040&label=Mod" height=25/>
         <img src="https://img.shields.io/static/v1?labelColor=808080&color=404040&label=Game&message=v2022.06.01" height=25/>
         <img src="https://img.shields.io/github/downloads/Vheos/Mods.Outward/total?labelColor=808080&color=404040&label=Downloads" height=25/>
@@ -13,14 +7,14 @@
 </p>
     
 <p align="center">
-    <a href="https://steamcommunity.com/app/1062110/discussions/0/4739473745767880713/">             
-        <img src="https://img.shields.io/static/v1?logo=steam&color=0b2961&logoColor=white&label=%20&message=Steam" height=25/>
+    <a href="https://www.nexusmods.com/outward/mods/203?tab=posts">             
+        <img src="https://img.shields.io/badge/Nexus-DA8E35?logo=data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAACXBIWXMAAADsAAAA7AF5KHG9AAAAGXRFWHRTb2Z0d2FyZQB3d3cuaW5rc2NhcGUub3Jnm+48GgAAA/BJREFUWIWtl1uIV1UUh7/tjBNTaSJJF8O0JugGNSajpnRTw6yghOj64kOFEVQQhA/hQ1BGUihGvZRCUglKkfZgUxlUeKMgSbtRlA95abSxqbyMztfDOcf/8njO30ldL2efdf2ttc9Za284zaReob6u7lL3q93qzDr9VOGgBbgMGA30AL+klPpy2QhgGjAZuAQYBrQA+4BfgTbgYWBoRax3gbkppd5m6K9Ut3ks9atfqu+pBzw1+k3tqgs+Vt1xigEGQ3+rM47ZArUN2AB05vwdwGpgBDAJGJPz/wTeBz4FtgB7gSHAecBVwGzgztoSN6gX6Egp7SmyX1BCuTFUZoh6g/qIelaT7RuqrmuS+R/q7vB+b2E4Xj1SUu5Xzx9EJhHAKzWBv1NvyxN5KPCfKgxX1Bgu+x/BO9XDFT5WG6qmzg2yOQVzTw0A1UcHCWBNhe06s28r6i0N8usL5t4mAA6rTzQJ/Jj6rDpQsvteHVnSbVf35fJ/j1ZGfbsJgIJeLbIx/ELq9BrQ4yvAzgw6n0TBpEEAUP1BfdJsy9pDVvtLeitqqjXMRgV6zDruUWGswtfqXycAc3+w7S7JBtR5NSCWB73JkDURgG+C3mtkvf6nKic5zQnr7vzZAywCOlNKL9TYfRzWUyKyJQHZxJzXrs6vqcYRdUyu16HOtvTFV5HaFXy8FAXvBMGlJaOR6qog7zP7v6+rCdKqTlUfV1NJNi74WQrQmsv6g96Rks9eoA94jqzcG1JKUR/1IuBuYAZwE9mYXphSsuSrJaxbj67UxQHZhKrMKjKdoJ6dr2+u2KYB9cNYKXVKkD8PjY/wx+D76iZBR5n9iluAzcAtuegz4OeSegJmAZvyBNtKvrdHxxMDsrcqAg9RF6oHS1kuDjrzKqoQ6Qt1bXh/OQZoMRuXmjWLYRUg2tRNJafbgvxCsyn6gdWDqUz9akcMsDkIp1UA6PL4sa06Oug8nT+vUb8dBIhFheEYGwNltzq0FPwcdWtFBsvVB8tgg81am9OOQvmB41A1HLXWOHojl1edgKPtyiYA+grF+YF5V3Bwhsc2qYIOqBfXBS6BaFe31AD4qFBaGJhTc9616sYawxcHEzyAuLHGz6xC4ZnA/Fz9qsZAs9+pWdmHq7erZ5b420t+1kDjWH452UQ84UAB1gIrga3AbrLWPYqsyUwH7gCGk7XvVcB6suP8ArLbFGRNqCultCsivE891CTz00X/qJ1UkXqrjYZ0stRrdkgpn5Q0uxXNijGrLqcXAG8CVTfaw8ASspvTWODcnN9DdjldD2xKKR00O3R2AePyLfod6E4p7azMvgQiqfeYfZCH1J3qMrV2UJ0s/QeR+CoNmFzzUQAAAABJRU5ErkJggg==" height=25/>
     </a>
-    <a href="https://www.reddit.com/r/UNSIGHTED/comments/rkhnrg/unsighted/">   
-        <img src="https://img.shields.io/static/v1?logo=reddit&color=ff4500&logoColor=white&label=%20&message=Reddit" height=25/>
+    <a href="https://discord.gg/KyWk83zqY8">   
+        <img src="https://img.shields.io/static/v1?logo=discord&color=657ac7&logoColor=white&label=%20&message=Official" height=25/>
     </a>
-    <a href="https://github.com/Vheos777/Mods.UNSIGHTED/issues">
-        <img src="https://img.shields.io/static/v1?logo=github&color=282828&logoColor=white&label=%20&message=GitHub" height=25/>
+    <a href="https://discord.gg/vAU2yUYEht">   
+        <img src="https://img.shields.io/static/v1?logo=discord&color=657ac7&logoColor=white&label=%20&message=Modding" height=25/>
     </a>
     <a href="">   
         <img src="https://img.shields.io/static/v1?logo=discord&color=657ac7&logoColor=white&label=%20&message=Vheos%235865" height=25/>
@@ -29,6 +23,20 @@
         <img src="https://img.shields.io/static/v1?logo=kofi&color=ff5e5b&logoColor=white&label=%20&message=Ko-fi" height="25"/>
     </a>
 </p>
+
+
+
+# Table of contents
+- [VMP?](https://github.com/Vheos/Mods.Outward#vmp)
+- [Highlights](https://github.com/Vheos777/Mods.UNSIGHTED#highlights)
+- [How to?](https://github.com/Vheos777/Mods.UNSIGHTED#how-to)
+- [FAQ](https://github.com/Vheos777/Mods.UNSIGHTED#faq)
+- [Contact](https://github.com/Vheos777/Mods.UNSIGHTED#contact)
+- [Changelog](https://github.com/Vheos777/Mods.UNSIGHTED#changelog)
+<br/>
+
+# VMP?
+- sdf
 
 # How to:
 - Download the [Mono version](https://outward.fandom.com/wiki/Installing_Mods#Modding_Branch) of Outward
