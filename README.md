@@ -13,9 +13,18 @@
 </p>
     
 <p align="center">
-    <a href="https://www.nexusmods.com/outward/mods/203?tab=posts">             
+    <a href="https://github.com/Vheos777/Mods.UNSIGHTED/issues">
+        <img src="https://img.shields.io/static/v1?logo=github&color=282828&logoColor=white&label=%20&message=GitHub" height=25/>
+    </a>
+    <a href="https://outward.thunderstore.io/package/Vheos/VheosModPack/">             
+        <img src="https://img.shields.io/badge/Thunderstore-00577F?logo=data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACUAAAAgCAYAAACVU7GwAAAACXBIWXMAAAVZAAAFWQH+bkTKAAAAGXRFWHRTb2Z0d2FyZQB3d3cuaW5rc2NhcGUub3Jnm+48GgAAAxxJREFUWIXNlz9ME1Ecx7/vKDQFi5HEVNTEP2lL8XKvIIZJJxdiZNaEGCQah5p00ITGoVRpaSQxAQYHN2WRgCzEwTAYQwQmFydQEjQEElggIQhC269DqfTq2V45Kn6ne7/3+/3e5+797vfuAJMiOcHCWiP5iWQ/yYtmc+9bJqFy9ZKko9i1lFLcQJbaAbwhKYoJsllYcBzA+91rOwAvgKsATuT4XQNwE8BrC2sZy2D7wgY+5SS7DLZxvJi1DnT7hBA7QohuAGM5U83F5ClVTb3LGR8lWWY2uFRQ2wbjlJlAt9ttt1Lo+eTLGc8KIZgvQFXVCkVRbgMIHzgUyUqk37Zsvf2bv9vttjscjnYAXQBOAdZaghGQA8ArAKezzD8APM/1lVJWAbhLshPAyew5y1C7T8aDdI+6D+B8jstDIcSiAUwIQK1RTtOdluQEgCtFMj8RQjwGAFVVj5SVld0h+QiAK19QqQr9O4CgEGKsrq7OWVFREQDQSbLGTHCpoPo8Hs8HTdNCAEIAjhUTfFBn33UAlzMTiUTimaZp0bm5Oed+Eltpnh+FEL1CiF4AN0iuZSZsNpstHo87y8vL95XYckdvbGw87vf778ViMXu23efzIRAI/Fuo1dXVKk3TniYSiW8kIyMjI47JyUmdT0dHB5qbizqLrUENDQ09QLqIKzO2SCSC9fX1veSKgp6eHlRXV5cGamtrS7c9qVTqj4JZWVlBX1+fzuZyuRAKhQ4Wqr6+/oyUcmBmZuaSmYSjo6OYmprS2VpbW9HS0mIdqqGh4ayUcsBms82SDKZSKVNPlSS6u7uxsbGhs4fDYdTWGp4qhaGklOc0TXuRTCa/kgwi/f1dlJaWltDf36+zOZ1OxONxKErhe/vtoarqBSnlIMkvAO7BYrcfHh7G9PS0ztbU1IS2trbCUH6/X5VSDiqK8pnkLaswGZFENBrF5uamzh4MBuHxePLGCk3TkjBR8KqqwuncOzUWFhawuLiYJyItr9eLmhr9Oby8vIz5+fm8UHk/Uw9Dpf5D3pf+W6idw4bI0U8FQC+AxGGT7GobQOwX6Z1ybEZ1aVcAAAAASUVORK5CYII=" height=25/>
+    </a>
+    <a href="https://www.nexusmods.com/outward/mods/203">             
         <img src="https://img.shields.io/badge/Nexus-DA8E35?logo=data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAACXBIWXMAAADsAAAA7AF5KHG9AAAAGXRFWHRTb2Z0d2FyZQB3d3cuaW5rc2NhcGUub3Jnm+48GgAAA/BJREFUWIWtl1uIV1UUh7/tjBNTaSJJF8O0JugGNSajpnRTw6yghOj64kOFEVQQhA/hQ1BGUihGvZRCUglKkfZgUxlUeKMgSbtRlA95abSxqbyMztfDOcf/8njO30ldL2efdf2ttc9Za284zaReob6u7lL3q93qzDr9VOGgBbgMGA30AL+klPpy2QhgGjAZuAQYBrQA+4BfgTbgYWBoRax3gbkppd5m6K9Ut3ks9atfqu+pBzw1+k3tqgs+Vt1xigEGQ3+rM47ZArUN2AB05vwdwGpgBDAJGJPz/wTeBz4FtgB7gSHAecBVwGzgztoSN6gX6Egp7SmyX1BCuTFUZoh6g/qIelaT7RuqrmuS+R/q7vB+b2E4Xj1SUu5Xzx9EJhHAKzWBv1NvyxN5KPCfKgxX1Bgu+x/BO9XDFT5WG6qmzg2yOQVzTw0A1UcHCWBNhe06s28r6i0N8usL5t4mAA6rTzQJ/Jj6rDpQsvteHVnSbVf35fJ/j1ZGfbsJgIJeLbIx/ELq9BrQ4yvAzgw6n0TBpEEAUP1BfdJsy9pDVvtLeitqqjXMRgV6zDruUWGswtfqXycAc3+w7S7JBtR5NSCWB73JkDURgG+C3mtkvf6nKic5zQnr7vzZAywCOlNKL9TYfRzWUyKyJQHZxJzXrs6vqcYRdUyu16HOtvTFV5HaFXy8FAXvBMGlJaOR6qog7zP7v6+rCdKqTlUfV1NJNi74WQrQmsv6g96Rks9eoA94jqzcG1JKUR/1IuBuYAZwE9mYXphSsuSrJaxbj67UxQHZhKrMKjKdoJ6dr2+u2KYB9cNYKXVKkD8PjY/wx+D76iZBR5n9iluAzcAtuegz4OeSegJmAZvyBNtKvrdHxxMDsrcqAg9RF6oHS1kuDjrzKqoQ6Qt1bXh/OQZoMRuXmjWLYRUg2tRNJafbgvxCsyn6gdWDqUz9akcMsDkIp1UA6PL4sa06Oug8nT+vUb8dBIhFheEYGwNltzq0FPwcdWtFBsvVB8tgg81am9OOQvmB41A1HLXWOHojl1edgKPtyiYA+grF+YF5V3Bwhsc2qYIOqBfXBS6BaFe31AD4qFBaGJhTc9616sYawxcHEzyAuLHGz6xC4ZnA/Fz9qsZAs9+pWdmHq7erZ5b420t+1kDjWH452UQ84UAB1gIrga3AbrLWPYqsyUwH7gCGk7XvVcB6suP8ArLbFGRNqCultCsivE891CTz00X/qJ1UkXqrjYZ0stRrdkgpn5Q0uxXNijGrLqcXAG8CVTfaw8ASspvTWODcnN9DdjldD2xKKR00O3R2AePyLfod6E4p7azMvgQiqfeYfZCH1J3qMrV2UJ0s/QeR+CoNmFzzUQAAAABJRU5ErkJggg==" height=25/>
     </a>
+</p>
+    
+<p align="center">
     <a href="https://discord.gg/KyWk83zqY8">   
         <img src="https://img.shields.io/static/v1?logo=discord&color=657ac7&logoColor=white&label=%20&message=Official" height=25/>
     </a>
