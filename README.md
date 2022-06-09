@@ -28,9 +28,9 @@
 
 # Table of contents
 - [VMP?](https://github.com/Vheos/Mods.Outward#vmp)
-- [How to?](https://github.com/Vheos777/Mods.UNSIGHTED#how-to)
-- [FAQ](https://github.com/Vheos777/Mods.UNSIGHTED#faq)
-- [Changelog](https://github.com/Vheos777/Mods.UNSIGHTED#changelog)
+- [How to?](https://github.com/Vheos/Mods.Outward#how-to)
+- [FAQ](https://github.com/Vheos/Mods.Outward#faq)
+- [Changelog](https://github.com/Vheos/Mods.Outward#changelog)
 <br/>
 
 
