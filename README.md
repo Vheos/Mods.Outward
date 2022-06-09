@@ -36,43 +36,45 @@
 <br/>
 
 # VMP?
-- sdf
+- **V** stands for *Vheos* - that's me! My nickname's there to emphasize that all mods in this collection were written from scratch by one person, and as such are 100% compatible with each other :)
+- **M** stands for *Mod* - it's a collection of mods, so duuuh. I could've left this one out, it's pretty redundant :P
+- **P** stands for *Pack* - under the hood, this mod is actually a collection of many independent mods that can be individually turned on/off. It's like a tiny mod manager!
+
+And together, they form the mighty **VHEOS MOD PACK**!!! ...which is probably the *least* creative name I've ever come up with, but it already stuck on, so let it be ¯\\\_(ツ)\_/¯
+<br/>
 
 # How to:
 - Download the [Mono version](https://outward.fandom.com/wiki/Installing_Mods#Modding_Branch) of Outward
-- Download and install [BepInEx](https://github.com/BepInEx/BepInEx/releases/latest/) and **ConfigurationManager** ([official release](https://github.com/BepInEx/BepInEx.ConfigurationManager/releases/latest) **OR** [Mefino fork](https://github.com/Mefino/BepInEx.ConfigurationManager/releases/latest) + [SideLoader](https://github.com/sinai-dev/Outward-SideLoader/releases/latest))
+- Download and install [BepInEx](https://github.com/BepInEx/BepInEx/releases/latest/) and **ConfigurationManager** ([Official](https://github.com/BepInEx/BepInEx.ConfigurationManager/releases/latest) **OR** [Outward fork](https://github.com/Mefino/BepInEx.ConfigurationManager/releases/latest) + [SideLoader](https://github.com/sinai-dev/Outward-SideLoader/releases/latest))
 - Download this mod from [GitHub](https://github.com/Vheos/Mods.Outward/releases), [Thunderstore](https://outward.thunderstore.io/package/Vheos/VheosModPack/) or [Nexus](https://www.nexusmods.com/outward/mods/203?tab=files)
   - if you play **Oldward**, use [VMP v1.12.1](https://github.com/Vheos/Mods.Outward/releases/tag/v1.12.1)
 - Move the unzipped `BepInEx` folder next to the game exe
-- Press `F1` (or `F5`) in game to open the `Configuration Manager` window
+- Press `F1` (or `F5` for Outward fork) in game to open the `Configuration Manager` window
 - Set up VMP to your liking and enjoy <3
 
 # FAQ:
 - **How to change the default `Configuration Manager` hotkey?**
-    - check out `Outward\BepInEx\config\com.bepis.bepinex.configurationmanager.cfg` :)
+  - Official: `com.bepis.bepinex.configurationmanager.cfg`
+  - Outward fork: `io.mefino.configurationmanager.cfg`
 - **How to unhide a mod?**
-    - tick the `Advanced Settings` checkbox at the top of the `Configuration Manager` window and you will see all hidden mods :)
+  - tick the `Advanced Settings` checkbox at the top of the `Configuration Manager` window and you will see all hidden mods :)
 - **Will mod ___ work online?**
-    - it should, but I haven't tested ANY of these mods online, so I can't guarantee :P
+  - it should, but I haven't tested *any* of these mods online, so I can't guarantee :P
 - **Will mod ___ break my save file?**
-    - it shouldn't, but it's a good habit to backup your save files before trying out new stuff :)
+  - it shouldn't, but it's a good habit to backup your save files before trying out new stuff :)
 - **I change some settings but nothing happens! Why?**
-    - some settings update the game instantly, others have towait for a loading screen, and some even require a full game restart. There's no detailed information yet about each setting, sorry!
+  - some settings update instantly, others on a loading screen, and some require a game restart.
 - **I found a bug! How to report?**
-    - choose one of the contact options below, then describe what's wrong and post your output log (`C:\Users\[YOUR_USERNAME]\AppData\LocalLow\Nine Dots Studio\Outward\output_log.txt`) via [Pastebin](https://pastebin.com/)
+  - choose one of the contact options, then describe what's wrong and attach your output log: ([Pastebin](https://pastebin.com/))
+    - DefEd: `AppData\LocalLow\Nine Dots Studio\Outward_ Definitive Edition\Player.log`
+    - Oldward: `AppData\LocalLow\Nine Dots Studio\Outward\output_log.txt`
 - **Can I see the source code?**
-    - yep, all my mods are open source and available at [GitHub](https://github.com/Vheos777/OutwardMods)! Feel free to study, clone and/or edit the code as you please :)
-
-# Contact:
-- write a comment on the [Nexus mod page](https://www.nexusmods.com/outward/mods/203?tab=posts)
-- write a message in [Outward Modding Community](https://discord.gg/zKyfGmy7TR) -> `#vheos-mod-pack`
-- tag me in [Outward](https://discord.com/invite/outward) -> `#outward-modding`
-- send me a DM on Discord - `Vheos#5865`
+  - yep, all my mods are open source and available at [GitHub](https://github.com/Vheos/Mods.Outward)! Feel free to do with them as you please ;)
 
 # Credits:
-`Sinai`, `raphendyr`, `ehaugw`, `SpicerXD`, `IggyTheMad`, `Tau37`, `Yansilv`  
-and other passionate people in the [Outward Modding Community](https://discord.gg/zKyfGmy7TR) Discord server!  
-Love you all <3  
+`Sinai`, `raphendyr`, `ehaugw`, `SpicerXD`, `IggyTheMad`, `Tau37`, `Yansilv`, `AsierM`
+<br/> and other passionate people in the [Outward Modding Community](https://discord.gg/exMfgYXDmC) Discord server!
+<br/> Love you all <3
 
 # Overview:
 **Coming soon!**  
