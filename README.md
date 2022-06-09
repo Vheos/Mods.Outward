@@ -44,7 +44,6 @@
 # Still in beta!
 All `v2.0.x` versions are considered *beta*, so settings might randomly change and get tossed around. Things will stabilize only when `v2.1.0` hits the store - and that's where you come in! Since I don't have the time to both rewrite *and test* the mods, I'm outsourcing the testing to you <3 Keep the bug reports coming so I know what to fix in my spare time :)
 <br/><br/>Thanks!
-<br/><br/><br/>
 
 
 
@@ -55,7 +54,6 @@ All `v2.0.x` versions are considered *beta*, so settings might randomly change a
 - [FAQ](#faq)
 - [Credits](#credits)
 - [Changelog](#changelog)
-<br/>
 
 
 
@@ -65,13 +63,11 @@ All `v2.0.x` versions are considered *beta*, so settings might randomly change a
 - **P** stands for *Pack* - under the hood, this mod is actually a collection of many independent mods that can be individually turned on/off. It's like a tiny mod manager!
 
 And together, they form the mighty **VHEOS MOD PACK**!!! ...which is probably the *least* creative name I've ever come up with, but it already stuck on, so let it be ¯\\\_(ツ)\_/¯
-<br/><br/><br/>
 
 
 
 # Highlights
 Coming in `v2.1.0` ;)
-<br/><br/><br/>
 
 
 
@@ -83,7 +79,6 @@ Coming in `v2.1.0` ;)
 - Move the unzipped `BepInEx` folder next to the game exe
 - Press `F1` (or `F5` for Outward fork) in game to open the `Configuration Manager` window
 - Set up VMP to your liking and enjoy <3
-<br/>
 
 
 
@@ -105,7 +100,6 @@ Coming in `v2.1.0` ;)
     - Oldward: `AppData\LocalLow\Nine Dots Studio\Outward\output_log.txt`
 - **Can I see the source code?**
   - yep, all my mods are open source and available at [GitHub](https://github.com/Vheos/Mods.Outward)! Feel free to do with them as you please ;)
-<br/>
 
 
 
@@ -113,7 +107,6 @@ Coming in `v2.1.0` ;)
 `Sinai`, `raphendyr`, `ehaugw`, `SpicerXD`, `IggyTheMad`, `Tau37`, `Yansilv`, `AsierM`
 <br/> and other passionate people in the [Outward Modding Community](https://discord.gg/exMfgYXDmC) Discord server!
 <br/> Love you all <3
-<br/><br/><br/>
 
 
 
