@@ -26,10 +26,19 @@
 
 
 
+# Still in beta!
+All `v2.0.x` versions are considered *beta*, so settings might and randomly change and get tossed around! Things will stabilize only when `v2.1.0` hits the store - and that's where you come in! Since I don't have the time to both rewrite *and test* the mods, I'm outsourcing the testing to you <3 Keep the bug reports coming so I know what to fix in my spare time :)
+<br/><br/>Thanks!
+<br/><br/><br/>
+
+
+
 # Table of contents
 - [VMP?](https://github.com/Vheos/Mods.Outward#vmp)
+- [Highlights](https://github.com/Vheos/Mods.Outward#highlights)
 - [How to?](https://github.com/Vheos/Mods.Outward#how-to)
 - [FAQ](https://github.com/Vheos/Mods.Outward#faq)
+- [Credits](https://github.com/Vheos/Mods.Outward#credits)
 - [Changelog](https://github.com/Vheos/Mods.Outward#changelog)
 <br/>
 
@@ -39,12 +48,15 @@
 - **V** stands for *Vheos* - that's me! My nickname's there to emphasize that all mods in this collection were written from scratch by one person, and as such are 100% compatible with each other :)
 - **M** stands for *Mod* - it's a collection of mods, so duuuh. I could've left this one out, it's pretty redundant :P
 - **P** stands for *Pack* - under the hood, this mod is actually a collection of many independent mods that can be individually turned on/off. It's like a tiny mod manager!
-<br/>
-
-
 
 And together, they form the mighty **VHEOS MOD PACK**!!! ...which is probably the *least* creative name I've ever come up with, but it already stuck on, so let it be ¯\\\_(ツ)\_/¯
-<br/>
+<br/><br/><br/>
+
+
+
+# Highlights
+Coming in `v2.1.0` ;)
+<br/><br/><br/>
 
 
 
@@ -86,7 +98,7 @@ And together, they form the mighty **VHEOS MOD PACK**!!! ...which is probably th
 `Sinai`, `raphendyr`, `ehaugw`, `SpicerXD`, `IggyTheMad`, `Tau37`, `Yansilv`, `AsierM`
 <br/> and other passionate people in the [Outward Modding Community](https://discord.gg/exMfgYXDmC) Discord server!
 <br/> Love you all <3
-<br/>
+<br/><br/><br/>
 
 
 
