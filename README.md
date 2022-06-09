@@ -49,12 +49,12 @@ All `v2.0.x` versions are considered *beta*, so settings might randomly change a
 
 
 # Table of contents
-- [VMP?](https://github.com/Vheos/Mods.Outward#vmp)
-- [Highlights](https://github.com/Vheos/Mods.Outward#highlights)
-- [How to?](https://github.com/Vheos/Mods.Outward#how-to)
-- [FAQ](https://github.com/Vheos/Mods.Outward#faq)
-- [Credits](https://github.com/Vheos/Mods.Outward#credits)
-- [Changelog](https://github.com/Vheos/Mods.Outward#changelog)
+- [VMP?](#vmp)
+- [Highlights](#highlights)
+- [How to?](#how-to)
+- [FAQ](#faq)
+- [Credits](#credits)
+- [Changelog](#changelog)
 <br/>
 
 
