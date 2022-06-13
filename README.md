@@ -42,7 +42,7 @@
 
 
 # Still in beta!
-All `v2.0.x` versions are considered *beta*, so settings might randomly change and get tossed around. Things will stabilize only when `v2.1.0` hits the store - and that's where you come in! Since I don't have the time to both rewrite *and test* the mods, I'm outsourcing the testing to you <3 Keep the bug reports coming so I know what to fix in my spare time :)
+All `v2.0.x` versions are considered *beta*, so settings might randomly change and get tossed around. Things will stabilize only when `v2.1.0` hits the store - and that's where you come in! Since I don't have the time to both rewrite *and test* the mods, I'm outsourcing the testing to you <3 Keep the bug reports coming so I know what to fix in my spare time :) Remember to attach the [output log](#faq) so I can pinpoint the source of the issue!
 <br/><br/>Thanks!
 
 
@@ -83,6 +83,11 @@ Coming in `v2.1.0` ;)
 
 
 # FAQ:
+- **I found a bug! How to report?**
+  - describe the bug and how to reproduce it
+  - share your output log ***AFTER*** the bug has happened in your game
+    - the log is at `AppData\LocalLow\Nine Dots Studio\Outward_ Definitive Edition\Player.log`
+    - you can upload the whole file or copy-paste it to [Pastebin](https://pastebin.com/)
 - **How to change the default `Configuration Manager` hotkey?**
   - Official: `com.bepis.bepinex.configurationmanager.cfg`
   - Outward fork: `io.mefino.configurationmanager.cfg`
@@ -94,10 +99,6 @@ Coming in `v2.1.0` ;)
   - it shouldn't, but it's a good habit to backup your save files before trying out new stuff :)
 - **I change some settings but nothing happens! Why?**
   - some settings update instantly, others on a loading screen, and some require a game restart.
-- **I found a bug! How to report?**
-  - choose one of the contact options on top, then describe what's wrong and attach your output log: (use [Pastebin](https://pastebin.com/))
-    - DefEd: `AppData\LocalLow\Nine Dots Studio\Outward_ Definitive Edition\Player.log`
-    - Oldward: `AppData\LocalLow\Nine Dots Studio\Outward\output_log.txt`
 - **Can I see the source code?**
   - yep, all my mods are open source and available at [GitHub](https://github.com/Vheos/Mods.Outward)! Feel free to do with them as you please ;)
 
