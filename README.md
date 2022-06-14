@@ -42,7 +42,7 @@
 
 
 # Still in beta!
-All `v2.0.x` versions are considered *beta*, so settings might randomly change and get tossed around. Things will stabilize only when `v2.1.0` hits the store - and that's where you come in! Since I don't have the time to both rewrite *and test* the mods, I'm outsourcing the testing to you <3 Keep the bug reports coming so I know what to fix in my spare time :) Remember to attach the [output log](#faq) so I can pinpoint the source of the issue!
+All `v2.0.x` versions are considered *beta*, so settings might randomly change and get tossed around. Things will settle down only when `v2.1.0` rolls out - and that's where you come in! Since I don't have the time to both rewrite *and test* the mods, I'm outsourcing the testing to you <3 Keep the bug reports coming so I know what to fix in my spare time :) Remember to attach the [output log](#faq) so I can pinpoint the source of the issue!
 <br/><br/>Thanks!
 
 
