@@ -23,9 +23,9 @@ public class GUI : AMod, IDelayedInit, IUpdatable
     #region Enums
     private enum SeperatePanelsMode
     {
-        Disabled = 0,
-        Toggle = 1,
-        TwoButtons = 2,
+        Disabled,
+        Toggle,
+        TwoButtons,
     }
     private enum HUDGroup
     {
@@ -118,12 +118,12 @@ public class GUI : AMod, IDelayedInit, IUpdatable
     // Setting
     private static PerPlayerSettings[] _perPlayerSettings;
     private static ModSetting<bool> _verticalSplitscreen;
+    private static ModSetting<bool> _separateMaps;
     private static ModSetting<int> _textScale;
     protected override void Initialize()
     {
         _verticalSplitscreen = CreateSetting(nameof(_verticalSplitscreen), false);
-        AddEventOnConfigClosed(() => UpdateSplitscreenMode());
-        AddEventOnConfigClosed(() => UpdateShopAndStashPanelsWidths());
+        _separateMaps = CreateSetting(nameof(_separateMaps), false);
         _textScale = CreateSetting(nameof(_textScale), 100, IntRange(50, 150));
 
         _allHUDComponentTypes = new Type[DATA_BY_HUD_GROUP.Count];
@@ -215,13 +215,15 @@ public class GUI : AMod, IDelayedInit, IUpdatable
             });
         }
 
-        // Scale text
+        AddEventOnConfigClosed(() => UpdateSplitscreenMode());
+        AddEventOnConfigClosed(() => UpdateShopAndStashPanelsWidths());
         TryScaleText();
     }
     protected override void SetFormatting()
     {
         _verticalSplitscreen.Format("Vertical splitscreen");
         _verticalSplitscreen.Description = "For monitors that are more wide than tall";
+        _separateMaps.Format("Co-op map");
         _textScale.Format("Text scale");
         _textScale.Description = "Scale all game text by this value\n" +
                                  "(in %, requires game restart)";
@@ -610,6 +612,15 @@ public class GUI : AMod, IDelayedInit, IUpdatable
     => hudHolder.Find("MainCharacterBars/Mana");
 
     // Hooks
+    [HarmonyPostfix, HarmonyPatch(typeof(MapDisplay), nameof(MapDisplay.Show), new[] { typeof(CharacterUI) })]
+    static private void MapDisplay_Show_Post(MapDisplay __instance, CharacterUI _owner)
+    {
+        __instance.RectTransform.anchoredPosition = _separateMaps ? _owner.m_rectTransform.anchoredPosition : Vector2.zero;
+
+        float scale = _separateMaps ? _owner.m_rectTransform.rect.size.CompMin() / MenuManager.Instance.m_characterUIHolder.rect.size.CompMin() : 1f;
+        __instance.RectTransform.localScale = scale.ToVector2();
+    }
+
     [HarmonyPostfix, HarmonyPatch(typeof(LocalCharacterControl), nameof(LocalCharacterControl.RetrieveComponents))]
     private static void LocalCharacterControl_RetrieveComponents_Post(LocalCharacterControl __instance)
     {
