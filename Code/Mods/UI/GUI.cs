@@ -612,13 +612,17 @@ public class GUI : AMod, IDelayedInit, IUpdatable
     => hudHolder.Find("MainCharacterBars/Mana");
 
     // Hooks
+
     [HarmonyPostfix, HarmonyPatch(typeof(MapDisplay), nameof(MapDisplay.Show), new[] { typeof(CharacterUI) })]
     static private void MapDisplay_Show_Post(MapDisplay __instance, CharacterUI _owner)
     {
-        __instance.RectTransform.anchoredPosition = _separateMaps ? _owner.m_rectTransform.anchoredPosition : Vector2.zero;
+        __instance.RectTransform.anchoredPosition = _separateMaps
+            ? _owner.m_rectTransform.anchoredPosition
+            : Vector2.zero;
 
-        float scale = _separateMaps ? _owner.m_rectTransform.rect.size.CompMin() / MenuManager.Instance.m_characterUIHolder.rect.size.CompMin() : 1f;
-        __instance.RectTransform.localScale = scale.ToVector2();
+        __instance.RectTransform.localScale = _separateMaps 
+            ? (_owner.m_rectTransform.rect.size.CompMin() / MenuManager.Instance.m_characterUIHolder.rect.size.CompMin()).ToVector2()
+            : Vector2.one;
     }
 
     [HarmonyPostfix, HarmonyPatch(typeof(LocalCharacterControl), nameof(LocalCharacterControl.RetrieveComponents))]
