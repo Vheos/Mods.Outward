@@ -623,7 +623,32 @@ public class GUI : AMod, IDelayedInit, IUpdatable
         __instance.RectTransform.localScale = _separateMaps 
             ? (_owner.m_rectTransform.rect.size.CompMin() / MenuManager.Instance.m_characterUIHolder.rect.size.CompMin()).ToVector2()
             : Vector2.one;
+
+        __instance.GetComponent<Image>().enabled = !_separateMaps;
     }
+
+    /*
+    [HarmonyPostfix, HarmonyPatch(typeof(CharacterManager), nameof(CharacterManager.UpdateActiveMapCategories))]
+    static private void CharacterManager_UpdateActiveMapCategories_Post(CharacterManager __instance)
+    {
+        if (!_separateMaps)
+            return;
+
+        foreach (var player in Players.Local)
+        {
+            if (!player.UI.TryNonNull(out var ui)
+            || ui.GetIsMenuDisplayed(CharacterUI.MenuScreens.PauseMenu)
+            || ui.IsMapDisplayed)
+                continue;
+
+            ControlsInput.SetMovementActive(ui.RewiredID, true);
+            ControlsInput.SetCameraActive(ui.RewiredID, true);
+            ControlsInput.SetActionActive(ui.RewiredID, true);
+            ControlsInput.SetDeployActive(ui.RewiredID, true);
+            ControlsInput.SetQuickSlotActive(ui.RewiredID, true);
+        }
+    }
+    */
 
     [HarmonyPostfix, HarmonyPatch(typeof(LocalCharacterControl), nameof(LocalCharacterControl.RetrieveComponents))]
     private static void LocalCharacterControl_RetrieveComponents_Post(LocalCharacterControl __instance)
