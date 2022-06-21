@@ -213,8 +213,11 @@ public class Durability : AMod
         // Cache
         List<Equipment> equippedItems = new();
         foreach (var slot in __instance.m_equipmentSlots)
-            if (Various.IsAnythingEquipped(slot) && Various.IsNotLeftHandUsedBy2H(slot)
-            && slot.EquippedItem.RepairedInRest && !slot.EquippedItem.IsIndestructible && slot.EquippedItem.DurabilityRatio < 1f)
+            if (slot.IsAnythingEquipped()
+            && !slot.IsLeftHandUsedBy2H()
+            && slot.EquippedItem.RepairedInRest 
+            && !slot.EquippedItem.IsIndestructible
+            && slot.EquippedItem.DurabilityRatio < 1f)
                 equippedItems.Add(slot.EquippedItem);
 
         if (equippedItems.IsNullOrEmpty())

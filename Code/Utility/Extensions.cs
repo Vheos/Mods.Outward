@@ -307,13 +307,19 @@ public static class Extensions
         return hits;
     }
 
+
+    public static bool IsAnythingEquipped(this EquipmentSlot slot)
+    => slot != null && slot.HasItemEquipped;
+    public static bool IsLeftHandUsedBy2H(this EquipmentSlot slot)
+    => slot.SlotType == EquipmentSlot.EquipmentSlotIDs.LeftHand && slot.EquippedItem.TwoHanded;
+
     public static int ToItemID(this string name)
-    => Lists.ItemIDsByName[name];
+    => Prefabs.ItemIDsByName[name];
     public static Item ToItemPrefab(this string name)
     => Prefabs.ItemsByID[name.ToItemID()];
 
     public static int ToSkillID(this string name)
-    => Lists.SkillIDsByName[name];
+    => Prefabs.SkillIDsByName[name];
     public static Skill ToSkillPrefab(this string name)
     => Prefabs.SkillsByID[name.ToSkillID()];
 

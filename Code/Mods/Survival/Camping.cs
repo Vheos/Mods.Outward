@@ -86,8 +86,8 @@ public class Camping : AMod
     private static bool IsCampingAllowed(Character character, Vector3 position)
     {
         AreaManager.AreaEnum currentArea = (AreaManager.AreaEnum)AreaManager.Instance.CurrentArea.ID;
-        bool result = currentArea.IsContainedIn(Lists.CITIES) ? _campingSpots.Value.HasFlag(CampingSpots.Cities)
-            : currentArea.IsContainedIn(Lists.OPEN_REGIONS) ? _campingSpots.Value.HasFlag(CampingSpots.OpenRegions)
+        bool result = currentArea.IsContainedIn(Defaults.Cities) ? _campingSpots.Value.HasFlag(CampingSpots.Cities)
+            : currentArea.IsContainedIn(Defaults.Regions) ? _campingSpots.Value.HasFlag(CampingSpots.OpenRegions)
                 || _campingSpots.Value.HasFlag(CampingSpots.Butterflies) && IsNearButterflies(position)
             : _campingSpots.Value.HasFlag(CampingSpots.Dungeons);
 
@@ -153,7 +153,7 @@ public class Camping : AMod
         AreaManager.AreaEnum currentArea = (AreaManager.AreaEnum)AreaManager.Instance.CurrentArea.ID;
         #region quit
         if (!__instance.m_detectionScript.DeployedItem.IsSleepKit
-        || currentArea.IsNotContainedIn(Lists.OPEN_REGIONS)
+        || currentArea.IsNotContainedIn(Defaults.Regions)
         || _campingSpots.Value.HasFlag(CampingSpots.OpenRegions)
         || !_campingSpots.Value.HasFlag(CampingSpots.Butterflies))
             return true;

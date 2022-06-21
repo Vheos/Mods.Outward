@@ -1,4 +1,5 @@
 ﻿namespace Vheos.Mods.Outward;
+
 internal static class Utils
 {
     public static IEnumerable<TemperatureSteps> TemperatureSteps
@@ -64,7 +65,7 @@ internal static class Utils
     public static AreaManager.AreaEnum CurrentArea
     => (AreaManager.AreaEnum)(AreaManager.Instance.CurrentArea.TryNonNull(out var area) ? area.ID : -1);
     public static bool IsInCity
-    => CurrentArea.IsContainedIn(Lists.CITIES);
+    => CurrentArea.IsContainedIn(Defaults.Cities);
     public static bool IsInOpenRegion
-    => CurrentArea.IsContainedIn(Lists.OPEN_REGIONS);
+    => CurrentArea.IsContainedIn(Defaults.Regions);
 }
