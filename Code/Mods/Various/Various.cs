@@ -98,7 +98,7 @@ public class Various : AMod, IUpdatable
     protected override string SectionOverride
     => "";
     protected override string Description
-    => "• Mods (small and big) that didn't get their own section yet :)";
+    => "• Mods small and big that didn't find their section yet :)";
     protected override void SetFormatting()
     {
         _introLogos.Format("Intro logos");
@@ -189,21 +189,14 @@ public class Various : AMod, IUpdatable
     #endregion
 
     #region Utility
-    private const string INNS_QUEST_FAMILY_NAME = "Inns";
-    private const int DROP_ONE_ACTION_ID = -2;
-    private const string DROP_ONE_ACTION_TEXT = "Drop one";
-    private const int ARMOR_TRAINING_ID = 8205220;
-
+    private const int DropOneActionID = -2;
+    private const string DropOneActionText = "Drop one";
     private static bool ShouldArmorSlotBeHidden(EquipmentSlot.EquipmentSlotIDs slot)
     => slot == EquipmentSlot.EquipmentSlotIDs.Helmet && !_visibleArmorSlots.Value.HasFlag(ArmorSlots.Head)
     || slot == EquipmentSlot.EquipmentSlotIDs.Chest && !_visibleArmorSlots.Value.HasFlag(ArmorSlots.Chest)
     || slot == EquipmentSlot.EquipmentSlotIDs.Foot && !_visibleArmorSlots.Value.HasFlag(ArmorSlots.Feet);
     private static bool HasLearnedArmorTraining(Character character)
-    => character.Inventory.SkillKnowledge.IsItemLearned(ARMOR_TRAINING_ID);
-    public static bool IsAnythingEquipped(EquipmentSlot slot)
-    => slot != null && slot.HasItemEquipped;
-    public static bool IsNotLeftHandUsedBy2H(EquipmentSlot slot)
-    => !(slot.SlotType == EquipmentSlot.EquipmentSlotIDs.LeftHand && slot.EquippedItem.TwoHanded);
+    => character.Inventory.SkillKnowledge.IsItemLearned("Armor Training".ToSkillID());
     private static bool TryApplyMultiplicativeStacking(CharacterEquipment equipment, ref float result, Func<EquipmentSlot, float> getStatValue, bool invertedPositivity = false, bool applyArmorTraining = false)
     {
         if (!_multiplicativeStatsStacking)
@@ -214,7 +207,8 @@ public class Various : AMod, IUpdatable
 
         result = 1f;
         foreach (var slot in equipment.m_equipmentSlots)
-            if (IsAnythingEquipped(slot) && IsNotLeftHandUsedBy2H(slot))
+            if (slot.IsAnythingEquipped()
+            && !slot.IsLeftHandUsedBy2H())
             {
                 float armorTrainingCoeff = canApplyArmorTraining && getStatValue(slot) > 0f ? 1f - _armorTrainingPenaltyReduction / 100f : 1f;
                 result *= 1f + getStatValue(slot) / 100f * invCoeff * armorTrainingCoeff;
@@ -237,16 +231,6 @@ public class Various : AMod, IUpdatable
                     environmentConditions.BodyTemperatureImpactPerStep[step] = _temperatureDataByEnum[step].Value.x;
                     environmentConditions.TemperatureCaps[step] = _temperatureDataByEnum[step].Value.y;
                 }
-    }
-
-    [Flags]
-    private enum ArmorSlots
-    {
-        None = 0,
-        Head = 1 << 1,
-        Chest = 1 << 2,
-        Feet = 1 << 3,
-        All = Head | Chest | Feet,
     }
     #endregion
 
@@ -276,23 +260,23 @@ public class Various : AMod, IUpdatable
         || itemDisplay.StackCount <= 1)
             return;
 
-        __result.Add(DROP_ONE_ACTION_ID);
+        __result.Add(DropOneActionID);
     }
 
     [HarmonyPrefix, HarmonyPatch(typeof(ItemDisplayOptionPanel), nameof(ItemDisplayOptionPanel.GetActionText))]
     private static bool ItemDisplayOptionPanel_GetActionText_Pre(ItemDisplayOptionPanel __instance, ref string __result, ref int _actionID)
     {
-        if (_actionID != DROP_ONE_ACTION_ID)
+        if (_actionID != DropOneActionID)
             return true;
 
-        __result = DROP_ONE_ACTION_TEXT;
+        __result = DropOneActionText;
         return false;
     }
 
     [HarmonyPrefix, HarmonyPatch(typeof(ItemDisplayOptionPanel), nameof(ItemDisplayOptionPanel.ActionHasBeenPressed))]
     private static bool ItemDisplayOptionPanel_ActionHasBeenPressed_Pre(ItemDisplayOptionPanel __instance, ref int _actionID)
     {
-        if (_actionID != DROP_ONE_ACTION_ID)
+        if (_actionID != DropOneActionID)
             return true;
 
         __instance.m_activatedItemDisplay.OnConfirmDropStack(1);
@@ -346,7 +330,7 @@ public class Various : AMod, IUpdatable
     [HarmonyPrefix, HarmonyPatch(typeof(QuestEventData), nameof(QuestEventData.HasExpired))]
     private static void QuestEventData_HasExpired_Pre(QuestEventData __instance, ref int _gameHourAllowed)
     {
-        if (__instance.m_signature.ParentSection.Name == INNS_QUEST_FAMILY_NAME)
+        if (__instance.m_signature.ParentSection.Name == Defaults.InnQuestsFamilyName)
             _gameHourAllowed = _rentDuration;
     }
 
