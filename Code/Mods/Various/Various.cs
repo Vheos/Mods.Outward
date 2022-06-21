@@ -1,35 +1,9 @@
-﻿/* TO DO:
- * - hide armor extras (like scarf)
- * - prevent dodging right after hitting
- */
-
-namespace Vheos.Mods.Outward;
-
+﻿namespace Vheos.Mods.Outward;
 using System.Collections;
 
 public class Various : AMod, IUpdatable
 {
-    #region Constants
-    private const string INNS_QUEST_FAMILY_NAME = "Inns";
-    private const int DROP_ONE_ACTION_ID = -2;
-    private const string DROP_ONE_ACTION_TEXT = "Drop one";
-    private const int ARMOR_TRAINING_ID = 8205220;
-
-
-    #endregion
-    #region Enums
-    [Flags]
-    private enum ArmorSlots
-    {
-        None = 0,
-        Head = 1 << 1,
-        Chest = 1 << 2,
-        Feet = 1 << 3,
-        All = Head | Chest | Feet,
-    }
-    #endregion
-
-    // Settings
+    #region Settings
     private static ModSetting<bool> _introLogos;
     private static ModSetting<bool> _titleScreenCharacters;
     private static ModSetting<bool> _debugMode;
@@ -77,8 +51,54 @@ public class Various : AMod, IUpdatable
                 UpdateBaseStaminaRegen(player.Stats);
             TryUpdateTemperatureData();
         });
-
     }
+    protected override void LoadPreset(string presetName)
+    {
+        switch (presetName)
+        {
+            case nameof(Preset.Vheos_CoopSurvival):
+                ForceApply();
+                _introLogos.Value = false;
+                _titleScreenCharacters.Value = true;
+                _debugMode.Value = false;
+                _debugModeToggleKey.Value = KeyCode.Keypad0.ToString();
+                _visibleArmorSlots.Value = ArmorSlots.All;
+                _multiplayerScaling.Value = false;
+                _enemiesHealOnLoad.Value = true;
+                _multiplicativeStatsStacking.Value = true;
+                _armorTrainingPenaltyReduction.Value = 50;
+                _armorTrainingAffectManaCost.Value = true;
+                _refillArrowsFromInventory.Value = true;
+                _rentDuration.Value = 120;
+                _itemActionDropOne.Value = true;
+                _openRegionsEnemyDensity.Value = 50;
+                _temperatureToggle.Value = true;
+                {
+                    _temperatureDataByEnum[TemperatureSteps.Hottest].Value = new Vector2(+50, 50 + (50 + 1));
+                    _temperatureDataByEnum[TemperatureSteps.VeryHot].Value = new Vector2(+40, 50 + (50 - 1));
+                    _temperatureDataByEnum[TemperatureSteps.Hot].Value = new Vector2(+30, 50 + (25 + 1));
+                    _temperatureDataByEnum[TemperatureSteps.Warm].Value = new Vector2(+20, 50 + (10 + 1));
+                    _temperatureDataByEnum[TemperatureSteps.Neutral].Value = new Vector2(0, 50);
+                    _temperatureDataByEnum[TemperatureSteps.Fresh].Value = new Vector2(-20, 50 - (10 + 1));
+                    _temperatureDataByEnum[TemperatureSteps.Cold].Value = new Vector2(-30, 50 - (25 + 1));
+                    _temperatureDataByEnum[TemperatureSteps.VeryCold].Value = new Vector2(-40, 50 - (50 - 1));
+                    _temperatureDataByEnum[TemperatureSteps.Coldest].Value = new Vector2(-50, 50 - (50 + 1));
+                }
+                break;
+        }
+    }
+    public void OnUpdate()
+    {
+        if (_debugModeToggleKey.Value.ToKeyCode().Pressed())
+            _debugMode.Value = !_debugMode;
+    }
+    #endregion
+
+    #region Formatting
+    protected override string SectionOverride
+    => "";
+    protected override string Description
+    => "• Mods (small and big) that didn't get their own section yet :)";
     protected override void SetFormatting()
     {
         _introLogos.Format("Intro logos");
@@ -166,52 +186,14 @@ public class Various : AMod, IUpdatable
                 _temperatureDataByEnum[step].Format(step.ToString(), _temperatureToggle);
         }
     }
-    protected override string Description
-    => "• Mods (small and big) that didn't get their own section yet :)";
-    protected override string SectionOverride
-    => "";
-    protected override void LoadPreset(string presetName)
-    {
-        switch (presetName)
-        {
-            case nameof(Preset.Vheos_CoopSurvival):
-                ForceApply();
-                _introLogos.Value = false;
-                _titleScreenCharacters.Value = true;
-                _debugMode.Value = false;
-                _debugModeToggleKey.Value = KeyCode.Keypad0.ToString();
-                _visibleArmorSlots.Value = ArmorSlots.All;
-                _multiplayerScaling.Value = false;
-                _enemiesHealOnLoad.Value = true;
-                _multiplicativeStatsStacking.Value = true;
-                _armorTrainingPenaltyReduction.Value = 50;
-                _armorTrainingAffectManaCost.Value = true;
-                _refillArrowsFromInventory.Value = true;
-                _rentDuration.Value = 120;
-                _itemActionDropOne.Value = true;
-                _openRegionsEnemyDensity.Value = 50;
-                _temperatureToggle.Value = true;
-                {
-                    _temperatureDataByEnum[TemperatureSteps.Hottest].Value = new Vector2(+50, 50 + (50 + 1));
-                    _temperatureDataByEnum[TemperatureSteps.VeryHot].Value = new Vector2(+40, 50 + (50 - 1));
-                    _temperatureDataByEnum[TemperatureSteps.Hot].Value = new Vector2(+30, 50 + (25 + 1));
-                    _temperatureDataByEnum[TemperatureSteps.Warm].Value = new Vector2(+20, 50 + (10 + 1));
-                    _temperatureDataByEnum[TemperatureSteps.Neutral].Value = new Vector2(0, 50);
-                    _temperatureDataByEnum[TemperatureSteps.Fresh].Value = new Vector2(-20, 50 - (10 + 1));
-                    _temperatureDataByEnum[TemperatureSteps.Cold].Value = new Vector2(-30, 50 - (25 + 1));
-                    _temperatureDataByEnum[TemperatureSteps.VeryCold].Value = new Vector2(-40, 50 - (50 - 1));
-                    _temperatureDataByEnum[TemperatureSteps.Coldest].Value = new Vector2(-50, 50 - (50 + 1));
-                }
-                break;
-        }
-    }
-    public void OnUpdate()
-    {
-        if (_debugModeToggleKey.Value.ToKeyCode().Pressed())
-            _debugMode.Value = !_debugMode;
-    }
+    #endregion
 
-    // Utility
+    #region Utility
+    private const string INNS_QUEST_FAMILY_NAME = "Inns";
+    private const int DROP_ONE_ACTION_ID = -2;
+    private const string DROP_ONE_ACTION_TEXT = "Drop one";
+    private const int ARMOR_TRAINING_ID = 8205220;
+
     private static bool ShouldArmorSlotBeHidden(EquipmentSlot.EquipmentSlotIDs slot)
     => slot == EquipmentSlot.EquipmentSlotIDs.Helmet && !_visibleArmorSlots.Value.HasFlag(ArmorSlots.Head)
     || slot == EquipmentSlot.EquipmentSlotIDs.Chest && !_visibleArmorSlots.Value.HasFlag(ArmorSlots.Chest)
@@ -257,8 +239,18 @@ public class Various : AMod, IUpdatable
                 }
     }
 
-    // Hooks
-    // Title screen
+    [Flags]
+    private enum ArmorSlots
+    {
+        None = 0,
+        Head = 1 << 1,
+        Chest = 1 << 2,
+        Feet = 1 << 3,
+        All = Head | Chest | Feet,
+    }
+    #endregion
+
+    #region Hooks
     [HarmonyPostfix, HarmonyPatch(typeof(TitleScreenLoader), nameof(TitleScreenLoader.LoadTitleScreenCoroutine))]
     private static IEnumerator TitleScreenLoader_LoadTitleScreenCoroutine_Post(IEnumerator original, TitleScreenLoader __instance)
     {
@@ -463,6 +455,7 @@ public class Various : AMod, IUpdatable
         __instance.SquadSpacing.SetLerp(1, alpha);
         __instance.SpawnRange.x.SetLerp(1, alpha);
     }
+    #endregion
 }
 
 
