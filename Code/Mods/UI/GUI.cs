@@ -612,7 +612,6 @@ public class GUI : AMod, IDelayedInit, IUpdatable
     => hudHolder.Find("MainCharacterBars/Mana");
 
     // Hooks
-
     [HarmonyPostfix, HarmonyPatch(typeof(MapDisplay), nameof(MapDisplay.Show), new[] { typeof(CharacterUI) })]
     static private void MapDisplay_Show_Post(MapDisplay __instance, CharacterUI _owner)
     {
@@ -620,35 +619,46 @@ public class GUI : AMod, IDelayedInit, IUpdatable
             ? _owner.m_rectTransform.anchoredPosition
             : Vector2.zero;
 
-        __instance.RectTransform.localScale = _separateMaps 
+        __instance.RectTransform.localScale = _separateMaps
             ? (_owner.m_rectTransform.rect.size.CompMin() / MenuManager.Instance.m_characterUIHolder.rect.size.CompMin()).ToVector2()
             : Vector2.one;
 
         __instance.GetComponent<Image>().enabled = !_separateMaps;
     }
 
-    /*
     [HarmonyPostfix, HarmonyPatch(typeof(CharacterManager), nameof(CharacterManager.UpdateActiveMapCategories))]
-    static private void CharacterManager_UpdateActiveMapCategories_Post(CharacterManager __instance)
+    static private bool CharacterManager_UpdateActiveMapCategories_Post(CharacterManager __instance)
     {
         if (!_separateMaps)
-            return;
+            return true;
 
         foreach (var player in Players.Local)
         {
-            if (!player.UI.TryNonNull(out var ui)
-            || ui.GetIsMenuDisplayed(CharacterUI.MenuScreens.PauseMenu)
-            || ui.IsMapDisplayed)
-                continue;
+            bool common = player.Character
+                && MenuManager.Instance.IsApplicationFocused
+                && !NetworkLevelLoader.Instance.IsGameplayPaused
+                && !player.UI.GetIsMenuDisplayed(CharacterUI.MenuScreens.PauseMenu)
+                && !MenuManager.Instance.IsConnectionScreenDisplayed
+                && !MenuManager.Instance.InFade
+                && !player.UI.IsMapDisplayed;
+            bool canMoveCamera = common && !player.UI.IsMenuFocused;
+            bool canMove = canMoveCamera && !player.UI.IsDialogueInProgress;
+            bool canPerformAction = canMove && !player.Character.Deploying;
+            bool canDeploy = canMove && player.Character.Deploying;
+            bool canUseQuickSlots = common
+                && (!player.UI.IsMenuFocused || player.UI.GetIsMenuDisplayed(CharacterUI.MenuScreens.QuickSlotAssignation))
+                && !player.UI.IsDialogueInProgress;
 
-            ControlsInput.SetMovementActive(ui.RewiredID, true);
-            ControlsInput.SetCameraActive(ui.RewiredID, true);
-            ControlsInput.SetActionActive(ui.RewiredID, true);
-            ControlsInput.SetDeployActive(ui.RewiredID, true);
-            ControlsInput.SetQuickSlotActive(ui.RewiredID, true);
+            ControlsInput.SetMovementActive(player.UI.RewiredID, canMove);
+            ControlsInput.SetCameraActive(player.UI.RewiredID, canMoveCamera);
+            ControlsInput.SetActionActive(player.UI.RewiredID, canPerformAction);
+            ControlsInput.SetDeployActive(player.UI.RewiredID, canDeploy);
+            ControlsInput.SetQuickSlotActive(player.UI.RewiredID, canUseQuickSlots);
         }
+
+        return false;
     }
-    */
+
 
     [HarmonyPostfix, HarmonyPatch(typeof(LocalCharacterControl), nameof(LocalCharacterControl.RetrieveComponents))]
     private static void LocalCharacterControl_RetrieveComponents_Post(LocalCharacterControl __instance)
