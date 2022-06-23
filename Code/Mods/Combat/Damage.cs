@@ -1,8 +1,4 @@
-﻿/* TO DO:
- * - FriendlyFire: include bows, pistols and spells
- */
-
-namespace Vheos.Mods.Outward;
+﻿namespace Vheos.Mods.Outward;
 
 public class Damage : AMod
 {
@@ -80,14 +76,14 @@ public class Damage : AMod
                     _playersStabilityDamage.Value = 50;
                     _playersFriendlyFireToggle.Value = true;
                     {
-                        _playersFriendlyFireHealthDamage.Value = 50;
-                        _playersFriendlyFireStabilityDamage.Value = 50;
+                        _playersFriendlyFireHealthDamage.Value = 20;
+                        _playersFriendlyFireStabilityDamage.Value = 20;
                     }
                 }
                 _enemiesToggle.Value = true;
                 {
-                    _enemiesHealthDamage.Value = 100;
-                    _enemiesStabilityDamage.Value = 150;
+                    _enemiesHealthDamage.Value = 80;
+                    _enemiesStabilityDamage.Value = 120;
                     _enemiesFriendlyFireToggle.Value = true;
                     {
                         _enemiesFriendlyFireHealthDamage.Value = 20;

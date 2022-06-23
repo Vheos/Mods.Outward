@@ -132,8 +132,8 @@ public class Durability : AMod
                 ForceApply();
                 _lossMultipliers.Value = true;
                 {
-                    _lossWeapons.Value = 67;
-                    _lossArmors.Value = 67;
+                    _lossWeapons.Value = 50;
+                    _lossArmors.Value = 50;
                     _lossLights.Value = 150;
                     _lossIngestibles.Value = 100;
                 }

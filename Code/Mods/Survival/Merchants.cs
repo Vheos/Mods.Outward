@@ -89,14 +89,14 @@ public class Merchants : AMod, IDelayedInit
         {
             case nameof(Preset.Vheos_CoopSurvival):
                 ForceApply();
-                _pricesCurve.Value = 90;
+                _pricesCurve.Value = 85;
                 _sellModifier.Value = 20;
                 _pricesBarter.Value = new Vector2(50, 40);
                 _goldBasePrice.Value = 200;
                 _pricesPerTypeToggle.Value = true;
                 {
-                    _pricesWeapons.Value = 67;
-                    _pricesArmors.Value = 67;
+                    _pricesWeapons.Value = 50;
+                    _pricesArmors.Value = 50;
                     _pricesIngestibles.Value = 100;
                     _pricesRecipes.Value = 50;
                     _pricesOther.Value = 100;
