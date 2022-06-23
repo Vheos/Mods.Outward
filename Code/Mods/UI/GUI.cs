@@ -296,6 +296,7 @@ public class GUI : AMod, IDelayedInit, IUpdatable
                 ForceApply();
                 _verticalSplitscreen.Value = true;
                 _textScale.Value = 110;
+                _separateMaps.Value = true;
                 foreach (var settings in _perPlayerSettings)
                 {
                     settings._toggle.Value = true;
@@ -626,8 +627,8 @@ public class GUI : AMod, IDelayedInit, IUpdatable
         __instance.GetComponent<Image>().enabled = !_separateMaps;
     }
 
-    [HarmonyPostfix, HarmonyPatch(typeof(CharacterManager), nameof(CharacterManager.UpdateActiveMapCategories))]
-    static private bool CharacterManager_UpdateActiveMapCategories_Post(CharacterManager __instance)
+    [HarmonyPrefix, HarmonyPatch(typeof(CharacterManager), nameof(CharacterManager.UpdateActiveMapCategories))]
+    static private bool CharacterManager_UpdateActiveMapCategories_Pre(CharacterManager __instance)
     {
         if (!_separateMaps)
             return true;
