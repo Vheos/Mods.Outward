@@ -192,11 +192,11 @@ public class Various : AMod, IUpdatable
     private const int DropOneActionID = -2;
     private const string DropOneActionText = "Drop one";
     private static bool ShouldArmorSlotBeHidden(EquipmentSlot.EquipmentSlotIDs slot)
-    => slot == EquipmentSlot.EquipmentSlotIDs.Helmet && !_visibleArmorSlots.Value.HasFlag(ArmorSlots.Head)
-    || slot == EquipmentSlot.EquipmentSlotIDs.Chest && !_visibleArmorSlots.Value.HasFlag(ArmorSlots.Chest)
-    || slot == EquipmentSlot.EquipmentSlotIDs.Foot && !_visibleArmorSlots.Value.HasFlag(ArmorSlots.Feet);
+        => slot == EquipmentSlot.EquipmentSlotIDs.Helmet && !_visibleArmorSlots.Value.HasFlag(ArmorSlots.Head)
+        || slot == EquipmentSlot.EquipmentSlotIDs.Chest && !_visibleArmorSlots.Value.HasFlag(ArmorSlots.Chest)
+        || slot == EquipmentSlot.EquipmentSlotIDs.Foot && !_visibleArmorSlots.Value.HasFlag(ArmorSlots.Feet);
     private static bool HasLearnedArmorTraining(Character character)
-    => character.Inventory.SkillKnowledge.IsItemLearned("Armor Training".ToSkillID());
+        => character.Inventory.SkillKnowledge.IsItemLearned("Armor Training".ToSkillID());
     private static bool TryApplyMultiplicativeStacking(CharacterEquipment equipment, ref float result, Func<EquipmentSlot, float> getStatValue, bool invertedPositivity = false, bool applyArmorTraining = false)
     {
         if (!_multiplicativeStatsStacking)
@@ -218,7 +218,7 @@ public class Various : AMod, IUpdatable
         return false;
     }
     private static void UpdateBaseStaminaRegen(CharacterStats characterStats)
-    => characterStats.m_staminaRegen.BaseValue = _staminaRegen;
+        => characterStats.m_staminaRegen.BaseValue = _staminaRegen;
     private static void TryUpdateTemperatureData()
     {
         if (!_temperatureToggle)
@@ -249,7 +249,7 @@ public class Various : AMod, IUpdatable
     // Skip startup video
     [HarmonyPrefix, HarmonyPatch(typeof(StartupVideo), nameof(StartupVideo.Awake))]
     private static void StartupVideo_Awake_Pre()
-    => StartupVideo.HasPlayedOnce = !_introLogos.Value;
+        => StartupVideo.HasPlayedOnce = !_introLogos.Value;
 
     // Drop one
     [HarmonyPostfix, HarmonyPatch(typeof(ItemDisplayOptionPanel), nameof(ItemDisplayOptionPanel.GetActiveActions))]
@@ -286,12 +286,12 @@ public class Various : AMod, IUpdatable
     // Temperature data
     [HarmonyPostfix, HarmonyPatch(typeof(EnvironmentConditions), nameof(EnvironmentConditions.Start))]
     private static void EnvironmentConditions_Start_Post(EnvironmentConditions __instance)
-    => TryUpdateTemperatureData();
+        => TryUpdateTemperatureData();
 
     // Stamina regen
     [HarmonyPostfix, HarmonyPatch(typeof(PlayerCharacterStats), nameof(PlayerCharacterStats.OnStart))]
     private static void PlayerCharacterStats_OnStart_Post(PlayerCharacterStats __instance)
-    => UpdateBaseStaminaRegen(__instance);
+        => UpdateBaseStaminaRegen(__instance);
 
     // Load arrows from inventory
     [HarmonyPrefix, HarmonyPatch(typeof(WeaponLoadoutItem), nameof(WeaponLoadoutItem.ReduceShotAmount))]
@@ -359,15 +359,15 @@ public class Various : AMod, IUpdatable
 
     [HarmonyPrefix, HarmonyPatch(typeof(CharacterEquipment), nameof(CharacterEquipment.GetTotalMovementModifier))]
     private static bool CharacterEquipment_GetTotalMovementModifier_Pre(CharacterEquipment __instance, ref float __result)
-    => TryApplyMultiplicativeStacking(__instance, ref __result, slot => slot.EquippedItem.MovementPenalty, true, true);
+        => TryApplyMultiplicativeStacking(__instance, ref __result, slot => slot.EquippedItem.MovementPenalty, true, true);
 
     [HarmonyPrefix, HarmonyPatch(typeof(CharacterEquipment), nameof(CharacterEquipment.GetTotalStaminaUseModifier))]
     private static bool CharacterEquipment_GetTotalStaminaUseModifier_Pre(CharacterEquipment __instance, ref float __result)
-    => TryApplyMultiplicativeStacking(__instance, ref __result, slot => slot.EquippedItem.StaminaUsePenalty, false, true);
+        => TryApplyMultiplicativeStacking(__instance, ref __result, slot => slot.EquippedItem.StaminaUsePenalty, false, true);
 
     [HarmonyPrefix, HarmonyPatch(typeof(CharacterEquipment), nameof(CharacterEquipment.GetTotalManaUseModifier))]
     private static bool CharacterEquipment_GetTotalManaUseModifier_Pre(CharacterEquipment __instance, ref float __result)
-    => TryApplyMultiplicativeStacking(__instance, ref __result, slot => slot.EquippedItem.ManaUseModifier, false, _armorTrainingAffectManaCost);
+        => TryApplyMultiplicativeStacking(__instance, ref __result, slot => slot.EquippedItem.ManaUseModifier, false, _armorTrainingAffectManaCost);
 
     // Hide armor slots
     [HarmonyPrefix, HarmonyPatch(typeof(CharacterVisuals), nameof(CharacterVisuals.EquipVisuals))]
@@ -409,11 +409,11 @@ public class Various : AMod, IUpdatable
     // Remove co-op scaling
     [HarmonyPrefix, HarmonyPatch(typeof(CoopStats), nameof(CoopStats.ApplyToCharacter))]
     private static bool CoopStats_ApplyToCharacter_Pre()
-    => _multiplayerScaling;
+        => _multiplayerScaling;
 
     [HarmonyPrefix, HarmonyPatch(typeof(CoopStats), nameof(CoopStats.RemoveFromCharacter))]
     private static bool CoopStats_RemoveFromCharacter_Pre()
-    => _multiplayerScaling;
+        => _multiplayerScaling;
 
     // Enemy health reset time
     [HarmonyPrefix, HarmonyPatch(typeof(Character), nameof(Character.LoadCharSave))]
