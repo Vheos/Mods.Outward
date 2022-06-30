@@ -69,6 +69,7 @@
     <Compile Include="Code\Mods\Survival\SurvivalTools.cs" />
     <Compile Include="Code\Mods\Various\VariousDelayed.cs" />
     <Compile Include="Code\Mods\Various\Various.cs" />
+    <Compile Include="Code\Utility\Enums\Team.cs" />
     <Compile Include="Code\Utility\Enums\ArmorSlots.cs" />
     <Compile Include="Code\Utility\Enums\SkillSlotLevel.cs" />
     <Compile Include="Code\Utility\Extensions.cs" />

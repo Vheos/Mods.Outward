@@ -104,11 +104,6 @@ public class Damage : AMod
 
         result = true;
     }
-    private enum Team
-    {
-        Players,
-        Enemies,
-    }
     #endregion
 
     #region Hooks
