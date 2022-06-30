@@ -2,97 +2,50 @@
 
 public class Speed : AMod, IUpdatable
 {
-    #region Constants
-    private const float FIXED_TIME_DELTA = 0.022f;   // Global.Update(), PauseMenu.Pause(), PauseMenu.TogglePause()
-    #endregion
-
-    // Config
-    private static ModSetting<bool> _gameToggle, _playersToggle, _enemiesToggle;
-    private static ModSetting<int> _defaultGameSpeed, _speedHackMultiplier;
+    #region Settings
+    private static ModSetting<int> _engineSpeedMultiplier;
+    private static ModSetting<int> _speedHackMultiplier;
     private static ModSetting<string> _speedHackKey;
-    private static ModSetting<int> _playersAnimationSpeed, _playersMovementSpeed, _playersAttackSpeed;
-    private static ModSetting<int> _enemiesAnimationSpeed, _enemiesMovementSpeed, _enemiesAttackSpeed;
+    private static readonly Dictionary<Team, SpeedSettings> _settingsByTeam = new();
+    private class SpeedSettings : PerValueSettings<Speed, Team>
+    {
+        public ModSetting<int> GlobalSpeedMultiplier;
+        public ModSetting<int> MovementSpeedMultiplier;
+        public ModSetting<int> AttackSpeedMultiplier;
+        public SpeedSettings(Speed mod, Team value, bool isToggle = false) : base(mod, value, isToggle)
+        { }
+    }
     protected override void Initialize()
     {
-        _gameToggle = CreateSetting(nameof(_gameToggle), false);
-        _defaultGameSpeed = CreateSetting(nameof(_defaultGameSpeed), 100, IntRange(0, 200));
+        _engineSpeedMultiplier = CreateSetting(nameof(_engineSpeedMultiplier), 100, IntRange(0, 200));
         _speedHackMultiplier = CreateSetting(nameof(_speedHackMultiplier), 300, IntRange(0, 500));
         _speedHackKey = CreateSetting(nameof(_speedHackKey), "");
 
-        _playersToggle = CreateSetting(nameof(_playersToggle), false);
-        _playersAnimationSpeed = CreateSetting(nameof(_playersAnimationSpeed), 100, IntRange(0, 200));
-        _playersMovementSpeed = CreateSetting(nameof(_playersMovementSpeed), 100, IntRange(0, 200));
-        _playersAttackSpeed = CreateSetting(nameof(_playersAttackSpeed), 100, IntRange(0, 200));
+        foreach (var team in Utility.GetEnumValues<Team>())
+        {
+            SpeedSettings settings = new(this, team);
+            _settingsByTeam[team] = settings;
+            int ffMultiplier = team == Team.Players ? 0 : 100;
 
-        _enemiesToggle = CreateSetting(nameof(_enemiesToggle), false);
-        _enemiesAnimationSpeed = CreateSetting(nameof(_enemiesAnimationSpeed), 100, IntRange(0, 200));
-        _enemiesMovementSpeed = CreateSetting(nameof(_enemiesMovementSpeed), 100, IntRange(0, 200));
-        _enemiesAttackSpeed = CreateSetting(nameof(_enemiesAttackSpeed), 100, IntRange(0, 200));
+            settings.GlobalSpeedMultiplier = CreateSetting(nameof(settings.GlobalSpeedMultiplier), 100, IntRange(0, 200));
+            settings.MovementSpeedMultiplier = CreateSetting(nameof(settings.MovementSpeedMultiplier), 100, IntRange(0, 200));
+            settings.AttackSpeedMultiplier = CreateSetting(nameof(settings.AttackSpeedMultiplier), ffMultiplier, IntRange(0, 200));
+        }
 
         AddEventOnConfigClosed(UpdateDefaultGameSpeed);
     }
-    protected override void SetFormatting()
-    {
-        _gameToggle.Format("Game");
-        _gameToggle.Description = "Set multipliers (%) for the whole game world";
-        using (Indent)
-        {
-            _defaultGameSpeed.Format("Default game speed", _gameToggle);
-            _speedHackMultiplier.Format("SpeedHack multiplier", _gameToggle);
-            _speedHackMultiplier.Description = "Default game speed is multiplied by this value when speedhack is enabled";
-            _speedHackKey.Format("SpeedHack key", _gameToggle);
-            _speedHackKey.Description = "Use UnityEngine.KeyCode enum values\n" +
-                                        "(https://docs.unity3d.com/ScriptReference/KeyCode.html)";
-        }
-
-        _playersToggle.Format("Players");
-        _playersToggle.Description = "Set multipliers (%) players' speeds";
-        using (Indent)
-        {
-            _playersAnimationSpeed.Format("All animations", _playersToggle);
-            _playersAnimationSpeed.Description = "Includes animations other than moving and attacking\n" +
-                                                 "(using skills, using items, dodging, gathering)";
-            _playersMovementSpeed.Format("Movement", _playersToggle);
-            _playersAttackSpeed.Format("Attack", _playersToggle);
-        }
-
-        _enemiesToggle.Format("NPCs");
-        _enemiesToggle.Description = "Set multipliers (%) NPCs' speeds";
-        using (Indent)
-        {
-            _enemiesAnimationSpeed.Format("All animations", _enemiesToggle);
-            _enemiesAnimationSpeed.Description = _playersAnimationSpeed.Description;
-            _enemiesMovementSpeed.Format("Movement", _enemiesToggle);
-            _enemiesAttackSpeed.Format("Attack", _enemiesToggle);
-        }
-    }
-    protected override string Description
-    => "• Change players/NPCs speed multipliers\n" +
-       "(all animations, movement, attack)\n" +
-       "• Affects FINAL speed, after all reductions and amplifications\n" +
-       "• Override default game speed\n" +
-       "• Toggle speedhack with a hotkey";
-    protected override string SectionOverride
-    => ModSections.Combat;
     protected override void LoadPreset(string presetName)
     {
         switch (presetName)
         {
             case nameof(Preset.Vheos_CoopSurvival):
                 ForceApply();
-                _gameToggle.Value = true;
-                {
-                    _defaultGameSpeed.Value = 90;
-                    _speedHackMultiplier.Value = 250;
-                    _speedHackKey.Value = KeyCode.Keypad1.ToString();
-                }
-                _playersToggle.Value = true;
-                _playersMovementSpeed.Value = 90;
-                _enemiesToggle.Value = true;
-                {
-                    _enemiesAnimationSpeed.Value = 90;
-                    _enemiesMovementSpeed.Value = 125;
-                }
+                _engineSpeedMultiplier.Value = 90;
+                _speedHackMultiplier.Value = 300;
+                _speedHackKey.Value = KeyCode.Keypad1.ToString();
+                _settingsByTeam[Team.Players].MovementSpeedMultiplier.Value = 90;
+                _settingsByTeam[Team.Enemies].GlobalSpeedMultiplier.Value = 90;
+                _settingsByTeam[Team.Enemies].MovementSpeedMultiplier.Value = 125;
                 break;
         }
     }
@@ -101,102 +54,107 @@ public class Speed : AMod, IUpdatable
         if (_speedHackKey.Value.ToKeyCode().Pressed())
             ToggleSpeedHack();
     }
+    #endregion
 
-    // Utility
+    #region Formatting
+    protected override string SectionOverride
+        => ModSections.Combat;
+    protected override string Description
+        => "• Adjust default game speed" +
+        "\n• Toggle speedhack with a hotkey" +
+        "\n• Adjust players' and enemies' speeds";
+    protected override void SetFormatting()
+    {
+        _engineSpeedMultiplier.Format("Engine speed");
+        _engineSpeedMultiplier.Description =
+            "How fast the game runs (shouldn't affect UI)" +
+            "\n\nUnit: percent multiplier";
+        _speedHackMultiplier.Format("SpeedHack multiplier");
+        _speedHackMultiplier.Description =
+            "Additional engine speed multiplier when speedhack is enabled (using the key below)" +
+            "\n\nUnit: percent multiplier";
+        using (Indent)
+        {
+            _speedHackKey.Format("toggle key");
+            _speedHackKey.Description =
+                $"Pressing this key will enable/disable speed hack" +
+                $"\n\nValue type: case-insensitive {nameof(KeyCode)} enum" +
+                $"\n(https://docs.unity3d.com/ScriptReference/KeyCode.html)";
+        }
+
+        foreach (var settings in _settingsByTeam.Values)
+        {
+            settings.FormatHeader();
+            string teamName = settings.Value.ToString().ToLower();
+
+            settings.Header.Description =
+                $"Multipliers for {teamName}' speeds";
+            using (Indent)
+            {
+                settings.GlobalSpeedMultiplier.Format("Animation");
+                settings.GlobalSpeedMultiplier.Description =
+                    $"How fast all {teamName}' animations are" +
+                    $"\n\nUnit: percent multiplier";
+                settings.MovementSpeedMultiplier.Format("Movement");
+                settings.MovementSpeedMultiplier.Description =
+                    $"How fast {teamName}' move" +
+                    $"\n\nUnit: percent multiplier";
+                settings.AttackSpeedMultiplier.Format("Attack");
+                settings.AttackSpeedMultiplier.Description =
+                    $"How fast {teamName}' basic attacks are" +
+                    $"\n\nUnit: percent multiplier";
+            }
+        }
+    }
+    #endregion
+
+    #region Utility
     private static void UpdateDefaultGameSpeed()
     {
         if (Global.GamePaused)
             return;
 
-        Time.timeScale = _defaultGameSpeed / 100f;
-        Time.fixedDeltaTime = FIXED_TIME_DELTA * Time.timeScale;
+        Time.timeScale = _engineSpeedMultiplier / 100f;
+        Time.fixedDeltaTime = Defaults.FixedTimeDelta * Time.timeScale;
     }
     private static void ToggleSpeedHack()
     {
         if (Global.GamePaused)
             return;
 
-        float defaultSpeed = _defaultGameSpeed / 100f;
+        float defaultSpeed = _engineSpeedMultiplier / 100f;
         float speedHackSpeed = defaultSpeed * _speedHackMultiplier / 100f;
         Time.timeScale = Time.timeScale < speedHackSpeed ? speedHackSpeed : defaultSpeed;
-        Time.fixedDeltaTime = FIXED_TIME_DELTA * Time.timeScale;
+        Time.fixedDeltaTime = Defaults.FixedTimeDelta * Time.timeScale;
     }
     private static void TryUpdateAnimationSpeed(Character character)
     {
-        #region quit
-        if (!_playersToggle && !_enemiesToggle
-        || character.Stunned || character.IsPetrified)
+        if (character.Stunned
+        || character.IsPetrified)
             return;
-        #endregion
 
-        if (_playersToggle && character.IsAlly())
-            character.Animator.speed = _playersAnimationSpeed / 100f;
-        else if (_enemiesToggle && character.IsEnemy())
-            character.Animator.speed = _enemiesAnimationSpeed / 100f;
+        character.Animator.speed = GetSettingsFor(character).GlobalSpeedMultiplier / 100f;
     }
+    private static SpeedSettings GetSettingsFor(Character character)
+        => _settingsByTeam[character.IsAlly() ? Team.Players : Team.Enemies];
 
-    // Hooks
+    #endregion
+
+    #region Hooks
     [HarmonyPostfix, HarmonyPatch(typeof(Character), nameof(Character.LateUpdate))]
     private static void Character_LateUpdate_Post(Character __instance)
-    => TryUpdateAnimationSpeed(__instance);
+        => TryUpdateAnimationSpeed(__instance);
 
     [HarmonyPrefix, HarmonyPatch(typeof(Character), nameof(Character.TempSlowDown))]
     private static void Character_TempSlowDown_Pre(Character __instance)
-    => TryUpdateAnimationSpeed(__instance);
-
+        => TryUpdateAnimationSpeed(__instance);
 
     [HarmonyPostfix, HarmonyPatch(typeof(CharacterStats), nameof(CharacterStats.MovementSpeed), MethodType.Getter)]
     private static void CharacterStats_MovementSpeed_Getter_Post(CharacterStats __instance, ref float __result)
-    {
-        Character character = __instance.m_character;
-        if (_playersToggle && character.IsAlly())
-            __result *= _playersMovementSpeed / 100f;
-        else if (_enemiesToggle && character.IsEnemy())
-            __result *= _enemiesMovementSpeed / 100f;
-    }
+        => __result *= GetSettingsFor(__instance.m_character).MovementSpeedMultiplier / 100f;
 
     [HarmonyPostfix, HarmonyPatch(typeof(Weapon), nameof(Weapon.GetAttackSpeed))]
     private static void Weapon_GetAttackSpeed_Post(Weapon __instance, ref float __result)
-    {
-        Character owner = __instance.OwnerCharacter;
-        if (_playersToggle && owner.IsAlly())
-            __result *= _playersAttackSpeed / 100f;
-        else if (_enemiesToggle && owner.IsEnemy())
-            __result *= _enemiesAttackSpeed / 100f;
-    }
+        => __result *= GetSettingsFor(__instance.m_ownerCharacter).AttackSpeedMultiplier / 100f;
+    #endregion
 }
-
-/*
-
-static private ModSetting<string> _pauseKey,
-
-_pauseKey = CreateSetting(nameof(_pauseKey), "");
-
-_pauseKey.Format("Pause key", _gameToggle);
-_pauseKey.Description = _speedHackKey.Description;
-
-if (Input.GetKeyDown(_pauseKey.Value.ToKeyCode()))
-PauseMenu.Pause(!Global.GamePaused);
-
-[HarmonyPostfix, HarmonyPatch(typeof(PauseMenu), nameof(PauseMenu.Pause))]
-static void PauseMenu_Pause_Post()
-{
-#region quit
-if (!_gameToggle)
-    return;
-#endregion
-
-UpdateDefaultGameSpeed();
-}
-
-[HarmonyPostfix, HarmonyPatch(typeof(PauseMenu), nameof(PauseMenu.TogglePause))]
-static void PauseMenu_TogglePause_Post()
-{
-#region quit
-if (!_gameToggle)
-    return;
-#endregion
-
-UpdateDefaultGameSpeed();
-}
-*/
