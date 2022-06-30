@@ -3,12 +3,27 @@
 public class Damage : AMod
 {
     #region Settings
-    private static Dictionary<Team, DamageSettings> _settingsByTeam;
+    private static readonly Dictionary<Team, DamageSettings> _settingsByTeam = new();
+    private class DamageSettings : PerValueSettings<Damage, Team>
+    {
+        public ModSetting<int> HealthDamageMultiplier, FFHealthDamageMultiplier;
+        public ModSetting<int> StabilityDamageMultiplier, FFStabilityDamageMultiplier;
+        public DamageSettings(Damage mod, Team value, bool isToggle = false) : base(mod, value, isToggle)
+        { }
+    }
     protected override void Initialize()
     {
-        _settingsByTeam = new();
         foreach (var team in Utility.GetEnumValues<Team>())
-            _settingsByTeam[team] = new DamageSettings(this, team);
+        {
+            DamageSettings settings = new(this, team);
+            _settingsByTeam[team] = settings;
+            int ffMultiplier = team == Team.Players ? 0 : 100;
+
+            settings.HealthDamageMultiplier = CreateSetting(nameof(settings.HealthDamageMultiplier), 100, IntRange(0, 200));
+            settings.StabilityDamageMultiplier = CreateSetting(nameof(settings.StabilityDamageMultiplier), 100, IntRange(0, 200));
+            settings.FFHealthDamageMultiplier = CreateSetting(nameof(settings.FFHealthDamageMultiplier), ffMultiplier, IntRange(0, 200));
+            settings.FFStabilityDamageMultiplier = CreateSetting(nameof(settings.FFStabilityDamageMultiplier), ffMultiplier, IntRange(0, 200));
+        }
     }
     protected override void LoadPreset(string presetName)
     {
@@ -39,8 +54,38 @@ public class Damage : AMod
        "\n• Decrease friendly fire between enemies";
     protected override void SetFormatting()
     {
-        foreach (var kvp in _settingsByTeam)
-            kvp.Value.Format();
+        foreach (var settings in _settingsByTeam.Values)
+        {
+            settings.FormatHeader();
+            string teamName = settings.Value.ToString().ToLower();
+
+            settings.Header.Description =
+                $"Multipliers for damages dealt by {teamName}";
+            using (Indent)
+            {
+                settings.HealthDamageMultiplier.Format("Health");
+                settings.HealthDamageMultiplier.Description =
+                    $"How much health damage {teamName} deal" +
+                    $"\n\nUnit: percent multiplier";
+                settings.StabilityDamageMultiplier.Format("Stability");
+                settings.StabilityDamageMultiplier.Description =
+                    $"How much stability damage {teamName} deal" +
+                    $"\n\nUnit: percent multiplier";
+                CreateHeader("Friendly Fire").Description =
+                    $"Additional multipliers for damages dealt by {teamName} to other {teamName}";
+                using (Indent)
+                {
+                    settings.FFHealthDamageMultiplier.Format("Health");
+                    settings.FFHealthDamageMultiplier.Description =
+                        $"How much health damage {teamName} deal to other {teamName}" +
+                        $"\n\nUnit: percent multiplier";
+                    settings.FFStabilityDamageMultiplier.Format("Stability");
+                    settings.FFStabilityDamageMultiplier.Description =
+                        $"How much stability damage {teamName} deal to other {teamName}" +
+                        $"\n\nUnit: percent multiplier";
+                }
+            }
+        }
     }
     #endregion
 
@@ -63,38 +108,6 @@ public class Damage : AMod
     {
         Players,
         Enemies,
-    }
-    private class DamageSettings : PerValueSettings<Damage, Team>
-    {
-        public ModSetting<int> HealthDamage, FFHealthDamage;
-        public ModSetting<int> StabilityDamage, FFStabilityDamage;
-        public DamageSettings(Damage mod, Team value, bool isToggle = false) : base(mod, value, isToggle)
-        {
-            HealthDamage = CreateSetting(nameof(HealthDamage), 100, _mod.IntRange(0, 200));
-            StabilityDamage = CreateSetting(nameof(StabilityDamage), 100, _mod.IntRange(0, 200));
-            FFHealthDamage = CreateSetting(nameof(FFHealthDamage), value == Team.Players ? 0 : 100, _mod.IntRange(0, 200));
-            FFStabilityDamage = CreateSetting(nameof(FFStabilityDamage), value == Team.Players ? 0 : 100, _mod.IntRange(0, 200));
-        }
-        public override void Format()
-        {
-            base.Format();
-
-            string lowerCaseTeam = _value.ToString().ToLower();
-            Header.Description =
-                $"Multipliers for damage dealt by {lowerCaseTeam}";
-            using (Indent)
-            {
-                HealthDamage.Format("Health");
-                StabilityDamage.Format("Stability");
-                _mod.CreateHeader("Friendly Fire").Description =
-                     $"Additional multipliers for damage dealt by {lowerCaseTeam} to other {lowerCaseTeam}";
-                using (Indent)
-                {
-                    FFHealthDamage.Format("Health");
-                    FFStabilityDamage.Format("Stability");
-                }
-            }
-        }
     }
     #endregion
 
