@@ -110,14 +110,16 @@ public class Various : AMod, IUpdatable
             "Allows you to hide characters in title screens - if you think they are ruining the view :)" +
             "\n(requires game restart to take effect)";
         _debugMode.Format("Debug mode");
-        _debugMode.Description = "Read about the debug mode at:" +
-            "\nhttps://outward.fandom.com/wiki/Debug_Mode";
+        _debugMode.Description =
+            "Allows you to use debug menus (aka cheats)" +
+            "\nRead more at: https://outward.fandom.com/wiki/Debug_Mode";
         using (Indent)
         {
             _debugModeToggleKey.Format("toggle key");
             _debugModeToggleKey.Description =
+                $"Pressing this key will enable/disable debug mode" +
                 $"\n\nvalue type: case-insensitive {nameof(KeyCode)} enum" +
-                "\n(https://docs.unity3d.com/ScriptReference/KeyCode.html)";
+                $"\n(https://docs.unity3d.com/ScriptReference/KeyCode.html)";
         }
 
         _visibleArmorSlots.Format("Visible armor slots");
@@ -133,7 +135,7 @@ public class Various : AMod, IUpdatable
         _multiplicativeStatsStacking.Description =
             "Makes movement speed, stamina cost, mana cost modifiers stack multiplicatively instead of additvely" +
             "\nAs a result, stacking MINUS effects is less effective, while stacking PLUS effects is more effective" +
-            $"\n(enabling this will allow you to configure ArmorTraining passive skill)";
+            "\n\n(enabling this will allow you to configure ArmorTraining passive skill)";
         using (Indent)
         {
             _armorTrainingPenaltyReduction.Format("\"Armor Training\" penalty reduction", _multiplicativeStatsStacking);
