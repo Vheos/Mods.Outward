@@ -31,15 +31,15 @@ public class Damage : AMod
         {
             case nameof(Preset.Vheos_CoopSurvival):
                 ForceApply();
-                _settingsByTeam[Team.Players].HealthDamage.Value = 50;
-                _settingsByTeam[Team.Players].StabilityDamage.Value = 50;
-                _settingsByTeam[Team.Players].FFHealthDamage.Value = 20;
-                _settingsByTeam[Team.Players].FFStabilityDamage.Value = 40;
+                _settingsByTeam[Team.Players].HealthDamageMultiplier.Value = 50;
+                _settingsByTeam[Team.Players].StabilityDamageMultiplier.Value = 50;
+                _settingsByTeam[Team.Players].FFHealthDamageMultiplier.Value = 20;
+                _settingsByTeam[Team.Players].FFStabilityDamageMultiplier.Value = 40;
 
-                _settingsByTeam[Team.Enemies].HealthDamage.Value = 80;
-                _settingsByTeam[Team.Enemies].StabilityDamage.Value = 120;
-                _settingsByTeam[Team.Enemies].FFHealthDamage.Value = 20;
-                _settingsByTeam[Team.Enemies].FFStabilityDamage.Value = 40;
+                _settingsByTeam[Team.Enemies].HealthDamageMultiplier.Value = 80;
+                _settingsByTeam[Team.Enemies].StabilityDamageMultiplier.Value = 120;
+                _settingsByTeam[Team.Enemies].FFHealthDamageMultiplier.Value = 20;
+                _settingsByTeam[Team.Enemies].FFStabilityDamageMultiplier.Value = 40;
                 break;
         }
     }
@@ -47,11 +47,11 @@ public class Damage : AMod
 
     #region Formatting
     protected override string SectionOverride
-    => ModSections.Combat;
+        => ModSections.Combat;
     protected override string Description
-    => "• Change players/enemies health/stability damage multipliers" +
-       "\n• Enable friendly fire between players" +
-       "\n• Decrease friendly fire between enemies";
+        => "• Adjust players' and enemies' damages" +
+        "\n• Enable friendly fire between players" +
+        "\n• Adjust friendly fire between enemies";
     protected override void SetFormatting()
     {
         foreach (var settings in _settingsByTeam.Values)
@@ -91,8 +91,8 @@ public class Damage : AMod
 
     #region Utility
     private static bool IsPlayersFriendlyFireEnabled
-        => _settingsByTeam[Team.Players].FFHealthDamage > 0
-        || _settingsByTeam[Team.Players].FFStabilityDamage > 0;
+        => _settingsByTeam[Team.Players].FFHealthDamageMultiplier > 0
+        || _settingsByTeam[Team.Players].FFStabilityDamageMultiplier > 0;
     private static void TryOverrideElligibleFaction(ref bool result, Character defender, Character attacker)
     {
         if (result
@@ -127,15 +127,15 @@ public class Damage : AMod
         if (_dealerChar != null && _dealerChar.IsEnemy()
         || _dealerChar == null && __instance.IsAlly())
         {
-            _damage *= _settingsByTeam[Team.Enemies].HealthDamage / 100f;
+            _damage *= _settingsByTeam[Team.Enemies].HealthDamageMultiplier / 100f;
             if (__instance.IsEnemy())
-                _damage *= _settingsByTeam[Team.Enemies].FFHealthDamage / 100f;
+                _damage *= _settingsByTeam[Team.Enemies].FFHealthDamageMultiplier / 100f;
         }
         else
         {
-            _damage *= _settingsByTeam[Team.Players].HealthDamage / 100f;
+            _damage *= _settingsByTeam[Team.Players].HealthDamageMultiplier / 100f;
             if (__instance.IsAlly())
-                _damage *= _settingsByTeam[Team.Players].FFHealthDamage / 100f;
+                _damage *= _settingsByTeam[Team.Players].FFHealthDamageMultiplier / 100f;
         }
     }
 
@@ -145,15 +145,15 @@ public class Damage : AMod
         if (_dealerChar != null && _dealerChar.IsEnemy()
         || _dealerChar == null && __instance.IsAlly())
         {
-            _knockValue *= _settingsByTeam[Team.Enemies].StabilityDamage / 100f;
+            _knockValue *= _settingsByTeam[Team.Enemies].StabilityDamageMultiplier / 100f;
             if (__instance.IsEnemy())
-                _knockValue *= _settingsByTeam[Team.Enemies].FFStabilityDamage / 100f;
+                _knockValue *= _settingsByTeam[Team.Enemies].FFStabilityDamageMultiplier / 100f;
         }
         else
         {
-            _knockValue *= _settingsByTeam[Team.Players].StabilityDamage / 100f;
+            _knockValue *= _settingsByTeam[Team.Players].StabilityDamageMultiplier / 100f;
             if (__instance.IsAlly())
-                _knockValue *= _settingsByTeam[Team.Players].FFStabilityDamage / 100f;
+                _knockValue *= _settingsByTeam[Team.Players].FFStabilityDamageMultiplier / 100f;
         }
     }
     #endregion
