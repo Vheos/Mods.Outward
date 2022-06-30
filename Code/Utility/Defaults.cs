@@ -2,6 +2,7 @@
 
 public static class Defaults
 {
+    public const float FixedTimeDelta = 0.022f;
     public const float EnemyHealthResetTime = 24f;
     public const int ArmorTrainingPenaltyReduction = 50;
     public const float BaseStaminaRegen = 2.4f;
