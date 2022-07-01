@@ -7,7 +7,7 @@ public class Targeting : AMod
     private static ModSetting<int> _meleeDistance, _rangedDistance, _huntersEyeDistance;
     private static ModSetting<RangedTypes> _rangedEquipmentTypes;
     private static ModSetting<AutoTargetActions> _autoTargetActions;
-    private static ModSetting<float> _targetingPitchOffset;
+    private static ModSetting<float> _cameraPitchOffset;
     protected override void Initialize()
     {
         _meleeDistance = CreateSetting(nameof(_meleeDistance), 20, IntRange(0, 100));
@@ -15,7 +15,7 @@ public class Targeting : AMod
         _huntersEyeDistance = CreateSetting(nameof(_huntersEyeDistance), 40, IntRange(0, 100));
         _rangedEquipmentTypes = CreateSetting(nameof(_rangedEquipmentTypes), RangedTypes.Bow);
         _autoTargetActions = CreateSetting(nameof(_autoTargetActions), AutoTargetActions.None);
-        _targetingPitchOffset = CreateSetting(nameof(_targetingPitchOffset), 0f, FloatRange(0, 1));
+        _cameraPitchOffset = CreateSetting(nameof(_cameraPitchOffset), 0f, FloatRange(0, 1));
     }
     protected override void LoadPreset(string presetName)
     {
@@ -28,7 +28,7 @@ public class Targeting : AMod
                 _huntersEyeDistance.Value = 45;
                 _rangedEquipmentTypes.Value = (RangedTypes)~0;
                 _autoTargetActions.Value = AutoTargetActions.Attack | AutoTargetActions.CombatSkill;
-                _targetingPitchOffset.Value = 0.25f;
+                _cameraPitchOffset.Value = 0.25f;
                 break;
         }
     }
@@ -63,8 +63,8 @@ public class Targeting : AMod
         _autoTargetActions.Format("Auto-target actions");
         _autoTargetActions.Description =
             "Allows you to automatically target the closest enemy whenever you perform any of the chosen actions while not already targeting";
-        _targetingPitchOffset.Format("Targeting tilt");
-        _targetingPitchOffset.Description =
+        _cameraPitchOffset.Format("Camera tilt");
+        _cameraPitchOffset.Description =
             "Tilts the camera when you're targeting, giving you a bit more \"top-down\" view" +
             "\n\nUnit: arbitrary linear scale";
     }
@@ -112,7 +112,7 @@ public class Targeting : AMod
     private static void CharacterCamera_LateUpdate_Post(CharacterCamera __instance)
     {
         if (__instance.m_targetCharacter.TargetingSystem.LockedCharacter != null)
-            __instance.m_cameraVertHolder.rotation *= Quaternion.Euler(_targetingPitchOffset, 0, 0);
+            __instance.m_cameraVertHolder.rotation *= Quaternion.Euler(_cameraPitchOffset, 0, 0);
     }
 
     [HarmonyPrefix, HarmonyPatch(typeof(TargetingSystem), nameof(TargetingSystem.TrueRange), MethodType.Getter)]
