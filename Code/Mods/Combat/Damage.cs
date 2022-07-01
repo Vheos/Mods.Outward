@@ -8,22 +8,19 @@ public class Damage : AMod
     {
         public ModSetting<int> HealthDamageMultiplier, FFHealthDamageMultiplier;
         public ModSetting<int> StabilityDamageMultiplier, FFStabilityDamageMultiplier;
-        public DamageSettings(Damage mod, Team value, bool isToggle = false) : base(mod, value, isToggle)
-        { }
+        public DamageSettings(Damage mod, Team team, bool isToggle = false) : base(mod, team, isToggle)
+        {
+            int ffMultiplier = team == Team.Players ? 0 : 100;
+            HealthDamageMultiplier = CreateSetting(nameof(HealthDamageMultiplier), 100, mod.IntRange(0, 200));
+            StabilityDamageMultiplier = CreateSetting(nameof(StabilityDamageMultiplier), 100, mod.IntRange(0, 200));
+            FFHealthDamageMultiplier = CreateSetting(nameof(FFHealthDamageMultiplier), ffMultiplier, mod.IntRange(0, 200));
+            FFStabilityDamageMultiplier = CreateSetting(nameof(FFStabilityDamageMultiplier), ffMultiplier, mod.IntRange(0, 200));
+        }
     }
     protected override void Initialize()
     {
         foreach (var team in Utility.GetEnumValues<Team>())
-        {
-            DamageSettings settings = new(this, team);
-            _settingsByTeam[team] = settings;
-            int ffMultiplier = team == Team.Players ? 0 : 100;
-
-            settings.HealthDamageMultiplier = CreateSetting(nameof(settings.HealthDamageMultiplier), 100, IntRange(0, 200));
-            settings.StabilityDamageMultiplier = CreateSetting(nameof(settings.StabilityDamageMultiplier), 100, IntRange(0, 200));
-            settings.FFHealthDamageMultiplier = CreateSetting(nameof(settings.FFHealthDamageMultiplier), ffMultiplier, IntRange(0, 200));
-            settings.FFStabilityDamageMultiplier = CreateSetting(nameof(settings.FFStabilityDamageMultiplier), ffMultiplier, IntRange(0, 200));
-        }
+            _settingsByTeam[team] = new(this, team);
     }
     protected override void LoadPreset(string presetName)
     {

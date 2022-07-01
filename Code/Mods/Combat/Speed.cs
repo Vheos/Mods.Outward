@@ -12,8 +12,13 @@ public class Speed : AMod, IUpdatable
         public ModSetting<int> GlobalSpeedMultiplier;
         public ModSetting<int> MovementSpeedMultiplier;
         public ModSetting<int> AttackSpeedMultiplier;
-        public SpeedSettings(Speed mod, Team value, bool isToggle = false) : base(mod, value, isToggle)
-        { }
+        public SpeedSettings(Speed mod, Team team, bool isToggle = false) : base(mod, team, isToggle)
+        {
+            int ffMultiplier = team == Team.Players ? 0 : 100;
+            GlobalSpeedMultiplier = CreateSetting(nameof(GlobalSpeedMultiplier), 100, mod.IntRange(0, 200));
+            MovementSpeedMultiplier = CreateSetting(nameof(MovementSpeedMultiplier), 100, mod.IntRange(0, 200));
+            AttackSpeedMultiplier = CreateSetting(nameof(AttackSpeedMultiplier), ffMultiplier, mod.IntRange(0, 200));
+        }
     }
     protected override void Initialize()
     {
@@ -22,15 +27,7 @@ public class Speed : AMod, IUpdatable
         _speedHackKey = CreateSetting(nameof(_speedHackKey), "");
 
         foreach (var team in Utility.GetEnumValues<Team>())
-        {
-            SpeedSettings settings = new(this, team);
-            _settingsByTeam[team] = settings;
-            int ffMultiplier = team == Team.Players ? 0 : 100;
-
-            settings.GlobalSpeedMultiplier = CreateSetting(nameof(settings.GlobalSpeedMultiplier), 100, IntRange(0, 200));
-            settings.MovementSpeedMultiplier = CreateSetting(nameof(settings.MovementSpeedMultiplier), 100, IntRange(0, 200));
-            settings.AttackSpeedMultiplier = CreateSetting(nameof(settings.AttackSpeedMultiplier), ffMultiplier, IntRange(0, 200));
-        }
+            _settingsByTeam[team] = new(this, team);
 
         AddEventOnConfigClosed(UpdateDefaultGameSpeed);
     }
