@@ -28,7 +28,7 @@ public class Targeting : AMod
                 _huntersEyeDistance.Value = 45;
                 _rangedEquipmentTypes.Value = (RangedTypes)~0;
                 _autoTargetActions.Value = AutoTargetActions.Attack | AutoTargetActions.CombatSkill;
-                _targetingPitchOffset.Value = 0.2f;
+                _targetingPitchOffset.Value = 0.25f;
                 break;
         }
     }
