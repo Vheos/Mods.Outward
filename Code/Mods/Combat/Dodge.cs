@@ -18,15 +18,6 @@ public class Dodge : AMod
         _allowMidAttackUntilDamageTaken = CreateSetting(nameof(_allowMidAttackUntilDamageDealt), false);
         _invincibility = CreateSetting(nameof(_invincibility), true);
     }
-    #endregion
-
-    #region Formatting
-    protected override string SectionOverride
-=> ModSections.Combat;
-    protected override string Description
-        => "• Adjust stamina cost" +
-        "\n• Allow dodging during attack animation" +
-        "\n• Remove dodge invincibility";
     protected override void LoadPreset(string presetName)
     {
         switch (presetName)
@@ -42,6 +33,15 @@ public class Dodge : AMod
                 break;
         }
     }
+    #endregion
+
+    #region Formatting
+    protected override string SectionOverride
+        => ModSections.Combat;
+    protected override string Description
+        => "• Adjust stamina cost" +
+        "\n• Allow dodging during attack animation" +
+        "\n• Remove dodge invincibility";
     protected override void SetFormatting()
     {
         _staminaCost.Format("Stamina cost");
@@ -50,10 +50,9 @@ public class Dodge : AMod
             "\n\nUnit: stamina points";
         using (Indent)
         {
-            _staminaCostWithAcrobatics.Format("with acrobatics");
+            _staminaCostWithAcrobatics.Format("with Acrobatics");
             _staminaCostWithAcrobatics.Description =
-                "How much stamina dodging costs when you have the Acrobatics passive skill" +
-                "\n\nUnit: stamina points";
+                $"If you have the Acrobatics passive skill, this value will be used in place of \"{_staminaCost.Name}\"";
         }
         _allowMidAttack.Format("Allow mid-attack");
         _allowMidAttack.Description =
@@ -107,7 +106,7 @@ public class Dodge : AMod
 
     [HarmonyPrefix, HarmonyPatch(typeof(Interactions.InteractionTakeAnimated), nameof(Interactions.InteractionTakeAnimated.OnActivate))]
     private static void InteractionTakeAnimated_OnActivate_Pre(Interactions.InteractionTakeAnimated __instance)
-    => __instance.LastCharacter.m_dodgeAllowedInAction = 0;
+        => __instance.LastCharacter.m_dodgeAllowedInAction = 0;
 
     // Remove dodge invulnerability
     [HarmonyPostfix, HarmonyPatch(typeof(Character), nameof(Character.DodgeStep))]

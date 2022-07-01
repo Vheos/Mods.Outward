@@ -215,7 +215,7 @@ public class Durability : AMod
         foreach (var slot in __instance.m_equipmentSlots)
             if (slot.IsAnythingEquipped()
             && !slot.IsLeftHandUsedBy2H()
-            && slot.EquippedItem.RepairedInRest 
+            && slot.EquippedItem.RepairedInRest
             && !slot.EquippedItem.IsIndestructible
             && slot.EquippedItem.DurabilityRatio < 1f)
                 equippedItems.Add(slot.EquippedItem);

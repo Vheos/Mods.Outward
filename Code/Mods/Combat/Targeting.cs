@@ -56,7 +56,7 @@ public class Targeting : AMod
             _huntersEyeDistance.Format("with Hunter's Eye");
             _huntersEyeDistance.Description =
                 $"If you have the Huner's Eye passive skill, this value will be used in place of \"{_rangedDistance.Name}\"";
-            _rangedEquipmentTypes.Format("Ranged equipment");
+            _rangedEquipmentTypes.Format("compatible equipment");
             _rangedEquipmentTypes.Description =
                 $"What equipment is considered to be ranged by the \"{_rangedDistance.Name}\" setting?";
         }
@@ -66,7 +66,7 @@ public class Targeting : AMod
         _targetingPitchOffset.Format("Targeting tilt");
         _targetingPitchOffset.Description =
             "Tilts the camera when you're targeting, giving you a bit more \"top-down\" view" +
-            "\n\nUnit: subjective linear scale";
+            "\n\nUnit: arbitrary linear scale";
     }
     #endregion
 

@@ -64,7 +64,7 @@ public class AI : AMod
             $"\nmost humans (eg. bandits) and non-hostile monsters (eg. pearlbirds, deers) will ignore each other" +
             $"\n\n{FactionGroup.HostileMonsters}:" +
             $"\nmost hostile monsters (eg. mantises, hive lords, assassin bugs) will ignore each other";
-        _walkTowardsPlayerOnSpawn.Format("Walk towards player on spawn");
+        _walkTowardsPlayerOnSpawn.Format("Chance to approach player on spawn");
         _walkTowardsPlayerOnSpawn.Description =
             "How likely enemies are to walk towards the nearest player when they spawn" +
             "\n\nUnit: percent chance";
