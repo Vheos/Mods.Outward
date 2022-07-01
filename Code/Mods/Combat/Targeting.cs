@@ -2,7 +2,91 @@
 
 public class Targeting : AMod
 {
-    #region Enums
+
+    #region Settings
+    private static ModSetting<int> _meleeDistance, _rangedDistance, _huntersEyeDistance;
+    private static ModSetting<RangedTypes> _rangedEquipmentTypes;
+    private static ModSetting<AutoTargetActions> _autoTargetActions;
+    private static ModSetting<float> _targetingPitchOffset;
+    protected override void Initialize()
+    {
+        _meleeDistance = CreateSetting(nameof(_meleeDistance), 20, IntRange(0, 100));
+        _rangedDistance = CreateSetting(nameof(_rangedDistance), 20, IntRange(0, 100));
+        _huntersEyeDistance = CreateSetting(nameof(_huntersEyeDistance), 40, IntRange(0, 100));
+        _rangedEquipmentTypes = CreateSetting(nameof(_rangedEquipmentTypes), RangedTypes.Bow);
+        _autoTargetActions = CreateSetting(nameof(_autoTargetActions), AutoTargetActions.None);
+        _targetingPitchOffset = CreateSetting(nameof(_targetingPitchOffset), 0f, FloatRange(0, 1));
+    }
+    protected override void LoadPreset(string presetName)
+    {
+        switch (presetName)
+        {
+            case nameof(Preset.Vheos_CoopSurvival):
+                ForceApply();
+                _meleeDistance.Value = 20;
+                _rangedDistance.Value = 30;
+                _huntersEyeDistance.Value = 45;
+                _rangedEquipmentTypes.Value = (RangedTypes)~0;
+                _autoTargetActions.Value = AutoTargetActions.Attack | AutoTargetActions.CombatSkill;
+                _targetingPitchOffset.Value = 0.2f;
+                break;
+        }
+    }
+    #endregion
+
+    #region Formatting
+    protected override string SectionOverride
+        => ModSections.Combat;
+    protected override string Description
+        => "• Set targeting distance by weapon type\n" +
+        "• Auto-target when performing chosen actions\n" +
+        "• Tilt targeting camera";
+    protected override void SetFormatting()
+    {
+        _meleeDistance.Format("Melee distance");
+        _meleeDistance.Description =
+            "From how far away you can target an enemy when using a melee weapon" +
+            "\n\nUnit: in-game length units";
+        _rangedDistance.Format("Ranged distance");
+        _rangedDistance.Description =
+            "From how far away you can target an enemy when using ranged equipment" +
+            "\n\nUnit: in-game length units";
+        using (Indent)
+        {
+            _huntersEyeDistance.Format("with Hunter's Eye");
+            _huntersEyeDistance.Description =
+                $"If you have the Huner's Eye passive skill, this value will be used in place of \"{_rangedDistance.Name}\"";
+            _rangedEquipmentTypes.Format("Ranged equipment");
+            _rangedEquipmentTypes.Description =
+                $"What equipment is considered to be ranged by the \"{_rangedDistance.Name}\" setting?";
+        }
+        _autoTargetActions.Format("Auto-target actions");
+        _autoTargetActions.Description =
+            "Allows you to automatically target the closest enemy whenever you perform any of the chosen actions while not already targeting";
+        _targetingPitchOffset.Format("Targeting tilt");
+        _targetingPitchOffset.Description =
+            "Tilts the camera when you're targeting, giving you a bit more \"top-down\" view" +
+            "\n\nUnit: subjective linear scale";
+    }
+    #endregion
+
+    #region Utility
+    private static bool HasHuntersEye(Character character)
+        => character.Inventory.SkillKnowledge.IsItemLearned("Hunter's Eye".ToSkillID());
+    private static bool HasRangedEquipment(Character character)
+        => _rangedEquipmentTypes.Value.HasFlag(RangedTypes.Bow) && HasBow(character)
+        || _rangedEquipmentTypes.Value.HasFlag(RangedTypes.Pistol) && HasPistol(character)
+        || _rangedEquipmentTypes.Value.HasFlag(RangedTypes.Chakram) && HasChakram(character)
+        || _rangedEquipmentTypes.Value.HasFlag(RangedTypes.Lexicon) && HasLexicon(character);
+    private static bool HasBow(Character character)
+        => character.m_currentWeapon != null && character.m_currentWeapon.Type == Weapon.WeaponType.Bow;
+    private static bool HasPistol(Character character)
+        => character.LeftHandWeapon != null && character.LeftHandWeapon.Type == Weapon.WeaponType.Pistol_OH;
+    private static bool HasChakram(Character character)
+        => character.LeftHandWeapon != null && character.LeftHandWeapon.Type == Weapon.WeaponType.Chakram_OH;
+    private static bool HasLexicon(Character character)
+        => character.LeftHandEquipment != null && character.LeftHandEquipment.IKType == Equipment.IKMode.Lexicon;
+
     [Flags]
     private enum RangedTypes
     {
@@ -23,76 +107,7 @@ public class Targeting : AMod
     }
     #endregion
 
-    // Setting
-    private static ModSetting<int> _meleeDistance, _rangedDistance, _huntersEyeDistance;
-    private static ModSetting<RangedTypes> _rangedEquipmentTypes;
-    private static ModSetting<AutoTargetActions> _autoTargetActions;
-    private static ModSetting<float> _targetingPitchOffset;
-    protected override void Initialize()
-    {
-        _meleeDistance = CreateSetting(nameof(_meleeDistance), 20, IntRange(0, 100));
-        _rangedDistance = CreateSetting(nameof(_rangedDistance), 20, IntRange(0, 100));
-        _huntersEyeDistance = CreateSetting(nameof(_huntersEyeDistance), 40, IntRange(0, 100));
-        _rangedEquipmentTypes = CreateSetting(nameof(_rangedEquipmentTypes), RangedTypes.Bow);
-        _autoTargetActions = CreateSetting(nameof(_autoTargetActions), AutoTargetActions.None);
-        _targetingPitchOffset = CreateSetting(nameof(_targetingPitchOffset), 0f, FloatRange(0, 1));
-    }
-    protected override void SetFormatting()
-    {
-        _meleeDistance.Format("Melee distance");
-        _meleeDistance.Description = "Targeting distance for all melee weapons";
-        _rangedDistance.Format("Ranged distance");
-        _rangedDistance.Description = "Targeting distance for all weapons specified in the \"Ranged equipment\" setting";
-        _huntersEyeDistance.Format("Hunter's Eye distance");
-        _huntersEyeDistance.Description = "If you have Hunter's Eye, this is used instead of \"Ranged distance\"";
-        _rangedEquipmentTypes.Format("Ranged equipment");
-        _rangedEquipmentTypes.Description = "What equipment should use the \"Ranged distance\" setting and benefit from Hunter's Eye?";
-        _autoTargetActions.Format("Auto-target actions");
-        _autoTargetActions.Description = "If you do any of these actions while not locked-on, you will automatically target the closest enemy";
-        _targetingPitchOffset.Format("Targeting tilt");
-        _targetingPitchOffset.Description = "When you're targeting, the camera will be tilted a little to give more \"top-down\" view\n" +
-                                            "This way the enemy won't be obscured by your character, especially if you're wearing a big helmet";
-    }
-    protected override string Description
-    => "• Set targeting distance by weapon type\n" +
-       "• Auto-target on specific actions\n" +
-       "• Tilt targeting camera";
-    protected override string SectionOverride
-    => ModSections.Combat;
-    protected override void LoadPreset(string presetName)
-    {
-        switch (presetName)
-        {
-            case nameof(Preset.Vheos_CoopSurvival):
-                ForceApply();
-                _meleeDistance.Value = 20;
-                _rangedDistance.Value = 30;
-                _huntersEyeDistance.Value = 45;
-                _rangedEquipmentTypes.Value = (RangedTypes)~0;
-                _autoTargetActions.Value = AutoTargetActions.Attack | AutoTargetActions.CombatSkill;
-                _targetingPitchOffset.Value = 0.2f;
-                break;
-        }
-    }
-
-    // Utility
-    private static bool HasHuntersEye(Character character)
-    => character.Inventory.SkillKnowledge.IsItemLearned(HUNTERS_EYE_ID);
-    private static bool HasRangedEquipment(Character character)
-    => _rangedEquipmentTypes.Value.HasFlag(RangedTypes.Bow) && HasBow(character)
-    || _rangedEquipmentTypes.Value.HasFlag(RangedTypes.Pistol) && HasPistol(character)
-    || _rangedEquipmentTypes.Value.HasFlag(RangedTypes.Chakram) && HasChakram(character)
-    || _rangedEquipmentTypes.Value.HasFlag(RangedTypes.Lexicon) && HasLexicon(character);
-    private static bool HasBow(Character character)
-    => character.m_currentWeapon != null && character.m_currentWeapon.Type == Weapon.WeaponType.Bow;
-    private static bool HasPistol(Character character)
-    => character.LeftHandWeapon != null && character.LeftHandWeapon.Type == Weapon.WeaponType.Pistol_OH;
-    private static bool HasChakram(Character character)
-    => character.LeftHandWeapon != null && character.LeftHandWeapon.Type == Weapon.WeaponType.Chakram_OH;
-    private static bool HasLexicon(Character character)
-    => character.LeftHandEquipment != null && character.LeftHandEquipment.IKType == Equipment.IKMode.Lexicon;
-
-    // Hooks
+    #region Hooks
     [HarmonyPostfix, HarmonyPatch(typeof(CharacterCamera), nameof(CharacterCamera.LateUpdate))]
     private static void CharacterCamera_LateUpdate_Post(CharacterCamera __instance)
     {
@@ -103,10 +118,9 @@ public class Targeting : AMod
     [HarmonyPrefix, HarmonyPatch(typeof(TargetingSystem), nameof(TargetingSystem.TrueRange), MethodType.Getter)]
     private static bool TargetingSystem_TrueRange_Pre(TargetingSystem __instance, ref float __result)
     {
-        Character character = __instance.m_character;
-        __result = !HasRangedEquipment(character) ? (float)_meleeDistance
-            : HasHuntersEye(character) ? (float)_huntersEyeDistance
-            : (float)_rangedDistance;
+        __result = !HasRangedEquipment(__instance.m_character) ? _meleeDistance
+            : HasHuntersEye(__instance.m_character) ? _huntersEyeDistance
+            : _rangedDistance;
         return false;
     }
 
@@ -114,11 +128,10 @@ public class Targeting : AMod
     [HarmonyPostfix, HarmonyPatch(typeof(Character), nameof(Character.AttackInput))]
     private static void Character_AttackInput_Post(Character __instance)
     {
-        #region quit
-        if (!__instance.CharacterControl.TryAs(out LocalCharacterControl localCharacterControl) || __instance.TargetingSystem.Locked
+        if (!__instance.CharacterControl.TryAs(out LocalCharacterControl localCharacterControl)
+        || __instance.TargetingSystem.Locked
         || !_autoTargetActions.Value.HasFlag(AutoTargetActions.Attack))
             return;
-        #endregion
 
         localCharacterControl.AcquireTarget();
     }
@@ -126,11 +139,10 @@ public class Targeting : AMod
     [HarmonyPostfix, HarmonyPatch(typeof(Character), nameof(Character.SetLastUsedSkill))]
     private static void Character_SetLastUsedSkill_Post(Character __instance, ref Skill _skill)
     {
-        #region quit
-        if (!__instance.CharacterControl.TryAs(out LocalCharacterControl localCharacterControl) || __instance.TargetingSystem.Locked
+        if (!__instance.CharacterControl.TryAs(out LocalCharacterControl localCharacterControl)
+        || __instance.TargetingSystem.Locked
         || !_autoTargetActions.Value.HasFlag(AutoTargetActions.CombatSkill))
             return;
-        #endregion
 
         localCharacterControl.AcquireTarget();
     }
@@ -138,11 +150,10 @@ public class Targeting : AMod
     [HarmonyPostfix, HarmonyPatch(typeof(Character), nameof(Character.BlockInput))]
     private static void Character_BlockInput_Post(Character __instance, ref bool _active)
     {
-        #region quit
-        if (!__instance.CharacterControl.TryAs(out LocalCharacterControl localCharacterControl) || __instance.TargetingSystem.Locked
+        if (!__instance.CharacterControl.TryAs(out LocalCharacterControl localCharacterControl)
+        || __instance.TargetingSystem.Locked
         || !_autoTargetActions.Value.HasFlag(AutoTargetActions.Block))
             return;
-        #endregion
 
         localCharacterControl.AcquireTarget();
     }
@@ -150,12 +161,12 @@ public class Targeting : AMod
     [HarmonyPostfix, HarmonyPatch(typeof(Character), nameof(Character.DodgeInput), new[] { typeof(Vector3) })]
     private static void Character_DodgeInput_Post(Character __instance)
     {
-        #region quit
-        if (!__instance.CharacterControl.TryAs(out LocalCharacterControl localCharacterControl) || __instance.TargetingSystem.Locked
+        if (!__instance.CharacterControl.TryAs(out LocalCharacterControl localCharacterControl)
+        || __instance.TargetingSystem.Locked
         || !_autoTargetActions.Value.HasFlag(AutoTargetActions.Dodge))
             return;
-        #endregion
 
         localCharacterControl.AcquireTarget();
     }
+    #endregion
 }
