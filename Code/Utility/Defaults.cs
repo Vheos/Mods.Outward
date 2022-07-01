@@ -8,6 +8,7 @@ public static class Defaults
     public const float BaseStaminaRegen = 2.4f;
     public const int InnRentTime = 12;
     public const string InnQuestsFamilyName = "Inns";
+    public const float HumanCollisionRadius = 0.4f;
 
     public static readonly AreaManager.AreaEnum[] Regions = new[]
 {
