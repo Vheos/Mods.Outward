@@ -2,9 +2,6 @@
 
 public class Dodge : AMod
 {
-    #region Constants
-    private const int ACROBATICS_SKILLID = 8205450;
-    #endregion
 
     // Settings
     private static ModSetting<int> _staminaCost;
