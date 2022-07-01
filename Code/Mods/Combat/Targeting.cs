@@ -2,9 +2,6 @@
 
 public class Targeting : AMod
 {
-    #region Constants
-    public const int HUNTERS_EYE_ID = 8205160;
-    #endregion
     #region Enums
     [Flags]
     private enum RangedTypes

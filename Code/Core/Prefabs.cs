@@ -243,6 +243,7 @@ public static class Prefabs
         // Other
         ["Armor Training"] = 8205220,
         ["Acrobatics"] = 8205450,
+        ["Hunter's Eye"] = 8205160,
     };
 }
 
