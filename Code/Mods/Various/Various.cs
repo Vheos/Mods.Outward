@@ -497,3 +497,21 @@ if (___m_character.IsPlayer() && pouch != null)
 }
 }
 */
+
+
+
+#region Settings
+
+#endregion
+
+#region Formatting
+
+#endregion
+
+#region Utility
+
+#endregion
+
+#region Hooks
+
+#endregion
