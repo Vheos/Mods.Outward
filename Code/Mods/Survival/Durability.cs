@@ -162,7 +162,7 @@ public class Durability : AMod
     {
         float percentReference = _repairPercentReference == RepairPercentReference.OfMissingDurability
                                ? item.MaxDurability - item.m_currentDurability
-                               : item.m_currentDurability;
+                               : item.MaxDurability;
         return flat + percent * percentReference;
     }
     private static bool HasLearnedFastMaintenance(Character character)
