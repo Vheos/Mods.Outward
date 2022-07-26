@@ -320,7 +320,7 @@ public class Needs : AMod, IDelayedInit
             (
                 Prefabs.StatusEffectsByNameID["Refreshed"],
                 "Well-hydrated",
-                $"Your max stamina burns more slowly, but you can't eat any more.",
+                $"Your max stamina burns more slowly, but you can't drink any more.",
                 "You're well-hydrated!",
                 "You're too full to drink more!"
             ),
