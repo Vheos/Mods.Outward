@@ -7,8 +7,28 @@ using Vheos.Helpers.RNG;
 
 public static class Extensions
 {
-    // Game
-    public static bool IsPlayer(this Character character)
+	// Various
+	public static bool IsNaN(this float @this)
+		=> float.IsNaN(@this);
+	public static float DistanceTo(this float @this, float a)
+		=> (a - @this).Abs();
+	public static float MapFrom01(this float @this, float a, float b)
+		=> @this.Map(0f, 1f, a, b);
+	public static float CompMin(this Vector2 @this)
+		=> @this.x <= @this.y ? @this.x : @this.y;
+
+	// Input
+	public static bool Pressed(this KeyCode @this)
+		=> Input.GetKeyDown(@this);
+	public static bool Released(this KeyCode @this)
+		=> Input.GetKeyUp(@this);
+	public static bool Down(this KeyCode @this)
+		=> Input.GetKey(@this);
+	public static bool Up(this KeyCode @this)
+		=> !Input.GetKey(@this);
+
+	// Game
+	public static bool IsPlayer(this Character character)
     => character.PlayerStats != null;
     public static bool IsAlly(this Character character)
     => character.Faction == Character.Factions.Player;
@@ -205,8 +225,6 @@ public static class Extensions
     => ControlsInput.GetMenuActionName(action);
 
     // Various
-    public static CodeMatcher CodeMatcher(this IEnumerable<CodeInstruction> t)
-    => new(t);
     public static string SplitCamelCase(this string t)
     => Regex.Replace(t, "([a-z](?=[A-Z])|[A-Z](?=[A-Z][a-z]))", "$1 ");
     public static int SetBitCount(this int t)
@@ -236,9 +254,9 @@ public static class Extensions
     public static string FormatGameHours(this float t, bool showDays = true, bool showHours = true, bool showMinutes = true, bool showSeconds = true)
     {
         int days = t.Div(24).RoundDown();
-        int hours = t.Mod(24).RoundDown();
-        int minutes = t.Mod(1).Mul(60).RoundDown();
-        int seconds = t.Mod(1f / 60).Mul(3600).RoundDown();
+        int hours = t.Rem(24).RoundDown();
+        int minutes = t.Rem(1).Mul(60).RoundDown();
+        int seconds = t.Rem(1f / 60).Mul(3600).RoundDown();
         return (showDays ? days.ToString("D2") + "d " : "") +
                (showHours ? hours.ToString("D2") + "h " : "") +
                (showMinutes ? minutes.ToString("D2") + "m " : "") +
@@ -249,7 +267,7 @@ public static class Extensions
     public static string FormatSeconds(this float t, bool showMinutes = true, bool showSeconds = true)
     {
         int minutes = t.Div(60).RoundDown();
-        int seconds = t.Mod(60).Round();
+        int seconds = t.Rem(60).Round();
         return (showMinutes ? minutes.ToString() + "m " : "") +
                (showSeconds ? seconds.ToString() + "s" : "");
     }
@@ -262,7 +280,7 @@ public static class Extensions
     }
     public static string SubstringBefore(this string text, string find, bool caseSensitive = true)
     {
-        if (text.IsNotEmpty())
+        if (text.IsNotNullOrEmpty())
         {
             int length = text.IndexOf(find, caseSensitive ? StringComparison.Ordinal : StringComparison.OrdinalIgnoreCase);
             if (length >= 1)
@@ -271,7 +289,7 @@ public static class Extensions
         return string.Empty;
     }
     public static bool ContainsSubstring(this string text, string find)
-    => text.IsNotEmpty() && text.Contains(find);
+    => text.IsNotNullOrEmpty() && text.Contains(find);
     public static T GetFirstComponentsInHierarchy<T>(this Transform root) where T : Component
     {
         T component = root.GetComponent<T>();
@@ -384,7 +402,7 @@ public static class Extensions
         bag.m_lanternSlot = newLanternHolder.GetComponentInChildren<BagSlotVisual>();
     }
     public static float RandomRange(this Vector2 t)
-    => RNG.Range(t.x, t.y);
+    => Rng.Range(t.x, t.y);
 
     // GOName
     public static bool NameContains(this GameObject t, string substring)
