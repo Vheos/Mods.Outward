@@ -9,8 +9,9 @@ public static class Defaults
     public const int InnRentTime = 12;
     public const string InnQuestsFamilyName = "Inns";
     public const float HumanCollisionRadius = 0.4f;
+	public const float PlayerMaxSlope = 45f;
 
-    public static readonly AreaManager.AreaEnum[] Regions = new[]
+	public static readonly AreaManager.AreaEnum[] Regions = new[]
 {
         AreaManager.AreaEnum.CierzoOutside,
         AreaManager.AreaEnum.Emercar,
@@ -19,7 +20,7 @@ public static class Defaults
         AreaManager.AreaEnum.AntiqueField,
         AreaManager.AreaEnum.Caldera,
     };
-    public static readonly AreaManager.AreaEnum[] Cities = new[]
+	public static readonly AreaManager.AreaEnum[] Cities = new[]
     {
         AreaManager.AreaEnum.CierzoVillage,
         AreaManager.AreaEnum.Berg,

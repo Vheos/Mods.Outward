@@ -183,7 +183,25 @@ public class Descriptions : AMod, IDelayedInit
         _highlightItemsWithLegacyUpgrade = CreateSetting(nameof(_highlightItemsWithLegacyUpgrade), false);
         _legacyItemUpgradeColor = CreateSetting(nameof(_legacyItemUpgradeColor), new Color(1f, 0.75f, 0f, 0.5f));
 
-        AddEventOnConfigClosed(() => SetBackgrounds(_addBackgrounds));
+        // Events
+        _recolorLearnedRecipes.AddEvent(() =>
+        {
+            if (_recolorLearnedRecipes)
+                CommonHooks.OnRefreshEnchantedIcon += TryMarkLearnedRecipes;
+            else
+				CommonHooks.OnRefreshEnchantedIcon -= TryMarkLearnedRecipes;
+        });
+
+        _highlightItemsWithLegacyUpgrade.AddEvent(() =>
+        {
+            if (_highlightItemsWithLegacyUpgrade)
+				CommonHooks.OnRefreshEnchantedIcon += TryMarkLegacyUpdgrades;
+            else
+                CommonHooks.OnRefreshEnchantedIcon -= TryMarkLegacyUpdgrades;
+        });
+
+        // Auto
+        SetBackgrounds(_addBackgrounds);
     }
     protected override void SetFormatting()
     {
@@ -466,7 +484,7 @@ public class Descriptions : AMod, IDelayedInit
         string content = "";
 
         float totalValue = value * duration;
-        string formattedDuration = duration < 60 ? $"{duration.Mod(60).RoundDown()}sec" : $"{duration.Div(60).RoundDown()}min";
+        string formattedDuration = duration < 60 ? $"{duration.Rem(60).RoundDown()}sec" : $"{duration.Div(60).RoundDown()}min";
         if (value != 0)
             content = $"{totalValue.Div(divisor).Round()}{postfix} / {formattedDuration}";
         if (value > 0)
@@ -531,7 +549,28 @@ public class Descriptions : AMod, IDelayedInit
         quantity.lineSpacing = 0.75f;
         quantity.text += $"\n<color=#00FF00FF><size={fontSize}><b>+{stashAmount}</b></size></color>";
     }
+    private static void TryMarkLearnedRecipes(ItemDisplay itemDisplay, Image icon, Image border, Image indicator)
+    {
+        if (itemDisplay.m_refItem is not RecipeItem recipe
+        || !itemDisplay.LocalCharacter.HasLearnedRecipe(recipe.Recipe))
+            return;
 
+        icon.color = _learnedRecipeColor;
+        border.color = _learnedRecipeColor;
+    }
+    private static void TryMarkLegacyUpdgrades(ItemDisplay itemDisplay, Image icon, Image border, Image indicator)
+    {
+        if (indicator is null
+        || itemDisplay.m_refItem is not Equipment equipment
+        || equipment.LegacyItemID <= 0)
+            return;
+
+        border.color = _legacyItemUpgradeColor.Value.NewA(1f);
+        indicator.color = _legacyItemUpgradeColor;
+        indicator.rectTransform.pivot = 1f.ToVector2();
+        indicator.rectTransform.localScale = new Vector2(1.5f, 1.5f);
+        indicator.Activate();
+    }
 
     // Hooks
     [HarmonyPostfix, HarmonyPatch(typeof(NetworkLevelLoader), nameof(NetworkLevelLoader.UnPauseGameplay))]
@@ -655,7 +694,7 @@ public class Descriptions : AMod, IDelayedInit
             : _displayRawValuesOutsideCities && SoroboreanCaravanner == null ? item.RawBaseValue.ToString()
             : null;
 
-        if (__instance.m_valueHolder.activeSelf != Helpers.Common.Extensions.IsNotEmpty(priceText.text))
+        if (__instance.m_valueHolder.activeSelf != priceText.text.IsNotNullOrEmpty())
             __instance.m_valueHolder.SetActive(!__instance.m_valueHolder.activeSelf);
 
         return false;
@@ -673,64 +712,4 @@ public class Descriptions : AMod, IDelayedInit
     [HarmonyPostfix, HarmonyPatch(typeof(RecipeResultDisplay), nameof(RecipeResultDisplay.UpdateQuantityDisplay))]
     private static void RecipeResultDisplay_UpdateQuantityDisplay_Post(RecipeResultDisplay __instance)
     => TryDisplayStashAmount(__instance);
-
-    [HarmonyPrefix, HarmonyPatch(typeof(ItemDisplay), nameof(ItemDisplay.RefreshEnchantedIcon))]
-    private static void ItemDisplay_RefreshEnchantedIcon_Pre(ItemDisplay __instance)
-    {
-        #region quit
-        if (!__instance.m_refItem.TryAs(out RecipeItem recipe))
-            return;
-        #endregion
-
-        // Cache
-        Image icon = __instance.FindChild<Image>("Icon");
-        Image border = icon.FindChild<Image>("border");
-
-        //Defaults
-        icon.color = Color.white;
-        border.color = Color.white;
-
-        // Quit
-        if (!__instance.LocalCharacter.HasLearnedRecipe(recipe.Recipe))
-            return;
-
-        // Custom
-        icon.color = _learnedRecipeColor;
-        border.color = _learnedRecipeColor;
-    }
-
-    // Mark items with legacy upgrades
-    [HarmonyPrefix, HarmonyPatch(typeof(ItemDisplay), nameof(ItemDisplay.RefreshEnchantedIcon))]
-    private static bool ItemDisplay_RefreshEnchantedIcon_Pre2(ItemDisplay __instance)
-    {
-        #region quit
-        if (!_highlightItemsWithLegacyUpgrade
-        || __instance.m_refItem == null
-        || __instance.m_imgEnchantedIcon == null
-        || __instance.m_refItem is Skill)
-            return true;
-        #endregion
-
-        // Cache
-        Image icon = __instance.FindChild<Image>("Icon");
-        Image border = icon.FindChild<Image>("border");
-        Image indicator = __instance.m_imgEnchantedIcon;
-
-        //Defaults
-        icon.color = Color.white;
-        border.color = Color.white;
-        indicator.Deactivate();
-
-        // Quit
-        if (__instance.m_refItem.LegacyItemID <= 0)
-            return true;
-
-        // Custom
-        border.color = _legacyItemUpgradeColor.Value.NewA(1f);
-        indicator.color = _legacyItemUpgradeColor;
-        indicator.rectTransform.pivot = 1f.ToVector2();
-        indicator.rectTransform.localScale = new Vector2(1.5f, 1.5f);
-        indicator.Activate();
-        return false;
-    }
 }

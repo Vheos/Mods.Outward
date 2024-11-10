@@ -79,6 +79,9 @@ public class SkillLimits : AMod
         _limitedSkillTypes = CreateSetting(nameof(_limitedSkillTypes), (LimitedSkillTypes)~0);
         _freePostBreakthroughBasicSkills = CreateSetting(nameof(_freePostBreakthroughBasicSkills), false);
         _limitedSkillColor = CreateSetting(nameof(_limitedSkillColor), new Color(0.5f, 0f, 0.25f, 0.5f));
+
+        AddEventOnEnabled(() => CommonHooks.OnRefreshEnchantedIcon += TryMarkLimitedSkill);
+        AddEventOnDisabled(() => CommonHooks.OnRefreshEnchantedIcon -= TryMarkLimitedSkill);
     }
     protected override void SetFormatting()
     {
@@ -215,6 +218,20 @@ public class SkillLimits : AMod
                     break;
             }
     }
+    private static void TryMarkLimitedSkill(ItemDisplay itemDisplay, Image icon, Image border, Image indicator)
+    {
+        if (indicator is null
+        || itemDisplay.m_refItem is not RecipeItem recipe
+        || !itemDisplay.LocalCharacter.HasLearnedRecipe(recipe.Recipe))
+            return;
+
+        icon.color = ICON_COLOR;
+        border.color = _limitedSkillColor.Value.NewA(1f);
+        indicator.color = _limitedSkillColor.Value;
+        indicator.rectTransform.pivot = 1f.ToVector2();
+        indicator.rectTransform.localScale = INDICATOR_SCALE;
+        indicator.Activate();
+    }
 
     // Hooks
     [HarmonyPostfix, HarmonyPatch(typeof(ItemDisplayOptionPanel), nameof(ItemDisplayOptionPanel.GetActiveActions))]
@@ -252,38 +269,6 @@ public class SkillLimits : AMod
         ItemManager.Instance.DestroyItem(item.UID);
         item.m_refItemDisplay.Hide();
         __instance.m_characterUI.ContextMenu.Hide();
-        return false;
-    }
-
-    [HarmonyPrefix, HarmonyPatch(typeof(ItemDisplay), nameof(ItemDisplay.RefreshEnchantedIcon))]
-    private static bool ItemDisplay_RefreshEnchantedIcon_Pre(ItemDisplay __instance)
-    {
-        #region quit
-        if (!__instance.m_refItem.TryAs(out Skill skill))
-            return true;
-        #endregion
-
-        // Cache
-        Image icon = __instance.FindChild<Image>("Icon");
-        Image border = icon.FindChild<Image>("border");
-        Image indicator = __instance.m_imgEnchantedIcon;
-
-        //Defaults
-        icon.color = Color.white;
-        border.color = Color.white;
-        indicator.Deactivate();
-
-        // Quit
-        if (!IsLimited(__instance.LocalCharacter, skill))
-            return true;
-
-        // Custom
-        icon.color = ICON_COLOR;
-        border.color = _limitedSkillColor.Value.NewA(1f);
-        indicator.color = _limitedSkillColor.Value;
-        indicator.rectTransform.pivot = 1f.ToVector2();
-        indicator.rectTransform.localScale = INDICATOR_SCALE;
-        indicator.Activate();
         return false;
     }
 

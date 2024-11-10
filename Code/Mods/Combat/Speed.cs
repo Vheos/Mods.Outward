@@ -14,10 +14,9 @@ public class Speed : AMod, IUpdatable
         public ModSetting<int> AttackSpeedMultiplier;
         public SpeedSettings(Speed mod, Team team, bool isToggle = false) : base(mod, team, isToggle)
         {
-            int ffMultiplier = team == Team.Players ? 0 : 100;
             GlobalSpeedMultiplier = CreateSetting(nameof(GlobalSpeedMultiplier), 100, mod.IntRange(0, 200));
             MovementSpeedMultiplier = CreateSetting(nameof(MovementSpeedMultiplier), 100, mod.IntRange(0, 200));
-            AttackSpeedMultiplier = CreateSetting(nameof(AttackSpeedMultiplier), ffMultiplier, mod.IntRange(0, 200));
+            AttackSpeedMultiplier = CreateSetting(nameof(AttackSpeedMultiplier), 100, mod.IntRange(0, 200));
         }
     }
     protected override void Initialize()

@@ -484,7 +484,7 @@ public class SkillTreeRandomizer : AMod, IDelayedInit
         }
     }
     private static void RandomizeSeed()
-    => _seed.Value = RNG.Range(-1f, +1f).Mul(int.MaxValue).Round();
+    => _seed.Value = Rng.Range(-1f, +1f).Mul(int.MaxValue).Round();
     private static void RandomizeSkills()
     {
         // Quit
@@ -495,7 +495,7 @@ public class SkillTreeRandomizer : AMod, IDelayedInit
         // Initialize
         IEnumerable<SkillSchool> intputTrees = GetInputSkillTrees();
         TraitEqualizer<BaseSkillSlot> equalizer = new(outputTrees.Count, GetTraits(intputTrees).ToArray());
-        RNG.Initialize(_seed);
+        Rng.Seed = _seed;
 
         // Randomize (with equalization)
         foreach (var slot in GetSlotsFromTrees(intputTrees))

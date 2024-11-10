@@ -20,7 +20,7 @@ public static class GameInput
     => ControlsInput.IsLastActionGamepad(playerID);
     public static KeyCode ToKeyCode(string text)
     {
-        if (text.IsNotEmpty())
+        if (text.IsNotNullOrEmpty())
             if (_keyCodesByName.ContainsKey(text))
                 return _keyCodesByName[text];
         return KeyCode.None;

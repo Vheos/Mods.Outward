@@ -2,7 +2,6 @@
 
 public class Targeting : AMod
 {
-
     #region Settings
     private static ModSetting<int> _meleeDistance, _rangedDistance, _huntersEyeDistance;
     private static ModSetting<RangedTypes> _rangedEquipmentTypes;

@@ -384,7 +384,7 @@ public class Needs : AMod, IDelayedInit
                     manaRegen.AffectType = AffectMana.AffectTypes.Restaure;
                     manaRegen.IsModifier = _sleepNegativeEffectIsPercent;
                     newEffects.Add(manaRegen);
-                    newEffectDatas.Add(new StatusData.EffectData() { Data = new[] { _sleepNegativeEffect.Value.Div(60).ToString() } });
+                    newEffectDatas.Add(new StatusData.EffectData() { Data = new[] { (_sleepNegativeEffect.Value / 60f).ToString() } });
                     break;
             }
 

@@ -167,7 +167,7 @@ public class Interactions : AMod, IDelayedInit
         }
         private void Bump(Item item, float force)
         {
-            Vector2 directionXZ = RNG.OnCircle();
+            Vector2 directionXZ = Rng.OnCircle().ToVector2();
             Vector3 direction = new(directionXZ.x, 1, directionXZ.y);
             item.GetComponent<Rigidbody>().AddForce(direction * force);
         }

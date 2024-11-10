@@ -87,7 +87,7 @@ public class GUI : AMod, IDelayedInit, IUpdatable
         public Vector2 StatusIconScale(float progress)
         => _statusIconMinSize.Value.Lerp(_statusIconMaxSize, progress).Div(100f).ToVector2();
         public float StatusIconAlpha(float progress)
-        => _statusIconMinAlpha.Value.Div(100).Lerp(1f, progress);
+        => (_statusIconMinAlpha.Value / 100f).Lerp(1f, progress);
         public void CopySettings(PerPlayerSettings otherPlayerSettings)
         {
             _rearrangeHUD.Value = otherPlayerSettings._rearrangeHUD;

@@ -291,7 +291,7 @@ public class Durability : AMod
             return;
         #endregion
 
-        prefabStats.StartingDurability = (prefab.MaxDurability * RNG.Range(_minStartingDurability / 100f, 1f)).Round();
+        prefabStats.StartingDurability = (prefab.MaxDurability * Rng.Range(_minStartingDurability / 100f, 1f)).Round();
         __state = prefab;
     }
 
