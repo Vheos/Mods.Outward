@@ -1,101 +1,54 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{8A6955C4-5D74-4FBF-988E-F8AD12C2FC8C}</ProjectGuid>
-    <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Vheos.Mods.Outward</RootNamespace>
-    <AssemblyName>Vheos.Mods.Outward</AssemblyName>
-    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
-    <FileAlignment>512</FileAlignment>
-    <Deterministic>true</Deterministic>
-    <LangVersion>10.0</LangVersion>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <Optimize>true</Optimize>
-    <Prefer32Bit>false</Prefer32Bit>
-    <TargetFrameworkProfile />
+    <TargetFramework>netstandard2.1</TargetFramework>
+    <LangVersion>preview</LangVersion>
+    <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == '-|AnyCPU'">
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'UNITY|AnyCPU' ">
-    <OutputPath>bin\UNITY\</OutputPath>
-    <DefineConstants>DEBUG;UNITY</DefineConstants>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'RELEASE_UNITY|AnyCPU' ">
-    <OutputPath>bin\UNITY\</OutputPath>
-    <DocumentationFile>bin\UNITY\Vheos.Tools.Outward.xml</DocumentationFile>
-    <DefineConstants>UNITY</DefineConstants>
-  </PropertyGroup>
-  <PropertyGroup>
-    <RunPostBuildEvent>OnOutputUpdated</RunPostBuildEvent>
-  </PropertyGroup>
+
   <ItemGroup>
-    <Compile Include="Code\Core\ModSections.cs" />
-    <Compile Include="Code\Core\Players.cs" />
-    <Compile Include="Code\Core\Prefabs.cs" />
-    <Compile Include="Code\Core\GameInput.cs" />
-    <Compile Include="Code\Core\Presets.cs" />
-    <Compile Include="Code\Mods\Combat\Dodge.cs" />
-    <Compile Include="Code\Mods\Survival\Crafting.cs" />
-    <Compile Include="Code\Mods\Combat\AI.cs" />
-    <Compile Include="Code\Mods\Survival\Stashes.cs" />
-    <Compile Include="Code\Mods\Development\WIP.cs" />
-    <Compile Include="Code\Mods\Survival\Durability.cs" />
-    <Compile Include="Code\Mods\Survival\Camping.cs" />
-    <Compile Include="Code\Mods\Combat\Quickslots.cs" />
-    <Compile Include="Code\Mods\UI\Gamepad.cs" />
-    <Compile Include="Code\Mods\Skills\SkillPrices.cs" />
-    <Compile Include="Code\Mods\Survival\Merchants.cs" />
-    <Compile Include="Code\Mods\Skills\SkillLimits.cs" />
-    <Compile Include="Code\Mods\Skills\SkillTreeRandomizer.cs" />
-    <Compile Include="Code\Mods\Combat\Targeting.cs" />
-    <Compile Include="Code\Mods\UI\GUI.cs" />
-    <Compile Include="Code\Mods\UI\KeyboardWalk.cs" />
-    <Compile Include="Code\Mods\Development\Debug.cs" />
-    <Compile Include="Code\Mods\UI\Descriptions.cs" />
-    <Compile Include="Code\Mods\Combat\Speed.cs" />
-    <Compile Include="Code\Mods\UI\Camera.cs" />
-    <Compile Include="Code\Mods\Development\PistolTweaks.cs" />
-    <Compile Include="Code\Mods\Survival\Resets.cs" />
-    <Compile Include="Code\Mods\Combat\Damage.cs" />
-    <Compile Include="Code\Mods\Survival\Revive.cs" />
-    <Compile Include="Code\Mods\Survival\Needs.cs" />
-    <Compile Include="Code\Mods\Survival\Interactions.cs" />
-    <Compile Include="Code\Mods\Skills\SkillEditor.cs" />
-    <Compile Include="Code\Mods\Combat\Traps.cs" />
-    <Compile Include="Code\Mods\Survival\SurvivalTools.cs" />
-    <Compile Include="Code\Mods\Various\VariousDelayed.cs" />
-    <Compile Include="Code\Mods\Various\Various.cs" />
-    <Compile Include="Code\Utility\Enums\Team.cs" />
-    <Compile Include="Code\Utility\Enums\ArmorSlots.cs" />
-    <Compile Include="Code\Utility\Enums\SkillSlotLevel.cs" />
-    <Compile Include="Code\Utility\Extensions.cs" />
-    <Compile Include="Code\GlobalUsings.cs" />
-    <Compile Include="Code\Utility\Defaults.cs" />
-    <Compile Include="Code\Utility\Utils.cs" />
-    <Compile Include="Code\Core\Main.cs" />
+    <Compile Remove="Private\**" />
+    <Compile Remove="ReadmeAssets\**" />
+    <Compile Remove="Resources\**" />
+    <EmbeddedResource Remove="Private\**" />
+    <EmbeddedResource Remove="ReadmeAssets\**" />
+    <EmbeddedResource Remove="Resources\**" />
+    <None Remove="Private\**" />
+    <None Remove="ReadmeAssets\**" />
+    <None Remove="Resources\**" />
   </ItemGroup>
+
   <ItemGroup>
-    <Folder Include="Properties\" />
+    <None Remove="app.config" />
+    <None Remove="packages.config" />
+    <None Remove="README.md" />
   </ItemGroup>
+
   <ItemGroup>
-    <None Include="app.config" />
-    <None Include="packages.config" />
+    <ProjectReference Include="..\..\Helpers\Math\Vheos.Helpers.Math.csproj">
+      <Project>{23163d5e-0d94-4f5f-9efe-02533ad1b561}</Project>
+      <Name>Vheos.Helpers.Math</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Helpers\RNG\Vheos.Helpers.RNG\Vheos.Helpers.Rng.csproj">
+      <Project>{57f0f1af-d647-4bff-ab66-b840cecbb587}</Project>
+      <Name>Vheos.Helpers.RNG</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Helpers\Various\Vheos.Helpers.Various.csproj" />
+    <ProjectReference Include="..\..\Tools\TraitEqualizer\Vheos.Tools.TraitEqualizer.csproj" />
+    <ProjectReference Include="..\Core\Vheos.Mods.Core.csproj" />
   </ItemGroup>
+
   <ItemGroup>
     <Reference Include="0Harmony, Version=2.10.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\..\packages\HarmonyX.2.10.0\lib\net45\0Harmony.dll</HintPath>
       <Private>False</Private>
     </Reference>
-    <Reference Include="Assembly-CSharp, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\Outward.GameLibs.2022.5.18-r.0\lib\net472\Assembly-CSharp.dll</HintPath>
+    <Reference Include="Assembly-CSharp">
+      <HintPath>Private\Libraries\21-09-24_0900\Assembly-CSharp_publicized.dll</HintPath>
       <Private>False</Private>
     </Reference>
-    <Reference Include="Assembly-CSharp-firstpass, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\Outward.GameLibs.2022.5.18-r.0\lib\net472\Assembly-CSharp-firstpass.dll</HintPath>
+    <Reference Include="Assembly-CSharp-firstpass">
+      <HintPath>Private\Libraries\21-09-24_0900\Assembly-CSharp-firstpass.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="BepInEx, Version=5.4.19.0, Culture=neutral, processorArchitecture=MSIL">
@@ -126,11 +79,10 @@
       <HintPath>..\..\packages\MonoMod.Utils.22.5.1.1\lib\net452\MonoMod.Utils.dll</HintPath>
       <Private>False</Private>
     </Reference>
-    <Reference Include="Photon3Unity3D, Version=4.1.4.1, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\Outward.GameLibs.2022.5.18-r.0\lib\net472\Photon3Unity3D.dll</HintPath>
+    <Reference Include="Photon3Unity3D">
+      <HintPath>Private\Libraries\21-09-24_0900\Photon3Unity3D.dll</HintPath>
       <Private>False</Private>
     </Reference>
-    <Reference Include="System" />
     <Reference Include="UnityEngine, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\..\packages\UnityEngine.Modules.2022.2.0-alpha.13\lib\net45\UnityEngine.dll</HintPath>
       <Private>False</Private>
@@ -311,8 +263,8 @@
       <HintPath>..\..\packages\UnityEngine.Modules.2022.2.0-alpha.13\lib\net45\UnityEngine.TLSModule.dll</HintPath>
       <Private>False</Private>
     </Reference>
-    <Reference Include="UnityEngine.UI, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\Outward.GameLibs.2022.5.18-r.0\lib\net472\UnityEngine.UI.dll</HintPath>
+    <Reference Include="UnityEngine.UI">
+      <HintPath>Private\Libraries\21-09-24_0900\UnityEngine.UI.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="UnityEngine.UIElementsModule, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
@@ -392,23 +344,11 @@
       <Private>False</Private>
     </Reference>
   </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\..\Tools\TraitEqualizer\Vheos.Tools.TraitEqualizer.csproj">
-      <Project>{23d233fc-b7d0-4709-baaa-e803fee61930}</Project>
-      <Name>Vheos.Tools.TraitEqualizer</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\Tools\Utilities\Vheos.Helpers.csproj">
-      <Project>{96d2cdb1-5ee9-4666-812d-9ecb8df005c4}</Project>
-      <Name>Vheos.Helpers</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Core\Vheos.Mods.Core.csproj">
-      <Project>{a48747d8-e698-4c2c-bf11-0efed7d79ef0}</Project>
-      <Name>Vheos.Mods.Core</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <PropertyGroup>
-    <PostBuildEvent>:: Common
+
+    <PropertyGroup>
+    <PostBuildEvent>exit
+
+:: Common
 set PluginsSubpath=BepInEx\Plugins\Vheos\
 set ResourcesPath=$(ProjectDir)Resources\
 set ReleasesPath=$(ProjectDir)Private\Releases\
@@ -442,12 +382,11 @@ if %25IsDebug%25==True (
     rd /q /s "%25ThunderstorePath%25BepInEx\"
     del /q "%25ThunderstorePath%25%25ReadmeName%25"
 )</PostBuildEvent>
+    <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
   </PropertyGroup>
-  <PropertyGroup>
-    <PreBuildEvent>
-    </PreBuildEvent>
-  </PropertyGroup>
-  <Target Name="PreBuildEvent" Condition="'$(PreBuildEvent)'!=''" DependsOnTargets="$(PreBuildEventDependsOn)">
-    <Exec WorkingDirectory="$(OutDir)" Command="$(PreBuildEvent)" ContinueOnError="true" />
-  </Target>
+
+    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+      <DefineConstants>$(DefineConstants);UNITY</DefineConstants>
+    </PropertyGroup>
+
 </Project>
