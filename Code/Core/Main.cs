@@ -18,7 +18,9 @@ public class Main : BepInExEntryPoint
     protected override Assembly CurrentAssembly
     => Assembly.GetExecutingAssembly();
     protected override void Initialize()
-    {
+	{
+		Log.Debug("Initializing CommonHooks...");
+		CommonHooks.Initialize();
         Log.Debug("Initializing GameInput...");
         GameInput.Initialize();
         Log.Debug("Initializing Players...");
@@ -33,12 +35,12 @@ public class Main : BepInExEntryPoint
     => ResourcesPrefabManager.Instance.Loaded && UIUtilities.m_instance != null;
     protected override string[] PresetNames
     => Utility.GetEnumValuesAsStrings<Preset>().ToArray();
-    protected override Type[] Blacklist => new[]
-    {
-        typeof(Debug),
-        typeof(WIP),
-        typeof(PistolTweaks)
-    };
+    protected override Type[] Blacklist =>
+	[
+		// typeof(Debug),
+        // typeof(WIP),
+        // typeof(PistolTweaks)
+    ];
     protected override Type[] ModsOrderingList => new[]
     {
         // Survival & Immersion

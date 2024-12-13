@@ -7,6 +7,31 @@ using Vheos.Mods.Core;
 public class Various : AMod, IUpdatable
 {
 	private const string TotemWorkshopsUnlockedEventUid = "uWyfl7A8NU-NOGawhdduyQ";
+	#region enum
+	[Flags]
+	private enum ItemContextAction
+	{
+		AssignToQuickSlot = 1 << 0,
+		Equip = 1 << 1,
+		Unequip = 1 << 2,
+		Use = 1 << 3,
+		Read = 1 << 4,
+		Fill = 1 << 5,
+		Deploy = 1 << 6,
+		MoveToPocket = 1 << 7,
+		MoveToBag = 1 << 8,
+		MoveToContainer = 1 << 9,
+		Empty = 1 << 10,
+		Drop = 1 << 11,
+		Buy = 1 << 12,
+		Sell = 1 << 13,
+		Remove = 1 << 14,
+		ExploreStack = 1 << 15,
+		Light = 1 << 16,
+		PutOut = 1 << 17,
+		LanternAttach = 1 << 18,
+	}
+	#endregion
 
 	#region Settings
 	private static ModSetting<bool> _introLogos;
@@ -22,7 +47,9 @@ public class Various : AMod, IUpdatable
 	private static ModSetting<bool> _refillArrowsFromInventory;
 	private static ModSetting<float> _staminaRegen;
 	private static ModSetting<int> _rentDuration;
+	private static ModSetting<ItemContextAction> _itemContextActions;
 	private static ModSetting<bool> _itemActionDropOne;
+	private static ModSetting<bool> _itemActionSalvage;
 	private static ModSetting<int> _openRegionsEnemyDensity;
 	private static ModSetting<bool> _temperatureToggle;
 	private static Dictionary<TemperatureSteps, ModSetting<Vector2>> _temperatureDataByEnum;
@@ -44,7 +71,9 @@ public class Various : AMod, IUpdatable
 		_refillArrowsFromInventory = CreateSetting(nameof(_refillArrowsFromInventory), false);
 		_staminaRegen = CreateSetting(nameof(_staminaRegen), Defaults.BaseStaminaRegen, FloatRange(0, 10));
 		_rentDuration = CreateSetting(nameof(_rentDuration), Defaults.InnRentTime, IntRange(1, 240));
+		_itemContextActions = CreateSetting(nameof(_itemContextActions), (ItemContextAction)~0);
 		_itemActionDropOne = CreateSetting(nameof(_itemActionDropOne), false);
+		_itemActionSalvage = CreateSetting(nameof(_itemActionSalvage), false);
 		_openRegionsEnemyDensity = CreateSetting(nameof(_openRegionsEnemyDensity), 0, IntRange(0, 100));
 		_temperatureToggle = CreateSetting(nameof(_temperatureToggle), false);
 		_temperatureDataByEnum = new();
@@ -55,6 +84,7 @@ public class Various : AMod, IUpdatable
 		_maxSlope = CreateSetting(nameof(_maxSlope), Defaults.PlayerMaxSlope, FloatRange(15, 75));
 		_earlyTotemWorkshops = CreateSetting(nameof(_earlyTotemWorkshops), false);
 
+		_itemContextActions.AddEvent(CacheContextActionsToRemove);
 		_debugMode.AddEvent(() => Global.CheatsEnabled = _debugMode);
 		AddEventOnConfigClosed(() =>
 		{
@@ -169,10 +199,16 @@ public class Various : AMod, IUpdatable
 		_rentDuration.Description =
 			"How long you can stay at the inn before you have to pay again" +
 			"\n\nUnit: hours";
+		_itemContextActions.Format("Item context actions");
+		_itemContextActions.Description =
+			"Allows you to remove specific actions from item context menu (like the default \"Use\", \"Deploy\" or \"Equip\")";
 		_itemActionDropOne.Format("\"Drop one\" item action");
 		_itemActionDropOne.Description =
 			"Adds a \"Drop one\" button to stacked items' context menu which skips the \"choose amount\" panel and drops exactly 1 of the item" +
 			"\n(recommended during co-op for quick sharing)";
+		_itemActionSalvage.Format("\"Salvage\" item action");
+		_itemActionSalvage.Description =
+			"Adds a \"Salvage\" button to items that can be salvaged";
 		_openRegionsEnemyDensity.Format("Open regions enemy density");
 		_openRegionsEnemyDensity.Description =
 			"How densely random squads can spawn in open regions" +
@@ -220,6 +256,10 @@ public class Various : AMod, IUpdatable
 	#region Utility
 	private const int DropOneActionID = -2;
 	private const string DropOneActionText = "Drop one";
+	private const int SalvageActionID = -3;
+	private const string SalvageActionText = "Salvage";
+	private const string ContextItemActionPrefix = "Context_Item_";
+	private static HashSet<int> _itemContextActionsToRemove = [];
 	private static bool ShouldArmorSlotBeHidden(EquipmentSlot.EquipmentSlotIDs slot)
 		=> slot == EquipmentSlot.EquipmentSlotIDs.Helmet && !_visibleArmorSlots.Value.HasFlag(ArmorSlots.Head)
 		|| slot == EquipmentSlot.EquipmentSlotIDs.Chest && !_visibleArmorSlots.Value.HasFlag(ArmorSlots.Chest)
@@ -261,6 +301,10 @@ public class Various : AMod, IUpdatable
 					environmentConditions.TemperatureCaps[step] = _temperatureDataByEnum[step].Value.y;
 				}
 	}
+	private static void CacheContextActionsToRemove()
+		=> _itemContextActionsToRemove = _itemContextActions.Value.UnsetFlags()
+		.Select(flag => (int)Math.Log((int)flag, 2))
+		.ToHashSet();
 	#endregion
 
 	#region Hooks
@@ -280,13 +324,25 @@ public class Various : AMod, IUpdatable
 	private static void StartupVideo_Awake_Pre()
 		=> StartupVideo.HasPlayedOnce = !_introLogos.Value;
 
+	// Remove redundant item action
+	[HarmonyPostfix, HarmonyPatch(typeof(ItemDisplayOptionPanel), nameof(ItemDisplayOptionPanel.GetActiveActions))]
+	private static void ItemDisplayOptionPanel_GetActiveActions_Post2(ItemDisplayOptionPanel __instance, ref List<int> __result)
+	{
+		if (!_itemContextActionsToRemove.Any()
+		|| __instance?.m_activatedItemDisplay?.m_refItem is Skill)
+			return;
+
+		__result.RemoveAll(id => id.IsContainedIn(_itemContextActionsToRemove));
+	}
+
 	// Drop one
 	[HarmonyPostfix, HarmonyPatch(typeof(ItemDisplayOptionPanel), nameof(ItemDisplayOptionPanel.GetActiveActions))]
 	private static void ItemDisplayOptionPanel_GetActiveActions_Post(ItemDisplayOptionPanel __instance, ref List<int> __result)
 	{
 		if (!_itemActionDropOne || __instance == null ||
 		!__instance.m_activatedItemDisplay.TryNonNull(out var itemDisplay)
-		|| itemDisplay.StackCount <= 1)
+		|| itemDisplay.StackCount <= 1
+		|| itemDisplay.m_refItem is WaterContainer)
 			return;
 
 		__result.Add(DropOneActionID);
@@ -492,3 +548,46 @@ public class Various : AMod, IUpdatable
 
 	#endregion
 }
+
+/*
+	// Salvage
+	[HarmonyPostfix, HarmonyPatch(typeof(ItemDisplayOptionPanel), nameof(ItemDisplayOptionPanel.GetActiveActions))]
+	private static void ItemDisplayOptionPanel_GetActiveActions_Post2(ItemDisplayOptionPanel __instance, ref List<int> __result)
+	{
+		if (!_itemActionSalvage
+		|| __instance?.m_activatedItemDisplay?.m_refItem is not Item item
+		|| !item.IsChildToPlayer
+		|| item.IsEquipped
+		|| !item.HasTag(TagSourceManager.GetCraftingIngredient(Recipe.CraftingType.Survival)))
+			return;
+
+		__result.Add(SalvageActionID);
+	}
+
+	[HarmonyPrefix, HarmonyPatch(typeof(ItemDisplayOptionPanel), nameof(ItemDisplayOptionPanel.GetActionText))]
+	private static bool ItemDisplayOptionPanel_GetActionText_Pre2(ItemDisplayOptionPanel __instance, ref string __result, ref int _actionID)
+	{
+		if (_actionID != SalvageActionID)
+			return true;
+
+		__result = SalvageActionText;
+		return false;
+	}
+
+	[HarmonyPrefix, HarmonyPatch(typeof(ItemDisplayOptionPanel), nameof(ItemDisplayOptionPanel.ActionHasBeenPressed))]
+	private static bool ItemDisplayOptionPanel_ActionHasBeenPressed_Pre2(ItemDisplayOptionPanel __instance, ref int _actionID)
+	{
+		if (_actionID != SalvageActionID)
+			return true;
+
+		var craftingMenu = __instance.CharacterUI.CraftingMenu;
+		craftingMenu.OnRecipeSelected(-1, true);
+		craftingMenu.RefreshAutoRecipe();
+		craftingMenu.IngredientSelectorHasChanged(0, __instance.m_activatedItemDisplay.m_refItem.ItemID);
+		if (craftingMenu.m_lastFreeRecipeIndex == -1)
+			return false;
+
+		craftingMenu.OnCookButtonClicked();
+		return false;
+	} 
+*/

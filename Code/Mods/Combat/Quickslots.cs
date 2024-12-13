@@ -73,11 +73,15 @@ public class Quickslots : AMod
     private static Dictionary<int, SkillContext> _skillContextsByID = new();
     private static Weapon.WeaponType GetExtendedWeaponType(Item item)
     {
-        if (item != null)
-            if (item.TryAs(out Weapon weapon))
-                return weapon.Type;
-            else if (item.LitStatus != Item.Lit.Unlightable)
-                return (Weapon.WeaponType)WeaponTypeExtended.Light;
+		if (item != null)
+			if (item is Weapon weapon)
+				return weapon.Type;
+			else if (item.LitStatus != Item.Lit.Unlightable)
+				return (Weapon.WeaponType)WeaponTypeExtended.Light;
+			else if (item is Equipment equipment
+			&& equipment.EquipSlot == EquipmentSlot.EquipmentSlotIDs.LeftHand)
+				return (Weapon.WeaponType)WeaponTypeExtended.Lexicon;
+
         return (Weapon.WeaponType)WeaponTypeExtended.Empty;
     }
     private static bool HasItemAssignedToAnyQuickslot(Character character, Item item)
@@ -198,7 +202,8 @@ public class Quickslots : AMod
         {
             [Weapon.WeaponType.Dagger_OH] = "Dagger Slash".ToSkillID(),
             [Weapon.WeaponType.Pistol_OH] = "Fire/Reload".ToSkillID(),
-            [(Weapon.WeaponType)WeaponTypeExtended.Light] = "Throw Lantern".ToSkillID(),
+			[(Weapon.WeaponType)WeaponTypeExtended.Lexicon] = "Egoth".ToSkillID(),
+			[(Weapon.WeaponType)WeaponTypeExtended.Light] = "Throw Lantern".ToSkillID(),
         },
 
         [SkillContext.BasicA] = new Dictionary<Weapon.WeaponType, int>
@@ -208,7 +213,8 @@ public class Quickslots : AMod
             [Weapon.WeaponType.Pistol_OH] = "Shatter Bullet".ToSkillID(),
             [Weapon.WeaponType.Chakram_OH] = "Chakram Pierce".ToSkillID(),
             [Weapon.WeaponType.Shield] = "Shield Charge".ToSkillID(),
-            [(Weapon.WeaponType)WeaponTypeExtended.Light] = "Flamethrower".ToSkillID(),
+			[(Weapon.WeaponType)WeaponTypeExtended.Lexicon] = "Dez".ToSkillID(),
+			[(Weapon.WeaponType)WeaponTypeExtended.Light] = "Flamethrower".ToSkillID(),
         },
         [SkillContext.BasicB] = new Dictionary<Weapon.WeaponType, int>
         {
@@ -217,7 +223,8 @@ public class Quickslots : AMod
             [Weapon.WeaponType.Pistol_OH] = "Frost Bullet".ToSkillID(),
             [Weapon.WeaponType.Chakram_OH] = "Chakram Arc".ToSkillID(),
             [Weapon.WeaponType.Shield] = "Gong Strike".ToSkillID(),
-        },
+			[(Weapon.WeaponType)WeaponTypeExtended.Lexicon] = "Fal".ToSkillID(),
+		},
         [SkillContext.Advanced] = new Dictionary<Weapon.WeaponType, int>
         {
             [Weapon.WeaponType.Bow] = "Piercing Shot".ToSkillID(),
@@ -225,7 +232,8 @@ public class Quickslots : AMod
             [Weapon.WeaponType.Pistol_OH] = "Blood Bullet".ToSkillID(),
             [Weapon.WeaponType.Chakram_OH] = "Chakram Dance".ToSkillID(),
             [Weapon.WeaponType.Shield] = "Shield Infusion".ToSkillID(),
-        },
+			[(Weapon.WeaponType)WeaponTypeExtended.Lexicon] = "Shim".ToSkillID(),
+		},
         [SkillContext.Weapon] = new Dictionary<Weapon.WeaponType, int>
         {
             [Weapon.WeaponType.Sword_1H] = "Puncture".ToSkillID(),
@@ -256,6 +264,7 @@ public class Quickslots : AMod
     {
         Empty = -1,
         Light = -2,
+        Lexicon = -3,
     }
     private enum SkillContext
     {

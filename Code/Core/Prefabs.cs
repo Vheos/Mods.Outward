@@ -153,6 +153,7 @@ public static class Prefabs
 		["Flint and Steel"] = 5600010,
 		["Fishing Harpoon"] = 2130130,
 		["Mining Pick"] = 2120050,
+		["Felling Greataxe"] = 2110040,
 
 		["Makeshift Torch"] = 5100060,
 		["Ice-Flame Torch"] = 5100070,
@@ -170,6 +171,7 @@ public static class Prefabs
 		["Mana Arrow"] = 5200019,
 
 		["Adventurer Backpack"] = 5300000,
+		["Wood"] = 6100010,
 	};
 	public static readonly Dictionary<string, int> SkillIDsByName = new(StringComparer.OrdinalIgnoreCase)
 	{

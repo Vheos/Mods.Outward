@@ -2,33 +2,37 @@
 
 using UnityEngine.UI;
 
-public class CommonHooks
+public static class CommonHooks
 {
-    // Events
-    public static event Action<ItemDisplay, Image, Image, Image> OnRefreshEnchantedIcon;
+	// Events
+	public static event Action<ItemDisplay, Image, Image, Image> OnRefreshEnchantedIcon;
 
-    // Initializers
-    public static void Initialize()
-    {        
-        Harmony.CreateAndPatchAll(typeof(CommonHooks));
-    }
+	// Initializers
+	public static void Initialize()
+	{
+		Harmony.CreateAndPatchAll(typeof(CommonHooks));
+	}
 
-    // Hooks
-    [HarmonyPostfix, HarmonyPatch(typeof(ItemDisplay), nameof(ItemDisplay.RefreshEnchantedIcon))]
-    private static void ItemDisplay_RefreshEnchantedIcon_Post(ItemDisplay __instance)
-    {
-        if (OnRefreshEnchantedIcon is null)
-            return;
+	// Hooks
+	[HarmonyPostfix, HarmonyPatch(typeof(ItemDisplay), nameof(ItemDisplay.RefreshEnchantedIcon))]
+	private static void ItemDisplay_RefreshEnchantedIcon_Post(ItemDisplay __instance)
+	{
+		if (OnRefreshEnchantedIcon is null)
+			return;
 
-        Image icon = __instance.FindChild<Image>("Icon");
-        Image border = icon.FindChild<Image>("border");
-        Image indicator = __instance.m_imgEnchantedIcon;
+		if (__instance.FindChild<Image>("Icon") is not Image icon)
+			return;
 
-        icon.color = Color.white;
-        border.color = Color.white;
-        if (indicator is not null)
-            indicator.color = Color.white;
+		if (icon.FindChild<Image>("border") is not Image border)
+			return;
 
-        OnRefreshEnchantedIcon(__instance, icon, border, indicator);
-    }
+		Image indicator = __instance.m_imgEnchantedIcon;
+
+		icon.color = Color.white;
+		border.color = Color.white;
+		if (indicator is not null)
+			indicator.color = Color.white;
+
+		OnRefreshEnchantedIcon(__instance, icon, border, indicator);
+	}
 }

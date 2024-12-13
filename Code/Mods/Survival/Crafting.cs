@@ -78,6 +78,7 @@ public class Crafting : AMod
     private static ModSetting<bool> _limitedManualCrafting;
     private static ModSetting<CraftingExceptions> _limitedManulCraftingExceptions;
     private static ModSetting<int> _extraResultsMultiplier;
+    private static ModSetting<float> _craftingDuration;
     protected override void Initialize()
     {
         _preserveDurability = CreateSetting(nameof(_preserveDurability), false);
@@ -86,7 +87,8 @@ public class Crafting : AMod
         _limitedManualCrafting = CreateSetting(nameof(_limitedManualCrafting), false);
         _limitedManulCraftingExceptions = CreateSetting(nameof(CraftingExceptions), (CraftingExceptions)~0);
         _extraResultsMultiplier = CreateSetting(nameof(_extraResultsMultiplier), 100, IntRange(0, 200));
-    }
+		_craftingDuration = CreateSetting(nameof(_craftingDuration), 0.5f, FloatRange(0f, 10f));
+	}
     protected override void SetFormatting()
     {
         _preserveDurability.Format("Preserve durability ratios");
@@ -114,7 +116,8 @@ public class Crafting : AMod
         _extraResultsMultiplier.Description = "Multiplies the extra (over one) amount of crafting results\n" +
                                               "For example, Gaberry Tartine gives 3 (1+2) items, so the extra amount is 2\n" +
                                               "at 0% extra amount, it will give 1 (1+0) item, and at 200% - 5 (1+4) items";
-    }
+		_craftingDuration.Format("Crafting duration");
+	}
     protected override string Description
     => "• Make crafted items' durability relative to ingredients\n" +
        "• Require recipes for advanced crafting\n" +
@@ -229,14 +232,17 @@ public class Crafting : AMod
     private static void CraftingMenu_IngredientSelectorHasChanged_Post(CraftingMenu __instance, int _selectorIndex, int _itemID)
     {
         #region quit
-        if (!_limitedManualCrafting || __instance.m_lastRecipeIndex >= 0)
+        if (!_limitedManualCrafting 
+		|| __instance.m_lastRecipeIndex >= 0
+		|| __instance?.m_ingredientSelectors[0]?.m_itemDisplay?.m_refItem is not Item itemInFirstSlot)
             return;
-        #endregion
+		#endregion
 
-        bool isMulti = _limitedManulCraftingExceptions.Value.HasFlag(CraftingExceptions.Lanterns) && _itemID.IsContainedIn(LANTERN_IDS)
-                    || _limitedManulCraftingExceptions.Value.HasFlag(CraftingExceptions.Relics) && _itemID.IsContainedIn(RELIC_IDS)
-                    || _limitedManulCraftingExceptions.Value.HasFlag(CraftingExceptions.HailfrostWeapons) && _itemID.IsContainedIn(HAILFROST_WEAPONS_IDS)
-                    || _limitedManulCraftingExceptions.Value.HasFlag(CraftingExceptions.UniqueWeapons) && _itemID.IsContainedIn(UNIQUE_WEAPONS_IDS);
+		bool isMulti = _limitedManulCraftingExceptions.Value.HasFlag(CraftingExceptions.Lanterns) && itemInFirstSlot.ItemID.IsContainedIn(LANTERN_IDS)
+                    || _limitedManulCraftingExceptions.Value.HasFlag(CraftingExceptions.Relics) && itemInFirstSlot.ItemID.IsContainedIn(RELIC_IDS)
+                    || _limitedManulCraftingExceptions.Value.HasFlag(CraftingExceptions.HailfrostWeapons) && itemInFirstSlot.ItemID.IsContainedIn(HAILFROST_WEAPONS_IDS)
+                    || _limitedManulCraftingExceptions.Value.HasFlag(CraftingExceptions.UniqueWeapons) && itemInFirstSlot.ItemID.IsContainedIn(UNIQUE_WEAPONS_IDS);
+
         SetSingleIngredientCrafting(__instance, !isMulti);
     }
 
@@ -290,4 +296,8 @@ public class Crafting : AMod
         __instance.m_lblQuantity.text = amount > 0 ? amount.ToString() : "";
         return false;
     }
+
+	[HarmonyPrefix, HarmonyPatch(typeof(CraftingMenu), nameof(CraftingMenu.TryCraft))]
+	private static void CraftingMenu_TryCraft_Pre(CraftingMenu __instance)
+		=> __instance.CraftingTime = _craftingDuration;
 }

@@ -133,8 +133,6 @@ public class Merchants : AMod, IDelayedInit
 
 		return price.Round();
 	}
-
-
 	private static float GetRandomPriceModifier(Item item)
 	{
 		int itemSeed = _randomizePricesPerItem ? item.ItemID : 0;

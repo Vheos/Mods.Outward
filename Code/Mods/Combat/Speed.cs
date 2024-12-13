@@ -134,10 +134,19 @@ public class Speed : AMod, IUpdatable
     private static SpeedSettings GetSettingsFor(Character character)
         => _settingsByTeam[character.IsAlly() ? Team.Players : Team.Enemies];
 
-    #endregion
+	#endregion
 
-    #region Hooks
-    [HarmonyPostfix, HarmonyPatch(typeof(Character), nameof(Character.LateUpdate))]
+	#region Hooks
+	// Hooks
+	[HarmonyPostfix, HarmonyPatch(typeof(NetworkLevelLoader), nameof(NetworkLevelLoader.UnPauseGameplay))]
+	private static void NetworkLevelLoader_UnPauseGameplay_Post(NetworkLevelLoader __instance)
+		=> UpdateDefaultGameSpeed();
+
+	[HarmonyPostfix, HarmonyPatch(typeof(PauseMenu), nameof(PauseMenu.TogglePause))]
+	private static void PauseMenu_TogglePause_Post(PauseMenu __instance)
+		=> UpdateDefaultGameSpeed();
+
+	[HarmonyPostfix, HarmonyPatch(typeof(Character), nameof(Character.LateUpdate))]
     private static void Character_LateUpdate_Post(Character __instance)
         => TryUpdateAnimationSpeed(__instance);
 

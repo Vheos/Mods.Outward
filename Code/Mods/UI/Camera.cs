@@ -336,11 +336,7 @@ public class Camera : AMod, IDelayedInit, IUpdatable
 
 	[HarmonyPrefix, HarmonyPatch(typeof(CharacterCamera), nameof(CharacterCamera.Update))]
 	private static void CharacterCamera_Update_Pre()
-	{
-		_isInCharacterCameraUpdate = true;
-
-
-	}
+	=> _isInCharacterCameraUpdate = true;
 
 	[HarmonyPostfix, HarmonyPatch(typeof(CharacterCamera), nameof(CharacterCamera.Update))]
 	private static void CharacterCamera_Update_Post()

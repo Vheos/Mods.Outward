@@ -33,7 +33,8 @@ public class Durability : AMod
     // Setting
     private static ModSetting<bool> _lossMultipliers;
     private static ModSetting<int> _lossWeapons, _lossArmors, _lossLights, _lossIngestibles;
-    private static ModSetting<bool> _campingRepairToggle;
+	private static ModSetting<bool> _damageBackpackItems;
+	private static ModSetting<bool> _campingRepairToggle;
     private static ModSetting<int> _repairDurabilityPerHour, _repairDurabilityPercentPerHour;
     private static ModSetting<RepairPercentReference> _repairPercentReference;
     private static ModSetting<MultiRepairBehaviour> _multiRepairBehaviour;
@@ -64,7 +65,8 @@ public class Durability : AMod
         _minNonBrokenEffectiveness = CreateSetting(nameof(_minNonBrokenEffectiveness), 50, IntRange(0, 100));
         _brokenEffectiveness = CreateSetting(nameof(_brokenEffectiveness), 15, IntRange(0, 100));
         _smithRepairsOnlyEquipped = CreateSetting(nameof(_smithRepairsOnlyEquipped), false);
-        _minStartingDurability = CreateSetting(nameof(_minStartingDurability), 100, IntRange(0, 100));
+		_damageBackpackItems = CreateSetting(nameof(_damageBackpackItems), true);
+		_minStartingDurability = CreateSetting(nameof(_minStartingDurability), 100, IntRange(0, 100));
     }
     protected override void SetFormatting()
     {
@@ -112,7 +114,9 @@ public class Durability : AMod
         }
         _smithRepairsOnlyEquipped.Format("Smith repairs only equipped items");
         _smithRepairsOnlyEquipped.Description = "Blacksmith will not repair items in your pouch and bag";
-        _minStartingDurability.Format("Minimum starting durability");
+		_damageBackpackItems.Format("Damage backpack items");
+		_damageBackpackItems.Description = "When you take damage while wearing a backpack, items inside the backpack will lose some durability";
+		_minStartingDurability.Format("Minimum starting durability");
         _minStartingDurability.Description = "When items are spawned, their durability is randomized between this value and 100%\n" +
                                              "Only affects dynamically spawned item (containers, enemy corpses, merchant stock)\n" +
                                              "Scene-static and serialized items are unaffected";
@@ -406,4 +410,8 @@ public class Durability : AMod
     [HarmonyPostfix, HarmonyPatch(typeof(EquipmentStats), nameof(EquipmentStats.StaminaRegenModifier), MethodType.Getter)]
     private static void EquipmentStats_StaminaRegenModifier_Post(EquipmentStats __instance, ref float __result)
     => TryApplyEffectiveness(ref __result, __instance);
+
+	[HarmonyPrefix, HarmonyPatch(typeof(Bag), nameof(Bag.DamageContent))]
+	private static bool Bag_DamageContent_Pre(Bag __instance)
+	=> _damageBackpackItems;
 }

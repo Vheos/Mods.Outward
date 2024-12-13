@@ -1,4 +1,6 @@
-﻿namespace Vheos.Mods.Outward;
+﻿using System.Linq;
+
+namespace Vheos.Mods.Outward;
 using System.Text;
 using System.Text.RegularExpressions;
 using UnityEngine.EventSystems;
@@ -16,6 +18,15 @@ public static class Extensions
 		=> @this.Map(0f, 1f, a, b);
 	public static float CompMin(this Vector2 @this)
 		=> @this.x <= @this.y ? @this.x : @this.y;
+	public static IEnumerable<T> SetFlags<T>(this T @this) where T : Enum
+		=> from flag in (T[])Enum.GetValues(typeof(T))
+		   where @this.HasFlag(flag)
+		   select flag;
+	public static IEnumerable<T> UnsetFlags<T>(this T @this) where T : Enum
+		=> from flag in (T[])Enum.GetValues(typeof(T))
+		   where !@this.HasFlag(flag)
+		   select flag;
+	
 
 	// Input
 	public static bool Pressed(this KeyCode @this)
