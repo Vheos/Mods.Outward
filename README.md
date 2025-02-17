@@ -7,7 +7,7 @@
 <p align="center">
     <a href="">
         <img src="https://img.shields.io/github/v/release/Vheos/Mods.Outward?labelColor=808080&color=404040&label=Mod" height=25/>
-        <img src="https://img.shields.io/static/v1?labelColor=808080&color=404040&label=Game&message=v2022.06.01" height=25/>
+        <img src="https://img.shields.io/static/v1?labelColor=808080&color=404040&label=Game&message=v2022.11.06" height=25/>
         <img src="https://img.shields.io/github/downloads/Vheos/Mods.Outward/total?labelColor=808080&color=404040&label=Downloads" height=25/>
     </a>
 </p>
@@ -41,15 +41,8 @@
 
 
 
-# Still in beta!
-All `v2.0.x` versions are considered *beta*, so settings might randomly change and get tossed around. Things will settle down only when `v2.1.0` rolls out - and that's where you come in! Since I don't have the time to both rewrite *and test* the mods, I'm outsourcing the testing to you <3 Keep the bug reports coming so I know what to fix in my spare time :) Remember to attach the [output log](#faq) so I can pinpoint the source of the issue!
-<br/><br/>Thanks!
-
-
-
 # Table of contents
-- [VMP?](#vmp)
-- [Highlights](#highlights)
+- [What does it do?](#what-does-it-do)
 - [How to?](#how-to)
 - [FAQ](#faq)
 - [Credits](#credits)
@@ -57,21 +50,12 @@ All `v2.0.x` versions are considered *beta*, so settings might randomly change a
 
 
 
-# VMP?
-- **V** stands for *Vheos* - that's me! My nickname's there to emphasize that all mods in this collection were written from scratch by one person, and as such are 100% compatible with each other :)
-- **M** stands for *Mod* - it's a collection of mods, so duuuh. I could've left this one out, it's pretty redundant :P
-- **P** stands for *Pack* - under the hood, this mod is actually a collection of many independent mods that can be individually turned on/off. It's like a tiny mod manager!
-
-And together, they form the mighty **VHEOS MOD PACK**!!! ...which is probably the *least* creative name I've ever come up with, but it already stuck on, so let it be ¯\\\_(ツ)\_/¯
+# What does it do?
+- ***A lot***. There are few hermits out there who dedicated their whole life to uncovering the secrets of VMP. You could ask around for them, or just download it and read the in-game tooltips. Either way - good luck and have fun!
 
 
 
-# Highlights
-Coming in `v2.1.0` ;)
-
-
-
-# How to:
+# How to
 - Download the [Mono version](https://outward.fandom.com/wiki/Installing_Mods#Modding_Branch) of Outward
 - Download and install [BepInEx](https://github.com/BepInEx/BepInEx/releases/latest/) and **ConfigurationManager** ([Official](https://github.com/BepInEx/BepInEx.ConfigurationManager/releases/latest) **OR** [Outward fork](https://github.com/Mefino/BepInEx.ConfigurationManager/releases/latest) + [SideLoader](https://github.com/sinai-dev/Outward-SideLoader/releases/latest))
 - Download this mod from [GitHub](https://github.com/Vheos/Mods.Outward/releases/latest), [Thunderstore](https://outward.thunderstore.io/package/Vheos/VheosModPack/) or [Nexus](https://www.nexusmods.com/outward/mods/203?tab=files)
@@ -82,12 +66,13 @@ Coming in `v2.1.0` ;)
 
 
 
-# FAQ:
+# FAQ
 - **I found a bug! How to report?**
-  - describe the bug and how to reproduce it
-  - share your output log ***AFTER*** the bug has happened in your game
-    - the log is at `AppData\LocalLow\Nine Dots Studio\Outward_ Definitive Edition\Player.log`
-    - you can upload the whole file or copy-paste it to [Pastebin](https://pastebin.com/)
+  - No need to! I'm done with this masterpiece, so any bugs will forever remain happy little accidents :)
+  - ~~describe the bug and how to reproduce it~~
+  - ~~share your output log ***AFTER*** the bug has happened in your game~~
+    - ~~the log is at `AppData\LocalLow\Nine Dots Studio\Outward_ Definitive Edition\Player.log`~~
+    - ~~you can upload the whole file or copy-paste it to [Pastebin](https://pastebin.com/)~~
 - **How to change the default `Configuration Manager` hotkey?**
   - Official: `com.bepis.bepinex.configurationmanager.cfg`
   - Outward fork: `io.mefino.configurationmanager.cfg`
@@ -104,14 +89,18 @@ Coming in `v2.1.0` ;)
 
 
 
-# Credits:
+# Credits
 `Sinai`, `raphendyr`, `ehaugw`, `SpicerXD`, `IggyTheMad`, `Tau37`, `Yansilv`, `AsierM`
 <br/> and other passionate people in the [Outward Modding Community](https://discord.gg/exMfgYXDmC) Discord server!
 <br/> Love you all <3
 
 
 
-# Changelog:
+# Changelog
+
+- **2.1.0**
+  - the most final release we'll ever get
+  - *even more* undocumented changes (yeah, I got lazy :P)
 
 - **2.0.6**
   - public beta release of DefEd update\o/
