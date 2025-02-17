@@ -62,11 +62,9 @@ public class GUI : AMod, IDelayedInit, IUpdatable
 		public ModSetting<bool> _startHUDEditor;
 		public ModSetting<int> _hudTransparency;
 		public ModSetting<bool> _hideFullStabilityBar;
-		public ModSetting<bool> _hideEmptyShoppingCarts;
 		public ModSetting<bool> _fadingStatusEffectIcons;
 		public ModSetting<int> _statusIconMaxSize, _statusIconMinSize, _statusIconMinAlpha;
 		public ModSetting<bool> _quickslotHints;
-		public ModSetting<bool> _otherPlayersHealth;
 		public ModSetting<bool> _alternativeManaBarPlacement;
 		public ModSetting<bool> _playerInventoryAlwaysOnRight;
 		public ModSetting<float> _characterPanelHeight;
@@ -151,13 +149,11 @@ public class GUI : AMod, IDelayedInit, IUpdatable
 			pps._startHUDEditor = CreateSetting(playerPrefix + nameof(pps._startHUDEditor), false);
 			pps._hudTransparency = CreateSetting(playerPrefix + nameof(pps._hudTransparency), 0, IntRange(0, 100));
 			pps._hideFullStabilityBar = CreateSetting(playerPrefix + nameof(pps._hideFullStabilityBar), false);
-			pps._hideEmptyShoppingCarts = CreateSetting(playerPrefix + nameof(pps._hideEmptyShoppingCarts), false);
 			pps._fadingStatusEffectIcons = CreateSetting(playerPrefix + nameof(pps._fadingStatusEffectIcons), false);
 			pps._statusIconMaxSize = CreateSetting(playerPrefix + nameof(pps._statusIconMaxSize), 120, IntRange(100, 125));
 			pps._statusIconMinSize = CreateSetting(playerPrefix + nameof(pps._statusIconMinSize), 60, IntRange(0, 100));
 			pps._statusIconMinAlpha = CreateSetting(playerPrefix + nameof(pps._statusIconMinAlpha), 50, IntRange(0, 100));
 			pps._quickslotHints = CreateSetting(playerPrefix + nameof(pps._quickslotHints), true);
-			pps._otherPlayersHealth = CreateSetting(playerPrefix + nameof(pps._otherPlayersHealth), true);
 			pps._alternativeManaBarPlacement = CreateSetting(playerPrefix + nameof(pps._alternativeManaBarPlacement), false);
 			foreach (var hudGroup in DATA_BY_HUD_GROUP.Keys.ToArray())
 				pps._hudOverridesByHUDGroup.Add(hudGroup, CreateSetting($"{playerPrefix}_hudOverride{hudGroup}", Vector3.zero));
@@ -205,11 +201,6 @@ public class GUI : AMod, IDelayedInit, IUpdatable
 			{
 				if (Players.TryGetLocal(id, out Players.Data player))
 					UpdateQuickslotButtonIcons(player);
-			});
-			pps._otherPlayersHealth.AddEvent(() =>
-			{
-				if (Players.TryGetLocal(id, out Players.Data player))
-					UpdateOtherPlayersHealthBars(player);
 			});
 			pps._alternativeManaBarPlacement.AddEvent(() =>
 			{
@@ -277,7 +268,6 @@ public class GUI : AMod, IDelayedInit, IUpdatable
 				}
 				pps._hudTransparency.Format("HUD transparency", pps._toggle);
 				pps._hideFullStabilityBar.Format("Hide full stability bar");
-				pps._hideEmptyShoppingCarts.Format("Hide empty shopping carts");
 				pps._fadingStatusEffectIcons.Format("Fading status effect icons", pps._toggle);
 				using (Indent)
 				{
@@ -291,7 +281,6 @@ public class GUI : AMod, IDelayedInit, IUpdatable
 				pps._quickslotHints.Format("Quickslot hints", pps._toggle);
 				pps._quickslotHints.Description = "Keyboard - hides the key names above quickslots\n" +
 													  "Gamepad - hides the button icons below quickslots";
-				pps._otherPlayersHealth.Format("Other players' health bars", pps._toggle);
 				pps._alternativeManaBarPlacement.Format("Alternative mana bar placement", pps._toggle);
 				pps._alternativeManaBarPlacement.Description = "Move mana bar right below health bar to form a triangle out of the vitals";
 				pps._shopAndStashSize.Format("Shop & stash panel size", pps._toggle);
@@ -488,19 +477,6 @@ public class GUI : AMod, IDelayedInit, IUpdatable
 	{
 		foreach (var quickslotDisplay in GetKeyboardQuickslotsGamePanel(player.UI).GetAllComponentsInHierarchy<QuickSlotDisplay>())
 			quickslotDisplay.m_lblKeyboardInput.enabled = _perPlayerSettings[player.ID]._quickslotHints;
-	}
-	private static void UpdateOtherPlayersHealthBars(Players.Data player)
-	{
-		if (player?.UI?.m_characterBarsHolder?.m_activeListener is not List<CharacterBarListener> barListeners)
-			return;
-
-		var healthBarsVisible = _perPlayerSettings[player.ID]._otherPlayersHealth;
-		foreach (var barListener in barListeners)
-		{
-			barListener.enabled = healthBarsVisible;
-			if (barListener.m_healthBar is Bar healthBar)
-				healthBar.SetActive(healthBarsVisible);
-		}
 	}
 	private static void UpdateSeparateBuySellPanels(Players.Data player)
 	{
@@ -828,7 +804,6 @@ public class GUI : AMod, IDelayedInit, IUpdatable
 
 		Players.Data player = Players.GetLocal(__instance);
 		UpdateQuickslotButtonIcons(player);
-		UpdateOtherPlayersHealthBars(player);
 		UpdatePendingBuySellPanels(player);
 		UpdateManaBarPlacement(player);
 		UpdateHUDTransparency(player);
@@ -958,55 +933,4 @@ public class GUI : AMod, IDelayedInit, IUpdatable
 		stabilityBar.HideIfFull = true;
 		stabilityBar.SelfUpdateVisiblity = true;
 	}
-
-	// Hide empty buy/sell panel
-	[HarmonyPostfix, HarmonyPatch(typeof(ShopMenu), nameof(ShopMenu.RefreshTransactionOverview))]
-	private static void ShopMenu_RefreshTransactionOverview_Post(ShopMenu __instance)
-	{
-		if (Players.GetLocal(__instance) is not Players.Data player
-		|| !_perPlayerSettings[player.ID]._hideEmptyShoppingCarts
-		|| __instance.m_buyCartDisplay is not ShoppingCartDisplay buyCart
-		|| __instance.m_sellCartDisplay is not ShoppingCartDisplay sellCart)
-			return;
-
-		buyCart.SetActive(buyCart.ItemCount != 0);
-		sellCart.SetActive(sellCart.ItemCount != 0);
-	}
-
-	/*
-
-	private static ModSetting<int> _vitalBarsDisplayedMax;
-	_vitalBarsDisplayedMax = CreateSetting(nameof(_vitalBarsDisplayedMax), 0, IntRange(0, 300));	
-	_vitalBarsDisplayedMax.Format("Displayed max vitals");
-	_vitalBarsDisplayedMax.Description = "";
-	private static void TryOverrideDisplayedStatMax(ref float __result)
-	{
-		if (!_isInCharacterBarListenerUpdateDisplay
-		|| _vitalBarsDisplayedMax == 0)
-			return;
-
-		__result = __result.ClampMin(_vitalBarsDisplayedMax);
-	}
-
-	// Displayed max vitals
-	[HarmonyPrefix, HarmonyPatch(typeof(CharacterBarListener), nameof(CharacterBarListener.UpdateDisplay))]
-	private static void CharacterBarListener_UpdateDisplay_Pre()
-	=> _isInCharacterBarListenerUpdateDisplay = true;
-
-	[HarmonyPostfix, HarmonyPatch(typeof(CharacterBarListener), nameof(CharacterBarListener.UpdateDisplay))]
-	private static void CharacterBarListener_UpdateDisplay_Post()
-	=> _isInCharacterBarListenerUpdateDisplay = false;
-
-	[HarmonyPostfix, HarmonyPatch(typeof(CharacterStats), nameof(CharacterStats.MaxHealth), MethodType.Getter)]
-	private static void CharacterStats_MaxHealth_Getter_Post(ref float __result)
-	=> TryOverrideDisplayedStatMax(ref __result);
-
-	[HarmonyPostfix, HarmonyPatch(typeof(CharacterStats), nameof(CharacterStats.MaxStamina), MethodType.Getter)]
-	private static void CharacterStats_MaxStamina_Getter_Post(ref float __result)
-	=> TryOverrideDisplayedStatMax(ref __result);
-
-	[HarmonyPostfix, HarmonyPatch(typeof(CharacterStats), nameof(CharacterStats.MaxMana), MethodType.Getter)]
-	private static void CharacterStats_MaxMana_Getter_Post(ref float __result)
-	=> TryOverrideDisplayedStatMax(ref __result);
-	*/
 }

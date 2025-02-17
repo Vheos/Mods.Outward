@@ -92,6 +92,14 @@ public static class Prefabs
 		["Bandages"] = 4400010,
 		["Life Potion"] = 4300010,
 
+		["Clean Water"] = 5600000,
+		["River Water"] = 5600001,
+		["Salt Water"] = 5600002,
+		["Rancid Water"] = 5600003,
+		["Leyline Water"] = 5600004,
+		["Sparkling Water"] = 5600005,
+		["Healing Water"] = 5600006,
+
 		["MistakenIngestible"] = 4500020,
 
 		["Old Legion Shield"] = 2300070,

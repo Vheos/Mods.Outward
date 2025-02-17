@@ -37,9 +37,9 @@ public class Main : BepInExEntryPoint
     => Utility.GetEnumValuesAsStrings<Preset>().ToArray();
     protected override Type[] Blacklist =>
 	[
-		// typeof(Debug),
-        // typeof(WIP),
-        // typeof(PistolTweaks)
+		typeof(Debug),
+        typeof(WIP),
+        typeof(PistolTweaks)
     ];
     protected override Type[] ModsOrderingList => new[]
     {
