@@ -62,7 +62,7 @@ public class VariousDelayed : AMod, IDelayedInit
 		_bulletStackSize.Format("Bullets stack size");
 		_statusEffectFamilyMultipliersToggle.Format("Override status effect families");
 		_statusEffectFamilyMultipliersToggle.Description =
-			"Overrides durations (x) and effect values (y) of all status effects in the given family";
+			"Multiplies durations (x) and effect values (y) of all status effects in the given family";
 		using (Indent)
 		{
 			_applyMultipliers.Format("Apply multipliers");
